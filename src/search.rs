@@ -1,7 +1,7 @@
 use ignore::{overrides::OverrideBuilder, WalkBuilder};
 use regex::{Regex, RegexBuilder};
 use std::fs;
-use std::io::{self, Read};
+use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 
 struct Options {
@@ -20,6 +20,9 @@ fn usage(command: &str) {
     println!("Usage: {command} [OPTIONS] PATTERN [PATH...]");
     println!("Search text files recursively with a regular expression; use - as a path to search standard input.");
     println!("\nOptions:");
+    if command == "rg" {
+        println!("      --files           List files rather than searching their contents");
+    }
     println!("  -e, --regexp PATTERN  Set the search pattern");
     println!("  -i, --ignore-case     Match without case sensitivity");
     println!("  -n, --line-number     Print matching line numbers (default)");
@@ -166,7 +169,109 @@ pub fn run(args: &[String]) -> i32 {
 }
 
 pub fn run_rg(args: &[String]) -> i32 {
+    if args
+        .iter()
+        .take_while(|arg| arg.as_str() != "--")
+        .any(|arg| arg == "--files")
+    {
+        return list_files(args);
+    }
     run_impl(args, "rg", grep_cli::is_readable_stdin())
+}
+
+fn list_files(args: &[String]) -> i32 {
+    let mut roots = Vec::new();
+    let mut globs = Vec::new();
+    let mut hidden = false;
+    let mut no_ignore = false;
+    let mut options = true;
+    let mut index = 0;
+    while index < args.len() {
+        let arg = &args[index];
+        if options && arg == "--" {
+            options = false;
+        } else if options && arg == "--files" {
+        } else if options && arg == "--hidden" {
+            hidden = true;
+        } else if options && arg == "--no-ignore" {
+            no_ignore = true;
+        } else if options && (arg == "-g" || arg == "--glob") {
+            index += 1;
+            let Some(glob) = args.get(index) else {
+                eprintln!("rg: {arg} requires a glob");
+                return 2;
+            };
+            globs.push(glob.clone());
+        } else if options && arg.starts_with("--glob=") {
+            globs.push(arg[7..].to_owned());
+        } else if options && (arg == "--help" || arg == "-h") {
+            println!("Usage: rg --files [--hidden] [--no-ignore] [-g GLOB] [PATH...]");
+            return 0;
+        } else if options && arg.starts_with('-') {
+            eprintln!("rg: unknown option: {arg}");
+            return 2;
+        } else {
+            roots.push(PathBuf::from(arg));
+        }
+        index += 1;
+    }
+    if roots.is_empty() {
+        roots.push(PathBuf::from("."));
+    }
+    let mut found = false;
+    let mut had_error = false;
+    let stdout = io::stdout();
+    let mut output = stdout.lock();
+    for root in roots {
+        let mut walker = WalkBuilder::new(&root);
+        walker
+            .hidden(!hidden)
+            .ignore(!no_ignore)
+            .git_ignore(!no_ignore)
+            .git_global(!no_ignore)
+            .parents(!no_ignore);
+        if !globs.is_empty() {
+            let mut builder = OverrideBuilder::new(&root);
+            for glob in &globs {
+                if let Err(error) = builder.add(glob) {
+                    eprintln!("rg: invalid glob {glob:?}: {error}");
+                    return 2;
+                }
+            }
+            match builder.build() {
+                Ok(value) => {
+                    walker.overrides(value);
+                }
+                Err(error) => {
+                    eprintln!("rg: invalid glob: {error}");
+                    return 2;
+                }
+            }
+        }
+        for result in walker.build() {
+            match result {
+                Ok(entry) if entry.file_type().is_some_and(|kind| kind.is_file()) => {
+                    if let Err(error) = writeln!(output, "{}", entry.path().display()) {
+                        eprintln!("rg: cannot write output: {error}");
+                        return 2;
+                    }
+                    found = true;
+                }
+                Ok(_) => {}
+                Err(error) => {
+                    eprintln!("rg: {error}");
+                    had_error = true;
+                }
+            }
+        }
+    }
+    if had_error {
+        2
+    } else if found {
+        0
+    } else {
+        1
+    }
 }
 
 fn run_impl(args: &[String], command: &str, stdin_default: bool) -> i32 {

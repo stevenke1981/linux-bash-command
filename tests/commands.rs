@@ -93,6 +93,18 @@ fn grep_and_rg_search_stdin_and_handle_errors() {
     assert_eq!(out.status.code(), Some(0));
     assert!(String::from_utf8(out.stdout).unwrap().contains("2:hello"));
     f.write("hello.txt", b"hello\n");
+    f.write("src/main.rs", b"fn main() {}\n");
+    let files = f.run("rg", &["--files", "-g", "*.rs"], b"");
+    assert_eq!(files.status.code(), Some(0));
+    let files = String::from_utf8(files.stdout).unwrap();
+    assert!(files.contains("main.rs"));
+    assert!(!files.contains("hello.txt"));
+    assert_eq!(
+        f.run("rg", &["--files", "-g", "*.missing"], b"")
+            .status
+            .code(),
+        Some(1)
+    );
     let out = f.run("grep", &["-h", "hello", "hello.txt"], b"");
     assert_eq!(out.stdout, b"hello\n");
 }

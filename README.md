@@ -76,7 +76,7 @@ Directory traversal skips hidden entries and honors ignore rules supplied by the
 
 ### Additional commands
 
-- `rg` shares the `search` engine and detects piped stdin when no path is specified. `grep` reads files or stdin; its options include `-i`, `-n`, `-F`, `-v`, and `-c`. Both use Rust regex syntax and return 0 for a match, 1 for no match, and 2 for errors.
+- `rg` shares the `search` engine, detects piped stdin when no path is specified, and supports `--files` with `-g`, `--hidden`, and `--no-ignore` for file discovery. `grep` reads files or stdin; its options include `-i`, `-n`, `-F`, `-v`, and `-c`. Both use Rust regex syntax and return 0 for a match, 1 for no match, and 2 for errors.
 - `ls [-al] [PATH...]` lists one directory level; `-l` shows a cross-platform type, read-only flag, byte size, and modification time as Unix seconds, not the full POSIX long listing. `pwd` prints the current directory. `find [PATH...] -name '*.rs' -type f -maxdepth 3` supports `*` and `?` basename patterns and does not follow symlinks.
 - `cat` copies files or stdin as bytes. `head -n 10` and `tail -n 10` work with files or stdin; their line counts default to 10. `tail -f` is not implemented.
 - `less FILE` provides a basic interactive pager on a terminal; Space, Enter, b, g, G, and q navigate. `-N` adds line numbers. Piped input or redirected output is copied without interactive paging. It loads input into memory and clips long display lines.
