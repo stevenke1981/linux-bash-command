@@ -1,0 +1,10 @@
+Agent Commands 0.1.0 - Linux x86-64
+
+To use the installed tools in a Bash session, add the installation directory:
+    export PATH="/path/to/installed/AgentCommands:$PATH"
+Shell builtins such as read, pwd and cd can take precedence. Use `env read`
+or the executable path; use the native cd or source shell/cd.bash.
+
+This installer targets x86-64 Linux with glibc 2.39 or newer. It has no GUI.
+To uninstall, run the installed unins000.exe with --silent, or use ironsetup.
+The installer does not modify shell profiles or the system PATH.

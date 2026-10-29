@@ -1,0 +1,38 @@
+name: Build and test
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --locked
+      - run: cargo build --release --bins --locked
+      - name: Verify Bash cd and interactive less
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          bash tests/shell_cd.bash "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/target/release"
+          python3 tests/less_pty.py "$GITHUB_WORKSPACE/target/release/less" "$GITHUB_WORKSPACE/README.md"
+      - name: Collect commands
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          for name in search diff list read rg ls pwd cd cat less head tail grep find ps df curl; do
+            if [[ "$RUNNER_OS" == Windows ]]; then
+              cp "target/release/$name.exe" artifacts/
+            else
+              cp "target/release/$name" artifacts/
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: agent-commands-${{ runner.os }}-${{ runner.arch }}
+          path: artifacts/
