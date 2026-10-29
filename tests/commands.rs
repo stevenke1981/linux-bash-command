@@ -117,14 +117,18 @@ fn filesystem_tools_list_find_and_resolve_directories() {
     let out = f.run("pwd", &[], b"");
     assert_eq!(out.status.code(), Some(0));
     assert_eq!(
-        PathBuf::from(String::from_utf8(out.stdout).unwrap().trim()),
-        f.0
+        PathBuf::from(String::from_utf8(out.stdout).unwrap().trim())
+            .canonicalize()
+            .unwrap(),
+        f.0.canonicalize().unwrap()
     );
     let out = f.run("cd", &["sub"], b"");
     assert_eq!(out.status.code(), Some(0));
     assert_eq!(
-        PathBuf::from(String::from_utf8(out.stdout).unwrap().trim()),
-        f.0.join("sub")
+        PathBuf::from(String::from_utf8(out.stdout).unwrap().trim())
+            .canonicalize()
+            .unwrap(),
+        f.0.join("sub").canonicalize().unwrap()
     );
     assert_eq!(f.run("cd", &["visible.txt"], b"").status.code(), Some(2));
 }
