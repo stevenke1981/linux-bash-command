@@ -1,4 +1,5 @@
 pub mod cd_command;
+pub mod commands;
 pub mod common;
 pub mod curl_command;
 pub mod df_command;

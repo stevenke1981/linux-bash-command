@@ -7,7 +7,7 @@ fn list_dispatch_help_and_errors() {
     let list = Command::new(bin).arg("--list").output().unwrap();
     assert!(list.status.success());
     let names = String::from_utf8(list.stdout).unwrap();
-    assert_eq!(names.lines().count(), 17);
+    assert_eq!(names.lines().count(), 115);
     assert_eq!(
         names.lines().collect::<Vec<_>>(),
         agentcmd::registry::UTILITIES
@@ -59,4 +59,22 @@ fn direct_and_multicall_produce_same_output() {
     assert!(output.status.success());
     assert_eq!(output.stdout, b"one\n");
     fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn every_utility_has_a_binary() {
+    let dir = std::path::Path::new(env!("CARGO_BIN_EXE_agentcmd"))
+        .parent()
+        .unwrap()
+        .to_path_buf();
+    let missing: Vec<_> = agentcmd::registry::UTILITIES
+        .iter()
+        .filter(|u| u.name != "[")
+        .filter(|u| {
+            !dir.join(format!("{}{}", u.name, std::env::consts::EXE_SUFFIX))
+                .exists()
+        })
+        .map(|u| u.name)
+        .collect();
+    assert!(missing.is_empty(), "missing binaries: {missing:?}");
 }
