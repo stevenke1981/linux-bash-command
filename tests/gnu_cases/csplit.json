@@ -1,0 +1,692 @@
+{
+  "command": "csplit",
+  "cases": [
+    {
+      "name": "c00_ten_3_7",
+      "args": [
+        "ten",
+        "3",
+        "7"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c01_ten_5",
+      "args": [
+        "ten",
+        "/5/"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c02_s_ten_5",
+      "args": [
+        "-s",
+        "ten",
+        "%5%"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c03_suppress_matched_ten_5_2",
+      "args": [
+        "--suppress-matched",
+        "ten",
+        "/5/+2"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c04_ten_5_2",
+      "args": [
+        "ten",
+        "/5/-2"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c05_ten_2_2",
+      "args": [
+        "ten",
+        "2",
+        "{2}"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c06_ten_5",
+      "args": [
+        "ten",
+        "/5/",
+        "{*}"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c07_k_ten_3",
+      "args": [
+        "-k",
+        "ten",
+        "3",
+        "{*}"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c08_ten_3",
+      "args": [
+        "ten",
+        "3",
+        "{*}"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c09_f_pre_b_03d_n_3_ten_4",
+      "args": [
+        "-f",
+        "pre",
+        "-b",
+        "%03d",
+        "-n",
+        "3",
+        "ten",
+        "4"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c10_b_part_d_txt_ten_3",
+      "args": [
+        "-b",
+        "part-%d.txt",
+        "ten",
+        "3"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c11_n_1_f_q_ten_9",
+      "args": [
+        "-n",
+        "1",
+        "-f",
+        "q",
+        "ten",
+        "9"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c12_b_x_ten_9",
+      "args": [
+        "-b",
+        "%x",
+        "ten",
+        "9"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c13_b_5d_ten_9",
+      "args": [
+        "-b",
+        "%5d",
+        "ten",
+        "9"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c14_b_s_ten_9",
+      "args": [
+        "-b",
+        "%s",
+        "ten",
+        "9"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c15_b_nopct_ten_9",
+      "args": [
+        "-b",
+        "nopct",
+        "ten",
+        "9"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c16_b_d_d_ten_9",
+      "args": [
+        "-b",
+        "%d%d",
+        "ten",
+        "9"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c17_ten_1_5",
+      "args": [
+        "ten",
+        "1",
+        "5"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c18_z_ten_1_5",
+      "args": [
+        "-z",
+        "ten",
+        "1",
+        "5"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c19_ten_1",
+      "args": [
+        "ten",
+        "/1/"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c20_ten_11",
+      "args": [
+        "ten",
+        "11"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c21_ten_10",
+      "args": [
+        "ten",
+        "10"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c22_ten_5_20",
+      "args": [
+        "ten",
+        "5",
+        "20"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c23_ten_nomatch",
+      "args": [
+        "ten",
+        "/nomatch/"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c24_k_ten_3_nomatch",
+      "args": [
+        "-k",
+        "ten",
+        "3",
+        "/nomatch/"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c25_ten_0",
+      "args": [
+        "ten",
+        "0"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c26_ten_5_3",
+      "args": [
+        "ten",
+        "5",
+        "3"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c27_ten_x",
+      "args": [
+        "ten",
+        "x"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c28_ten_abc",
+      "args": [
+        "ten",
+        "/abc"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c29_ten",
+      "args": [
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c30_noargs",
+      "args": [],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c31_n_x_ten_1",
+      "args": [
+        "-n",
+        "x",
+        "ten",
+        "1"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c32_nosuch_1",
+      "args": [
+        "nosuch",
+        "1"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c33_suppress_matched_ten_10",
+      "args": [
+        "--suppress-matched",
+        "ten",
+        "10"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c34_ten_3_3_7",
+      "args": [
+        "ten",
+        "/3/+3",
+        "/7/"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c35_ten_3_3_5",
+      "args": [
+        "ten",
+        "/3/+3",
+        "/5/"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c36_ten_5_8",
+      "args": [
+        "ten",
+        "%5%",
+        "/8/"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c37_ten_5",
+      "args": [
+        "ten",
+        "5",
+        "{*}"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c38_ten_2",
+      "args": [
+        "ten",
+        "2",
+        "{*}"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c39_ten_5_3",
+      "args": [
+        "ten",
+        "/5/",
+        "3"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c40_ten_3_2",
+      "args": [
+        "ten",
+        "/3/",
+        "{2}"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c41_ten_3_1_9",
+      "args": [
+        "ten",
+        "/3/",
+        "{1}",
+        "/9/"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c42_s_z_ten_1_9",
+      "args": [
+        "-s",
+        "-z",
+        "ten",
+        "/1/",
+        "/9/"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    }
+  ]
+}
