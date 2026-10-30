@@ -1,0 +1,605 @@
+{
+  "command": "join",
+  "cases": [
+    {
+      "name": "c00_a_b",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1 apple\n2 banana\n3 cherry\n5 elder\n",
+        "b": "1 red\n3 green\n4 blue\n5 black\n"
+      }
+    },
+    {
+      "name": "c01_a_1_a_b",
+      "args": [
+        "-a",
+        "1",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1 apple\n2 banana\n3 cherry\n5 elder\n",
+        "b": "1 red\n3 green\n4 blue\n5 black\n"
+      }
+    },
+    {
+      "name": "c02_a_2_a_1_a_b",
+      "args": [
+        "-a",
+        "2",
+        "-a",
+        "1",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1 apple\n2 banana\n3 cherry\n5 elder\n",
+        "b": "1 red\n3 green\n4 blue\n5 black\n"
+      }
+    },
+    {
+      "name": "c03_v_1_a_b",
+      "args": [
+        "-v",
+        "1",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1 apple\n2 banana\n3 cherry\n5 elder\n",
+        "b": "1 red\n3 green\n4 blue\n5 black\n"
+      }
+    },
+    {
+      "name": "c04_o_1_2_2_2_a_b",
+      "args": [
+        "-o",
+        "1.2,2.2",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1 apple\n2 banana\n3 cherry\n5 elder\n",
+        "b": "1 red\n3 green\n4 blue\n5 black\n"
+      }
+    },
+    {
+      "name": "c05_o_auto_a_1_e_X_a_b",
+      "args": [
+        "-o",
+        "auto",
+        "-a",
+        "1",
+        "-e",
+        "X",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1 apple\n2 banana\n3 cherry\n5 elder\n",
+        "b": "1 red\n3 green\n4 blue\n5 black\n"
+      }
+    },
+    {
+      "name": "c06_o_0_2_2_1_2_a_2_e_a_b",
+      "args": [
+        "-o",
+        "0,2.2,1.2",
+        "-a",
+        "2",
+        "-e",
+        "-",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1 apple\n2 banana\n3 cherry\n5 elder\n",
+        "b": "1 red\n3 green\n4 blue\n5 black\n"
+      }
+    },
+    {
+      "name": "c07_t_j_1_a_b",
+      "args": [
+        "-t",
+        " ",
+        "-j",
+        "1",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1 apple\n2 banana\n3 cherry\n5 elder\n",
+        "b": "1 red\n3 green\n4 blue\n5 black\n"
+      }
+    },
+    {
+      "name": "c08_t_c_d",
+      "args": [
+        "-t",
+        ":",
+        "c",
+        "d"
+      ],
+      "files": {
+        "c": "x:1\ny:2\n",
+        "d": "x:9\nz:8\n"
+      }
+    },
+    {
+      "name": "c09_t_a1_a2_e_E_o_0_1_2_2_2_c_d",
+      "args": [
+        "-t:",
+        "-a1",
+        "-a2",
+        "-e",
+        "E",
+        "-o",
+        "0,1.2,2.2",
+        "c",
+        "d"
+      ],
+      "files": {
+        "c": "x:1\ny:2\n",
+        "d": "x:9\nz:8\n"
+      }
+    },
+    {
+      "name": "c10_i_e_f",
+      "args": [
+        "-i",
+        "e",
+        "f"
+      ],
+      "files": {
+        "e": "A 1\nb 2\n",
+        "f": "a 9\nB 8\n"
+      }
+    },
+    {
+      "name": "c11_header_g_h",
+      "args": [
+        "--header",
+        "g",
+        "h"
+      ],
+      "files": {
+        "g": "h1 x\n1 a\n",
+        "h": "h2 y\n1 b\n"
+      }
+    },
+    {
+      "name": "c12_u1_u2",
+      "args": [
+        "u1",
+        "u2"
+      ],
+      "files": {
+        "u1": "1 a\n3 c\n2 b\n",
+        "u2": "1 x\n2 y\n3 z\n"
+      }
+    },
+    {
+      "name": "c13_nocheck_order_u1_u2",
+      "args": [
+        "--nocheck-order",
+        "u1",
+        "u2"
+      ],
+      "files": {
+        "u1": "1 a\n3 c\n2 b\n",
+        "u2": "1 x\n2 y\n3 z\n"
+      }
+    },
+    {
+      "name": "c14_check_order_u1_u2",
+      "args": [
+        "--check-order",
+        "u1",
+        "u2"
+      ],
+      "files": {
+        "u1": "1 a\n3 c\n2 b\n",
+        "u2": "1 x\n2 y\n3 z\n"
+      }
+    },
+    {
+      "name": "c15_dup1_dup2",
+      "args": [
+        "dup1",
+        "dup2"
+      ],
+      "files": {
+        "dup1": "1 a\n1 b\n2 c\n",
+        "dup2": "1 x\n1 y\n2 z\n"
+      }
+    },
+    {
+      "name": "c16_lead1_lead2",
+      "args": [
+        "lead1",
+        "lead2"
+      ],
+      "files": {
+        "lead1": "  1 a\n",
+        "lead2": "1 b\n"
+      }
+    },
+    {
+      "name": "c17_z_z1_z2",
+      "args": [
+        "-z",
+        "z1",
+        "z2"
+      ],
+      "files": {
+        "z1": {
+          "hex": "6b312061006b32206200"
+        },
+        "z2": {
+          "hex": "6b31206300"
+        }
+      }
+    },
+    {
+      "name": "c18_u1_nosuch",
+      "args": [
+        "u1",
+        "nosuch"
+      ],
+      "files": {
+        "u1": "1 a\n"
+      }
+    },
+    {
+      "name": "c19_j_3_u1_u2",
+      "args": [
+        "-j",
+        "3",
+        "u1",
+        "u2"
+      ],
+      "files": {
+        "u1": "1 a\n",
+        "u2": "1 x\n"
+      }
+    },
+    {
+      "name": "c20_o_1_9_u1_u2",
+      "args": [
+        "-o",
+        "1.9",
+        "u1",
+        "u2"
+      ],
+      "files": {
+        "u1": "1 a\n",
+        "u2": "1 x\n"
+      }
+    },
+    {
+      "name": "c21_a_3_u1_u2",
+      "args": [
+        "-a",
+        "3",
+        "u1",
+        "u2"
+      ],
+      "files": {
+        "u1": "1 a\n",
+        "u2": "1 x\n"
+      }
+    },
+    {
+      "name": "c22_",
+      "args": [
+        "-",
+        "-"
+      ],
+      "stdin": "1 a\n"
+    },
+    {
+      "name": "c23_u1",
+      "args": [
+        "u1"
+      ],
+      "files": {
+        "u1": "1 a\n"
+      }
+    },
+    {
+      "name": "c24_t_ab_u1_u2",
+      "args": [
+        "-t",
+        "ab",
+        "u1",
+        "u2"
+      ],
+      "files": {
+        "u1": "1 a\n",
+        "u2": "1 x\n"
+      }
+    },
+    {
+      "name": "c25_a_1_a_2_blank1_blank2",
+      "args": [
+        "-a",
+        "1",
+        "-a",
+        "2",
+        "blank1",
+        "blank2"
+      ],
+      "files": {
+        "blank1": "k1 a\n\nk2 b\n",
+        "blank2": "k1 c\nk2 d\n"
+      }
+    },
+    {
+      "name": "c26_t_colon1_colon2",
+      "args": [
+        "-t",
+        ":",
+        "colon1",
+        "colon2"
+      ],
+      "files": {
+        "colon1": "a::b\n",
+        "colon2": "a::c\n"
+      }
+    },
+    {
+      "name": "c27_t_a_1_e_Q_o_1_1_1_3_1_4_2_2_2_3_cc1_cc2",
+      "args": [
+        "-t:",
+        "-a",
+        "1",
+        "-e",
+        "Q",
+        "-o",
+        "1.1,1.3,1.4,2.2,2.3",
+        "cc1",
+        "cc2"
+      ],
+      "files": {
+        "cc1": "x:1::\n",
+        "cc2": "x:2:\n"
+      }
+    },
+    {
+      "name": "c28_ld1_ld2",
+      "args": [
+        "ld1",
+        "ld2"
+      ],
+      "files": {
+        "ld1": "  lead 1\n",
+        "ld2": "lead 2\n"
+      }
+    },
+    {
+      "name": "c29_t_ld1_ld2",
+      "args": [
+        "-t",
+        " ",
+        "ld1",
+        "ld2"
+      ],
+      "files": {
+        "ld1": "  lead 1\n",
+        "ld2": "lead 2\n"
+      }
+    },
+    {
+      "name": "c30_one1_one2",
+      "args": [
+        "one1",
+        "one2"
+      ],
+      "files": {
+        "one1": "a\n",
+        "one2": "a\n"
+      }
+    },
+    {
+      "name": "c31_a_2_e_E_o_2_1_1_2_0_two1_one2",
+      "args": [
+        "-a",
+        "2",
+        "-e",
+        "E",
+        "-o",
+        "2.1,1.2,0",
+        "two1",
+        "one2"
+      ],
+      "files": {
+        "two1": "1 2\n",
+        "one2": "a\n"
+      }
+    },
+    {
+      "name": "c32_a_1_a_2_e_N_o_auto_s1_s2",
+      "args": [
+        "-a",
+        "1",
+        "-a",
+        "2",
+        "-e",
+        "N",
+        "-o",
+        "auto",
+        "s1",
+        "s2"
+      ],
+      "files": {
+        "s1": "k a\n",
+        "s2": "k b extra\nq c\n"
+      }
+    },
+    {
+      "name": "c33_a_2_o_auto_s1_s2",
+      "args": [
+        "-a",
+        "2",
+        "-o",
+        "auto",
+        "s1",
+        "s2"
+      ],
+      "files": {
+        "s1": "k a\n",
+        "s2": "k b extra\nq c\n"
+      }
+    },
+    {
+      "name": "c34_header_o_auto_a_1_s1_s2",
+      "args": [
+        "--header",
+        "-o",
+        "auto",
+        "-a",
+        "1",
+        "s1",
+        "s2"
+      ],
+      "files": {
+        "s1": "k a\n",
+        "s2": "k b extra\nq c\n"
+      }
+    },
+    {
+      "name": "c35_empty_s2",
+      "args": [
+        "empty",
+        "s2"
+      ],
+      "files": {
+        "empty": "",
+        "s2": "q c\n"
+      }
+    },
+    {
+      "name": "c36_a_1_empty_s2",
+      "args": [
+        "-a",
+        "1",
+        "empty",
+        "s2"
+      ],
+      "files": {
+        "empty": "",
+        "s2": "q c\n"
+      }
+    },
+    {
+      "name": "c37_i_check_order_o_1_2_2_2_e_f",
+      "args": [
+        "-i",
+        "--check-order",
+        "-o",
+        "1.2,2.2",
+        "e",
+        "f"
+      ],
+      "files": {
+        "e": "A 1\nb 2\n",
+        "f": "a 9\nB 8\n"
+      }
+    },
+    {
+      "name": "c38_o_2_1_1_1_1_2_j_1_blank1_blank2",
+      "args": [
+        "-o",
+        "2.1,1.1,1.2",
+        "-j",
+        "1",
+        "blank1",
+        "blank2"
+      ],
+      "files": {
+        "blank1": "k1 a\nk2 b\n",
+        "blank2": "k1 c\nk2 d\n"
+      }
+    },
+    {
+      "name": "c39_o_0_s1_s2",
+      "args": [
+        "-o",
+        "0",
+        "s1",
+        "s2"
+      ],
+      "files": {
+        "s1": "k a\n",
+        "s2": "k b extra\n"
+      }
+    },
+    {
+      "name": "c40_a_2_o_2_2_1_1_s1_s2",
+      "args": [
+        "-a",
+        "2",
+        "-o",
+        "2.2,1.1",
+        "s1",
+        "s2"
+      ],
+      "files": {
+        "s1": "k a\n",
+        "s2": "k b extra\nq c\n"
+      }
+    },
+    {
+      "name": "c41_v_1_v_2_m1_m2",
+      "args": [
+        "-v",
+        "1",
+        "-v",
+        "2",
+        "m1",
+        "m2"
+      ],
+      "files": {
+        "m1": "k a\nk2 z\n",
+        "m2": "k b\nk2 y\n"
+      }
+    },
+    {
+      "name": "c42_o_1_1_2_1_1_2_2_2_e_a_1_m1_m2",
+      "args": [
+        "-o",
+        "1.1,2.1,1.2,2.2",
+        "-e",
+        "-",
+        "-a",
+        "1",
+        "m1",
+        "m2"
+      ],
+      "files": {
+        "m1": "k a\nk2 z\n",
+        "m2": "k b\nk2 y\n"
+      }
+    },
+    {
+      "name": "c43_t_o_2_2_a_2_m1_m2",
+      "args": [
+        "-t",
+        " ",
+        "-o",
+        "2.2",
+        "-a",
+        "2",
+        "m1",
+        "m2"
+      ],
+      "files": {
+        "m1": "k a\nk2 z\n",
+        "m2": "k b\nk2 y\n"
+      }
+    }
+  ]
+}
