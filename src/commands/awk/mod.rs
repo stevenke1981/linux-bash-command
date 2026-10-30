@@ -7,6 +7,7 @@
 
 mod ast;
 mod builtins;
+mod eval;
 mod fields;
 mod format;
 mod interp;
