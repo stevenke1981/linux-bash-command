@@ -1,0 +1,31 @@
+{
+  "command": "rm",
+  "cases": [
+    { "name": "single_file", "args": ["a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_file_is_error", "args": ["nope"], "compare": ["stdout", "exit", "files"] },
+    { "name": "force_ignores_missing", "args": ["-f", "nope"], "compare": ["stdout", "exit", "files"] },
+    { "name": "force_no_operand_is_silent", "args": ["-f"], "compare": ["stdout", "exit", "files"] },
+    { "name": "no_operand_is_error", "args": [], "compare": ["stdout", "exit", "files"] },
+    { "name": "directory_needs_recursive", "args": ["d"], "files": { "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "recursive_removes_tree", "args": ["-r", "d"], "files": { "d": { "dir": true }, "d/f": "1\n", "d/sub": { "dir": true }, "d/sub/g": "22\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "dir_flag_empty_dir", "args": ["-d", "e"], "files": { "e": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "dir_flag_non_empty_is_error", "args": ["-d", "e"], "files": { "e": { "dir": true }, "e/x": "1\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_file", "args": ["-v", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_tree_single_child", "args": ["-rv", "d"], "files": { "d": { "dir": true }, "d/f": "1\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "multiple_files", "args": ["a", "b"], "files": { "a": "1", "b": "2" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "multiple_with_one_missing", "args": ["a", "nope", "b"], "files": { "a": "1", "b": "2" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "dot_is_refused", "args": ["-r", "."], "files": { "keep": "k\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "dot_dot_is_refused", "args": ["-r", ".."], "files": { "keep": "k\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "interactive_answer_no_keeps_file", "args": ["-i", "a"], "stdin": "n\n", "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "interactive_answer_yes_removes", "args": ["-i", "a"], "stdin": "y\n", "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "interactive_once_recursive_no", "args": ["-rI", "d"], "stdin": "n\n", "files": { "d": { "dir": true }, "d/f": "1\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "interactive_once_four_files_no", "args": ["-I", "p1", "p2", "p3", "p4"], "stdin": "n\n", "files": { "p1": "1", "p2": "2", "p3": "3", "p4": "4" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "interactive_always_recursive_declines_descent", "args": ["-ir", "d"], "stdin": "n\n", "files": { "d": { "dir": true }, "d/f": "1\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "interactive_long_option_never", "args": ["--interactive=never", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "symlink_removed_not_target", "args": ["l"], "files": { "t": "x\n", "l": { "symlink": "t" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "symlink_to_dir_removed_not_contents", "args": ["-r", "ld"], "files": { "real": { "dir": true }, "real/f": "x\n", "ld": { "symlink": "real" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "double_dash_dash_name", "args": ["--", "-x"], "files": { "-x": "q\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "one_file_system_flag_accepted", "args": ["--one-file-system", "-r", "d"], "files": { "d": { "dir": true }, "d/f": "1\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "no_preserve_root_flag_accepted", "args": ["--no-preserve-root", "nope"], "compare": ["stdout", "exit", "files"] }
+  ]
+}

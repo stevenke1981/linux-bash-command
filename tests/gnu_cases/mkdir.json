@@ -1,0 +1,24 @@
+{
+  "command": "mkdir",
+  "cases": [
+    { "name": "single_dir", "args": ["d1"], "compare": ["stdout", "exit", "files"] },
+    { "name": "multiple_dirs", "args": ["a", "b", "c"], "compare": ["stdout", "exit", "files"] },
+    { "name": "existing_dir_is_error", "args": ["d"], "files": { "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "file_in_the_way_is_error", "args": ["f"], "files": { "f": "x" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "parents_creates_chain", "args": ["-p", "a/b/c"], "compare": ["stdout", "exit", "files"] },
+    { "name": "parents_long_option", "args": ["--parents", "x/y"], "compare": ["stdout", "exit", "files"] },
+    { "name": "parents_existing_is_ok", "args": ["-p", "e"], "files": { "e": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "parents_through_file_fails", "args": ["-p", "f/g"], "files": { "f": "x" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_single", "args": ["-v", "one"], "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_parents_lists_each", "args": ["-vp", "x/y/z"], "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_existing_prints_nothing", "args": ["-pv", "e"], "files": { "e": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "mode_octal", "args": ["-m", "700", "m7"], "compare": ["stdout", "exit", "files"] },
+    { "name": "mode_symbolic_relative_to_777", "args": ["-m", "g-w", "ms"], "compare": ["stdout", "exit", "files"] },
+    { "name": "mode_zero", "args": ["-m", "0", "mz"], "compare": ["stdout", "exit", "files"] },
+    { "name": "mode_parents_final_only", "args": ["-p", "-m", "711", "p1/p2"], "compare": ["stdout", "exit", "files"] },
+    { "name": "invalid_mode_rejected", "args": ["-m", "bogus", "mb"], "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_operand", "args": [], "compare": ["stdout", "exit", "files"] },
+    { "name": "double_dash_then_dash_name", "args": ["--", "-dash"], "compare": ["stdout", "exit", "files"] },
+    { "name": "context_option_not_supported", "args": ["-Z", "zz"], "compare": ["stdout", "exit", "files"], "skip_reason": "agentcmd: -Z/--context is not supported (SELinux), see 04/03 spec" }
+  ]
+}

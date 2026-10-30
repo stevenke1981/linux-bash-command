@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::os::unix::fs::PermissionsExt;
-use std::os::unix::process::ExitStatusExt;
+use std::os::unix::process::{CommandExt, ExitStatusExt};
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, ExitStatus, Stdio};
 use std::sync::mpsc::{self, Receiver};
@@ -56,7 +56,12 @@ pub fn run_side(case: &Case, program: Program) -> Side {
             cmd
         }
         Program::Gnu(path) => {
-            let mut cmd = Command::new(path);
+            // GNU tools name themselves in diagnostics by argv[0]; use the bare name so
+            // messages read `mkdir: ...` rather than `/usr/bin/mkdir: ...`.
+            let mut cmd = Command::new(&path);
+            if let Some(name) = path.file_name() {
+                cmd.arg0(name);
+            }
             cmd.args(&case.gnu[1..]);
             cmd
         }

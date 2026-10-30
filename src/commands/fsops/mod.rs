@@ -1,9 +1,16 @@
+pub mod backup;
 pub mod chmod;
+pub mod copy;
 pub mod cp;
+pub mod helpers;
 pub mod link;
 pub mod ln;
 pub mod mkdir;
+pub mod mode;
 pub mod mv;
 pub mod rm;
 pub mod rmdir;
+pub mod safety;
+pub mod targets;
 pub mod touch;
+pub mod touch_time;

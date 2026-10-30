@@ -1,0 +1,22 @@
+{
+  "command": "rmdir",
+  "cases": [
+    { "name": "empty_dir", "args": ["d"], "files": { "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "non_empty_is_error", "args": ["d"], "files": { "d": { "dir": true }, "d/f": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_is_error", "args": ["nope"], "compare": ["stdout", "exit", "files"] },
+    { "name": "file_is_error", "args": ["f"], "files": { "f": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "no_operand_is_error", "args": [], "compare": ["stdout", "exit", "files"] },
+    { "name": "multiple_dirs", "args": ["a", "b"], "files": { "a": { "dir": true }, "b": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "parents_removes_chain", "args": ["-p", "a/b/c"], "files": { "a": { "dir": true }, "a/b": { "dir": true }, "a/b/c": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "parents_stops_at_non_empty", "args": ["-p", "a/b/c"], "files": { "a": { "dir": true }, "a/keep": "k\n", "a/b": { "dir": true }, "a/b/c": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "parents_missing_leaf_is_error", "args": ["-p", "a/nope"], "files": { "a": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_single", "args": ["-v", "d"], "files": { "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_parents", "args": ["-vp", "a/b"], "files": { "a": { "dir": true }, "a/b": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "ignore_non_empty_is_silent", "args": ["--ignore-fail-on-non-empty", "d"], "files": { "d": { "dir": true }, "d/f": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "ignore_non_empty_still_removes_empty", "args": ["--ignore-fail-on-non-empty", "e"], "files": { "e": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "trailing_slash_operand", "args": ["d/"], "files": { "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "double_dash_dash_name", "args": ["--", "-d"], "files": { "-d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "long_parents_option", "args": ["--parents", "x/y"], "files": { "x": { "dir": true }, "x/y": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "mixed_success_and_failure", "args": ["ok", "nope", "ok2"], "files": { "ok": { "dir": true }, "ok2": { "dir": true } }, "compare": ["stdout", "exit", "files"] }
+  ]
+}

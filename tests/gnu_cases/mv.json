@@ -1,0 +1,32 @@
+{
+  "command": "mv",
+  "cases": [
+    { "name": "rename_file", "args": ["a", "b"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "file_into_directory", "args": ["a", "d"], "files": { "a": "x\n", "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "multiple_into_directory", "args": ["a", "b", "d"], "files": { "a": "1\n", "b": "2\n", "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_source_is_error", "args": ["nope", "x"], "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_operand_is_error", "args": [], "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_destination_operand", "args": ["a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "overwrite_existing_file", "args": ["a", "b"], "files": { "a": "new\n", "b": "old\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "dir_onto_non_empty_dir_is_error", "args": ["a", "b"], "files": { "a": { "dir": true }, "a/f": "1\n", "b": { "dir": true }, "b/g": "2\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "dir_onto_empty_dir_replaces", "args": ["a", "b"], "files": { "a": { "dir": true }, "a/f": "1\n", "b": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "dir_onto_file_is_error", "args": ["a", "b"], "files": { "a": { "dir": true }, "a/f": "1\n", "b": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "no_clobber_keeps_destination", "args": ["-n", "a", "b"], "files": { "a": "new\n", "b": "old\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "update_older_skips_newer_destination", "args": ["-u", "a", "b"], "files": { "a": { "text": "src\n", "mtime": 1600000000 }, "b": { "text": "dst\n", "mtime": 1700000000 } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "update_older_moves_newer_source", "args": ["-u", "a", "b"], "files": { "a": { "text": "src\n", "mtime": 1700000000 }, "b": { "text": "dst\n", "mtime": 1600000000 } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_rename", "args": ["-v", "a", "b"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "backup_simple_tilde", "args": ["-b", "a", "b"], "files": { "a": "new\n", "b": "old\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "backup_numbered_long", "args": ["--backup=numbered", "a", "b"], "files": { "a": "new\n", "b": "old\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "target_directory_option", "args": ["-t", "d", "a"], "files": { "a": "x\n", "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "no_target_directory_option", "args": ["-T", "a", "b"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "into_own_subdirectory_is_error", "args": ["a", "a/x/y"], "files": { "a": { "dir": true }, "a/x": { "dir": true }, "a/x/f": "1\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "same_file_is_error", "args": ["a", "h"], "files": { "a": "x\n", "h": { "symlink": "a" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "force_overwrites", "args": ["-f", "a", "b"], "files": { "a": "new\n", "b": "old\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "strip_trailing_slashes", "args": ["--strip-trailing-slashes", "a/", "b"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "symlink_is_moved_not_target", "args": ["l", "m"], "files": { "t": "x\n", "l": { "symlink": "t" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "multiple_to_missing_target_is_error", "args": ["a", "b", "c"], "files": { "a": "1\n", "b": "2\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "no_clobber_then_later_source_continues", "args": ["-n", "a", "b", "d"], "files": { "a": "1\n", "b": "2\n", "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "interactive_answer_no_keeps_both", "args": ["-i", "a", "b"], "stdin": "n\n", "files": { "a": "new\n", "b": "old\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "interactive_answer_yes_moves", "args": ["-i", "a", "b"], "stdin": "y\n", "files": { "a": "new\n", "b": "old\n" }, "compare": ["stdout", "exit", "files"] }
+  ]
+}
