@@ -1,3 +1,9 @@
+pub mod args;
+pub mod error;
+pub mod escape;
+pub mod io;
+pub mod meta;
 pub mod path;
+pub mod process;
 pub mod regex;
 pub mod size;
