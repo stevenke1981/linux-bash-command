@@ -1,0 +1,122 @@
+{
+  "command": "comm",
+  "cases": [
+    {
+      "name": "three_columns",
+      "args": ["a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "b.txt": "b\nc\nd\n" }
+    },
+    {
+      "name": "suppress_column1",
+      "args": ["-1", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "b.txt": "b\nc\nd\n" }
+    },
+    {
+      "name": "suppress_column2",
+      "args": ["-2", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "b.txt": "b\nc\nd\n" }
+    },
+    {
+      "name": "suppress_column3",
+      "args": ["-3", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "b.txt": "b\nc\nd\n" }
+    },
+    {
+      "name": "common_only_12",
+      "args": ["-12", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "b.txt": "b\nc\nd\n" }
+    },
+    {
+      "name": "unique_to_second_23",
+      "args": ["-23", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "b.txt": "b\nc\nd\n" }
+    },
+    {
+      "name": "suppress_all_123",
+      "args": ["-123", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\n", "b.txt": "b\nc\n" }
+    },
+    {
+      "name": "output_delimiter_text",
+      "args": ["--output-delimiter=XX", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "b.txt": "b\nc\nd\n" }
+    },
+    {
+      "name": "output_delimiter_empty_is_nul",
+      "args": ["--output-delimiter=", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "b.txt": "b\nc\nd\n" }
+    },
+    {
+      "name": "total_summary",
+      "args": ["--total", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "b.txt": "b\nc\nd\n" }
+    },
+    {
+      "name": "total_with_suppression",
+      "args": ["--total", "-3", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "b.txt": "b\nc\nd\n" }
+    },
+    {
+      "name": "stdin_first_file",
+      "args": ["-", "b.txt"],
+      "stdin": "a\nb\n",
+      "files": { "b.txt": "b\nc\n" }
+    },
+    {
+      "name": "unsorted_default_reports_exit1",
+      "args": ["a.txt", "c.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "c.txt": "b\na\n" }
+    },
+    {
+      "name": "check_order_stops_exit1",
+      "args": ["--check-order", "a.txt", "c.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "c.txt": "b\na\n" }
+    },
+    {
+      "name": "nocheck_order_exit0",
+      "args": ["--nocheck-order", "a.txt", "c.txt"],
+      "files": { "a.txt": "a\nb\nc\n", "c.txt": "b\na\n" }
+    },
+    {
+      "name": "zero_terminated_lines",
+      "args": ["-z", "-", "b.txt"],
+      "stdin_hex": "610062000a7a00",
+      "files": { "b.txt": "a\u0000z\u0000" }
+    },
+    {
+      "name": "both_stdin_second_empty",
+      "args": ["-", "-"],
+      "stdin": "a\n"
+    },
+    {
+      "name": "missing_operand_exit1",
+      "args": ["a.txt"],
+      "files": { "a.txt": "a\n" }
+    },
+    {
+      "name": "extra_operand_exit1",
+      "args": ["a.txt", "b.txt", "c.txt"],
+      "files": { "a.txt": "a\n", "b.txt": "b\n", "c.txt": "c\n" }
+    },
+    {
+      "name": "missing_file_exit1",
+      "args": ["nofile.txt", "b.txt"],
+      "files": { "b.txt": "b\n" }
+    },
+    {
+      "name": "directory_operand_exit1",
+      "args": ["sub", "b.txt"],
+      "files": { "sub": { "dir": true }, "b.txt": "b\n" }
+    },
+    {
+      "name": "no_trailing_newline_gets_one",
+      "args": ["a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb", "b.txt": "b" }
+    },
+    {
+      "name": "empty_inputs",
+      "args": ["a.txt", "b.txt"],
+      "files": { "a.txt": "", "b.txt": "" }
+    }
+  ]
+}
