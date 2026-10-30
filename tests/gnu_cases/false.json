@@ -1,0 +1,20 @@
+{
+  "command": "false",
+  "cases": [
+    { "name": "no_args", "args": [] },
+    { "name": "ignores_arguments", "args": ["a", "b"] },
+    { "name": "help_with_other_args_is_ignored", "args": ["--help", "x"] },
+    { "name": "version_with_other_args_is_ignored", "args": ["--version", "x"] },
+    { "name": "double_dash_only", "args": ["--"] },
+    { "name": "dash_is_argument", "args": ["-"] },
+    { "name": "short_h_is_argument", "args": ["-h"] },
+    { "name": "long_prefix_is_not_help", "args": ["--he"] },
+    { "name": "stdin_is_not_read", "args": [], "stdin": "data\n" },
+    { "name": "missing_file_argument_ignored", "args": ["nope"] },
+    { "name": "many_arguments", "args": ["1", "2", "3", "4", "5"] },
+    { "name": "empty_string_argument", "args": [""] },
+    { "name": "double_dash_then_help", "args": ["--", "--help"] },
+    { "name": "help_alone_exit_status", "args": ["--help"], "compare": ["exit"] },
+    { "name": "version_alone_exit_status", "args": ["--version"], "compare": ["exit"] }
+  ]
+}

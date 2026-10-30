@@ -1,0 +1,27 @@
+{
+  "command": "sleep",
+  "cases": [
+    { "name": "zero_seconds", "args": ["0"] },
+    { "name": "fractional_seconds", "args": ["0.01"] },
+    { "name": "explicit_s_suffix", "args": ["0s"] },
+    { "name": "zero_minutes", "args": ["0m"] },
+    { "name": "zero_hours", "args": ["0h"] },
+    { "name": "zero_days", "args": ["0d"] },
+    { "name": "sum_of_operands", "args": ["0", "0.01", "0.0s"] },
+    { "name": "leading_dot_fraction", "args": [".005s"] },
+    { "name": "exponent_notation", "args": ["1e-3"] },
+    { "name": "missing_operand", "args": [] },
+    { "name": "invalid_number", "args": ["x"] },
+    { "name": "invalid_suffix_case", "args": ["1S"] },
+    { "name": "unknown_suffix_with_number", "args": ["1ms"] },
+    { "name": "nan_rejected", "args": ["nan"] },
+    { "name": "negative_is_option", "args": ["-1"] },
+    { "name": "empty_string_operand", "args": [""] },
+    { "name": "bad_second_operand", "args": ["0", "bad"] },
+    { "name": "double_dash_then_number", "args": ["--", "0"] },
+    { "name": "help_after_operand", "args": ["0", "--help"], "compare": ["exit"] },
+    { "name": "version_alone_exit_status", "args": ["--version"], "compare": ["exit"] },
+    { "name": "help_alone_exit_status", "args": ["--help"], "compare": ["exit"] },
+    { "name": "hex_operand", "args": ["0x1"], "skip_reason": "GNU accepts hexadecimal floats (strtod); agentcmd rejects them (known difference, see 07-phases.md)" }
+  ]
+}

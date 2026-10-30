@@ -1,0 +1,26 @@
+{
+  "command": "printenv",
+  "cases": [
+    { "name": "one_variable", "args": ["FOO"], "env": { "FOO": "bar" } },
+    { "name": "missing_variable_sets_status", "args": ["FOO", "AGENTCMD_NOPE"], "env": { "FOO": "bar" } },
+    { "name": "null_terminated_short", "args": ["-0", "FOO"], "env": { "FOO": "bar" } },
+    { "name": "null_terminated_long", "args": ["--null", "FOO"], "env": { "FOO": "bar" } },
+    { "name": "empty_value_prints_newline", "args": ["EMPTY"], "env": { "EMPTY": "" } },
+    { "name": "only_missing", "args": ["AGENTCMD_NOPE"] },
+    { "name": "same_name_twice", "args": ["FOO", "FOO"], "env": { "FOO": "bar" } },
+    { "name": "value_with_spaces", "args": ["SP"], "env": { "SP": "a b  c" } },
+    { "name": "names_are_case_sensitive", "args": ["FOO"], "env": { "foo": "lower" } },
+    { "name": "utf8_value", "args": ["U"], "env": { "U": "héllo" } },
+    { "name": "null_several_variables", "args": ["-0", "FOO", "U"], "env": { "FOO": "bar", "U": "x" } },
+    { "name": "long_prefix_null", "args": ["--nul", "FOO"], "env": { "FOO": "bar" } },
+    { "name": "option_after_name_is_a_name", "args": ["FOO", "-0"], "env": { "FOO": "bar" } },
+    { "name": "double_dash_ends_options", "args": ["--", "FOO"], "env": { "FOO": "bar" } },
+    { "name": "name_with_equals_not_found", "args": ["FOO=bar"], "env": { "FOO": "bar" } },
+    { "name": "empty_name_not_found", "args": [""], "env": { "FOO": "bar" } },
+    { "name": "invalid_short_option", "args": ["-x"], "skip_reason": "GNU printenv exits 2 on usage errors; 02-conventions §3 requires 1 (known difference; CLI test printenv_invalid_option_exits_one)" },
+    { "name": "unknown_long_option", "args": ["--nope"], "skip_reason": "GNU printenv exits 2 on usage errors; 02-conventions §3 requires 1 (known difference)" },
+    { "name": "null_only_no_names_has_values", "args": ["-0", "LC_ALL"] },
+    { "name": "help_alone_exit_status", "args": ["--help"], "compare": ["exit"] },
+    { "name": "version_alone_exit_status", "args": ["--version"], "compare": ["exit"] }
+  ]
+}

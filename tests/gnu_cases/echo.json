@@ -1,0 +1,32 @@
+{
+  "command": "echo",
+  "cases": [
+    { "name": "plain_words", "args": ["hello", "world"] },
+    { "name": "no_args_newline_only", "args": [] },
+    { "name": "empty_string_argument", "args": [""] },
+    { "name": "n_suppresses_newline", "args": ["-n", "x"] },
+    { "name": "e_tab_escape", "args": ["-e", "a\\tb"] },
+    { "name": "e_backslash_c_stops_output", "args": ["-e", "a\\cb", "c"] },
+    { "name": "capital_e_disables_escapes", "args": ["-E", "a\\tb"] },
+    { "name": "ne_combined", "args": ["-ne", "a\\nb"] },
+    { "name": "en_combined_order", "args": ["-en", "x\\ty"] },
+    { "name": "nx_is_text", "args": ["-nx", "y"] },
+    { "name": "double_dash_is_text", "args": ["--", "x"] },
+    { "name": "lone_dash_is_text", "args": ["-"] },
+    { "name": "octal_escapes", "args": ["-e", "\\0101\\0102\\0"] },
+    { "name": "hex_escapes", "args": ["-e", "\\x41\\x4a"] },
+    { "name": "bad_hex_kept", "args": ["-e", "\\xZZ"] },
+    { "name": "unknown_escape_kept", "args": ["-e", "\\q\\1"] },
+    { "name": "escaped_backslash", "args": ["-e", "a\\\\b"] },
+    { "name": "no_escapes_by_default", "args": ["a\\tb"] },
+    { "name": "e_newline_escape", "args": ["-e", "x\\ny"] },
+    { "name": "spaces_preserved", "args": ["  a  ", "b"] },
+    { "name": "stdin_not_read", "args": ["z"], "stdin": "ignored\n" },
+    { "name": "help_with_args_is_text", "args": ["--help", "x"] },
+    { "name": "version_with_args_is_text", "args": ["--version", "x"] },
+    { "name": "help_alone_exit_status", "args": ["--help"], "compare": ["exit"] },
+    { "name": "version_alone_exit_status", "args": ["--version"], "compare": ["exit"] },
+    { "name": "e_then_cutoff_in_second_argument", "args": ["-e", "1\\c", "2"] },
+    { "name": "e_backslash_at_end", "args": ["-e", "tail\\"] }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "command": "tee",
+  "cases": [
+    { "name": "stdin_to_stdout_only", "args": [], "stdin": "hello\n" },
+    { "name": "copies_to_file", "args": ["out.txt"], "stdin": "data\n", "compare": ["stdout", "exit", "files"] },
+    { "name": "append_keeps_contents", "args": ["-a", "out.txt"], "stdin": "new\n", "files": { "out.txt": "old\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "truncates_by_default", "args": ["out.txt"], "stdin": "x\n", "files": { "out.txt": "old contents\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "multiple_files", "args": ["a.txt", "b.txt"], "stdin": "m\n", "compare": ["stdout", "exit", "files"] },
+    { "name": "dash_is_a_file_name", "args": ["-"], "stdin": "d\n", "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_directory_reports", "args": ["nodir/x.txt"], "stdin": "z\n" },
+    { "name": "bad_file_does_not_stop_others", "args": ["nodir/x", "ok.txt"], "stdin": "q\n", "compare": ["stdout", "exit", "files"] },
+    { "name": "empty_input_creates_empty_file", "args": ["e.txt"], "stdin": "", "compare": ["stdout", "exit", "files"] },
+    { "name": "binary_bytes_pass_through", "args": ["b.bin"], "stdin_hex": "00ff0a0d", "compare": ["stdout", "exit", "files"] },
+    { "name": "output_error_warn", "args": ["--output-error=warn", "f.txt"], "stdin": "w\n", "compare": ["stdout", "exit", "files"] },
+    { "name": "output_error_prefix_exit_nopipe", "args": ["--output-error=exit-", "f.txt"], "stdin": "p\n", "compare": ["stdout", "exit", "files"] },
+    { "name": "output_error_bare", "args": ["--output-error", "f.txt"], "stdin": "bare\n", "compare": ["stdout", "exit", "files"] },
+    { "name": "output_error_invalid_mode", "args": ["--output-error=bogus"], "stdin": "x\n" },
+    { "name": "output_error_empty_mode_is_ambiguous", "args": ["--output-error="], "stdin": "x\n" },
+    { "name": "pipe_option_p", "args": ["-p", "pf.txt"], "stdin": "pp\n", "compare": ["stdout", "exit", "files"] },
+    { "name": "ignore_interrupts_option", "args": ["-i", "if.txt"], "stdin": "i\n", "compare": ["stdout", "exit", "files"] },
+    { "name": "unknown_short_option", "args": ["-x"], "stdin": "x\n" },
+    { "name": "double_dash_option_like_file", "args": ["--", "-dashfile"], "stdin": "dash\n", "compare": ["stdout", "exit", "files"] },
+    { "name": "help_alone_exit_status", "args": ["--help"], "compare": ["exit"] },
+    { "name": "version_alone_exit_status", "args": ["--version"], "compare": ["exit"] }
+  ]
+}

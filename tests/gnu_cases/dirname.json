@@ -1,0 +1,26 @@
+{
+  "command": "dirname",
+  "cases": [
+    { "name": "simple_path", "args": ["a/b/c"] },
+    { "name": "no_slash", "args": ["file"] },
+    { "name": "empty_name", "args": [""] },
+    { "name": "root", "args": ["/"] },
+    { "name": "double_slash_prefix", "args": ["//a"] },
+    { "name": "only_slashes", "args": ["///"] },
+    { "name": "trailing_slashes", "args": ["a//"] },
+    { "name": "multiple_operands", "args": ["a/b", "c", "/d"] },
+    { "name": "zero_short", "args": ["-z", "a/b", "c"] },
+    { "name": "zero_long_absolute", "args": ["--zero", "/x/y"] },
+    { "name": "missing_operand", "args": [] },
+    { "name": "invalid_short_option", "args": ["-x"] },
+    { "name": "double_dash_option_like", "args": ["--", "-a"] },
+    { "name": "option_permuted_after_operand", "args": ["a/b", "-z"] },
+    { "name": "dot", "args": ["."] },
+    { "name": "dotdot", "args": [".."] },
+    { "name": "dot_slash", "args": ["./"] },
+    { "name": "repeated_inner_slashes", "args": ["x/y/z//w"] },
+    { "name": "triple_leading_slashes", "args": ["///x"] },
+    { "name": "help_alone_exit_status", "args": ["--help"], "compare": ["exit"] },
+    { "name": "version_alone_exit_status", "args": ["--version"], "compare": ["exit"] }
+  ]
+}
