@@ -6,8 +6,10 @@ use std::io::{self, Read, Write};
 use std::ops::Range;
 use std::path::{Path, PathBuf};
 
+use crate::common::args::prepare_legacy;
+use crate::common::error::io_error_text;
 use crate::display_path;
-use crate::fs_commands::{io_text, is_color_option};
+use crate::fs_commands::is_color_option;
 
 const DEFAULT_CONTEXT: usize = 3;
 
@@ -54,8 +56,33 @@ struct Options {
 }
 
 /// Compare two files or directories. Returns 0 when equal, 1 when different, and 2 on error.
+const DIFF_LONGS: &[&str] = &[
+    "brief",
+    "context",
+    "context-format",
+    "ed",
+    "help",
+    "ignore-all-space",
+    "ignore-blank-lines",
+    "ignore-case",
+    "ignore-space-change",
+    "label",
+    "new-file",
+    "normal",
+    "recursive",
+    "report-identical-files",
+    "side-by-side",
+    "strip-trailing-cr",
+    "text",
+    "unified",
+];
+
 pub fn run(args: &[String]) -> i32 {
-    let (options, paths) = match parse_args(args) {
+    let expanded = match prepare_legacy("diff", args, DIFF_LONGS, &["context", "label"], "U", 2) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let (options, paths) = match parse_args(&expanded) {
         Ok(parsed) => parsed,
         Err(code) => return code,
     };
@@ -70,7 +97,7 @@ pub fn run(args: &[String]) -> i32 {
     match result {
         Ok(status) => status,
         Err(error) => {
-            eprintln!("diff: cannot write output: {}", io_text(&error));
+            eprintln!("diff: cannot write output: {}", io_error_text(&error));
             2
         }
     }
@@ -332,13 +359,13 @@ fn load(path: &Path, new_file: bool) -> Result<Vec<u8>, String> {
         let mut bytes = Vec::new();
         io::stdin()
             .read_to_end(&mut bytes)
-            .map_err(|error| format!("standard input: {}", io_text(&error)))?;
+            .map_err(|error| format!("standard input: {}", io_error_text(&error)))?;
         return Ok(bytes);
     }
     match fs::read(path) {
         Ok(bytes) => Ok(bytes),
         Err(error) if new_file && error.kind() == io::ErrorKind::NotFound => Ok(Vec::new()),
-        Err(error) => Err(format!("{}: {}", display_path(path), io_text(&error))),
+        Err(error) => Err(format!("{}: {}", display_path(path), io_error_text(&error))),
     }
 }
 
@@ -481,12 +508,12 @@ fn compare_tree_files(
 }
 
 fn entry_names(dir: &Path) -> Result<BTreeSet<OsString>, String> {
-    let items =
-        fs::read_dir(dir).map_err(|error| format!("{}: {}", display_path(dir), io_text(&error)))?;
+    let items = fs::read_dir(dir)
+        .map_err(|error| format!("{}: {}", display_path(dir), io_error_text(&error)))?;
     items
         .map(|item| {
             item.map(|item| item.file_name())
-                .map_err(|error| format!("{}: {}", display_path(dir), io_text(&error)))
+                .map_err(|error| format!("{}: {}", display_path(dir), io_error_text(&error)))
         })
         .collect()
 }

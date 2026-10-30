@@ -51,9 +51,9 @@ struct Walker<'a> {
     pruned: bool,
 }
 
-/// Status for a starting point that does not exist. Kept at 2 (the usage-error status) to
-/// match the crate's convention, while unreadable entries below a root give 1.
-const MISSING_ROOT_STATUS: i32 = 2;
+/// Status for a starting point that does not exist. GNU find uses 1 here, as for other
+/// failures; unreadable entries below a root also give 1.
+const MISSING_ROOT_STATUS: i32 = 1;
 
 pub fn run(plan: Plan) -> i32 {
     let follow_roots = plan.options.follow != Follow::Never;
@@ -75,13 +75,9 @@ pub fn run(plan: Plan) -> i32 {
     }
 }
 
-/// Strips the `(os error N)` suffix that Rust appends, for GNU-like messages.
+/// GNU-style text for an I/O error (see `common::error::io_error_text`).
 pub fn message(error: &io::Error) -> String {
-    let text = error.to_string();
-    match text.find(" (os error") {
-        Some(index) => text[..index].to_string(),
-        None => text,
-    }
+    crate::common::error::io_error_text(error)
 }
 
 fn metadata(path: &Path, follow: bool) -> io::Result<Metadata> {

@@ -2,6 +2,7 @@
 
 use super::glob::Glob;
 use super::printf::Piece;
+use crate::common::meta::{kind_char, permission_bits};
 use crate::display_path;
 use regex::Regex;
 use std::fs::{self, File, Metadata};
@@ -183,74 +184,15 @@ pub fn test_matches(test: &Test, entry: &Entry) -> bool {
             clock,
             reference_ns,
         } => time_ns(entry.meta, *clock).is_some_and(|time| time > *reference_ns),
-        Test::Perm(check) => perm_matches(entry.meta, *check),
+        Test::Perm(check) => perm_matches(entry, *check),
         Test::Access(access) => access_ok(entry, *access),
     }
 }
 
-/// The single-letter type used by `-type` and `%y`.
-pub fn kind_char(meta: &Metadata) -> char {
-    let kind = meta.file_type();
-    if kind.is_symlink() {
-        'l'
-    } else if kind.is_dir() {
-        'd'
-    } else if kind.is_file() {
-        'f'
-    } else {
-        other_kind_char(meta)
-    }
-}
-
-#[cfg(unix)]
-fn other_kind_char(meta: &Metadata) -> char {
-    use std::os::unix::fs::FileTypeExt;
-    let kind = meta.file_type();
-    if kind.is_block_device() {
-        'b'
-    } else if kind.is_char_device() {
-        'c'
-    } else if kind.is_fifo() {
-        'p'
-    } else if kind.is_socket() {
-        's'
-    } else {
-        'U'
-    }
-}
-
-#[cfg(not(unix))]
-fn other_kind_char(_meta: &Metadata) -> char {
-    'U'
-}
-
-/// Permission bits. On Unix these are the real mode bits. Windows has no mode bits, so
-/// they are approximated: 0444 for read-only entries, 0755 for directories, else 0644.
-pub fn permission_bits(meta: &Metadata) -> u32 {
-    permission_bits_impl(meta)
-}
-
-#[cfg(unix)]
-fn permission_bits_impl(meta: &Metadata) -> u32 {
-    use std::os::unix::fs::PermissionsExt;
-    meta.permissions().mode() & 0o7777
-}
-
-#[cfg(not(unix))]
-fn permission_bits_impl(meta: &Metadata) -> u32 {
-    if meta.permissions().readonly() {
-        0o444
-    } else if meta.is_dir() {
-        0o755
-    } else {
-        0o644
-    }
-}
-
-/// `-perm` is rejected at parse time on Windows, so the approximated bits only matter
+/// `-perm` is rejected at parse time on Windows, so the synthesised bits only matter
 /// on Unix in practice.
-fn perm_matches(meta: &Metadata, check: PermCheck) -> bool {
-    let mode = permission_bits(meta);
+fn perm_matches(entry: &Entry, check: PermCheck) -> bool {
+    let mode = permission_bits(entry.path, entry.meta);
     match check {
         PermCheck::Exact(bits) => mode == bits,
         PermCheck::AllBits(bits) => mode & bits == bits,
@@ -286,7 +228,7 @@ fn access_ok(entry: &Entry, access: Access) -> bool {
 #[cfg(unix)]
 fn is_executable(entry: &Entry) -> bool {
     // Checks the mode bits only, not the caller's identity.
-    permission_bits(entry.meta) & 0o111 != 0
+    permission_bits(entry.path, entry.meta) & 0o111 != 0
 }
 
 #[cfg(not(unix))]

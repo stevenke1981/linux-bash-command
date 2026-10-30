@@ -1,3 +1,5 @@
+use crate::common::args::prepare_legacy;
+use crate::common::error::EXIT_FAIL;
 use crate::common::size::human;
 use std::io::{self, Write};
 use std::path::PathBuf;
@@ -29,7 +31,7 @@ Not supported: -i (inode usage), because the OS interface does not report inode 
 Available space and percentages can differ from GNU df because each OS reports
 capacity differently. The Filesystem column shows the device name on Unix and the
 drive letter on Windows.
-Exit status: 0 on success, 2 on invalid arguments or unavailable paths.
+Exit status: 0 on success, 1 on invalid arguments or unavailable paths.
 ";
 
 /// File system types treated as remote by `-l`.
@@ -73,16 +75,41 @@ enum Parsed {
     Run(Options),
 }
 
+const DF_LONGS: &[&str] = &[
+    "all",
+    "block-size",
+    "exclude-type",
+    "help",
+    "human-readable",
+    "inodes",
+    "local",
+    "portability",
+    "print-type",
+    "si",
+    "type",
+];
+
 pub fn run(args: &[String]) -> i32 {
-    let options = match parse(args) {
+    let expanded = match prepare_legacy(
+        "df",
+        args,
+        DF_LONGS,
+        &["block-size", "exclude-type", "type"],
+        "Btx",
+        EXIT_FAIL,
+    ) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let options = match parse(&expanded) {
         Ok(Parsed::Run(options)) => options,
         Ok(Parsed::Help) => {
             print!("{HELP}");
             return 0;
         }
         Err(error) => {
-            eprintln!("df: {error}\nTry 'df --help' for usage.");
-            return 2;
+            eprintln!("df: {error}\nTry 'df --help' for more information.");
+            return 1;
         }
     };
 
@@ -90,7 +117,7 @@ pub fn run(args: &[String]) -> i32 {
     let mounted = disks.list();
     if mounted.is_empty() {
         eprintln!("df: the operating system reported no mounted filesystems");
-        return 2;
+        return 1;
     }
 
     let (selected, had_error) = select(mounted, &options.paths);
@@ -103,7 +130,7 @@ pub fn run(args: &[String]) -> i32 {
     let rows: Vec<Vec<String>> = selected.iter().map(|disk| row(disk, &options)).collect();
     print_table(&headers(&options), &rows, &options);
     if had_error {
-        2
+        1
     } else {
         0
     }
@@ -449,7 +476,7 @@ fn print_table(headers: &[String], rows: &[Vec<String>], options: &Options) -> i
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
             eprintln!("df: cannot write output: {error}");
-            2
+            1
         }
     }
 }

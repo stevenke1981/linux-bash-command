@@ -1,3 +1,5 @@
+use crate::common::args::prepare_abbrevs;
+use crate::common::error::EXIT_FAIL;
 use crossterm::cursor::MoveTo;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use crossterm::execute;
@@ -186,7 +188,7 @@ fn write_plain(contents: &[u8], numbered: bool) -> i32 {
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
             eprintln!("less: cannot write output: {error}");
-            2
+            1
         }
     }
 }
@@ -210,7 +212,7 @@ fn show_pager(contents: &[u8], options: &LessOptions) -> i32 {
     }
     if let Err(error) = page(&lines, options) {
         eprintln!("less: pager failed: {error}");
-        return 2;
+        return 1;
     }
     0
 }
@@ -286,13 +288,34 @@ fn parse_start(text: &str) -> Result<Start, String> {
     Err(format!("unsupported initial command: +{text}"))
 }
 
+const LESS_LONGS: &[&str] = &[
+    "IGNORE-CASE",
+    "LINE-NUMBERS",
+    "QUIET",
+    "RAW-CONTROL-CHARS",
+    "chop-long-lines",
+    "help",
+    "ignore-case",
+    "no-init",
+    "no-keypad",
+    "quit-at-eof",
+    "quit-if-one-screen",
+    "quit-on-intr",
+    "silent",
+];
+
 pub fn run(args: &[String]) -> i32 {
-    let (options, paths) = match parse_args(args) {
+    // `+COMMAND` arguments are not options, so only abbreviations are expanded.
+    let expanded = match prepare_abbrevs("less", args, LESS_LONGS, EXIT_FAIL) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let (options, paths) = match parse_args(&expanded) {
         Ok(Some(parsed)) => parsed,
         Ok(None) => return 0,
         Err(error) => {
-            eprintln!("less: {error}\nUse 'less --help' for usage.");
-            return 2;
+            eprintln!("less: {error}\nTry 'less --help' for more information.");
+            return 1;
         }
     };
 
@@ -300,7 +323,7 @@ pub fn run(args: &[String]) -> i32 {
         let mut contents = Vec::new();
         if let Err(error) = io::stdin().read_to_end(&mut contents) {
             eprintln!("less: cannot read standard input: {error}");
-            return 2;
+            return 1;
         }
         contents
     } else {
@@ -308,7 +331,7 @@ pub fn run(args: &[String]) -> i32 {
             Ok(contents) => contents,
             Err(error) => {
                 eprintln!("less: cannot read input: {error}");
-                return 2;
+                return 1;
             }
         }
     };

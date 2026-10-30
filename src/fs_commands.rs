@@ -1,3 +1,7 @@
+use crate::common::args::prepare_legacy;
+use crate::common::error::{io_error_text, EXIT_FAIL, EXIT_TROUBLE};
+use crate::common::meta::{inode_nlink, mode_string};
+use crate::common::path::strip_verbatim;
 use crate::common::size::human_size;
 use std::cmp::Ordering;
 use std::env;
@@ -9,15 +13,6 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::display_path;
 
 const SECONDS_PER_DAY: i64 = 86_400;
-
-/// Returns an I/O error message without the platform's " (os error N)" suffix.
-pub(crate) fn io_text(error: &io::Error) -> String {
-    let text = error.to_string();
-    match text.find(" (os error") {
-        Some(index) => text[..index].to_string(),
-        None => text,
-    }
-}
 
 /// Accepts `--color`, `--colour` and their `=WHEN` forms. Output is never colored.
 pub(crate) fn is_color_option(arg: &str) -> bool {
@@ -42,9 +37,31 @@ pub(crate) fn is_color_option(arg: &str) -> bool {
     }
 }
 
+const PWD_LONGS: &[&str] = &["help", "logical", "physical"];
+const LS_LONGS: &[&str] = &[
+    "all",
+    "almost-all",
+    "classify",
+    "color",
+    "directory",
+    "full-time",
+    "group-directories-first",
+    "help",
+    "human-readable",
+    "recursive",
+    "reverse",
+    "show-control-chars",
+    "time-style",
+];
+
 pub fn pwd(args: &[String]) -> i32 {
+    let expanded = match prepare_legacy("pwd", args, PWD_LONGS, &[], "", EXIT_FAIL) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let args = expanded.as_slice();
     if args.iter().any(|arg| arg == "-h" || arg == "--help") {
-        println!("Usage: pwd [-L | -P]\nPrint the current working directory.\n\nOptions:\n  -L, --logical   Print $PWD when it names the current directory (default)\n  -P, --physical  Print the directory with symbolic links resolved\n  -h, --help      Show this help\n\nExit status: 0 on success, 2 on error.");
+        println!("Usage: pwd [-L | -P]\nPrint the current working directory.\n\nOptions:\n  -L, --logical   Print $PWD when it names the current directory (default)\n  -P, --physical  Print the directory with symbolic links resolved\n  -h, --help      Show this help\n\nExit status: 0 on success, 1 on error.");
         return 0;
     }
     let physical = match parse_pwd_mode(args) {
@@ -60,16 +77,16 @@ pub fn pwd(args: &[String]) -> i32 {
         Ok(path) => match writeln!(io::stdout().lock(), "{}", display_path(&path)) {
             Ok(()) => 0,
             Err(error) => {
-                eprintln!("pwd: cannot write output: {}", io_text(&error));
-                2
+                eprintln!("pwd: cannot write output: {}", io_error_text(&error));
+                1
             }
         },
         Err(error) => {
             eprintln!(
                 "pwd: cannot determine current directory: {}",
-                io_text(&error)
+                io_error_text(&error)
             );
-            2
+            1
         }
     }
 }
@@ -87,7 +104,7 @@ fn parse_pwd_mode(args: &[String]) -> Result<bool, i32> {
             physical = false;
         } else if options && arg.starts_with("--") {
             eprintln!("pwd: unknown option: {arg}");
-            return Err(2);
+            return Err(1);
         } else if options && arg.len() > 1 && arg.starts_with('-') {
             for flag in arg[1..].chars() {
                 match flag {
@@ -95,20 +112,20 @@ fn parse_pwd_mode(args: &[String]) -> Result<bool, i32> {
                     'L' => physical = false,
                     _ => {
                         eprintln!("pwd: unknown option: -{flag}");
-                        return Err(2);
+                        return Err(1);
                     }
                 }
             }
         } else {
             eprintln!("pwd: this command does not accept arguments");
-            return Err(2);
+            return Err(1);
         }
     }
     Ok(physical)
 }
 
 fn physical_path(cwd: &Path) -> io::Result<PathBuf> {
-    fs::canonicalize(cwd).map(strip_verbatim_prefix)
+    fs::canonicalize(cwd).map(|path| strip_verbatim(&path))
 }
 
 /// `$PWD` is used only when it is an absolute path to the current directory.
@@ -124,25 +141,6 @@ fn same_directory(left: &Path, right: &Path) -> bool {
         (fs::canonicalize(left), fs::canonicalize(right)),
         (Ok(a), Ok(b)) if a == b
     )
-}
-
-#[cfg(windows)]
-fn strip_verbatim_prefix(path: PathBuf) -> PathBuf {
-    let Some(text) = path.to_str() else {
-        return path;
-    };
-    if let Some(rest) = text.strip_prefix(r"\\?\UNC\") {
-        return PathBuf::from(format!(r"\\{rest}"));
-    }
-    match text.strip_prefix(r"\\?\") {
-        Some(rest) => PathBuf::from(rest),
-        None => PathBuf::from(text),
-    }
-}
-
-#[cfg(not(windows))]
-fn strip_verbatim_prefix(path: PathBuf) -> PathBuf {
-    path
 }
 
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
@@ -199,10 +197,14 @@ enum Argument {
     Directory(PathBuf),
 }
 
-const LS_USAGE: &str = "Usage: ls [OPTION]... [PATH]...\nList directory entries, one per line. Times are shown in UTC.\n\nOptions:\n  -a, --all                Include dot-prefixed names, then . and ..\n  -A, --almost-all         Include dot-prefixed names, without . and ..\n  -f                       Same as -a -U\n  -l, -n, -o, -g           Long format: mode, link count, owner '-', group '-', size, time, name\n  -h, --human-readable     With -l, print sizes such as 512, 4.0K, 12M\n  -F, --classify           Append / to directories, @ to symlinks, * to executables\n  -p                       Append / to directories\n  -d, --directory          List directories themselves, not their contents\n  -R, --recursive          List subdirectories recursively\n  -t                       Sort by modification time, newest first\n  -S                       Sort by size, largest first\n  -v                       Sort names in natural order (file2 before file10)\n  -U                       Do not sort; use directory order\n  -r, --reverse            Reverse the sort order\n      --group-directories-first\n                           List directories before files\n      --full-time          With -l, show seconds and +0000\n      --time-style=STYLE   full-iso (seconds), or long-iso, iso, locale (minutes)\n  -x, -C, -1, -G           Accepted; output is always one entry per line\n      --color[=WHEN]       Accepted; output is never colored\n      --show-control-chars Accepted and ignored\n  -i and -s are not supported and exit 2\n\nExit status: 0 on success, 2 if any path could not be listed.\n";
+const LS_USAGE: &str = "Usage: ls [OPTION]... [PATH]...\nList directory entries, one per line. Times are shown in UTC.\n\nOptions:\n  -a, --all                Include dot-prefixed names, then . and ..\n  -A, --almost-all         Include dot-prefixed names, without . and ..\n  -f                       Same as -a -U\n  -l, -n, -o, -g           Long format: mode, link count, owner '-', group '-', size, time, name\n  -h, --human-readable     With -l, print sizes such as 512, 4.0K, 12M\n  -F, --classify           Append / to directories, @ to symlinks, * to executables\n  -p                       Append / to directories\n  -d, --directory          List directories themselves, not their contents\n  -R, --recursive          List subdirectories recursively\n  -t                       Sort by modification time, newest first\n  -S                       Sort by size, largest first\n  -v                       Sort names in natural order (file2 before file10)\n  -U                       Do not sort; use directory order\n  -r, --reverse            Reverse the sort order\n      --group-directories-first\n                           List directories before files\n      --full-time          With -l, show seconds and +0000\n      --time-style=STYLE   full-iso (seconds), or long-iso, iso, locale (minutes)\n  -x, -C, -1, -G           Accepted; output is always one entry per line\n      --color[=WHEN]       Accepted; output is never colored\n      --show-control-chars Accepted and ignored\n  -i and -s are not supported and exit 2\n\nExit status: 0 on success, 2 if a path operand could not be accessed or listed, 1 if an entry inside a directory could not be read.\n";
 
 pub fn ls(args: &[String]) -> i32 {
-    let (options, paths) = match parse_ls(args) {
+    let expanded = match prepare_legacy("ls", args, LS_LONGS, &[], "", EXIT_TROUBLE) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let (options, paths) = match parse_ls(&expanded) {
         Ok(parsed) => parsed,
         Err(code) => return code,
     };
@@ -212,14 +214,16 @@ pub fn ls(args: &[String]) -> i32 {
         headers,
         printed: false,
         failed: false,
+        trouble: false,
     };
     let stdout = io::stdout();
     let mut out = stdout.lock();
     match listing.run(&paths, &mut out) {
-        Ok(()) if !listing.failed => 0,
-        Ok(()) => 2,
+        Ok(()) if listing.trouble => 2,
+        Ok(()) if listing.failed => 1,
+        Ok(()) => 0,
         Err(error) => {
-            eprintln!("ls: cannot write output: {}", io_text(&error));
+            eprintln!("ls: cannot write output: {}", io_error_text(&error));
             2
         }
     }
@@ -330,7 +334,10 @@ struct Listing {
     options: LsOptions,
     headers: bool,
     printed: bool,
+    /// A minor error (inside a directory): exit status 1.
     failed: bool,
+    /// A command-line operand could not be used: exit status 2 (serious trouble).
+    trouble: bool,
 }
 
 impl Listing {
@@ -346,7 +353,7 @@ impl Listing {
         }
         self.print_entries(&mut entries, out)?;
         for directory in directories {
-            self.list_directory(&directory, out)?;
+            self.list_directory(&directory, out, true)?;
         }
         Ok(())
     }
@@ -358,9 +365,9 @@ impl Listing {
                 eprintln!(
                     "ls: cannot access '{}': {}",
                     display_path(path),
-                    io_text(&error)
+                    io_error_text(&error)
                 );
-                self.failed = true;
+                self.trouble = true;
                 return None;
             }
         };
@@ -389,8 +396,14 @@ impl Listing {
                 .unwrap_or(false)
     }
 
-    fn list_directory(&mut self, directory: &Path, out: &mut dyn Write) -> io::Result<()> {
-        let Some(mut entries) = self.read_entries(directory) else {
+    /// `top` is true for a directory named on the command line.
+    fn list_directory(
+        &mut self,
+        directory: &Path,
+        out: &mut dyn Write,
+        top: bool,
+    ) -> io::Result<()> {
+        let Some(mut entries) = self.read_entries(directory, top) else {
             return Ok(());
         };
         if self.headers {
@@ -406,22 +419,26 @@ impl Listing {
                 .iter()
                 .filter(|entry| entry.is_real_dir() && !is_dot_name(&entry.name))
             {
-                self.list_directory(&entry.path, out)?;
+                self.list_directory(&entry.path, out, false)?;
             }
         }
         Ok(())
     }
 
-    fn read_entries(&mut self, directory: &Path) -> Option<Vec<Entry>> {
+    fn read_entries(&mut self, directory: &Path, top: bool) -> Option<Vec<Entry>> {
         let items = match fs::read_dir(directory) {
             Ok(items) => items,
             Err(error) => {
                 eprintln!(
                     "ls: cannot open directory '{}': {}",
                     display_path(directory),
-                    io_text(&error)
+                    io_error_text(&error)
                 );
-                self.failed = true;
+                if top {
+                    self.trouble = true;
+                } else {
+                    self.failed = true;
+                }
                 return None;
             }
         };
@@ -436,7 +453,7 @@ impl Listing {
                     eprintln!(
                         "ls: cannot read directory '{}': {}",
                         display_path(directory),
-                        io_text(&error)
+                        io_error_text(&error)
                     );
                     self.failed = true;
                 }
@@ -461,7 +478,7 @@ impl Listing {
                 eprintln!(
                     "ls: cannot inspect '{}': {}",
                     display_path(&path),
-                    io_text(&error)
+                    io_error_text(&error)
                 );
                 self.failed = true;
                 None
@@ -522,7 +539,7 @@ fn long_lines(entries: &[Entry], options: &LsOptions) -> Vec<String> {
     let size_width = sizes.iter().map(String::len).max().unwrap_or(0);
     let link_width = entries
         .iter()
-        .map(|entry| link_count(&entry.metadata).to_string().len())
+        .map(|entry| inode_nlink(&entry.metadata).1.to_string().len())
         .max()
         .unwrap_or(1);
     entries
@@ -533,7 +550,7 @@ fn long_lines(entries: &[Entry], options: &LsOptions) -> Vec<String> {
             format!(
                 "{} {:>link_width$} - - {:>size_width$} {} {}",
                 mode_string(&entry.path, &entry.metadata),
-                link_count(&entry.metadata),
+                inode_nlink(&entry.metadata).1,
                 size,
                 format_time(modified, options.time_style),
                 long_name(entry, options)
@@ -701,87 +718,6 @@ fn civil_from_days(days: i64) -> (i64, i64, i64) {
     };
     let year = year_of_era + era * 400 + i64::from(month <= 2);
     (year, month, day)
-}
-
-#[cfg(unix)]
-fn link_count(metadata: &fs::Metadata) -> u64 {
-    use std::os::unix::fs::MetadataExt;
-    metadata.nlink()
-}
-
-#[cfg(not(unix))]
-fn link_count(_metadata: &fs::Metadata) -> u64 {
-    1
-}
-
-fn mode_string(path: &Path, metadata: &fs::Metadata) -> String {
-    let mut text = String::from(type_char(metadata));
-    text.push_str(&permission_triads(path, metadata));
-    text
-}
-
-fn type_char(metadata: &fs::Metadata) -> char {
-    let file_type = metadata.file_type();
-    if file_type.is_symlink() {
-        return 'l';
-    }
-    if file_type.is_dir() {
-        return 'd';
-    }
-    special_type_char(metadata).unwrap_or('-')
-}
-
-#[cfg(unix)]
-fn special_type_char(metadata: &fs::Metadata) -> Option<char> {
-    use std::os::unix::fs::FileTypeExt;
-    let file_type = metadata.file_type();
-    if file_type.is_block_device() {
-        Some('b')
-    } else if file_type.is_char_device() {
-        Some('c')
-    } else if file_type.is_fifo() {
-        Some('p')
-    } else if file_type.is_socket() {
-        Some('s')
-    } else {
-        None
-    }
-}
-
-#[cfg(not(unix))]
-fn special_type_char(_metadata: &fs::Metadata) -> Option<char> {
-    None
-}
-
-#[cfg(unix)]
-fn permission_triads(_path: &Path, metadata: &fs::Metadata) -> String {
-    use std::os::unix::fs::PermissionsExt;
-    let mode = metadata.permissions().mode();
-    let mut text = String::with_capacity(9);
-    for shift in [6, 3, 0] {
-        let bits = (mode >> shift) & 0o7;
-        text.push(if bits & 0o4 != 0 { 'r' } else { '-' });
-        text.push(if bits & 0o2 != 0 { 'w' } else { '-' });
-        text.push(if bits & 0o1 != 0 { 'x' } else { '-' });
-    }
-    text
-}
-
-/// Windows has no mode bits: `r` always, `w` unless read-only, `x` for directories and executable extensions.
-#[cfg(not(unix))]
-fn permission_triads(path: &Path, metadata: &fs::Metadata) -> String {
-    let writable = if metadata.permissions().readonly() {
-        '-'
-    } else {
-        'w'
-    };
-    let executable = if metadata.is_dir() || is_executable(path, metadata) {
-        'x'
-    } else {
-        '-'
-    };
-    let triad = format!("r{writable}{executable}");
-    triad.repeat(3)
 }
 
 #[cfg(unix)]

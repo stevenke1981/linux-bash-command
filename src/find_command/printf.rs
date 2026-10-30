@@ -1,6 +1,7 @@
 //! `-printf` format parsing and rendering, and the simple `-ls` long listing.
 
-use super::expr::{file_name_text, kind_char, permission_bits, time_ns, Clock, Entry, NS_PER_SEC};
+use super::expr::{file_name_text, time_ns, Clock, Entry, NS_PER_SEC};
+use crate::common::meta::{kind_char, mode_string, permission_bits};
 use crate::display_path;
 use std::fs::Metadata;
 use std::path::Path;
@@ -139,7 +140,7 @@ pub fn render(pieces: &[Piece], entry: &Entry) -> String {
             Piece::Size => out.push_str(&entry.meta.len().to_string()),
             Piece::Depth => out.push_str(&entry.depth.to_string()),
             Piece::Kind => out.push(kind_char(entry.meta)),
-            Piece::Mode => out.push_str(&format!("{:o}", permission_bits(entry.meta))),
+            Piece::Mode => out.push_str(&format!("{:o}", permission_bits(entry.path, entry.meta))),
             Piece::ModifiedSeconds => {
                 out.push_str(&seconds_with_fraction(time_ns(entry.meta, Clock::Modified)))
             }
@@ -186,7 +187,7 @@ pub fn long_listing(entry: &Entry) -> String {
     let seconds = time_ns(meta, Clock::Modified).map_or(0, |ns| ns.div_euclid(NS_PER_SEC) as i64);
     format!(
         "{inode:>7} {blocks:>4} {mode} {links:>3} {owner:>8} {group:>8} {size:>8} {date} {path}",
-        mode = mode_string(meta),
+        mode = mode_string(entry.path, meta),
         size = meta.len(),
         date = date_text(seconds),
         path = display_path(entry.path),
@@ -214,23 +215,6 @@ fn identity(meta: &Metadata) -> (u64, u64, u64, String, String) {
         "?".to_string(),
         "?".to_string(),
     )
-}
-
-fn mode_string(meta: &Metadata) -> String {
-    let kind = match kind_char(meta) {
-        'f' => '-',
-        other => other,
-    };
-    let bits = permission_bits(meta);
-    let mut text = String::with_capacity(10);
-    text.push(kind);
-    for shift in [6, 3, 0] {
-        let triple = (bits >> shift) & 0o7;
-        text.push(if triple & 0o4 != 0 { 'r' } else { '-' });
-        text.push(if triple & 0o2 != 0 { 'w' } else { '-' });
-        text.push(if triple & 0o1 != 0 { 'x' } else { '-' });
-    }
-    text
 }
 
 const MONTHS: [&str; 12] = [
