@@ -1,0 +1,180 @@
+{
+  "command": "xxd",
+  "cases": [
+    {
+      "name": "default_dump_text",
+      "args": ["hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "default_dump_multiline_binary",
+      "args": ["data.bin"],
+      "files": { "data.bin": { "hex": "00112233445566778899aabbccddeeff0102030405060708090a0b0c0d0e0f10ff7f80" } }
+    },
+    {
+      "name": "bits_dump_b",
+      "args": ["-b", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "bits_partial_line_c3",
+      "args": ["-b", "-c", "3", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "little_endian_e",
+      "args": ["-e", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "group_zero_g0",
+      "args": ["-g0", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "group_one_c5_g1",
+      "args": ["-c", "5", "-g", "1", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "cols_attached_c8",
+      "args": ["-c8", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "cols_long_word",
+      "args": ["-cols", "8", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "uppercase_u",
+      "args": ["-u", "data.bin"],
+      "files": { "data.bin": { "hex": "abcdefff7f" } }
+    },
+    {
+      "name": "autoskip_zero_run",
+      "args": ["-a", "zeros.bin"],
+      "files": { "zeros.bin": { "hex": "61620000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ff7f" } }
+    },
+    {
+      "name": "length_and_seek",
+      "args": ["-l", "3", "-s", "1", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "seek_from_end",
+      "args": ["-s", "-3", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "seek_plus_relative",
+      "args": ["-s", "+2", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "offset_option_o",
+      "args": ["-o", "256", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "decimal_offsets_d",
+      "args": ["-d", "-o", "256", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "include_c_array",
+      "args": ["-i", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "include_twelve_per_line",
+      "args": ["-i", "data.bin"],
+      "files": { "data.bin": { "hex": "00112233445566778899aabbccddeeff0102030405060708" } }
+    },
+    {
+      "name": "include_capital_name_option",
+      "args": ["-C", "-i", "-n", "myname", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "include_path_name_mapping",
+      "args": ["-i", "sub/my-file.bin"],
+      "files": { "sub/my-file.bin": "hi" }
+    },
+    {
+      "name": "include_empty_file",
+      "args": ["-i", "empty.bin"],
+      "files": { "empty.bin": "" }
+    },
+    {
+      "name": "include_stdin_without_name",
+      "args": ["-i"],
+      "stdin": "AB"
+    },
+    {
+      "name": "plain_hex_p",
+      "args": ["-p", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "plain_ps_columns",
+      "args": ["-ps", "-c", "4", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "plain_postscript_word_long_input",
+      "args": ["-postscript", "data.bin"],
+      "files": { "data.bin": { "hex": "00112233445566778899aabbccddeeff0102030405060708090a0b0c0d0e0f10ff7f80" } }
+    },
+    {
+      "name": "reverse_dump_text",
+      "args": ["-r", "dump.txt"],
+      "files": { "dump.txt": "00000000: 6865 6c6c 6f0a                           hello.\n" }
+    },
+    {
+      "name": "reverse_plain_hex",
+      "args": ["-r", "-p", "plain.txt"],
+      "files": { "plain.txt": "68656c6c6f0a\n" }
+    },
+    {
+      "name": "reverse_with_seek_shift",
+      "args": ["-r", "-s", "1", "dump.txt"],
+      "files": { "dump.txt": "00000002: 6869\n" }
+    },
+    {
+      "name": "reverse_to_outfile",
+      "args": ["-r", "dump.txt", "out.bin"],
+      "files": { "dump.txt": "00000000: 0001 02ff\n00000004: 7a\n" },
+      "compare": ["stdout", "exit", "files"]
+    },
+    {
+      "name": "invalid_columns_rejected",
+      "args": ["-c", "300", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "unknown_option_is_usage_error",
+      "args": ["-x", "hello.txt"],
+      "files": { "hello.txt": "hello\n" }
+    },
+    {
+      "name": "missing_input_file",
+      "args": ["nosuch.bin"]
+    },
+    {
+      "name": "little_endian_full_line",
+      "args": ["-e", "data.bin"],
+      "files": { "data.bin": { "hex": "00112233445566778899aabbccddeeff" } }
+    },
+    {
+      "name": "seek_from_end_on_stdin_fails",
+      "args": ["-s", "-3"],
+      "stdin": "hello\n"
+    },
+    {
+      "name": "dump_from_stdin",
+      "args": [],
+      "stdin": "stdin text\n"
+    }
+  ]
+}
