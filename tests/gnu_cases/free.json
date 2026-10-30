@@ -1,0 +1,153 @@
+{
+  "command": "free",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "human",
+      "args": [
+        "-h"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "bytes",
+      "args": [
+        "-b"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "mebi",
+      "args": [
+        "-m"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "gibi_long",
+      "args": [
+        "--gibi"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "si_human",
+      "args": [
+        "--si",
+        "-h"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "total_row",
+      "args": [
+        "-t"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "wide",
+      "args": [
+        "-w"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "lohi",
+      "args": [
+        "-l"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "count_once",
+      "args": [
+        "-s",
+        "1",
+        "-c",
+        "1"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "count_zero_rejected",
+      "args": [
+        "-c",
+        "0"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown_option",
+      "args": [
+        "-x"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "committed_unsupported",
+      "args": [
+        "-v"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": "-v (committed) is listed as not supported by agentcmd"
+    },
+    {
+      "name": "extra_operand",
+      "args": [
+        "x"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "help_exit",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

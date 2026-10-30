@@ -1,0 +1,66 @@
+{
+  "command": "uptime",
+  "cases": [
+    {
+      "name": "since",
+      "args": [
+        "-s"
+      ],
+      "env": {
+        "TZ": "UTC"
+      }
+    },
+    {
+      "name": "since_long",
+      "args": [
+        "--since"
+      ],
+      "env": {
+        "TZ": "UTC"
+      }
+    },
+    {
+      "name": "default",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "pretty",
+      "args": [
+        "-p"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown_option",
+      "args": [
+        "-x"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "extra_operand",
+      "args": [
+        "x"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}
