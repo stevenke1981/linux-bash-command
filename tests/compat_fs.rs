@@ -289,8 +289,9 @@ fn diff_unified_shows_headers_hunks_and_context_options() {
     );
     let long = f.run("diff", &["--unified=1", "a", "b"]);
     assert!(text(&long).contains("@@ -1,3 +1,3 @@"), "{}", text(&long));
-    assert_eq!(code(&f.run("diff", &["-c", "a", "b"])), Some(2));
-    assert_eq!(code(&f.run("diff", &["-y", "a", "b"])), Some(2));
+    assert_eq!(code(&f.run("diff", &["-c", "a", "b"])), Some(1));
+    assert_eq!(code(&f.run("diff", &["-y", "a", "b"])), Some(1));
+    assert_eq!(code(&f.run("diff", &["-u", "-c", "a", "b"])), Some(2));
     assert_eq!(code(&f.run("diff", &["-e", "a", "b"])), Some(2));
 }
 
@@ -323,7 +324,12 @@ fn diff_r_compares_directory_trees() {
     f.write("right/only-right.txt", b"r\n");
     f.write("left/sub/deep.txt", b"a\n");
     f.write("right/sub/deep.txt", b"b\n");
-    let out = f.run("diff", &["-r", "left", "right"]);
+    let normal = text(&f.run("diff", &["-r", "left", "right"]));
+    assert!(
+        normal.contains("diff -r left/changed.txt right/changed.txt\n1c1\n< old\n---\n> new\n"),
+        "{normal}"
+    );
+    let out = f.run("diff", &["-r", "-u", "left", "right"]);
     assert_eq!(code(&out), Some(1));
     let body = text(&out);
     assert!(body.contains("Only in left: only-left.txt\n"), "{body}");
@@ -398,7 +404,10 @@ fn diff_label_replaces_header_names_and_binary_files_are_detected() {
     let f = Fixture::new();
     f.write("a", b"one\n");
     f.write("b", b"two\n");
-    let out = text(&f.run("diff", &["--label", "old", "--label", "new", "a", "b"]));
+    let out = text(&f.run(
+        "diff",
+        &["-u", "--label", "old", "--label", "new", "a", "b"],
+    ));
     assert!(out.starts_with("--- old\n+++ new\n"), "{out}");
     assert_eq!(
         code(&f.run(
@@ -421,7 +430,7 @@ fn diff_reads_standard_input_and_reports_missing_files() {
     f.write("file", b"same\n");
     let out = f.run_with_stdin("diff", &["-", "file"], b"same\n");
     assert_eq!(code(&out), Some(0));
-    let changed = f.run_with_stdin("diff", &["-", "file"], b"different\n");
+    let changed = f.run_with_stdin("diff", &["-u", "-", "file"], b"different\n");
     assert_eq!(code(&changed), Some(1));
     assert!(
         text(&changed).contains("--- -\n+++ file\n"),
@@ -437,7 +446,7 @@ fn diff_new_file_treats_absent_file_as_empty() {
     f.write("present", b"line\n");
     let out = f.run("diff", &["-N", "absent", "present"]);
     assert_eq!(code(&out), Some(1));
-    assert!(text(&out).contains("+line\n"), "{}", text(&out));
+    assert!(text(&out).contains("> line\n"), "{}", text(&out));
 }
 
 fn contains_bytes(haystack: &[u8], needle: &[u8]) -> bool {
@@ -520,7 +529,7 @@ fn diff_text_mode_still_applies_ignore_options_to_non_utf8_lines() {
 fn diff_text_mode_preserves_raw_stdin_and_missing_final_newlines() {
     let f = Fixture::new();
     f.write("right", b"new\0\xe8");
-    let out = f.run_with_stdin("diff", &["-a", "-", "right"], b"old\0\xe9");
+    let out = f.run_with_stdin("diff", &["-a", "-u", "-", "right"], b"old\0\xe9");
     assert_eq!(code(&out), Some(1));
     assert_eq!(
         out.stdout,
@@ -545,7 +554,7 @@ fn diff_directories_without_r_compare_direct_entries_only() {
     f.write("d2/only-right", b"r\n");
     f.write("d1/sub/deep", b"old\n");
     f.write("d2/sub/deep", b"new\n");
-    let out = f.run("diff", &["d1", "d2"]);
+    let out = f.run("diff", &["-u", "d1", "d2"]);
     assert_eq!(
         code(&out),
         Some(1),
@@ -595,14 +604,14 @@ fn diff_file_and_directory_operands_compare_against_the_directory_entry() {
     let f = Fixture::new();
     f.write("note.txt", b"new\n");
     f.write("dir/note.txt", b"old\n");
-    let file_first = f.run("diff", &["note.txt", "dir"]);
+    let file_first = f.run("diff", &["-u", "note.txt", "dir"]);
     assert_eq!(code(&file_first), Some(1));
     let body = text(&file_first);
     assert!(
         body.starts_with("--- note.txt\n+++ dir/note.txt\n"),
         "{body}"
     );
-    let dir_first = f.run("diff", &["dir", "note.txt"]);
+    let dir_first = f.run("diff", &["-u", "dir", "note.txt"]);
     assert_eq!(code(&dir_first), Some(1));
     assert!(
         text(&dir_first).starts_with("--- dir/note.txt\n+++ note.txt\n"),

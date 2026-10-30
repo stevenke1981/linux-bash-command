@@ -1,0 +1,402 @@
+{
+  "command": "cmp",
+  "cases": [
+    {
+      "name": "identical",
+      "args": [
+        "a",
+        "a"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n"
+      }
+    },
+    {
+      "name": "default_differ",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      },
+      "skip_reason": "spec: 'differ: byte N, line M'; GNU 3.10 prints 'char N' here (known difference)"
+    },
+    {
+      "name": "silent_differ",
+      "args": [
+        "-s",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "silent_identical",
+      "args": [
+        "-s",
+        "a",
+        "a"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n"
+      }
+    },
+    {
+      "name": "verbose_all_differences",
+      "args": [
+        "-l",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\nd\n",
+        "b": "x\nb\ny\nd\n"
+      }
+    },
+    {
+      "name": "print_bytes",
+      "args": [
+        "-b",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "verbose_print_bytes",
+      "args": [
+        "-bl",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\nd\n",
+        "b": "x\nb\ny\nd\n"
+      }
+    },
+    {
+      "name": "eof_on_shorter_stdout_empty",
+      "args": [
+        "a",
+        "short"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "short": "abc\ndef\n"
+      }
+    },
+    {
+      "name": "verbose_eof",
+      "args": [
+        "-l",
+        "a",
+        "short"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "short": "abc\ndef\n"
+      }
+    },
+    {
+      "name": "limit_stops_before_difference",
+      "args": [
+        "-n",
+        "3",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "limit_reaches_difference",
+      "args": [
+        "-l",
+        "-n",
+        "6",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "limit_hex_value",
+      "args": [
+        "-l",
+        "-n",
+        "0x5",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "limit_size_suffix",
+      "args": [
+        "-l",
+        "-n",
+        "1KB",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "zero_limit",
+      "args": [
+        "-n",
+        "0",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "skip_both",
+      "args": [
+        "-l",
+        "-i",
+        "1",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "skip_pair",
+      "args": [
+        "-l",
+        "-i",
+        "1:2",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "skip_operands",
+      "args": [
+        "-l",
+        "a",
+        "b",
+        "2",
+        "1"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "skip_past_both_ends",
+      "args": [
+        "-i",
+        "99",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "skip_leaves_one_empty",
+      "args": [
+        "-i",
+        "3",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "ab\n",
+        "b": "ab\ncd\n"
+      }
+    },
+    {
+      "name": "bytes_long_option",
+      "args": [
+        "-l",
+        "--bytes=2",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "ab\n",
+        "b": "ab\ncd\n"
+      }
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "a",
+        "missing"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n"
+      }
+    },
+    {
+      "name": "directory_operand",
+      "args": [
+        "a",
+        "d"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "d": {
+          "dir": true
+        }
+      }
+    },
+    {
+      "name": "stdin_operand",
+      "args": [
+        "-l",
+        "-",
+        "b"
+      ],
+      "stdin": "abc\ndef\nghi\n",
+      "files": {
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "stdin_both",
+      "args": [
+        "-",
+        "-"
+      ],
+      "stdin": "abc\ndef\nghi\n"
+    },
+    {
+      "name": "no_operands",
+      "args": []
+    },
+    {
+      "name": "extra_operand",
+      "args": [
+        "a",
+        "b",
+        "1",
+        "2",
+        "3"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "bad_limit",
+      "args": [
+        "-n",
+        "-1",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc\ndef\nghi\n",
+        "b": "abc\nxef\nghi\n"
+      }
+    },
+    {
+      "name": "nonprintable_print_bytes",
+      "args": [
+        "-b",
+        "c1",
+        "c2"
+      ],
+      "files": {
+        "c1": {
+          "hex": "017f80a0c11b00ff"
+        },
+        "c2": {
+          "hex": "027e81a1c21c00fe"
+        }
+      }
+    },
+    {
+      "name": "nonprintable_verbose",
+      "args": [
+        "-l",
+        "c1",
+        "c2"
+      ],
+      "files": {
+        "c1": {
+          "hex": "017f80a0c11b00ff"
+        },
+        "c2": {
+          "hex": "027e81a1c21c00fe"
+        }
+      }
+    },
+    {
+      "name": "verbose_width_from_size",
+      "args": [
+        "-l",
+        "A1",
+        "A2"
+      ],
+      "files": {
+        "A1": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "A2": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "name": "verbose_width_after_skip",
+      "args": [
+        "-l",
+        "-i",
+        "400",
+        "A1",
+        "A2"
+      ],
+      "files": {
+        "A1": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "A2": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "name": "verbose_stdin_width",
+      "args": [
+        "-l",
+        "p1",
+        "-"
+      ],
+      "stdin": "xbc\nd\n",
+      "files": {
+        "p1": "ab\n"
+      }
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "command": "rev",
+  "cases": [
+    {
+      "name": "single_line",
+      "args": [
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "abc\n"
+      }
+    },
+    {
+      "name": "several_lines",
+      "args": [],
+      "stdin": "hello\nworld\n"
+    },
+    {
+      "name": "no_final_newline",
+      "args": [],
+      "stdin": "abc"
+    },
+    {
+      "name": "empty_lines_kept",
+      "args": [],
+      "stdin": "\n\nq\n"
+    },
+    {
+      "name": "empty_input",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "carriage_return_is_data",
+      "args": [],
+      "stdin": "abc\r\nxyz"
+    },
+    {
+      "name": "utf8_characters",
+      "args": [],
+      "stdin": "héllo wörld\n日本語\n",
+      "env": {
+        "LC_ALL": "C.UTF-8"
+      }
+    },
+    {
+      "name": "combining_mark_stays_with_base_order",
+      "args": [],
+      "stdin": "éx\n",
+      "env": {
+        "LC_ALL": "C.UTF-8"
+      }
+    },
+    {
+      "name": "two_files",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "ab\n",
+        "b": "cd"
+      }
+    },
+    {
+      "name": "double_dash",
+      "args": [
+        "--",
+        "-x"
+      ],
+      "files": {
+        "-x": "xy\n"
+      }
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "nosuch"
+      ]
+    },
+    {
+      "name": "missing_and_present",
+      "args": [
+        "nosuch",
+        "a"
+      ],
+      "files": {
+        "a": "ab\n"
+      }
+    },
+    {
+      "name": "dash_is_a_file_name",
+      "args": [
+        "-"
+      ],
+      "stdin": "k\n",
+      "skip_reason": "GNU util-linux rev treats '-' as a file name, not stdin (convention: stdin, see 02 §5)"
+    }
+  ]
+}

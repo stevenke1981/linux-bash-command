@@ -1,0 +1,798 @@
+{
+  "command": "diff",
+  "cases": [
+    {
+      "name": "normal_change",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "normal_add",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nc\n",
+        "b": "a\nX\nc\n"
+      }
+    },
+    {
+      "name": "normal_delete",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nX\nc\n",
+        "b": "a\nc\n"
+      }
+    },
+    {
+      "name": "normal_ranges",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1\n2\n3\n",
+        "b": "x\ny\nz\n"
+      }
+    },
+    {
+      "name": "normal_no_final_newline",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "p\nq",
+        "b": "p\nr\n"
+      }
+    },
+    {
+      "name": "normal_empty_left",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "",
+        "b": "a\n"
+      }
+    },
+    {
+      "name": "normal_identical",
+      "args": [
+        "a",
+        "a"
+      ],
+      "files": {
+        "a": "a\nb\nc\n"
+      }
+    },
+    {
+      "name": "normal_brief",
+      "args": [
+        "-q",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "normal_report_identical",
+      "args": [
+        "-s",
+        "a",
+        "a"
+      ],
+      "files": {
+        "a": "a\nb\nc\n"
+      }
+    },
+    {
+      "name": "normal_stdin",
+      "args": [
+        "-",
+        "b"
+      ],
+      "stdin": "a\nb\nc\n",
+      "files": {
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "normal_ignore_case",
+      "args": [
+        "-i",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "A\nb\n",
+        "b": "a\nB\n"
+      }
+    },
+    {
+      "name": "normal_ignore_space",
+      "args": [
+        "-w",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x  y\n",
+        "b": "x y\n"
+      }
+    },
+    {
+      "name": "normal_ignore_blank_lines",
+      "args": [
+        "-B",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\n\nb\n",
+        "b": "a\nb\n"
+      }
+    },
+    {
+      "name": "normal_explicit_format",
+      "args": [
+        "--normal",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "normal_two_hunks",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1\n2\n3\n4\n5\n6\n7\n8\n9\n",
+        "b": "1\n2\n3\nX\n5\n6\n7\nY\n9\n"
+      }
+    },
+    {
+      "name": "normal_missing_operand_file",
+      "args": [
+        "a",
+        "missing"
+      ],
+      "files": {
+        "a": "a\nb\nc\n"
+      }
+    },
+    {
+      "name": "normal_binary",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "hex": "00ff"
+        },
+        "b": {
+          "hex": "00fe"
+        }
+      }
+    },
+    {
+      "name": "normal_directories",
+      "args": [
+        "-r",
+        "d1",
+        "d2"
+      ],
+      "files": {
+        "d1": {
+          "dir": true
+        },
+        "d2": {
+          "dir": true
+        },
+        "d1/f": "a\n",
+        "d2/f": "b\n"
+      }
+    },
+    {
+      "name": "context_default",
+      "args": [
+        "-c",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "text": "a\nb\nc\n",
+          "mtime": 1700000000
+        },
+        "b": {
+          "text": "a\nx\nc\n",
+          "mtime": 1700086400
+        }
+      }
+    },
+    {
+      "name": "context_C1",
+      "args": [
+        "-C",
+        "1",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1\n2\n3\n4\n5\n6\n7\n8\n9\n",
+        "b": "1\n2\n3\nX\n5\n6\n7\n8\n9\n"
+      }
+    },
+    {
+      "name": "context_C0",
+      "args": [
+        "-C0",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1\n2\n3\n4\n5\n6\n7\n8\n9\n",
+        "b": "1\n2\n3\nX\n5\n6\n7\n8\n9\n"
+      }
+    },
+    {
+      "name": "context_addition",
+      "args": [
+        "-c",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "text": "a\nb\n",
+          "mtime": 1700000000
+        },
+        "b": {
+          "text": "a\nX\nb\n",
+          "mtime": 1700086400
+        }
+      }
+    },
+    {
+      "name": "context_deletion",
+      "args": [
+        "-c",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "text": "a\nX\nb\n",
+          "mtime": 1700000000
+        },
+        "b": {
+          "text": "a\nb\n",
+          "mtime": 1700086400
+        }
+      }
+    },
+    {
+      "name": "context_no_final_newline",
+      "args": [
+        "-c",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "text": "p\nq",
+          "mtime": 1700000000
+        },
+        "b": {
+          "text": "p\nr\n",
+          "mtime": 1700086400
+        }
+      }
+    },
+    {
+      "name": "context_all_changed",
+      "args": [
+        "-c",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "text": "a\nb\n",
+          "mtime": 1700000000
+        },
+        "b": {
+          "text": "x\ny\nz\n",
+          "mtime": 1700086400
+        }
+      }
+    },
+    {
+      "name": "context_long_option",
+      "args": [
+        "--context=2",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1\n2\n3\n4\n5\n6\n7\n8\n9\n",
+        "b": "1\n2\n3\nX\n5\n6\n7\n8\n9\n"
+      }
+    },
+    {
+      "name": "context_option_without_value",
+      "args": [
+        "--context",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "text": "a\nb\nc\n",
+          "mtime": 1700000000
+        },
+        "b": {
+          "text": "a\nx\nc\n",
+          "mtime": 1700086400
+        }
+      }
+    },
+    {
+      "name": "context_labels",
+      "args": [
+        "-c",
+        "--label",
+        "L1",
+        "--label",
+        "L2",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "context_stdin_labelled",
+      "args": [
+        "-c",
+        "--label",
+        "S",
+        "--label",
+        "b",
+        "-",
+        "b"
+      ],
+      "stdin": "a\nb\nc\n",
+      "files": {
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "context_identical",
+      "args": [
+        "-c",
+        "a",
+        "a"
+      ],
+      "files": {
+        "a": {
+          "text": "a\nb\nc\n",
+          "mtime": 1700000000
+        }
+      }
+    },
+    {
+      "name": "context_conflicting_styles",
+      "args": [
+        "-c",
+        "-u",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "text": "a\nb\nc\n",
+          "mtime": 1700000000
+        },
+        "b": {
+          "text": "a\nx\nc\n",
+          "mtime": 1700086400
+        }
+      }
+    },
+    {
+      "name": "context_brief",
+      "args": [
+        "-c",
+        "-q",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "text": "a\nb\nc\n",
+          "mtime": 1700000000
+        },
+        "b": {
+          "text": "a\nx\nc\n",
+          "mtime": 1700086400
+        }
+      }
+    },
+    {
+      "name": "context_ignore_blank_lines",
+      "args": [
+        "-c",
+        "-B",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "text": "a\n\nb\n",
+          "mtime": 1700000000
+        },
+        "b": {
+          "text": "a\nb\n",
+          "mtime": 1700000000
+        }
+      }
+    },
+    {
+      "name": "unified_labels",
+      "args": [
+        "-u",
+        "--label",
+        "A",
+        "--label",
+        "B",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "unified_context_labels",
+      "args": [
+        "-U",
+        "1",
+        "--label",
+        "A",
+        "--label",
+        "B",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "1\n2\n3\n4\n5\n6\n7\n8\n9\n",
+        "b": "1\n2\n3\nX\n5\n6\n7\n8\n9\n"
+      }
+    },
+    {
+      "name": "unified_without_labels",
+      "args": [
+        "-u",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      },
+      "skip_reason": "GNU prints file times in ---/+++ headers; the -u output format is kept unchanged (05-existing-gaps)"
+    },
+    {
+      "name": "side_change",
+      "args": [
+        "-y",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "side_addition",
+      "args": [
+        "-y",
+        "ins_a",
+        "ins_b"
+      ],
+      "files": {
+        "ins_a": "a\nb\nc\n",
+        "ins_b": "a\nX\nb\nc\n"
+      }
+    },
+    {
+      "name": "side_deletion",
+      "args": [
+        "-y",
+        "ins_b",
+        "ins_a"
+      ],
+      "files": {
+        "ins_a": "a\nb\nc\n",
+        "ins_b": "a\nX\nb\nc\n"
+      }
+    },
+    {
+      "name": "side_identical",
+      "args": [
+        "-y",
+        "a",
+        "a"
+      ],
+      "files": {
+        "a": "a\nb\nc\n"
+      }
+    },
+    {
+      "name": "side_identical_with_s",
+      "args": [
+        "-y",
+        "-s",
+        "a",
+        "a"
+      ],
+      "files": {
+        "a": "x\ny\n"
+      }
+    },
+    {
+      "name": "side_width_40",
+      "args": [
+        "-y",
+        "-W",
+        "40",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\n",
+        "b": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\n"
+      }
+    },
+    {
+      "name": "side_width_30_truncates",
+      "args": [
+        "-y",
+        "-W",
+        "30",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abcdefghij klmnopqrstuvwxyz\n",
+        "b": "x\n"
+      }
+    },
+    {
+      "name": "side_width_130_long",
+      "args": [
+        "-y",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\n",
+        "b": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\n"
+      }
+    },
+    {
+      "name": "side_width_41",
+      "args": [
+        "-y",
+        "-W",
+        "41",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "side_width_55",
+      "args": [
+        "-y",
+        "-W",
+        "55",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "side_width_70",
+      "args": [
+        "-y",
+        "-W",
+        "70",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "side_width_100",
+      "args": [
+        "-y",
+        "-W",
+        "100",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "side_width_300",
+      "args": [
+        "-y",
+        "-W",
+        "300",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "side_left_column",
+      "args": [
+        "-y",
+        "--left-column",
+        "ins_a",
+        "ins_b"
+      ],
+      "files": {
+        "ins_a": "a\nb\nc\n",
+        "ins_b": "a\nX\nb\nc\n"
+      }
+    },
+    {
+      "name": "side_suppress_common",
+      "args": [
+        "-y",
+        "--suppress-common-lines",
+        "ins_a",
+        "ins_b"
+      ],
+      "files": {
+        "ins_a": "a\nb\nc\n",
+        "ins_b": "a\nX\nb\nc\n"
+      }
+    },
+    {
+      "name": "side_missing_final_newline",
+      "args": [
+        "-y",
+        "nl_a",
+        "nl_b"
+      ],
+      "files": {
+        "nl_a": "p\nq",
+        "nl_b": "p\nr\n"
+      }
+    },
+    {
+      "name": "side_tab_truncation",
+      "args": [
+        "-y",
+        "-W",
+        "10",
+        "tab_a",
+        "tab_b"
+      ],
+      "files": {
+        "tab_a": "a\tb\nc\n",
+        "tab_b": "a\tX\nc\n"
+      }
+    },
+    {
+      "name": "side_empty_right_text",
+      "args": [
+        "-y",
+        "e_a",
+        "e_b"
+      ],
+      "files": {
+        "e_a": "a\nb\n",
+        "e_b": "a\n\n"
+      }
+    },
+    {
+      "name": "side_brief",
+      "args": [
+        "-y",
+        "-q",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "side_conflicting_styles",
+      "args": [
+        "-y",
+        "-c",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "side_zero_width",
+      "args": [
+        "-y",
+        "-W",
+        "0",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "a\nx\nc\n"
+      }
+    },
+    {
+      "name": "side_blank_lines_with_B",
+      "args": [
+        "-y",
+        "-B",
+        "bl_a",
+        "bl_b"
+      ],
+      "files": {
+        "bl_a": "a\n\n\nb\n",
+        "bl_b": "a\nb\n"
+      },
+      "skip_reason": "GNU -y -B lists hidden blank lines as rows with a '(' marker; not implemented"
+    }
+  ]
+}

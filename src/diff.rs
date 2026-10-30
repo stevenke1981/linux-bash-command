@@ -1,24 +1,42 @@
-use similar::{capture_diff_slices, Algorithm, DiffOp};
+//! `diff`: compares two files, or two directories with `-r`, and prints the differences in
+//! normal (default), unified, context or side-by-side form. The renderers live in the child
+//! modules `hunks` (shared line comparison), `normal`, `unified`, `context` and `side`.
+
+mod context;
+mod hunks;
+mod normal;
+mod side;
+mod unified;
+
 use std::collections::BTreeSet;
 use std::ffi::OsString;
 use std::fs;
 use std::io::{self, Read, Write};
-use std::ops::Range;
 use std::path::{Path, PathBuf};
 
 use crate::common::args::prepare_legacy;
+use crate::common::datetime::{format_in, from_system_time, now, zone_from_env};
 use crate::common::error::io_error_text;
 use crate::display_path;
 use crate::fs_commands::is_color_option;
 
 const DEFAULT_CONTEXT: usize = 3;
+const DEFAULT_WIDTH: usize = 130;
 
 const USAGE: &str = concat!(
     "Usage: diff [OPTIONS] LEFT RIGHT\n",
-    "Compare two files, or two directories (-r recurses), and print a unified diff.\n",
+    "Compare two files, or two directories (-r recurses), and print the differences.\n",
+    "\n",
+    "Output format (default: normal):\n",
+    "      --normal                  Normal format\n",
+    "  -u, -U N, --unified[=N]       Unified format with N unchanged context lines (default: 3)\n",
+    "  -c, -C N, --context[=N]       Context format with N lines of context (default: 3)\n",
+    "  -y, --side-by-side            Side-by-side format\n",
+    "  -W N, --width=N               Output width for -y (default: 130)\n",
+    "      --left-column             With -y, print the left column of common lines only\n",
+    "      --suppress-common-lines   With -y, do not print common lines\n",
     "\n",
     "Options:\n",
-    "  -u, -U N, --unified[=N]       Unified format with N unchanged context lines (default: 3)\n",
     "  -q, --brief                   Report only whether the files differ\n",
     "  -s, --report-identical-files  Report when two files are the same\n",
     "  -r, --recursive               Compare directory trees recursively\n",
@@ -30,18 +48,33 @@ const USAGE: &str = concat!(
     "      --strip-trailing-cr       Ignore a trailing carriage return on each line\n",
     "  -a, --text                    Compare binary-looking files as text\n",
     "      --label LABEL             Use LABEL in headers instead of the file name (up to two)\n",
-    "      --context N               Same as -U N\n",
     "      --color[=WHEN]            Accepted; output is never colored\n",
     "  -h, --help                    Show this help\n",
     "\n",
-    "Not supported: -c, -C, -y, -e (only unified output is available).\n",
+    "Not supported: -e (ed scripts).\n",
     "Exit status: 0 when equal, 1 when different, 2 on error.\n",
 );
 
+/// The output format. Only one may be chosen per run.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Style {
+    Normal,
+    Unified,
+    Context,
+    SideBySide,
+}
+
 /// Options that change how files are compared or how the result is reported.
-#[derive(Default)]
+#[derive(Debug)]
 struct Options {
+    style: Style,
+    style_set: bool,
+    /// Context lines for unified and context formats.
     context: usize,
+    /// Output width for side-by-side.
+    width: usize,
+    left_column: bool,
+    suppress_common: bool,
     brief: bool,
     report_identical: bool,
     recursive: bool,
@@ -55,11 +88,34 @@ struct Options {
     labels: Vec<String>,
 }
 
-/// Compare two files or directories. Returns 0 when equal, 1 when different, and 2 on error.
+impl Default for Options {
+    fn default() -> Self {
+        Self {
+            style: Style::Normal,
+            style_set: false,
+            context: DEFAULT_CONTEXT,
+            width: DEFAULT_WIDTH,
+            left_column: false,
+            suppress_common: false,
+            brief: false,
+            report_identical: false,
+            recursive: false,
+            new_file: false,
+            ignore_all_space: false,
+            ignore_space_change: false,
+            ignore_blank_lines: false,
+            ignore_case: false,
+            strip_trailing_cr: false,
+            text: false,
+            labels: Vec::new(),
+        }
+    }
+}
+
+/// Long options that take a value, for prefix expansion and `--name VALUE` forms.
 const DIFF_LONGS: &[&str] = &[
     "brief",
     "context",
-    "context-format",
     "ed",
     "help",
     "ignore-all-space",
@@ -67,18 +123,22 @@ const DIFF_LONGS: &[&str] = &[
     "ignore-case",
     "ignore-space-change",
     "label",
+    "left-column",
     "new-file",
     "normal",
     "recursive",
     "report-identical-files",
     "side-by-side",
     "strip-trailing-cr",
+    "suppress-common-lines",
     "text",
     "unified",
+    "width",
 ];
 
+/// Compare two files or directories. Returns 0 when equal, 1 when different, and 2 on error.
 pub fn run(args: &[String]) -> i32 {
-    let expanded = match prepare_legacy("diff", args, DIFF_LONGS, &["context", "label"], "U", 2) {
+    let expanded = match prepare_legacy("diff", args, DIFF_LONGS, &["label", "width"], "UCW", 2) {
         Ok(expanded) => expanded,
         Err(code) => return code,
     };
@@ -104,10 +164,7 @@ pub fn run(args: &[String]) -> i32 {
 }
 
 fn parse_args(args: &[String]) -> Result<(Options, Vec<String>), i32> {
-    let mut options = Options {
-        context: DEFAULT_CONTEXT,
-        ..Options::default()
-    };
+    let mut options = Options::default();
     let mut paths = Vec::new();
     let mut end_of_options = false;
     let mut index = 0;
@@ -125,6 +182,19 @@ fn parse_args(args: &[String]) -> Result<(Options, Vec<String>), i32> {
         }
     }
     Ok((options, paths))
+}
+
+/// Selects an output format, rejecting a second, different one (GNU: conflicting options).
+fn set_style(options: &mut Options, style: Style) -> Result<(), i32> {
+    if options.style_set && options.style != style {
+        eprintln!(
+            "diff: conflicting output style options\nTry 'diff --help' for more information."
+        );
+        return Err(2);
+    }
+    options.style = style;
+    options.style_set = true;
+    Ok(())
 }
 
 fn parse_long(
@@ -149,17 +219,22 @@ fn parse_long(
         "ignore-case" => options.ignore_case = true,
         "strip-trailing-cr" => options.strip_trailing_cr = true,
         "text" => options.text = true,
-        "unified" => {}
+        "left-column" => options.left_column = true,
+        "suppress-common-lines" => options.suppress_common = true,
+        "normal" => set_style(options, Style::Normal)?,
+        "side-by-side" => set_style(options, Style::SideBySide)?,
+        "unified" => set_style(options, Style::Unified)?,
+        "context" => set_style(options, Style::Context)?,
         "label" => {
             let label = next_value(args, index, "--label")?;
             push_label(options, label)?;
         }
-        "context" => {
-            let value = next_value(args, index, "--context")?;
-            options.context = parse_context(value)?;
+        "width" => {
+            let value = next_value(args, index, "--width")?;
+            options.width = parse_width(value)?;
         }
-        "side-by-side" | "ed" | "normal" | "context-format" => {
-            eprintln!("diff: --{name} is not supported (only unified output is available)");
+        "ed" => {
+            eprintln!("diff: --ed is not supported (only the normal, context, unified and side-by-side formats)");
             return Err(2);
         }
         _ => parse_long_with_value(name, arg, options)?,
@@ -168,13 +243,16 @@ fn parse_long(
 }
 
 fn parse_long_with_value(name: &str, arg: &str, options: &mut Options) -> Result<(), i32> {
-    if let Some(value) = name
-        .strip_prefix("unified=")
-        .or_else(|| name.strip_prefix("context="))
-    {
+    if let Some(value) = name.strip_prefix("unified=") {
+        set_style(options, Style::Unified)?;
+        options.context = parse_context(value)?;
+    } else if let Some(value) = name.strip_prefix("context=") {
+        set_style(options, Style::Context)?;
         options.context = parse_context(value)?;
     } else if let Some(label) = name.strip_prefix("label=") {
         push_label(options, label)?;
+    } else if let Some(value) = name.strip_prefix("width=") {
+        options.width = parse_width(value)?;
     } else if !is_color_option(arg) {
         eprintln!("diff: unknown option: {arg}\n{USAGE}");
         return Err(2);
@@ -190,7 +268,9 @@ fn parse_short(
 ) -> Result<(), i32> {
     for (offset, flag) in flags.char_indices() {
         match flag {
-            'u' => {}
+            'u' => set_style(options, Style::Unified)?,
+            'c' => set_style(options, Style::Context)?,
+            'y' => set_style(options, Style::SideBySide)?,
             'q' => options.brief = true,
             's' => options.report_identical = true,
             'r' => options.recursive = true,
@@ -200,22 +280,32 @@ fn parse_short(
             'B' => options.ignore_blank_lines = true,
             'i' => options.ignore_case = true,
             'a' => options.text = true,
-            'U' => {
+            'U' | 'C' | 'W' => {
                 let rest = &flags[offset + flag.len_utf8()..];
                 let value = if rest.is_empty() {
-                    next_value(args, index, "-U")?
+                    next_value(args, index, &format!("-{flag}"))?
                 } else {
                     rest
                 };
-                options.context = parse_context(value)?;
+                match flag {
+                    'U' => {
+                        set_style(options, Style::Unified)?;
+                        options.context = parse_context(value)?;
+                    }
+                    'C' => {
+                        set_style(options, Style::Context)?;
+                        options.context = parse_context(value)?;
+                    }
+                    _ => options.width = parse_width(value)?,
+                }
                 return Ok(());
             }
             'h' => {
                 print!("{USAGE}");
                 return Err(0);
             }
-            'c' | 'C' | 'y' | 'e' => {
-                eprintln!("diff: -{flag} is not supported (only unified output is available)");
+            'e' => {
+                eprintln!("diff: -e is not supported (only the normal, context, unified and side-by-side formats)");
                 return Err(2);
             }
             _ => {
@@ -245,6 +335,16 @@ fn parse_context(value: &str) -> Result<usize, i32> {
         eprintln!("diff: invalid context line count: {value}");
         2
     })
+}
+
+fn parse_width(value: &str) -> Result<usize, i32> {
+    match value.parse::<usize>() {
+        Ok(width) if width >= 1 => Ok(width),
+        _ => {
+            eprintln!("diff: invalid width '{value}'\nTry 'diff --help' for more information.");
+            Err(2)
+        }
+    }
 }
 
 fn push_label(options: &mut Options, label: &str) -> Result<(), i32> {
@@ -351,7 +451,43 @@ fn compare_loaded(
 ) -> Result<(i32, Vec<u8>), String> {
     let left_bytes = load(left, options.new_file)?;
     let right_bytes = load(right, options.new_file)?;
-    Ok(report_pair(&left_bytes, &right_bytes, names, options))
+    // A file given a --label is shown by that label alone, without a time.
+    let times = if options.style == Style::Context {
+        let stamp = |path: &Path, labelled: bool| {
+            if labelled {
+                String::new()
+            } else {
+                time_stamp(path)
+            }
+        };
+        (
+            stamp(left, !options.labels.is_empty()),
+            stamp(right, options.labels.len() == 2),
+        )
+    } else {
+        (String::new(), String::new())
+    };
+    Ok(report_pair(
+        &left_bytes,
+        &right_bytes,
+        names,
+        &times,
+        options,
+    ))
+}
+
+/// The modification time as the context format prints it, in the `TZ` zone. Standard input
+/// has no file time, so it gets the current time, as in GNU diff.
+fn time_stamp(path: &Path) -> String {
+    let stamp = if path == Path::new("-") {
+        now()
+    } else {
+        fs::metadata(path)
+            .and_then(|meta| meta.modified())
+            .map(from_system_time)
+            .unwrap_or_else(|_| now())
+    };
+    format_in("%a %b %e %H:%M:%S %Y", stamp, &zone_from_env())
 }
 
 fn load(path: &Path, new_file: bool) -> Result<Vec<u8>, String> {
@@ -523,14 +659,23 @@ fn report_pair(
     left: &[u8],
     right: &[u8],
     names: &(String, String),
+    times: &(String, String),
     options: &Options,
 ) -> (i32, Vec<u8>) {
-    match compare_contents(left, right, names, options) {
+    match compare_contents(left, right, names, times, options) {
         Comparison::Same if options.report_identical => (
             0,
             format!("Files {} and {} are identical\n", names.0, names.1).into_bytes(),
         ),
         Comparison::Same => (0, Vec::new()),
+        Comparison::Identical(mut body) => {
+            if options.report_identical {
+                body.extend(
+                    format!("Files {} and {} are identical\n", names.0, names.1).into_bytes(),
+                );
+            }
+            (0, body)
+        }
         Comparison::Binary if options.brief => (1, differ_message(names, "Files").into_bytes()),
         Comparison::Binary => (1, differ_message(names, "Binary files").into_bytes()),
         Comparison::Text(_) if options.brief => (1, differ_message(names, "Files").into_bytes()),
@@ -543,7 +688,10 @@ fn differ_message(names: &(String, String), prefix: &str) -> String {
 }
 
 enum Comparison {
+    /// Equal under the options, with nothing to print.
     Same,
+    /// Equal under the options, but side-by-side output still lists the common lines.
+    Identical(Vec<u8>),
     Binary,
     Text(Vec<u8>),
 }
@@ -552,15 +700,26 @@ fn compare_contents(
     left: &[u8],
     right: &[u8],
     names: &(String, String),
+    times: &(String, String),
     options: &Options,
 ) -> Comparison {
-    if left == right {
+    // GNU `-y` lists the lines of equal files too, unless the output is only a verdict.
+    let lists_common = options.style == Style::SideBySide && !options.brief;
+    if left == right && !lists_common {
         return Comparison::Same;
     }
-    if !options.text && (is_binary(left) || is_binary(right)) {
+    if left != right && !options.text && (is_binary(left) || is_binary(right)) {
         return Comparison::Binary;
     }
-    match unified_body(left, right, names, options) {
+    let diffed = hunks::diff_lines(left, right, options);
+    if !hunks::has_visible_change(&diffed.changes) {
+        return if lists_common {
+            Comparison::Identical(side::render(&diffed, options))
+        } else {
+            Comparison::Same
+        };
+    }
+    match render_body(&diffed, names, times, options) {
         Some(body) => Comparison::Text(body),
         None => Comparison::Same,
     }
@@ -570,306 +729,20 @@ fn is_binary(bytes: &[u8]) -> bool {
     bytes.contains(&0) || std::str::from_utf8(bytes).is_err()
 }
 
-/// Builds the unified diff, or returns None when the texts are equal under the ignore options.
-fn unified_body(
-    left: &[u8],
-    right: &[u8],
+/// Builds the body in the selected format for inputs with a visible change.
+fn render_body(
+    diffed: &hunks::Diffed<'_>,
     names: &(String, String),
+    times: &(String, String),
     options: &Options,
 ) -> Option<Vec<u8>> {
-    let old_lines: Vec<&[u8]> = split_lines(left);
-    let new_lines: Vec<&[u8]> = split_lines(right);
-    let old_keys: Vec<Vec<u8>> = old_lines
-        .iter()
-        .map(|line| line_key(line, options))
-        .collect();
-    let new_keys: Vec<Vec<u8>> = new_lines
-        .iter()
-        .map(|line| line_key(line, options))
-        .collect();
-    let ops = capture_diff_slices(Algorithm::Myers, &old_keys, &new_keys);
-    let changes = collect_changes(&ops, &old_lines, &new_lines, options.ignore_blank_lines);
-    let hunks = group_hunks(&changes, options.context, old_lines.len());
-    if hunks.is_empty() {
-        return None;
-    }
-    let mut text = format!("--- {}\n+++ {}\n", names.0, names.1).into_bytes();
-    for hunk in &hunks {
-        text.extend(render_hunk(hunk, &changes, &old_lines, &new_lines));
-    }
-    Some(text)
-}
-
-/// Splits raw bytes into lines that keep their `\n`, without assuming any text encoding.
-fn split_lines(bytes: &[u8]) -> Vec<&[u8]> {
-    bytes.split_inclusive(|byte| *byte == b'\n').collect()
-}
-
-/// ASCII whitespace as recognized by the C locale (`isspace`).
-fn is_space(byte: u8) -> bool {
-    matches!(byte, b' ' | b'\t' | b'\x0b' | b'\x0c' | b'\r' | b'\n')
-}
-
-/// Normalizes one line for comparison. The trailing newline is kept as a marker so that a
-/// missing final newline still counts as a difference.
-fn line_key(line: &[u8], options: &Options) -> Vec<u8> {
-    let mut text = line.strip_suffix(b"\n").unwrap_or(line);
-    if options.strip_trailing_cr {
-        text = text.strip_suffix(b"\r").unwrap_or(text);
-    }
-    let mut key = if options.ignore_all_space {
-        text.iter()
-            .copied()
-            .filter(|byte| !is_space(*byte))
-            .collect()
-    } else if options.ignore_space_change {
-        text.split(|byte| is_space(*byte))
-            .filter(|word| !word.is_empty())
-            .collect::<Vec<_>>()
-            .join(&b' ')
-    } else {
-        text.to_vec()
-    };
-    if options.ignore_case {
-        // ASCII-only folding, as GNU diff does under the C locale: other bytes compare exactly.
-        key.make_ascii_lowercase();
-    }
-    key.push(if line.ends_with(b"\n") { b'\n' } else { 0 });
-    key
-}
-
-/// A run of differing lines. `silent` changes are blank-only changes hidden by `-B`.
-#[derive(Clone)]
-struct Change {
-    old: Range<usize>,
-    new: Range<usize>,
-    silent: bool,
-}
-
-fn collect_changes(
-    ops: &[DiffOp],
-    old_lines: &[&[u8]],
-    new_lines: &[&[u8]],
-    ignore_blank_lines: bool,
-) -> Vec<Change> {
-    let mut changes: Vec<Change> = Vec::new();
-    for op in ops {
-        let Some((old, new)) = op_ranges(op) else {
-            continue;
-        };
-        let silent =
-            ignore_blank_lines && is_blank_change(&old_lines[old.clone()], &new_lines[new.clone()]);
-        match changes.last_mut() {
-            Some(last)
-                if last.silent == silent
-                    && last.old.end == old.start
-                    && last.new.end == new.start =>
-            {
-                last.old.end = old.end;
-                last.new.end = new.end;
-            }
-            _ => changes.push(Change { old, new, silent }),
-        }
-    }
-    changes
-}
-
-fn op_ranges(op: &DiffOp) -> Option<(Range<usize>, Range<usize>)> {
-    match *op {
-        DiffOp::Equal { .. } => None,
-        DiffOp::Delete {
-            old_index,
-            old_len,
-            new_index,
-        } => Some((old_index..old_index + old_len, new_index..new_index)),
-        DiffOp::Insert {
-            old_index,
-            new_index,
-            new_len,
-        } => Some((old_index..old_index, new_index..new_index + new_len)),
-        DiffOp::Replace {
-            old_index,
-            old_len,
-            new_index,
-            new_len,
-        } => Some((
-            old_index..old_index + old_len,
-            new_index..new_index + new_len,
-        )),
-    }
-}
-
-fn is_blank_change(old: &[&[u8]], new: &[&[u8]]) -> bool {
-    old.iter()
-        .chain(new.iter())
-        .all(|line| line.iter().all(|byte| is_space(*byte)))
-}
-
-/// A hunk covers the changes in `changes` (index range) plus context lines on both sides.
-struct Hunk {
-    changes: Range<usize>,
-    old_start: usize,
-    old_end: usize,
-    new_start: usize,
-}
-
-/// Groups visible changes into hunks. Context never reaches into a neighbouring change,
-/// so hidden (`silent`) changes are never printed as context.
-fn group_hunks(changes: &[Change], context: usize, old_len: usize) -> Vec<Hunk> {
-    let mut spans: Vec<Range<usize>> = Vec::new();
-    let mut span_start: Option<usize> = None;
-    let mut last_visible = 0;
-    for (index, change) in changes.iter().enumerate() {
-        if change.silent {
-            continue;
-        }
-        match span_start {
-            Some(start)
-                if change
-                    .old
-                    .start
-                    .saturating_sub(changes[last_visible].old.end)
-                    > context.saturating_mul(2) =>
-            {
-                spans.push(start..last_visible + 1);
-                span_start = Some(index);
-            }
-            Some(_) => {}
-            None => span_start = Some(index),
-        }
-        last_visible = index;
-    }
-    if let Some(start) = span_start {
-        spans.push(start..last_visible + 1);
-    }
-    spans
-        .into_iter()
-        .map(|span| hunk_for(changes, span, context, old_len))
-        .collect()
-}
-
-fn hunk_for(changes: &[Change], span: Range<usize>, context: usize, old_len: usize) -> Hunk {
-    let first = &changes[span.start];
-    let last = &changes[span.end - 1];
-    let before_limit = if span.start == 0 {
-        0
-    } else {
-        changes[span.start - 1].old.end
-    };
-    let old_start = first.old.start.saturating_sub(context).max(before_limit);
-    let after_limit = changes.get(span.end).map_or(old_len, |next| next.old.start);
-    let old_end = last.old.end.saturating_add(context).min(after_limit);
-    let new_start = first.new.start - (first.old.start - old_start);
-    Hunk {
-        changes: span,
-        old_start,
-        old_end,
-        new_start,
-    }
-}
-
-fn render_hunk(
-    hunk: &Hunk,
-    changes: &[Change],
-    old_lines: &[&[u8]],
-    new_lines: &[&[u8]],
-) -> Vec<u8> {
-    let mut body = Vec::new();
-    let (mut old_count, mut new_count) = (0, 0);
-    let mut position = hunk.old_start;
-    for change in &changes[hunk.changes.clone()] {
-        let unchanged = &old_lines[position..change.old.start];
-        for line in unchanged {
-            push_line(&mut body, b' ', line);
-        }
-        old_count += unchanged.len();
-        new_count += unchanged.len();
-        position = change.old.end;
-        if change.silent {
-            continue;
-        }
-        for line in &old_lines[change.old.clone()] {
-            push_line(&mut body, b'-', line);
-        }
-        for line in &new_lines[change.new.clone()] {
-            push_line(&mut body, b'+', line);
-        }
-        old_count += change.old.len();
-        new_count += change.new.len();
-    }
-    let trailing = &old_lines[position..hunk.old_end];
-    for line in trailing {
-        push_line(&mut body, b' ', line);
-    }
-    old_count += trailing.len();
-    new_count += trailing.len();
-    let mut text = format!(
-        "@@ -{} +{} @@\n",
-        range_text(hunk.old_start, old_count),
-        range_text(hunk.new_start, new_count)
-    )
-    .into_bytes();
-    text.extend(body);
-    text
-}
-
-fn range_text(start: usize, count: usize) -> String {
-    match count {
-        0 => format!("{start},0"),
-        1 => format!("{}", start + 1),
-        _ => format!("{},{count}", start + 1),
-    }
-}
-
-fn push_line(text: &mut Vec<u8>, prefix: u8, line: &[u8]) {
-    text.push(prefix);
-    text.extend_from_slice(line);
-    if !line.ends_with(b"\n") {
-        text.extend_from_slice(b"\n\\ No newline at end of file\n");
+    match options.style {
+        Style::Normal => Some(normal::render(diffed)),
+        Style::Unified => unified::render(names, diffed, options.context),
+        Style::Context => context::render(names, times, diffed, options.context),
+        Style::SideBySide => Some(side::render(diffed, options)),
     }
 }
 
 #[cfg(test)]
-mod tests {
-    use super::{report_pair, Options};
-
-    fn names() -> (String, String) {
-        ("a".to_string(), "b".to_string())
-    }
-
-    fn text_options() -> Options {
-        Options {
-            context: 3,
-            ..Options::default()
-        }
-    }
-
-    #[test]
-    fn unchanged_bytes_produce_no_output() {
-        let (status, text) = report_pair(b"x\n", b"x\n", &names(), &text_options());
-        assert_eq!(status, 0);
-        assert!(text.is_empty());
-    }
-
-    #[test]
-    fn whitespace_only_change_is_equal_under_w() {
-        let options = Options {
-            ignore_all_space: true,
-            ..text_options()
-        };
-        let (status, _) = report_pair(b"a  b\n", b"a b\n", &names(), &options);
-        assert_eq!(status, 0);
-    }
-
-    #[test]
-    fn strip_trailing_cr_treats_crlf_as_lf() {
-        let options = Options {
-            strip_trailing_cr: true,
-            ..text_options()
-        };
-        let (status, _) = report_pair(b"x\r\n", b"x\n", &names(), &options);
-        assert_eq!(status, 0);
-        let (status, _) = report_pair(b"x\r\n", b"x\n", &names(), &text_options());
-        assert_eq!(status, 1);
-    }
-}
+mod tests;
