@@ -5,6 +5,8 @@
 mod common;
 
 use std::fs;
+#[allow(unused_imports)] // used by the Unix-only submodules
+use std::path::Path;
 use std::process::Output;
 
 use common::{run, run_in, Sandbox};
