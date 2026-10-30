@@ -16,6 +16,13 @@ pub fn io_error_text(error: &io::Error) -> String {
             return text.to_string();
         }
     }
+    if error.get_ref().is_some() {
+        return error.to_string();
+    }
+    if cfg!(unix) && error.raw_os_error().is_some() {
+        // The C library's strerror text is exactly what GNU prints.
+        return strip_os_suffix(&error.to_string());
+    }
     match kind_text(error.kind()) {
         Some(text) => text.to_string(),
         None => strip_os_suffix(&error.to_string()),
@@ -77,6 +84,17 @@ fn strip_os_suffix(text: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn custom_messages_and_eperm_keep_their_text() {
+        let custom = io::Error::new(io::ErrorKind::NotFound, "custom text");
+        assert_eq!(io_error_text(&custom), "custom text");
+        #[cfg(unix)]
+        assert_eq!(
+            io_error_text(&io::Error::from_raw_os_error(1)),
+            "Operation not permitted"
+        );
+    }
 
     #[test]
     fn maps_kinds_to_gnu_wording() {
