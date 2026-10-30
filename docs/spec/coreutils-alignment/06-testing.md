@@ -70,7 +70,7 @@ CI（ubuntu-latest）須安裝：`sudo apt-get install -y gawk tree xxd dos2unix
 `.github/workflows/build.yml`：
 1. 新增 job `lint`（ubuntu）：`cargo fmt --check`、`cargo clippy --all-targets --locked -- -D warnings`。
 2. 既有 `build` matrix 不變；`Collect commands` 改為以 `target/release/agentcmd --list` 產生清單（排除 `[`，另以 `test` 複製；Windows 排除 registry 標記不封裝者，見 01-architecture、03 `link`）。
-3. 新增 job `gnu-diff`（ubuntu）：安裝 §2 套件後 `AGENTCMD_GNU_DIFF=1 cargo test --locked --test gnu_diff`。
+3. 新增 job `gnu-diff`，**`runs-on: ubuntu-24.04`（固定版本，不可用 `ubuntu-latest`；後者自 2026-10-19 起遷移至 Ubuntu 26，GNU 版本會變）**：安裝 §2 套件後 `AGENTCMD_GNU_DIFF=1 cargo test --locked --test gnu_diff`。
 4. 現有 `Verify Bash cd and interactive less` 步驟保留並加入互動 pty 測試。
 
 ## 6. 效能煙霧測試（不設閘門）
