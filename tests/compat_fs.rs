@@ -114,8 +114,14 @@ fn ls_long_format_has_gnu_like_columns() {
     assert_eq!(fields.len(), 8, "{fields:?}");
     assert_eq!(fields[0].len(), 10, "mode string: {}", fields[0]);
     assert!(fields[0].starts_with('-') && fields[0].contains('r'));
-    assert_eq!(fields[2], "-");
-    assert_eq!(fields[3], "-");
+    // Owner and group are account names on Unix (the numeric id when unnamed) and `-` on Windows.
+    if cfg!(unix) {
+        assert!(!fields[2].is_empty() && fields[2] != "-", "{fields:?}");
+        assert!(!fields[3].is_empty() && fields[3] != "-", "{fields:?}");
+    } else {
+        assert_eq!(fields[2], "-");
+        assert_eq!(fields[3], "-");
+    }
     assert_eq!(fields[4], "3");
     assert_eq!(fields[5].len(), 10, "date: {}", fields[5]);
     assert_eq!(&fields[5][4..5], "-");
@@ -219,10 +225,11 @@ fn ls_file_arguments_print_as_given_and_missing_paths_fail() {
     f.write("sub/file.txt", b"x");
     assert_eq!(text(&f.run("ls", &["sub/file.txt"])), "sub/file.txt\n");
     assert_eq!(code(&f.run("ls", &["missing"])), Some(2));
-    assert_eq!(code(&f.run("ls", &["-i"])), Some(2));
-    assert_eq!(code(&f.run("ls", &["-s"])), Some(2));
-    assert_eq!(code(&f.run("ls", &["--time-style=+%Y"])), Some(2));
+    assert_eq!(code(&f.run("ls", &["-i"])), Some(0));
+    assert_eq!(code(&f.run("ls", &["-s"])), Some(0));
+    assert_eq!(code(&f.run("ls", &["--time-style=+%Y"])), Some(0));
     assert_eq!(code(&f.run("ls", &["--color=sometimes"])), Some(2));
+    assert_eq!(code(&f.run("ls", &["-Z"])), Some(2));
 }
 
 #[test]

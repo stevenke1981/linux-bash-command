@@ -94,13 +94,262 @@
       "name": "long_format_owner_and_date",
       "args": ["-l", "a.txt"],
       "files": { "a.txt": { "text": "abc\n", "mtime": 1700000000, "mode": "644" } },
-      "skip_reason": "-l shows '-' for owner and group (GNU shows user and group names), and the time column format differs from GNU's locale date"
+      "skip_reason": "the time column keeps the ISO default (YYYY-MM-DD HH:MM, as before); GNU in the C locale prints 'Nov 14  2023' for old files"
     },
     {
       "name": "block_size_flag",
       "args": ["-s", "a.txt"],
-      "files": { "a.txt": "abc\n" },
-      "skip_reason": "-s (allocated block counts) is not supported; the command exits 2 while GNU prints sizes"
+      "files": { "a.txt": "abc\n" }
+    },
+    {
+      "name": "ignore_pattern_repeatable",
+      "args": ["-I", "*.log", "--ignore=b*"],
+      "files": { "a.log": "x\n", "b.txt": "y\n", "c.log": "z\n", "d.txt": "w\n" }
+    },
+    {
+      "name": "ignore_backups",
+      "args": ["-B"],
+      "files": { "keep": "k\n", "old~": "o\n", "new.txt": "n\n" }
+    },
+    {
+      "name": "hide_without_all",
+      "args": ["--hide=*.txt"],
+      "files": { "a.txt": "a\n", "b.log": "b\n" }
+    },
+    {
+      "name": "hide_overridden_by_all",
+      "args": ["-a", "--hide=*.txt"],
+      "files": { "a.txt": "a\n", "b.log": "b\n", ".h": "h\n" }
+    },
+    {
+      "name": "ignore_not_applied_to_operands",
+      "args": ["-I", "a.txt", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\n", "b.txt": "b\n" }
+    },
+    {
+      "name": "sort_by_extension",
+      "args": ["-X"],
+      "files": { "b.txt": "", "a.md": "", "c": "" }
+    },
+    {
+      "name": "sort_size_option",
+      "args": ["--sort=size"],
+      "files": { "small": "x", "large": "xxxxxxxxxx", "medium": "xxxxx" }
+    },
+    {
+      "name": "sort_none_compare_sorted",
+      "args": ["--sort=none"],
+      "files": { "p.txt": "p\n", "q.txt": "q\n", "r.txt": "r\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "time_mtime_newest_first",
+      "args": ["-t", "--time=mtime"],
+      "files": {
+        "old.txt": { "text": "o\n", "mtime": 1600000000 },
+        "new.txt": { "text": "n\n", "mtime": 1800000000 },
+        "mid.txt": { "text": "m\n", "mtime": 1700000000 }
+      }
+    },
+    {
+      "name": "long_numeric_ids",
+      "args": ["-n", "--time-style=long-iso", "a.txt"],
+      "files": { "a.txt": { "text": "abc\n", "mtime": 1700000000, "mode": "644" } }
+    },
+    {
+      "name": "long_without_group",
+      "args": ["-lG", "--time-style=long-iso", "a.txt"],
+      "files": { "a.txt": { "text": "abc\n", "mtime": 1700000000, "mode": "644" } }
+    },
+    {
+      "name": "long_without_owner",
+      "args": ["-lg", "--time-style=long-iso", "a.txt"],
+      "files": { "a.txt": { "text": "abc\n", "mtime": 1700000000, "mode": "644" } }
+    },
+    {
+      "name": "long_time_style_iso_old_file",
+      "args": ["-l", "--time-style=iso", "a.txt"],
+      "files": { "a.txt": { "text": "abc\n", "mtime": 1700000000, "mode": "644" } }
+    },
+    {
+      "name": "long_full_time",
+      "args": ["-l", "--full-time", "a.txt"],
+      "files": { "a.txt": { "text": "abc\n", "mtime": 1700000000, "mode": "644" } }
+    },
+    {
+      "name": "long_time_style_custom_format",
+      "args": ["-l", "--time-style=+%Y/%m", "a.txt"],
+      "files": { "a.txt": { "text": "abc\n", "mtime": 1700000000, "mode": "644" } }
+    },
+    {
+      "name": "block_counts_default",
+      "args": ["-s", "d"],
+      "files": { "d/inner": "hi\n" }
+    },
+    {
+      "name": "block_counts_human",
+      "args": ["-sh", "d"],
+      "files": { "d/inner": "hi\n" }
+    },
+    {
+      "name": "block_counts_si",
+      "args": ["-s", "--si", "d"],
+      "files": { "d/inner": "hi\n" }
+    },
+    {
+      "name": "block_size_k_suffix",
+      "args": ["-s", "--block-size=K", "d"],
+      "files": { "d/inner": "hi\n" }
+    },
+    {
+      "name": "block_size_kb_suffix",
+      "args": ["-s", "--block-size=KB", "d"],
+      "files": { "d/inner": "hi\n" }
+    },
+    {
+      "name": "block_size_numeric_bytes",
+      "args": ["-s", "--block-size=1", "d"],
+      "files": { "d/inner": "hi\n" }
+    },
+    {
+      "name": "kibibytes_block_counts",
+      "args": ["-sk", "d"],
+      "files": { "d/inner": "hi\n" }
+    },
+    {
+      "name": "classify_indicator_style",
+      "args": ["--indicator-style=classify"],
+      "files": {
+        "plain": "p\n",
+        "dir/x": "x\n",
+        "run.sh": { "text": "#!/bin/sh\n", "mode": "755" },
+        "lnk": { "symlink": "plain" }
+      }
+    },
+    {
+      "name": "file_type_indicator",
+      "args": ["--file-type"],
+      "files": {
+        "plain": "p\n",
+        "dir/x": "x\n",
+        "run.sh": { "text": "#!/bin/sh\n", "mode": "755" },
+        "lnk": { "symlink": "plain" }
+      }
+    },
+    {
+      "name": "classify_auto_when_not_a_tty",
+      "args": ["--classify=auto", "run.sh"],
+      "files": { "run.sh": { "text": "#!/bin/sh\n", "mode": "755" } }
+    },
+    {
+      "name": "dereference_command_line_link",
+      "args": ["-L", "lnk"],
+      "files": { "plain": "p\n", "lnk": { "symlink": "plain" } }
+    },
+    {
+      "name": "link_operand_without_long_format",
+      "args": ["lnk"],
+      "files": { "plain": "p\n", "lnk": { "symlink": "plain" } }
+    },
+    {
+      "name": "quote_c_style_names",
+      "args": ["-Q"],
+      "files": { "tab\there": "t\n", "q\"d": "q\n", "it's": "i\n" }
+    },
+    {
+      "name": "quoting_style_shell",
+      "args": ["--quoting-style=shell"],
+      "files": { "sp ace": "s\n", "it's": "i\n", "plain": "p\n" }
+    },
+    {
+      "name": "quoting_style_shell_always",
+      "args": ["--quoting-style=shell-always"],
+      "files": { "sp ace": "s\n", "it's": "i\n", "plain": "p\n" }
+    },
+    {
+      "name": "quoting_style_shell_escape_control",
+      "args": ["--quoting-style=shell-escape"],
+      "files": { "nl\nx": "n\n", "plain": "p\n" }
+    },
+    {
+      "name": "quoting_style_escape",
+      "args": ["--quoting-style=escape"],
+      "files": { "nl\nx": "n\n", "back\\slash": "b\n" }
+    },
+    {
+      "name": "literal_names_with_newline",
+      "args": ["-N"],
+      "files": { "nl\nx": "n\n" }
+    },
+    {
+      "name": "commas_wrap_at_width",
+      "args": ["-m"],
+      "files": {
+        "file_01.txt": "x\n", "file_02.txt": "x\n", "file_03.txt": "x\n", "file_04.txt": "x\n",
+        "file_05.txt": "x\n", "file_06.txt": "x\n", "file_07.txt": "x\n", "file_08.txt": "x\n",
+        "file_09.txt": "x\n", "file_10.txt": "x\n", "file_11.txt": "x\n", "file_12.txt": "x\n",
+        "file_13.txt": "x\n", "file_14.txt": "x\n", "file_15.txt": "x\n", "file_16.txt": "x\n"
+      }
+    },
+    {
+      "name": "columns_default_down_then_across_rows",
+      "args": ["-C"],
+      "files": {
+        "file_01.txt": "x\n", "file_02.txt": "x\n", "file_03.txt": "x\n", "file_04.txt": "x\n",
+        "file_05.txt": "x\n", "file_06.txt": "x\n", "file_07.txt": "x\n", "file_08.txt": "x\n",
+        "file_09.txt": "x\n", "file_10.txt": "x\n", "file_11.txt": "x\n", "file_12.txt": "x\n",
+        "file_13.txt": "x\n", "file_14.txt": "x\n", "file_15.txt": "x\n", "file_16.txt": "x\n"
+      }
+    },
+    {
+      "name": "across_rows_with_tabs",
+      "args": ["-x"],
+      "files": {
+        "file_01.txt": "x\n", "file_02.txt": "x\n", "file_03.txt": "x\n", "file_04.txt": "x\n",
+        "file_05.txt": "x\n", "file_06.txt": "x\n", "file_07.txt": "x\n", "file_08.txt": "x\n",
+        "file_09.txt": "x\n", "file_10.txt": "x\n", "file_11.txt": "x\n", "file_12.txt": "x\n"
+      }
+    },
+    {
+      "name": "columns_width_option",
+      "args": ["-C", "-w", "40"],
+      "files": {
+        "file_01.txt": "x\n", "file_02.txt": "x\n", "file_03.txt": "x\n", "file_04.txt": "x\n",
+        "file_05.txt": "x\n", "file_06.txt": "x\n", "file_07.txt": "x\n", "file_08.txt": "x\n"
+      }
+    },
+    {
+      "name": "across_zero_tabsize_spaces",
+      "args": ["-x", "-T", "0", "-w", "50"],
+      "files": {
+        "file_01.txt": "x\n", "file_02.txt": "x\n", "file_03.txt": "x\n", "file_04.txt": "x\n",
+        "file_05.txt": "x\n", "file_06.txt": "x\n", "file_07.txt": "x\n", "file_08.txt": "x\n"
+      }
+    },
+    {
+      "name": "recursive_with_ignore",
+      "args": ["-R", "-I", "sub"],
+      "files": { "top": "t\n", "sub/inner": "i\n", "other/x": "x\n" }
+    },
+    {
+      "name": "time_option_invalid_status",
+      "args": ["--time=bogus", "a.txt"],
+      "files": { "a.txt": "a\n" }
+    },
+    {
+      "name": "unknown_long_option_status",
+      "args": ["--bogus"],
+      "files": { "a.txt": "a\n" }
+    },
+    {
+      "name": "block_size_invalid_status",
+      "args": ["--block-size=x", "a.txt"],
+      "files": { "a.txt": "a\n" }
+    },
+    {
+      "name": "width_invalid_status",
+      "args": ["-w", "x", "a.txt"],
+      "files": { "a.txt": "a\n" }
     }
   ]
 }
