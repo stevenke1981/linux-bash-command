@@ -1628,20 +1628,6 @@
       ]
     },
     {
-      "name": "getline_field_target",
-      "args": [
-        "BEGIN { getline $2 < \"f.txt\"; print NF, $0 }"
-      ],
-      "files": {
-        "f.txt": "new value\n"
-      },
-      "gnu": [
-        "gawk",
-        "--posix"
-      ],
-      "skip_reason": "agentcmd getline into a field of an empty record is checked by the CLI tests"
-    },
-    {
       "name": "cmd_pipe_getline_unsupported",
       "args": [
         "BEGIN { \"echo hi\" | getline x; print x }"
@@ -2347,6 +2333,19 @@
       "args": [
         "BEGIN{print substr(\"hello\", 0, 2), substr(\"hello\", -1, 3)}"
       ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "getline_field_target",
+      "args": [
+        "BEGIN { getline $2 < \"f.txt\"; print NF, $0 }"
+      ],
+      "files": {
+        "f.txt": "new value\n"
+      },
       "gnu": [
         "gawk",
         "--posix"
