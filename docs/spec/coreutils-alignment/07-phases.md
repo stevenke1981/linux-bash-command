@@ -73,6 +73,13 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | printf seq sort -g | f64 精度（GNU long double） | Rust 無 f80 | 相關 skip 案例 |
 | du（Windows） | 磁碟用量以 4096 取整 | 不呼叫 cluster API | — |
 | sed | pattern 內 backreference 不支援 | `regex` crate 限制 | `sed_backref`（skip） |
+| sed | 替換 `e` 指令與 `s///e` 旗標不支援（exit 1；GNU 會執行指令） | spec 規定，不引入子行程執行 | `cmd_e_unsupported`、`cmd_e_flag_unsupported`（skip） |
+| sed | 選擇（alternation）為 leftmost-first，非 POSIX leftmost-longest（`s/a\|ab/X/` 於 `ab` 結果不同） | `regex` crate 語意 | `s_alternation_longest`（skip） |
+| sed | `--debug` 不支援（exit 1，不列於 `--help`） | spec 規定 | `opt_debug_unsupported`（skip） |
+| sed | `--help`／`--version` 文字與 GNU 不同 | 本專案自有版本字串與說明 | `opt_help`、`opt_version`（skip） |
+| sed | `M` 旗標下 `[^…]` 仍可匹配換行（REG_NEWLINE 不完整） | regex 模式限制 | — |
+| sed | 比對以位元組進行（C locale）；`I` 旗標僅折疊 ASCII | 對齊 `LC_ALL=C` | — |
+| sed | 缺少 `-f` 腳本檔為 exit 4（同 GNU）；`-i` 無檔案 exit 4（同 GNU） | 對齊 GNU | — |
 | awk | 不支援 pipe／`system()` | 需 shell | — |
 | diff | 預設 unified → P4 改 normal | 對齊 GNU | — |
 | grep | `-L` 退出碼依列出之檔案（GNU 3.11 依是否選取到行） | 既有行為，P1 不改 | `grep/null_data_list_without_match`（skip） |
