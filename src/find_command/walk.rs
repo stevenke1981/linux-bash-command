@@ -9,8 +9,8 @@ use super::parse::{BatchSpec, Follow, Options, Plan};
 use super::printf;
 use crate::display_path;
 use std::ffi::OsString;
-use std::fs::{self, Metadata};
-use std::io::{self, BufWriter, StdoutLock, Write};
+use std::fs::{self, File, Metadata};
+use std::io::{self, BufRead, BufWriter, StdoutLock, Write};
 use std::path::{Path, PathBuf};
 
 /// Queued `{} +` paths are flushed once this many bytes are pending. This keeps command
@@ -43,6 +43,8 @@ struct Walker<'a> {
     options: Options,
     now_ns: i128,
     out: BufWriter<StdoutLock<'static>>,
+    /// Output files of `-fprint` and friends, by sink index.
+    sinks: Vec<BufWriter<File>>,
     batches: Vec<Batch>,
     /// Canonical paths of directories on the current traversal stack (for loop checks).
     ancestors: Vec<PathBuf>,
@@ -56,10 +58,17 @@ struct Walker<'a> {
 const MISSING_ROOT_STATUS: i32 = 1;
 
 pub fn run(plan: Plan) -> i32 {
-    let follow_roots = plan.options.follow != Follow::Never;
-    let mut walker = Walker::new(&plan);
+    let Plan {
+        roots,
+        options,
+        expr,
+        batches,
+        sinks,
+    } = plan;
+    let follow_roots = options.follow != Follow::Never;
+    let mut walker = Walker::new(&expr, options, &batches, sinks);
     let mut missing_root = false;
-    for root in &plan.roots {
+    for root in &roots {
         if let Err(error) = metadata(root, follow_roots) {
             walker.report(root, &error);
             missing_root = true;
@@ -99,14 +108,29 @@ fn parent_or_dot(path: &Path) -> PathBuf {
     }
 }
 
+/// The command for one entry (with `{}` replaced) and the directory to run it in. With
+/// `in_dir` the entry is named `./NAME` from its parent directory.
+fn command_for(argv: &[String], in_dir: bool, entry: &Entry) -> (Vec<String>, Option<PathBuf>) {
+    let (text, dir) = if in_dir {
+        (
+            format!("./{}", file_name_text(entry.path)),
+            Some(parent_or_dot(entry.path)),
+        )
+    } else {
+        (display_path(entry.path), None)
+    };
+    (exec::substitute(argv, &text), dir)
+}
+
 impl<'a> Walker<'a> {
-    fn new(plan: &'a Plan) -> Self {
+    fn new(expr: &'a Expr, options: Options, batches: &[BatchSpec], sinks: Vec<File>) -> Self {
         Self {
-            expr: &plan.expr,
-            options: plan.options,
+            expr,
+            options,
             now_ns: now_ns(),
             out: BufWriter::new(io::stdout().lock()),
-            batches: plan.batches.iter().map(Batch::new).collect(),
+            sinks: sinks.into_iter().map(BufWriter::new).collect(),
+            batches: batches.iter().map(Batch::new).collect(),
             ancestors: Vec::new(),
             status: 0,
             stop: false,
@@ -231,6 +255,30 @@ impl<'a> Walker<'a> {
             Action::Delete => self.delete(entry),
             Action::Exec { argv, in_dir } => self.run_now(argv, *in_dir, entry),
             Action::Batch(index) => self.queue(*index, entry),
+            Action::Confirm { argv, in_dir } => self.confirm(argv, *in_dir, entry),
+            Action::FilePrint { sink, nul } => {
+                let end = if *nul { '\0' } else { '\n' };
+                self.write_sink(*sink, &format!("{}{end}", display_path(entry.path)))
+            }
+            Action::FilePrintf { sink, pieces } => {
+                self.write_sink(*sink, &printf::render(pieces, entry))
+            }
+            Action::FileLs { sink } => {
+                self.write_sink(*sink, &format!("{}\n", printf::long_listing(entry)))
+            }
+        }
+    }
+
+    /// Writes to output file `sink`. A write error stops the walk, as for stdout.
+    fn write_sink(&mut self, sink: usize, text: &str) -> bool {
+        match self.sinks[sink].write_all(text.as_bytes()) {
+            Ok(()) => true,
+            Err(error) => {
+                eprintln!("find: write error: {}", message(&error));
+                self.status = 1;
+                self.stop = true;
+                false
+            }
         }
     }
 
@@ -279,16 +327,35 @@ impl<'a> Walker<'a> {
     }
 
     fn run_now(&mut self, argv: &[String], in_dir: bool, entry: &Entry) -> bool {
-        let (text, dir) = if in_dir {
-            (
-                format!("./{}", file_name_text(entry.path)),
-                Some(parent_or_dot(entry.path)),
-            )
-        } else {
-            (display_path(entry.path), None)
-        };
-        let command = exec::substitute(argv, &text);
+        let (command, dir) = command_for(argv, in_dir, entry);
         self.flush_output();
+        match exec::run(&command, dir.as_deref()) {
+            Ok(success) => success,
+            Err(message) => {
+                eprintln!("find: {message}");
+                self.status = 1;
+                false
+            }
+        }
+    }
+
+    /// `-ok` and `-okdir`: prints `< CMD > ? ` on stderr and runs the command only when the
+    /// answer read from stdin starts with `y` or `Y`. End of input counts as no.
+    fn confirm(&mut self, argv: &[String], in_dir: bool, entry: &Entry) -> bool {
+        let (command, dir) = command_for(argv, in_dir, entry);
+        self.flush_output();
+        let mut stderr = io::stderr().lock();
+        let _ = write!(stderr, "< {} > ? ", command.join(" "));
+        let _ = stderr.flush();
+        drop(stderr);
+        let mut answer = String::new();
+        match io::stdin().lock().read_line(&mut answer) {
+            Ok(0) | Err(_) => return false,
+            Ok(_) => {}
+        }
+        if !matches!(answer.chars().next(), Some('y' | 'Y')) {
+            return false;
+        }
         match exec::run(&command, dir.as_deref()) {
             Ok(success) => success,
             Err(message) => {
@@ -350,6 +417,12 @@ impl<'a> Walker<'a> {
             self.flush_batch(index);
         }
         self.flush_output();
+        for sink in &mut self.sinks {
+            if let Err(error) = sink.flush() {
+                eprintln!("find: write error: {}", message(&error));
+                self.status = 1;
+            }
+        }
         self.status
     }
 }

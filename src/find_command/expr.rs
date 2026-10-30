@@ -1,8 +1,9 @@
 //! Expression tree for find, plus evaluation of the tests against one entry.
 
 use super::glob::Glob;
+use super::owner;
 use super::printf::Piece;
-use crate::common::meta::{kind_char, permission_bits};
+use crate::common::meta::{inode_nlink, kind_char, permission_bits};
 use crate::display_path;
 use regex::Regex;
 use std::fs::{self, File, Metadata};
@@ -46,6 +47,8 @@ pub enum Clock {
     Modified,
     Accessed,
     Changed,
+    /// Creation (birth) time, as `-newerB..`.
+    Birth,
 }
 
 #[derive(Clone, Copy)]
@@ -88,6 +91,30 @@ pub enum Test {
     },
     Perm(PermCheck),
     Access(Access),
+    /// `-uid`, `-user`: the owner id equals the value.
+    Uid(u32),
+    /// `-gid`, `-group`: the group id equals the value.
+    Gid(u32),
+    /// `-nouser`: the owner id has no account entry.
+    NoUser,
+    /// `-nogroup`: the group id has no group entry.
+    NoGroup,
+    /// `-links [+-]N`: the hard-link count compares with `count`.
+    Links {
+        cmp: Cmp,
+        count: u64,
+    },
+    /// `-inum N`: the inode number equals `inode`.
+    Inum(u64),
+    /// `-samefile F`: same device and inode as the reference file.
+    SameFile {
+        dev: u64,
+        inode: u64,
+    },
+    /// `-lname` and `-ilname`: the symbolic link's target matches the glob.
+    LinkName(Glob),
+    /// `-xtype`: like `-type`, but a symbolic link is classified by its target.
+    XType(Vec<char>),
 }
 
 pub enum Action {
@@ -105,6 +132,23 @@ pub enum Action {
     },
     /// `-exec CMD {} +`, queued into batch number `index` of the plan.
     Batch(usize),
+    /// `-ok CMD {} ;` or `-okdir CMD {} ;`: asks on stderr and reads a line from stdin.
+    Confirm {
+        argv: Vec<String>,
+        in_dir: bool,
+    },
+    /// `-fprint`, `-fprint0`, `-fprintf` and `-fls`: write to output sink `sink`.
+    FilePrint {
+        sink: usize,
+        nul: bool,
+    },
+    FilePrintf {
+        sink: usize,
+        pieces: Vec<Piece>,
+    },
+    FileLs {
+        sink: usize,
+    },
 }
 
 /// One file system entry as seen by the tests and actions.
@@ -134,7 +178,21 @@ pub fn time_ns(meta: &Metadata, clock: Clock) -> Option<i128> {
         Clock::Modified => meta.modified().ok().map(system_ns),
         Clock::Accessed => meta.accessed().ok().map(system_ns),
         Clock::Changed => changed_ns(meta),
+        Clock::Birth => meta.created().ok().map(system_ns),
     }
+}
+
+/// Device and inode numbers, which identify a file for `-samefile` and `-inum`.
+#[cfg(unix)]
+pub fn dev_ino(meta: &Metadata) -> (u64, u64) {
+    use std::os::unix::fs::MetadataExt;
+    (meta.dev(), meta.ino())
+}
+
+/// Windows has no inode numbers here; `-samefile` and `-inum` are rejected at parse time.
+#[cfg(not(unix))]
+pub fn dev_ino(_meta: &Metadata) -> (u64, u64) {
+    (0, 0)
 }
 
 #[cfg(unix)]
@@ -186,6 +244,38 @@ pub fn test_matches(test: &Test, entry: &Entry) -> bool {
         } => time_ns(entry.meta, *clock).is_some_and(|time| time > *reference_ns),
         Test::Perm(check) => perm_matches(entry, *check),
         Test::Access(access) => access_ok(entry, *access),
+        Test::Uid(uid) => owner::owner_uid(entry.meta) == *uid,
+        Test::Gid(gid) => owner::owner_gid(entry.meta) == *gid,
+        Test::NoUser => owner::has_no_user(entry.meta),
+        Test::NoGroup => owner::has_no_group(entry.meta),
+        Test::Links { cmp, count } => {
+            cmp.holds(i128::from(inode_nlink(entry.meta).1), i128::from(*count))
+        }
+        Test::Inum(inode) => inode_nlink(entry.meta).0 == *inode,
+        Test::SameFile { dev, inode } => dev_ino(entry.meta) == (*dev, *inode),
+        Test::LinkName(glob) => link_target(entry).is_some_and(|target| glob.is_match(&target)),
+        Test::XType(kinds) => xtype_matches(entry, kinds),
+    }
+}
+
+/// The text of a symbolic link's target, or `None` when the entry is not a link.
+fn link_target(entry: &Entry) -> Option<String> {
+    if !entry.meta.file_type().is_symlink() {
+        return None;
+    }
+    fs::read_link(entry.path)
+        .ok()
+        .map(|target| display_path(&target))
+}
+
+/// `-xtype`: a link counts as the type of its target; a dangling link is `l`.
+fn xtype_matches(entry: &Entry, kinds: &[char]) -> bool {
+    if !entry.meta.file_type().is_symlink() {
+        return kinds.contains(&kind_char(entry.meta));
+    }
+    match fs::metadata(entry.path) {
+        Ok(target) => kinds.contains(&kind_char(&target)),
+        Err(_) => kinds.contains(&'l'),
     }
 }
 
