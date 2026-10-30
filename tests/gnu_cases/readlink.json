@@ -1,0 +1,180 @@
+{
+  "command": "readlink",
+  "cases": [
+    {
+      "name": "print_link_target",
+      "args": ["link"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 },
+        "link": { "symlink": "a.txt" }
+      },
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "regular_file_is_not_a_link",
+      "args": ["a.txt"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 }
+      },
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "no_newline_option",
+      "args": ["-n", "link"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 },
+        "link": { "symlink": "a.txt" }
+      },
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "zero_terminated_output",
+      "args": ["-z", "link"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 },
+        "link": { "symlink": "a.txt" }
+      },
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "verbose_failure_exit_only",
+      "args": ["-v", "a.txt"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 }
+      },
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "quiet_missing_file",
+      "args": ["-q", "nosuch"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "silent_regular_file",
+      "args": ["-s", "a.txt"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 }
+      },
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "directory_is_not_a_link",
+      "args": ["d"],
+      "stdin": "",
+      "files": {
+        "d": { "dir": true, "mtime": 1700000000 }
+      },
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "several_operands_print_each_target",
+      "args": ["link", "dangling"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 },
+        "link": { "symlink": "a.txt" },
+        "dangling": { "symlink": "nowhere" }
+      },
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "absolute_target_printed_as_is",
+      "args": ["abs"],
+      "stdin": "",
+      "files": {
+        "abs": { "symlink": "/usr/share/doc-agentcmd-target" }
+      },
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "canonicalize_existing_dangling_fails",
+      "args": ["-e", "dangling"],
+      "stdin": "",
+      "files": {
+        "dangling": { "symlink": "nowhere" }
+      },
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "canonicalize_all_but_last_allows_dangling",
+      "args": ["-f", "dangling"],
+      "stdin": "",
+      "files": {
+        "dangling": { "symlink": "nowhere" }
+      },
+      "gnu": ["readlink"],
+      "compare": ["exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "canonicalize_missing_middle_fails",
+      "args": ["-f", "nosuch/x"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "canonicalize_missing_any",
+      "args": ["-m", "nosuch/x"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["readlink"],
+      "compare": ["exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "canonicalize_chain_exit",
+      "args": ["-f", "chain"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 },
+        "link": { "symlink": "a.txt" },
+        "chain": { "symlink": "link" }
+      },
+      "gnu": ["readlink"],
+      "compare": ["exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "missing_operand",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": ["readlink"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    }
+  ]
+}

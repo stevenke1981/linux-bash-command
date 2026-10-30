@@ -1,0 +1,258 @@
+{
+  "command": "du",
+  "cases": [
+    {
+      "name": "tree_bytes_directories_only",
+      "args": ["-b", "t"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 },
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 },
+        "t/sub": { "dir": true, "mtime": 1700000000 },
+        "t/sub/f2": { "text": "y", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout_sorted", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "all_files_bytes",
+      "args": ["-ab", "t"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 },
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 },
+        "t/sub": { "dir": true, "mtime": 1700000000 },
+        "t/sub/f2": { "text": "y", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout_sorted", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "summarize_bytes",
+      "args": ["-sb", "t"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 },
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 },
+        "t/sub": { "dir": true, "mtime": 1700000000 },
+        "t/sub/f2": { "text": "y", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "total_line_with_two_operands",
+      "args": ["-cb", "t", "t/sub"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 },
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 },
+        "t/sub": { "dir": true, "mtime": 1700000000 },
+        "t/sub/f2": { "text": "y", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout_sorted", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "max_depth_one",
+      "args": ["-b", "-d", "1", "t"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 },
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 },
+        "t/sub": { "dir": true, "mtime": 1700000000 },
+        "t/sub/f2": { "text": "y", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout_sorted", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "max_depth_zero_equals_summarize",
+      "args": ["-b", "--max-depth=0", "t"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 },
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 },
+        "t/sub": { "dir": true, "mtime": 1700000000 },
+        "t/sub/f2": { "text": "y", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "separate_dirs_excludes_subdirectory_totals",
+      "args": ["-Sb", "t"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 },
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 },
+        "t/sub": { "dir": true, "mtime": 1700000000 },
+        "t/sub/f2": { "text": "y", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout_sorted", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "si_units_bytes_scaled",
+      "args": ["--si", "--apparent-size", "t/f1"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 },
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "human_binary_units_apparent",
+      "args": ["-h", "-b", "t/f1"],
+      "stdin": "",
+      "files": {
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "block_size_k_apparent",
+      "args": ["--apparent-size", "-k", "t"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 },
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 },
+        "t/sub": { "dir": true, "mtime": 1700000000 },
+        "t/sub/f2": { "text": "y", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout_sorted", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "custom_block_size",
+      "args": ["--apparent-size", "-B", "10", "t/f1"],
+      "stdin": "",
+      "files": {
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "threshold_hides_small_entries",
+      "args": ["-b", "-t", "10", "t"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 },
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 },
+        "t/sub": { "dir": true, "mtime": 1700000000 },
+        "t/sub/f2": { "text": "y", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout_sorted", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "exclude_pattern_removes_matches",
+      "args": ["-ab", "--exclude=*.bin", "t"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 },
+        "t/keep.txt": { "text": "abcdef", "mtime": 1700000000 },
+        "t/skip.bin": { "text": "abcdefghijklmnop", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout_sorted", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "nul_terminated_single_file",
+      "args": ["-0", "--apparent-size", "t/f1"],
+      "stdin": "",
+      "files": {
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "missing_operand_reports_and_continues",
+      "args": ["-b", "no-such-dir", "t/f1"],
+      "stdin": "",
+      "files": {
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "time_column_with_style",
+      "args": ["-b", "--time=mtime", "--time-style=+%Y-%m-%d", "t/f1"],
+      "stdin": "",
+      "files": {
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "time_full_iso_style",
+      "args": ["-b", "--time", "--time-style=full-iso", "t/f1"],
+      "stdin": "",
+      "files": {
+        "t/f1": { "text": "abcdefghijklmnopqrstuvwxyz0123456789", "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "symlink_not_followed_by_default",
+      "args": ["-b", "dlink"],
+      "stdin": "",
+      "files": {
+        "d": { "dir": true, "mtime": 1700000000 },
+        "dlink": { "symlink": "d" }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "dereference_all_follows_symlink",
+      "args": ["-bL", "dlink"],
+      "stdin": "",
+      "files": {
+        "d": { "dir": true, "mtime": 1700000000 },
+        "d/f": { "text": "abc", "mtime": 1700000000 },
+        "dlink": { "symlink": "d" }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "inodes_option_unsupported",
+      "args": ["--inodes", "t"],
+      "stdin": "",
+      "files": {
+        "t": { "dir": true, "mtime": 1700000000 }
+      },
+      "gnu": ["du"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": "--inodes is not implemented by agentcmd (03-commands-core.md lists it as unsupported)"
+    }
+  ]
+}
