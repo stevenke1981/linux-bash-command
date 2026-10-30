@@ -1,3 +1,5 @@
+use crate::common::args::prepare_legacy;
+use crate::common::error::EXIT_TROUBLE;
 use crate::common::regex::bre_to_regex;
 use regex::bytes::{Regex as ByteRegex, RegexBuilder as ByteRegexBuilder};
 use regex::Regex as NameRegex;
@@ -116,8 +118,69 @@ impl Options {
     }
 }
 
+const GREP_LONGS: &[&str] = &[
+    "after-context",
+    "basic-regexp",
+    "before-context",
+    "binary",
+    "binary-files",
+    "color",
+    "context",
+    "count",
+    "dereference-recursive",
+    "exclude",
+    "exclude-dir",
+    "extended-regexp",
+    "file",
+    "files-with-matches",
+    "files-without-match",
+    "fixed-strings",
+    "help",
+    "ignore-case",
+    "include",
+    "invert-match",
+    "line-buffered",
+    "line-number",
+    "line-regexp",
+    "max-count",
+    "no-filename",
+    "no-ignore-case",
+    "no-messages",
+    "only-matching",
+    "perl-regexp",
+    "quiet",
+    "recursive",
+    "regexp",
+    "silent",
+    "text",
+    "with-filename",
+    "word-regexp",
+];
+
 pub fn run(args: &[String]) -> i32 {
-    let Some(options) = (match parse(args) {
+    let expanded = match prepare_legacy(
+        "grep",
+        args,
+        GREP_LONGS,
+        &[
+            "after-context",
+            "before-context",
+            "binary-files",
+            "context",
+            "exclude",
+            "exclude-dir",
+            "file",
+            "include",
+            "max-count",
+            "regexp",
+        ],
+        "efmABCdD",
+        EXIT_TROUBLE,
+    ) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let Some(options) = (match parse(&expanded) {
         Ok(options) => options,
         Err(error) => {
             eprintln!("grep: {error}");
@@ -1006,17 +1069,7 @@ fn show_names(options: &Options) -> bool {
 }
 
 fn io_message(error: &io::Error) -> String {
-    match error.kind() {
-        io::ErrorKind::NotFound => "No such file or directory".into(),
-        io::ErrorKind::PermissionDenied => "Permission denied".into(),
-        _ => {
-            let text = error.to_string();
-            match text.find(" (os error") {
-                Some(index) => text[..index].to_string(),
-                None => text,
-            }
-        }
-    }
+    crate::common::error::io_error_text(error)
 }
 
 #[cfg(test)]

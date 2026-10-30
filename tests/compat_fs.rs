@@ -264,8 +264,8 @@ fn pwd_physical_and_logical_exit_zero_and_reject_extra_arguments() {
     assert_eq!(code(&f.run("pwd", &["-L"])), Some(0));
     assert_eq!(code(&f.run("pwd", &["-LP"])), Some(0));
     assert_eq!(code(&f.run("pwd", &["--physical"])), Some(0));
-    assert_eq!(code(&f.run("pwd", &["-X"])), Some(2));
-    assert_eq!(code(&f.run("pwd", &["extra"])), Some(2));
+    assert_eq!(code(&f.run("pwd", &["-X"])), Some(1));
+    assert_eq!(code(&f.run("pwd", &["extra"])), Some(1));
 }
 
 #[test]

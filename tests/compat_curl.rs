@@ -463,3 +463,10 @@ fn unknown_option_exits_2() {
     assert_eq!(out.status.code(), Some(2));
     assert!(text(&out.stderr).contains("unknown option"));
 }
+
+#[test]
+fn refused_connection_exits_7() {
+    let f = Fixture::new();
+    let out = f.run(&["-sS", "http://127.0.0.1:9/"], b"");
+    assert_eq!(out.status.code(), Some(7), "{}", text(&out.stderr));
+}

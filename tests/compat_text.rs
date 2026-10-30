@@ -314,6 +314,44 @@ fn less_raw_flags_pass_file_through_when_piped() {
     );
     assert_eq!(
         f.run("less", &["-z", "file.txt"], b"").status.code(),
-        Some(2)
+        Some(1)
     );
+}
+
+#[test]
+fn head_and_tail_expand_unique_long_option_prefixes() {
+    let f = Fixture::new();
+    f.write("file.txt", b"1\n2\n3\n");
+    let out = f.run("head", &["--li", "2", "file.txt"], b"");
+    assert_eq!(out.status.code(), Some(0));
+    assert_eq!(out.stdout, b"1\n2\n");
+    assert_eq!(
+        f.run("head", &["--lines=1", "file.txt"], b"").stdout,
+        b"1\n"
+    );
+    let ambiguous = f.run("tail", &["--s", "file.txt"], b"");
+    assert_eq!(ambiguous.status.code(), Some(1));
+    let stderr = String::from_utf8_lossy(&ambiguous.stderr);
+    assert!(
+        stderr.contains("option '--s' is ambiguous; possibilities: '--silent' '--sleep-interval'"),
+        "{stderr}"
+    );
+}
+
+#[test]
+fn posixly_correct_stops_option_parsing_at_first_operand() {
+    let f = Fixture::new();
+    f.write("file.txt", b"1\n2\n3\n");
+    let permuted = f.run("head", &["file.txt", "-n", "1"], b"");
+    assert_eq!(permuted.status.code(), Some(0));
+    let posix = Command::new(binary("head"))
+        .current_dir(&f.0)
+        .env("POSIXLY_CORRECT", "1")
+        .args(["file.txt", "-n", "1"])
+        .stdin(Stdio::null())
+        .output()
+        .unwrap();
+    assert_eq!(posix.status.code(), Some(1));
+    let stderr = String::from_utf8_lossy(&posix.stderr);
+    assert!(stderr.contains("cannot open '-n'"), "{stderr}");
 }

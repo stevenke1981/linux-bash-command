@@ -1,3 +1,5 @@
+use crate::common::args::prepare_abbrevs;
+use crate::common::error::EXIT_FAIL;
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
 use std::io::{self, Write};
@@ -35,7 +37,7 @@ Output:
 Notes: TIME and TTY are shown as '?' because the OS statistics are not available here.
 START and STIME are shown in UTC. %CPU is measured over about 200 ms when requested.
 The process name and command come from the operating system.
-Exit status: 0 on success, 1 when a filter selected no processes, 2 on invalid options.
+Exit status: 0 on success, 1 when a filter selected no processes or on invalid options.
 ";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -296,7 +298,13 @@ fn parse(args: &[String]) -> Result<Parsed, String> {
     let mut index = 0;
     while index < args.len() {
         let arg = args[index].as_str();
-        if arg == "-h" || arg == "--help" {
+        if arg == "--" {
+            // ps takes no operands, so anything after `--` is an unknown argument.
+            if let Some(extra) = args.get(index + 1) {
+                return Err(format!("unknown option: {extra}"));
+            }
+            break;
+        } else if arg == "-h" || arg == "--help" {
             return Ok(Parsed::Help);
         } else if let Some(long) = arg.strip_prefix("--") {
             parse_long(long, args, &mut index, &mut options)?;
@@ -315,16 +323,34 @@ fn parse(args: &[String]) -> Result<Parsed, String> {
     Ok(Parsed::Run(options))
 }
 
+const PS_LONGS: &[&str] = &[
+    "all",
+    "command-name",
+    "format",
+    "help",
+    "json",
+    "no-heading",
+    "no-headers",
+    "pid",
+    "sort",
+    "user",
+];
+
 pub fn run(args: &[String]) -> i32 {
-    let options = match parse(args) {
+    // BSD-style letters such as `ps aux` are operands, so only abbreviations are expanded.
+    let expanded = match prepare_abbrevs("ps", args, PS_LONGS, EXIT_FAIL) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let options = match parse(&expanded) {
         Ok(Parsed::Run(options)) => options,
         Ok(Parsed::Help) => {
             print!("{HELP}");
             return 0;
         }
         Err(error) => {
-            eprintln!("ps: {error}\nTry 'ps --help' for usage.");
-            return 2;
+            eprintln!("ps: {error}\nTry 'ps --help' for more information.");
+            return 1;
         }
     };
     let mut rows = collect_rows(&options);
@@ -671,7 +697,7 @@ fn print_json(rows: &[Row]) -> i32 {
         Ok(text) => text,
         Err(error) => {
             eprintln!("ps: cannot write JSON output: {error}");
-            return 2;
+            return 1;
         }
     };
     text.push('\n');
@@ -689,7 +715,7 @@ fn write_stdout(text: &str) -> i32 {
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
             eprintln!("ps: cannot write output: {error}");
-            2
+            1
         }
     }
 }

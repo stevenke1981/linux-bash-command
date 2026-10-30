@@ -1,3 +1,4 @@
+use crate::common::args::prepare_legacy;
 use reqwest::blocking::{Client, ClientBuilder, Request, Response};
 use reqwest::header::{self, HeaderMap, HeaderName, HeaderValue};
 use reqwest::redirect::Policy;
@@ -12,6 +13,8 @@ use std::time::{Duration, Instant};
 
 const EXIT_USAGE: i32 = 2;
 const EXIT_TRANSPORT: i32 = 2;
+const EXIT_COULD_NOT_RESOLVE: i32 = 6;
+const EXIT_CONNECT: i32 = 7;
 const EXIT_HTTP_ERROR: i32 = 22;
 const EXIT_WRITE: i32 = 23;
 const EXIT_READ_LOCAL: i32 = 26;
@@ -79,9 +82,10 @@ Network:
       --url URL            Set the URL (same as the positional argument)
       --help               Show this help
 
-Exit status: 0 on success; 2 for usage and transport errors; 22 for -f or
---fail-with-body HTTP errors; 23 for local write errors; 26 for unreadable
-data files; 28 for timeouts; 47 when --max-redirs is exceeded.
+Exit status: 0 on success; 2 for usage and transport errors; 6 when the host
+cannot be resolved; 7 when the connection fails; 22 for -f or --fail-with-body
+HTTP errors; 23 for local write errors; 26 for unreadable data files; 28 for
+timeouts; 47 when --max-redirs is exceeded.
 "#;
 
 /// Option table: (short form, long name, takes a value). Long names are the canonical keys.
@@ -298,11 +302,33 @@ struct Metrics {
 
 pub fn run(args: &[String]) -> i32 {
     let start = Instant::now();
-    let options = match parse(args) {
+    let longs: Vec<&str> = OPTIONS.iter().map(|(_, long, _)| *long).collect();
+    let value_longs: Vec<&str> = OPTIONS
+        .iter()
+        .filter(|(_, _, takes_value)| *takes_value)
+        .map(|(_, long, _)| *long)
+        .collect();
+    let value_shorts: String = OPTIONS
+        .iter()
+        .filter(|(_, _, takes_value)| *takes_value)
+        .filter_map(|(short, _, _)| *short)
+        .collect();
+    let expanded = match prepare_legacy(
+        "curl",
+        args,
+        &longs,
+        &value_longs,
+        &value_shorts,
+        EXIT_USAGE,
+    ) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let options = match parse(&expanded) {
         Ok(Some(options)) => options,
         Ok(None) => return 0,
         Err(error) => {
-            eprintln!("curl: {error}\nUse 'curl --help' for usage.");
+            eprintln!("curl: {error}\nTry 'curl --help' for more information.");
             return EXIT_USAGE;
         }
     };
@@ -965,10 +991,44 @@ fn transport_failure(
     if error.is_timeout() {
         return fail(EXIT_TIMEOUT, "operation timed out");
     }
+    if error.is_connect() {
+        let host = error
+            .url()
+            .and_then(|url| url.host_str().map(str::to_owned))
+            .unwrap_or_default();
+        if is_dns_failure(error) {
+            return fail(
+                EXIT_COULD_NOT_RESOLVE,
+                format!("Could not resolve host: {host}"),
+            );
+        }
+        return fail(EXIT_CONNECT, format!("Failed to connect to {host}"));
+    }
     fail(
         EXIT_TRANSPORT,
         "request failed (connection, TLS, or protocol error)",
     )
+}
+
+/// True when a connection failure came from name resolution rather than from connecting.
+/// The resolver's wording is only available in the error chain.
+fn is_dns_failure(error: &reqwest::Error) -> bool {
+    const DNS_MARKERS: [&str; 5] = [
+        "dns error",
+        "failed to lookup address",
+        "name or service not known",
+        "no such host",
+        "nodename nor servname",
+    ];
+    let mut source: Option<&(dyn std::error::Error + 'static)> = Some(error);
+    while let Some(current) = source {
+        let text = current.to_string().to_ascii_lowercase();
+        if DNS_MARKERS.iter().any(|marker| text.contains(marker)) {
+            return true;
+        }
+        source = current.source();
+    }
+    false
 }
 
 fn send_once(client: &Client, plan: &Plan, options: &Options) -> Result<Response, reqwest::Error> {

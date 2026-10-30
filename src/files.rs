@@ -1,8 +1,27 @@
+use crate::common::args::prepare_legacy;
 use std::fs;
 use std::io::{self, BufRead, BufReader, Write};
 use std::path::{Component, Path, PathBuf};
 
+const FILES_LONGS: &[&str] = &[
+    "all",
+    "dirs",
+    "end",
+    "help",
+    "limit",
+    "max-depth",
+    "no-ignore",
+    "start",
+];
+
+const FILES_VALUE_LONGS: &[&str] = &["end", "limit", "max-depth", "start"];
+
 pub fn list(args: &[String]) -> i32 {
+    let expanded = match prepare_legacy("list", args, FILES_LONGS, FILES_VALUE_LONGS, "", 2) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let args = expanded.as_slice();
     let mut include_hidden = false;
     let mut include_common_ignored = false;
     let mut include_directories = false;
@@ -36,12 +55,12 @@ pub fn list(args: &[String]) -> i32 {
             };
             max_depth = value;
         } else if !positional_only && arg.starts_with('-') {
-            eprintln!("list: unknown option: {arg}\nTry 'list --help' for usage.");
+            eprintln!("list: unknown option: {arg}\nTry 'list --help' for more information.");
             return 2;
         } else if root.is_none() {
             root = Some(PathBuf::from(arg));
         } else {
-            eprintln!("list: expected at most one path\nTry 'list --help' for usage.");
+            eprintln!("list: expected at most one path\nTry 'list --help' for more information.");
             return 2;
         }
         index += 1;
@@ -188,6 +207,11 @@ fn list_help() -> &'static str {
 }
 
 pub fn read(args: &[String]) -> i32 {
+    let expanded = match prepare_legacy("read", args, FILES_LONGS, FILES_VALUE_LONGS, "", 2) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let args = expanded.as_slice();
     let mut start = 1usize;
     let mut end = None;
     let mut limit = None;
@@ -224,19 +248,21 @@ pub fn read(args: &[String]) -> i32 {
                 _ => unreachable!(),
             }
         } else if !positional_only && arg.starts_with('-') {
-            eprintln!("read: unknown option: {arg}\nTry 'read --help' for usage.");
+            eprintln!("read: unknown option: {arg}\nTry 'read --help' for more information.");
             return 2;
         } else if path.is_none() {
             path = Some(PathBuf::from(arg));
         } else {
-            eprintln!("read: expected exactly one file path\nTry 'read --help' for usage.");
+            eprintln!(
+                "read: expected exactly one file path\nTry 'read --help' for more information."
+            );
             return 2;
         }
         index += 1;
     }
 
     let Some(path) = path else {
-        eprintln!("read: missing file path\nTry 'read --help' for usage.");
+        eprintln!("read: missing file path\nTry 'read --help' for more information.");
         return 2;
     };
     if let Some(end) = end {

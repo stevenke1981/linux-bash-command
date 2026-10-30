@@ -1,3 +1,6 @@
+use crate::common::args::prepare_legacy;
+use crate::common::error::{io_error_text, EXIT_FAIL, EXIT_OK};
+use crate::common::io::is_broken_pipe;
 use std::collections::VecDeque;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Read, Seek, SeekFrom, Write};
@@ -36,7 +39,24 @@ struct CatState {
     previous_blank: bool,
 }
 
+const CAT_LONGS: &[&str] = &[
+    "help",
+    "number",
+    "number-nonblank",
+    "show-all",
+    "show-ends",
+    "show-nonprinting",
+    "show-tabs",
+    "squeeze-blank",
+    "unbuffered",
+];
+
 pub fn cat(args: &[String]) -> i32 {
+    let expanded = match prepare_legacy("cat", args, CAT_LONGS, &[], "", EXIT_FAIL) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let args = expanded.as_slice();
     let (options, paths) = match parse_cat(args) {
         Ok(Some(parsed)) => parsed,
         Ok(None) => return 0,
@@ -64,7 +84,7 @@ pub fn cat(args: &[String]) -> i32 {
             }
         };
         if let Err(error) = result {
-            if is_closed_pipe(&error) {
+            if is_broken_pipe(&error) {
                 return 0;
             }
             report_failure("cat", path, &error);
@@ -532,7 +552,21 @@ impl Headers {
     }
 }
 
+const HEAD_LONGS: &[&str] = &["bytes", "help", "lines", "quiet", "silent", "verbose"];
+
 pub fn head(args: &[String]) -> i32 {
+    let expanded = match prepare_legacy(
+        "head",
+        args,
+        HEAD_LONGS,
+        &["bytes", "lines"],
+        "nc",
+        EXIT_FAIL,
+    ) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let args = expanded.as_slice();
     let (options, paths) = match parse_text_args(args, HEAD_HELP, false) {
         Ok(Some(parsed)) => parsed,
         Ok(None) => return 0,
@@ -557,7 +591,7 @@ pub fn head(args: &[String]) -> i32 {
             }
         };
         if let Err(error) = result {
-            if is_closed_pipe(&error) {
+            if is_broken_pipe(&error) {
                 return 0;
             }
             report_failure("head", path, &error);
@@ -639,7 +673,32 @@ fn head_all_but_last_bytes(
     }
 }
 
+const TAIL_LONGS: &[&str] = &[
+    "bytes",
+    "follow",
+    "help",
+    "lines",
+    "pid",
+    "quiet",
+    "retry",
+    "silent",
+    "sleep-interval",
+    "verbose",
+];
+
 pub fn tail(args: &[String]) -> i32 {
+    let expanded = match prepare_legacy(
+        "tail",
+        args,
+        TAIL_LONGS,
+        &["bytes", "lines", "pid", "sleep-interval"],
+        "ncs",
+        EXIT_FAIL,
+    ) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let args = expanded.as_slice();
     let (options, paths) = match parse_text_args(args, TAIL_HELP, true) {
         Ok(Some(parsed)) => parsed,
         Ok(None) => return 0,
@@ -660,7 +719,7 @@ pub fn tail(args: &[String]) -> i32 {
                     .enter(&mut output, index, path)
                     .and_then(|()| tail_initial(source.reader(), &options, &mut output));
                 if let Err(error) = result {
-                    if is_closed_pipe(&error) {
+                    if is_broken_pipe(&error) {
                         return 0;
                     }
                     report_failure("tail", path, &error);
@@ -884,7 +943,7 @@ fn follow(
                 eprintln!(
                     "tail: cannot read '{}': {}",
                     follower.path,
-                    io_message(&error)
+                    io_error_text(&error)
                 );
                 return 1;
             }
@@ -895,10 +954,10 @@ fn follow(
                 .enter(output, follower.index, &follower.path)
                 .and_then(|()| write_flushed(output, &buffer));
             if let Err(error) = written {
-                return if is_closed_pipe(&error) {
+                return if is_broken_pipe(&error) {
                     0
                 } else {
-                    eprintln!("tail: cannot write output: {}", io_message(&error));
+                    eprintln!("tail: cannot write output: {}", io_error_text(&error));
                     1
                 };
             }
@@ -929,35 +988,21 @@ fn as_usize(value: u64) -> usize {
 
 fn status(had_error: bool) -> i32 {
     if had_error {
-        1
+        EXIT_FAIL
     } else {
-        0
-    }
-}
-
-/// A closed reader is not a failure of the command; it exits quietly like a SIGPIPE'd tool.
-fn is_closed_pipe(error: &io::Error) -> bool {
-    error.kind() == io::ErrorKind::BrokenPipe
-}
-
-/// Drops the Windows/Rust " (os error N)" suffix for friendlier messages.
-fn io_message(error: &io::Error) -> String {
-    let text = error.to_string();
-    match text.find(" (os error") {
-        Some(index) => text[..index].to_string(),
-        None => text,
+        EXIT_OK
     }
 }
 
 fn report_open(command: &str, path: &str, error: &io::Error) {
     eprintln!(
         "{command}: cannot open '{path}' for reading: {}",
-        io_message(error)
+        io_error_text(error)
     );
 }
 
 fn report_failure(command: &str, path: &str, error: &io::Error) {
-    eprintln!("{command}: '{path}': {}", io_message(error));
+    eprintln!("{command}: '{path}': {}", io_error_text(error));
 }
 
 const CAT_HELP: &str = "Usage: cat [OPTION]... [FILE]...\n\nConcatenate FILE(s) to standard output. With no FILE, or when FILE is -, read standard input.\n\nOptions:\n  -A, --show-all          Same as -vET\n  -b, --number-nonblank   Number non-empty output lines (overrides -n)\n  -e                      Same as -vE\n  -E, --show-ends         Show $ at the end of each line\n  -n, --number            Number all output lines (format: %6d TAB)\n  -s, --squeeze-blank     Suppress repeated empty output lines\n  -t                      Same as -vT\n  -T, --show-tabs         Show TAB characters as ^I\n  -u                      Accepted and ignored\n  -v, --show-nonprinting  Show control characters with ^ and M- notation\n  -h, --help              Show this help\n\nExit status: 0 on success, 1 if an input could not be read.\n";

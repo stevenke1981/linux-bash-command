@@ -2,6 +2,7 @@
 //!
 //! `search` keeps its historical output and error behavior; `rg` accepts ripgrep's flags.
 
+use crate::common::args::prepare_legacy;
 use ignore::overrides::{Override, OverrideBuilder};
 use ignore::WalkBuilder;
 use regex::bytes::{Regex, RegexBuilder};
@@ -1001,7 +1002,7 @@ impl Searcher {
         if !path.exists() {
             let message = match self.cfg.mode {
                 Mode::Search => format!("{root}: path does not exist"),
-                Mode::Rg => format!("{root}: No such file or directory (os error 2)"),
+                Mode::Rg => format!("{root}: No such file or directory"),
             };
             self.report(message);
             return Ok(());
@@ -1434,8 +1435,118 @@ fn execute(cfg: Config) -> i32 {
     searcher.status()
 }
 
+const SEARCH_LONGS: &[&str] = &[
+    "accessed",
+    "after-context",
+    "before-context",
+    "binary",
+    "case-sensitive",
+    "color",
+    "colors",
+    "colour",
+    "column",
+    "context",
+    "count",
+    "count-matches",
+    "debug",
+    "encoding",
+    "file",
+    "files",
+    "files-with-matches",
+    "files-without-match",
+    "fixed-strings",
+    "follow",
+    "glob",
+    "glob-case-insensitive",
+    "heading",
+    "help",
+    "hidden",
+    "iglob",
+    "ignore-case",
+    "invert-match",
+    "json",
+    "line-number",
+    "line-regexp",
+    "max-columns",
+    "max-columns-preview",
+    "max-count",
+    "max-depth",
+    "max-filesize",
+    "maxdepth",
+    "modified",
+    "multiline",
+    "multiline-dotall",
+    "no-config",
+    "no-filename",
+    "no-heading",
+    "no-ignore",
+    "no-ignore-parent",
+    "no-ignore-vcs",
+    "no-line-number",
+    "no-messages",
+    "null",
+    "only-matching",
+    "quiet",
+    "regexp",
+    "replace",
+    "search-zip",
+    "smart-case",
+    "sort",
+    "sortr",
+    "text",
+    "threads",
+    "trim",
+    "type",
+    "type-list",
+    "type-not",
+    "unrestricted",
+    "version",
+    "with-filename",
+    "word-regexp",
+];
+
+const SEARCH_VALUE_LONGS: &[&str] = &[
+    "after-context",
+    "before-context",
+    "color",
+    "colors",
+    "colour",
+    "context",
+    "encoding",
+    "file",
+    "glob",
+    "iglob",
+    "max-columns",
+    "max-count",
+    "max-depth",
+    "max-filesize",
+    "maxdepth",
+    "regexp",
+    "replace",
+    "sort",
+    "sortr",
+    "threads",
+    "type",
+    "type-not",
+];
+
 fn run_impl(args: &[String], mode: Mode) -> i32 {
-    let cfg = match parse(args, mode) {
+    let name = match mode {
+        Mode::Search => "search",
+        Mode::Rg => "rg",
+    };
+    let expanded = match prepare_legacy(
+        name,
+        args,
+        SEARCH_LONGS,
+        SEARCH_VALUE_LONGS,
+        "efgtTABCmdMjEr",
+        2,
+    ) {
+        Ok(expanded) => expanded,
+        Err(code) => return code,
+    };
+    let cfg = match parse(&expanded, mode) {
         Ok(Parsed::Help) => {
             usage(mode);
             return 0;
