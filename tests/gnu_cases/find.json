@@ -1,0 +1,131 @@
+{
+  "command": "find",
+  "cases": [
+    {
+      "name": "default_print_tree",
+      "args": [],
+      "files": {
+        "a.txt": "a\n",
+        "b.md": "b\n",
+        "sub/c.txt": "c\n",
+        "sub/deep/d.txt": "d\n"
+      },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "name_glob",
+      "args": [".", "-name", "*.txt"],
+      "files": {
+        "a.txt": "a\n",
+        "b.md": "b\n",
+        "sub/c.txt": "c\n",
+        "sub/deep/d.txt": "d\n"
+      },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "type_directory_only",
+      "args": [".", "-type", "d"],
+      "files": { "a.txt": "a\n", "sub/c.txt": "c\n", "sub/deep/d.txt": "d\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "maxdepth_one",
+      "args": [".", "-maxdepth", "1"],
+      "files": { "a.txt": "a\n", "sub/c.txt": "c\n", "sub/deep/d.txt": "d\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "mindepth_two_files_only",
+      "args": [".", "-mindepth", "2", "-type", "f"],
+      "files": { "a.txt": "a\n", "sub/c.txt": "c\n", "sub/deep/d.txt": "d\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "iname_case_insensitive",
+      "args": [".", "-iname", "readme*"],
+      "files": { "ReadMe.txt": "r\n", "readme.md": "r\n", "other.txt": "o\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "newer_than_reference",
+      "args": [".", "-type", "f", "-newer", "ref.txt"],
+      "files": {
+        "ref.txt": { "text": "ref\n", "mtime": 1700000000 },
+        "newer.txt": { "text": "n\n", "mtime": 1800000000 },
+        "older.txt": { "text": "o\n", "mtime": 1600000000 }
+      },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "perm_exact_mode",
+      "args": [".", "-type", "f", "-perm", "600"],
+      "files": {
+        "secret.txt": { "text": "s\n", "mode": "600" },
+        "public.txt": { "text": "p\n", "mode": "644" }
+      },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "empty_files_and_dirs",
+      "args": [".", "-empty"],
+      "files": { "empty.txt": "", "full.txt": "x\n", "emptydir/.keep": "" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "size_nonzero_bytes",
+      "args": [".", "-type", "f", "-size", "+0c"],
+      "files": { "zero.txt": "", "one.txt": "x", "three.txt": "abc" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "regex_whole_path",
+      "args": [".", "-regex", "./.*\\.md"],
+      "files": { "notes.md": "n\n", "sub/readme.md": "r\n", "sub/a.txt": "a\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "prune_skips_subtree",
+      "args": [".", "-name", "sub", "-prune", "-o", "-print"],
+      "files": { "a.txt": "a\n", "sub/c.txt": "c\n", "sub/deep/d.txt": "d\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "parens_or_precedence",
+      "args": [".", "(", "-name", "*.txt", "-o", "-name", "*.md", ")", "-type", "f"],
+      "files": { "a.txt": "a\n", "b.md": "b\n", "c.log": "c\n", "sub/d.txt": "d\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "exec_echo_each",
+      "args": [".", "-name", "*.txt", "-exec", "echo", "found:{}", ";"],
+      "files": { "a.txt": "a\n", "sub/b.txt": "b\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "exec_echo_batch",
+      "args": [".", "-name", "*.txt", "-exec", "echo", "{}", "+"],
+      "files": { "a.md": "a\n", "sub/b.txt": "b\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "printf_name_and_size",
+      "args": [".", "-type", "f", "-printf", "%p %s\\n"],
+      "files": { "a.txt": "abcd", "sub/b.txt": "xy" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "delete_matching_files",
+      "args": [".", "-name", "*.tmp", "-delete"],
+      "files": { "keep.txt": "k\n", "junk.tmp": "j\n", "sub/more.tmp": "m\n" },
+      "compare": ["stdout", "exit", "files"]
+    },
+    {
+      "name": "ls_action_skipped_owner_columns",
+      "args": [".", "-maxdepth", "1", "-type", "f", "-ls"],
+      "files": { "a.txt": { "text": "a\n", "mtime": 1700000000 } },
+      "compare": ["stdout_sorted", "exit"],
+      "skip_reason": "-ls prints owner and group as '-' and a fixed UTC date format; GNU prints user/group names and locale-style dates"
+    }
+  ]
+}

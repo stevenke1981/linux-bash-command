@@ -1,0 +1,76 @@
+{
+  "command": "cat",
+  "cases": [
+    {
+      "name": "two_files",
+      "args": ["a.txt", "b.txt"],
+      "files": { "a.txt": "alpha\nbeta\n", "b.txt": "gamma\n" }
+    },
+    {
+      "name": "stdin_dash",
+      "args": ["-"],
+      "stdin": "from stdin\nline two\n"
+    },
+    {
+      "name": "stdin_passthrough_binary",
+      "args": [],
+      "stdin_hex": "00ff7f0a0d1b80"
+    },
+    {
+      "name": "number_all_lines",
+      "args": ["-n", "a.txt"],
+      "files": { "a.txt": "one\n\ntwo\n" }
+    },
+    {
+      "name": "number_nonblank",
+      "args": ["-b", "a.txt"],
+      "files": { "a.txt": "one\n\ntwo\n\n\nthree" }
+    },
+    {
+      "name": "show_ends_and_tabs",
+      "args": ["-E", "-T", "a.txt"],
+      "files": { "a.txt": "a\tb\n c\n\n" }
+    },
+    {
+      "name": "show_nonprinting_hex",
+      "args": ["-v", "bin.dat"],
+      "files": { "bin.dat": { "hex": "00017f80ff0a1b0d09" } }
+    },
+    {
+      "name": "show_all_long_option",
+      "args": ["--show-all", "a.txt"],
+      "files": { "a.txt": "x\ty\r\n\u0001z\n" }
+    },
+    {
+      "name": "squeeze_blank_lines",
+      "args": ["-s", "a.txt"],
+      "files": { "a.txt": "a\n\n\n\nb\n\nc\n\n" }
+    },
+    {
+      "name": "squeeze_and_number_combined",
+      "args": ["-sn", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\n\n\nb\n", "b.txt": "\n\nc" }
+    },
+    {
+      "name": "unbuffered_flag_ignored",
+      "args": ["-u", "a.txt"],
+      "files": { "a.txt": "unbuffered\n" }
+    },
+    {
+      "name": "double_dash_then_file",
+      "args": ["--", "-dash.txt"],
+      "files": { "-dash.txt": "dash file\n" }
+    },
+    {
+      "name": "missing_file_exit_status",
+      "args": ["a.txt", "missing.txt", "b.txt"],
+      "files": { "a.txt": "first\n", "b.txt": "last\n" },
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "missing_file_only",
+      "args": ["nope.txt"],
+      "compare": ["stdout", "exit"]
+    }
+  ]
+}

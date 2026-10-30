@@ -1,0 +1,123 @@
+{
+  "command": "grep",
+  "cases": [
+    {
+      "name": "basic_match",
+      "args": ["hello", "a.txt"],
+      "files": { "a.txt": "hello there\nno match\nsay hello\n" }
+    },
+    {
+      "name": "ignore_case_line_numbers",
+      "args": ["-in", "HELLO", "a.txt"],
+      "files": { "a.txt": "hello there\nno match\nSay Hello\n" }
+    },
+    {
+      "name": "invert_match",
+      "args": ["-v", "x", "a.txt"],
+      "files": { "a.txt": "xa\nb\nxc\nd\n" }
+    },
+    {
+      "name": "count_lines",
+      "args": ["-c", "a", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\nb\na\n", "b.txt": "none\n" }
+    },
+    {
+      "name": "files_with_matches",
+      "args": ["-l", "needle", "a.txt", "b.txt", "c.txt"],
+      "files": { "a.txt": "a needle\n", "b.txt": "nothing\n", "c.txt": "needle again\n" }
+    },
+    {
+      "name": "files_without_match",
+      "args": ["-L", "needle", "a.txt", "b.txt"],
+      "files": { "a.txt": "a needle\n", "b.txt": "nothing\n" }
+    },
+    {
+      "name": "only_matching_extended",
+      "args": ["-oE", "[0-9]+", "a.txt"],
+      "files": { "a.txt": "id 42 and 7\nnone\n100x\n" }
+    },
+    {
+      "name": "extended_alternation",
+      "args": ["-E", "cat|dog", "a.txt"],
+      "files": { "a.txt": "a cat\na bird\na dog\n" }
+    },
+    {
+      "name": "fixed_strings_dot",
+      "args": ["-F", "a.b", "a.txt"],
+      "files": { "a.txt": "a.b\naxb\n" }
+    },
+    {
+      "name": "word_regexp",
+      "args": ["-w", "is", "a.txt"],
+      "files": { "a.txt": "this is it\nthis\nis\n" }
+    },
+    {
+      "name": "line_regexp",
+      "args": ["-x", "abc", "a.txt"],
+      "files": { "a.txt": "abc\nabcd\n xabc\n" }
+    },
+    {
+      "name": "context_with_separator",
+      "args": ["-n", "-C", "1", "pat", "a.txt"],
+      "files": { "a.txt": "one\npat two\nthree\nfour\nfive\npat six\n" }
+    },
+    {
+      "name": "multiple_files_prefix",
+      "args": ["match", "a.txt", "b.txt"],
+      "files": { "a.txt": "match a\n", "b.txt": "match b\nno\n" }
+    },
+    {
+      "name": "no_filename_and_max_count",
+      "args": ["-h", "-m", "1", "x", "a.txt", "b.txt"],
+      "files": { "a.txt": "x1\nx2\n", "b.txt": "x3\n" }
+    },
+    {
+      "name": "multiple_patterns",
+      "args": ["-e", "one", "-e", "two", "a.txt"],
+      "files": { "a.txt": "one\nthree\ntwo\n" }
+    },
+    {
+      "name": "pattern_file",
+      "args": ["-f", "pats.txt", "a.txt"],
+      "files": { "pats.txt": "apple\npear\n", "a.txt": "an apple\nplum\na pear\n" }
+    },
+    {
+      "name": "binary_file_default",
+      "args": ["x", "bin.dat"],
+      "files": { "bin.dat": { "hex": "780000790a" } },
+      "skip_reason": "binary match notice: GNU grep 3.5+ prints 'binary file matches' to stderr with empty stdout; ours prints 'Binary file bin.dat matches' to stdout"
+    },
+    {
+      "name": "binary_as_text",
+      "args": ["-a", "x", "bin.dat"],
+      "files": { "bin.dat": { "hex": "780000790a" } }
+    },
+    {
+      "name": "recursive_include_glob",
+      "args": ["-r", "--include=*.txt", "hit", "."],
+      "files": { "top.txt": "hit top\n", "sub/z.txt": "hit z\n", "sub/skip.md": "hit md\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "no_match_exit_status",
+      "args": ["zzz", "a.txt"],
+      "files": { "a.txt": "abc\n" }
+    },
+    {
+      "name": "missing_file_exit_status",
+      "args": ["pat", "nope.txt"],
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "missing_file_silenced",
+      "args": ["-s", "x", "nope.txt", "a.txt"],
+      "files": { "a.txt": "x marks\n" },
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "perl_digits",
+      "args": ["-P", "\\d{2}", "a.txt"],
+      "files": { "a.txt": "a1\nb22\n" }
+    }
+  ]
+}
