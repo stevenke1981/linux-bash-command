@@ -1,0 +1,514 @@
+{
+  "command": "gzip",
+  "cases": [
+    {
+      "name": "list_single",
+      "args": [
+        "-l",
+        "a.gz"
+      ],
+      "files": {
+        "a.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "list_verbose",
+      "args": [
+        "-lv",
+        "a.gz"
+      ],
+      "files": {
+        "a.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000",
+          "mtime": 1700000000
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "list_multi_member",
+      "args": [
+        "-l",
+        "m.gz"
+      ],
+      "files": {
+        "m.gz": {
+          "hex": "1f8b08000000000000034bcb2c2a2e51c84dcd4d4a2de20200a7f4850a0d0000001f8b08000000000000032b4e4dcecf4b51c84dcd4d4a2de2020036184b0e0e000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "list_multi_verbose",
+      "args": [
+        "-lv",
+        "m.gz"
+      ],
+      "files": {
+        "m.gz": {
+          "hex": "1f8b08000000000000034bcb2c2a2e51c84dcd4d4a2de20200a7f4850a0d0000001f8b08000000000000032b4e4dcecf4b51c84dcd4d4a2de2020036184b0e0e000000",
+          "mtime": 1700000000
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "list_totals",
+      "args": [
+        "-l",
+        "a.gz",
+        "m.gz"
+      ],
+      "files": {
+        "a.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+        },
+        "m.gz": {
+          "hex": "1f8b08000000000000034bcb2c2a2e51c84dcd4d4a2de20200a7f4850a0d0000001f8b08000000000000032b4e4dcecf4b51c84dcd4d4a2de2020036184b0e0e000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "list_named_stored",
+      "args": [
+        "-l",
+        "named.gz"
+      ],
+      "files": {
+        "named.gz": {
+          "hex": "1f8b080800f1536500036f7269672e74787400cb2fca4c572848acccc94f4ce10200ee72bf4e0d000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "list_stdin",
+      "args": [
+        "-l"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "stdin_hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+    },
+    {
+      "name": "list_missing_reports",
+      "args": [
+        "-l",
+        "nosuch.gz"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "list_not_gzip",
+      "args": [
+        "-l",
+        "plain.txt"
+      ],
+      "files": {
+        "plain.txt": "this is not gzip\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "test_ok",
+      "args": [
+        "-t",
+        "m.gz"
+      ],
+      "files": {
+        "m.gz": {
+          "hex": "1f8b08000000000000034bcb2c2a2e51c84dcd4d4a2de20200a7f4850a0d0000001f8b08000000000000032b4e4dcecf4b51c84dcd4d4a2de2020036184b0e0e000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "test_corrupt_crc",
+      "args": [
+        "-t",
+        "corrupt.gz"
+      ],
+      "files": {
+        "corrupt.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be502003528590818000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "test_truncated",
+      "args": [
+        "-t",
+        "trunc.gz"
+      ],
+      "files": {
+        "trunc.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "test_trailing_garbage",
+      "args": [
+        "-t",
+        "a_trail.gz"
+      ],
+      "files": {
+        "a_trail.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca285908180000006a756e6b"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "decompress_keep",
+      "args": [
+        "-dk",
+        "a.gz"
+      ],
+      "files": {
+        "a.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "decompress_multi_removes_input",
+      "args": [
+        "-d",
+        "m.gz"
+      ],
+      "files": {
+        "m.gz": {
+          "hex": "1f8b08000000000000034bcb2c2a2e51c84dcd4d4a2de20200a7f4850a0d0000001f8b08000000000000032b4e4dcecf4b51c84dcd4d4a2de2020036184b0e0e000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "decompress_stdout_multi",
+      "args": [
+        "-dc",
+        "m.gz"
+      ],
+      "files": {
+        "m.gz": {
+          "hex": "1f8b08000000000000034bcb2c2a2e51c84dcd4d4a2de20200a7f4850a0d0000001f8b08000000000000032b4e4dcecf4b51c84dcd4d4a2de2020036184b0e0e000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "decompress_stdin",
+      "args": [
+        "-d"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "stdin_hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+    },
+    {
+      "name": "decompress_empty_stdin",
+      "args": [
+        "-dc"
+      ],
+      "stdin": "",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "decompress_text_stdin",
+      "args": [
+        "-d"
+      ],
+      "stdin": "this is not gzip\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "decompress_unknown_suffix",
+      "args": [
+        "-d",
+        "plain.txt"
+      ],
+      "files": {
+        "plain.txt": "this is not gzip\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "decompress_exists_not_overwritten",
+      "args": [
+        "-d",
+        "a.gz"
+      ],
+      "files": {
+        "a.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+        },
+        "a": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "decompress_force_overwrites",
+      "args": [
+        "-df",
+        "a.gz"
+      ],
+      "files": {
+        "a.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+        },
+        "a": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "decompress_name_restore",
+      "args": [
+        "-dN",
+        "renamed.gz"
+      ],
+      "files": {
+        "renamed.gz": {
+          "hex": "1f8b080800f1536500036f7269672e74787400cb2fca4c572848acccc94f4ce10200ee72bf4e0d000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "decompress_custom_suffix",
+      "args": [
+        "-dS",
+        ".z",
+        "x.z"
+      ],
+      "files": {
+        "x.z": {
+          "hex": "1f8b0808b983e46a00037372632e74787400cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "decompress_recursive",
+      "args": [
+        "-dr",
+        "dir"
+      ],
+      "files": {
+        "dir": {
+          "dir": true
+        },
+        "dir/a.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+        },
+        "dir/sub": {
+          "dir": true
+        },
+        "dir/sub/m.gz": {
+          "hex": "1f8b08000000000000034bcb2c2a2e51c84dcd4d4a2de20200a7f4850a0d0000001f8b08000000000000032b4e4dcecf4b51c84dcd4d4a2de2020036184b0e0e000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "compress_existing_output_kept",
+      "args": [
+        "plain.txt"
+      ],
+      "files": {
+        "plain.txt": "this is not gzip\n",
+        "plain.txt.gz": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "compress_already_gz_suffix",
+      "args": [
+        "a.gz"
+      ],
+      "files": {
+        "a.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "compress_missing_input",
+      "args": [
+        "nosuch.txt"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "compress_directory_ignored",
+      "args": [
+        "dir"
+      ],
+      "files": {
+        "dir": {
+          "dir": true
+        },
+        "dir/x": "x\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "compress_missing_then_keep_going",
+      "args": [
+        "nosuch.txt",
+        "plain.txt"
+      ],
+      "files": {
+        "plain.txt": "this is not gzip\n",
+        "plain.txt.gz": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "list_dash_operand",
+      "args": [
+        "-l",
+        "-"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "stdin_hex": "1f8b08000000000000034bcb2c2a2e51c84dcd4d4a2de20200a7f4850a0d0000001f8b08000000000000032b4e4dcecf4b51c84dcd4d4a2de2020036184b0e0e000000"
+    },
+    {
+      "name": "empty_member_decompresses",
+      "args": [
+        "-dc",
+        "e.gz"
+      ],
+      "files": {
+        "e.gz": {
+          "hex": "1f8b080000000000000303000000000000000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}
