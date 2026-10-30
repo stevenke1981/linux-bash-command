@@ -1,27 +1,89 @@
+use std::io::{self, Write};
 use std::path::PathBuf;
 use sysinfo::{Disk, Disks};
 
-const HELP: &str = "Usage: df [-h | --human-readable] [PATH...]\n\nShow filesystem capacity for mounted disks reported by the operating system. With PATH arguments, show the mounted filesystem containing each path.\n\nOptions:\n  -h, --human-readable  Show sizes using powers of 1024\n      --help            Show this help\n\nWithout -h, sizes are shown in 1 KiB blocks. Available space and used percentages can differ from GNU df because each OS reports disk capacity differently.\nExit status: 0 on success, 2 on invalid arguments or unavailable paths.\n";
+const HELP: &str = "Usage: df [OPTION]... [FILE]...
+
+Show filesystem capacity for mounted disks reported by the operating system.
+With FILE arguments, show the mounted filesystem that contains each file.
+
+Size options (last one wins):
+  -k                      1K blocks (default)
+  -m                      1M blocks
+  -B, --block-size=SIZE   Blocks of SIZE: N, or K, M, G, T, P (powers of 1024),
+                          or KB, MB, GB, TB, PB (powers of 1000)
+  -h, --human-readable    Powers of 1024 (e.g. 1.5G)
+  -H, --si                Powers of 1000 (e.g. 1.6G)
+
+Other options:
+  -T, --print-type        Include the filesystem type column
+  -P, --portability       POSIX output: 1024-blocks style header, Capacity column
+  -l, --local             Only local filesystems (common network types are excluded)
+  -a, --all               Accepted; only mounted storage that the OS reports is listed
+  -t, --type=TYPE         Only filesystems of TYPE (repeatable)
+  -x, --exclude-type=TYPE Exclude filesystems of TYPE (repeatable)
+      --help              Show this help
+
+Not supported: -i (inode usage), because the OS interface does not report inode counts.
+Available space and percentages can differ from GNU df because each OS reports
+capacity differently. The Filesystem column shows the device name on Unix and the
+drive letter on Windows.
+Exit status: 0 on success, 2 on invalid arguments or unavailable paths.
+";
+
+/// File system types treated as remote by `-l`.
+const NETWORK_TYPES: &[&str] = &[
+    "nfs",
+    "nfs4",
+    "cifs",
+    "smbfs",
+    "smb3",
+    "sshfs",
+    "fuse.sshfs",
+    "afs",
+    "ncpfs",
+    "davfs",
+    "webdav",
+    "9p",
+    "vboxsf",
+    "vmhgfs",
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Size {
+    /// Fixed block size in bytes.
+    Blocks(u64),
+    /// Human readable with the given base (1024 or 1000).
+    Human(u64),
+}
+
+struct Options {
+    size: Size,
+    portability: bool,
+    print_type: bool,
+    local: bool,
+    include_types: Vec<String>,
+    exclude_types: Vec<String>,
+    paths: Vec<PathBuf>,
+}
+
+enum Parsed {
+    Help,
+    Run(Options),
+}
 
 pub fn run(args: &[String]) -> i32 {
-    let mut human = false;
-    let mut paths = Vec::new();
-    let mut options = true;
-    for arg in args {
-        if options && arg == "--" {
-            options = false;
-        } else if options && arg == "--help" {
+    let options = match parse(args) {
+        Ok(Parsed::Run(options)) => options,
+        Ok(Parsed::Help) => {
             print!("{HELP}");
             return 0;
-        } else if options && matches!(arg.as_str(), "-h" | "--human-readable") {
-            human = true;
-        } else if options && arg.starts_with('-') && arg != "-" {
-            eprintln!("df: unknown option: {arg}\nTry 'df --help' for usage.");
-            return 2;
-        } else {
-            paths.push(PathBuf::from(arg));
         }
-    }
+        Err(error) => {
+            eprintln!("df: {error}\nTry 'df --help' for usage.");
+            return 2;
+        }
+    };
 
     let disks = Disks::new_with_refreshed_list();
     let mounted = disks.list();
@@ -30,83 +92,396 @@ pub fn run(args: &[String]) -> i32 {
         return 2;
     }
 
-    let (mut selected, had_error): (Vec<&Disk>, bool) = if paths.is_empty() {
-        (mounted.iter().collect(), false)
-    } else {
-        let mut selected: Vec<&Disk> = Vec::new();
-        let mut failed = false;
-        for path in &paths {
-            let path = match std::fs::canonicalize(path) {
-                Ok(path) => path,
-                Err(error) => {
-                    eprintln!("df: cannot access '{}': {error}", path.display());
-                    failed = true;
-                    continue;
-                }
-            };
-            let disk = mounted
-                .iter()
-                .filter(|disk| contains_path(disk.mount_point(), &path))
-                .max_by_key(|disk| disk.mount_point().components().count());
-            match disk {
-                Some(disk)
-                    if !selected
-                        .iter()
-                        .any(|item| item.mount_point() == disk.mount_point()) =>
-                {
-                    selected.push(disk);
-                }
-                Some(_) => {}
-                None => {
-                    eprintln!("df: no mounted filesystem found for '{}':", path.display());
-                    failed = true;
-                }
-            }
-        }
-        (selected, failed)
-    };
-
+    let (selected, had_error) = select(mounted, &options.paths);
+    let mut selected: Vec<&Disk> = selected
+        .into_iter()
+        .filter(|disk| keeps(disk, &options))
+        .collect();
     selected.sort_by(|left, right| left.mount_point().cmp(right.mount_point()));
-    let mut rows = Vec::with_capacity(selected.len());
-    for disk in selected {
-        let total = disk.total_space();
-        let free = disk.available_space();
-        let used = total.saturating_sub(free);
-        let used_percent = if total == 0 {
-            0
-        } else {
-            ((u128::from(total.saturating_sub(free)) * 100).div_ceil(u128::from(total))) as u64
-        };
-        rows.push((
-            disk.file_system().to_string_lossy().into_owned(),
-            size(total, human),
-            size(used, human),
-            size(free, human),
-            format!("{used_percent}%"),
-            disk.mount_point().display().to_string(),
-        ));
-    }
 
-    let filesystem_width = rows
-        .iter()
-        .map(|row| row.0.chars().count())
-        .max()
-        .unwrap_or("Filesystem".len())
-        .max("Filesystem".len());
-    println!(
-        "{:<filesystem_width$} {:>10} {:>10} {:>10} {:>6}  Mounted on",
-        "Filesystem", "Size", "Used", "Avail", "Use%"
-    );
-    for (filesystem, total, used, available, percent, mount) in rows {
-        println!(
-            "{filesystem:<filesystem_width$} {total:>10} {used:>10} {available:>10} {percent:>6}  {mount}"
-        );
-    }
+    let rows: Vec<Vec<String>> = selected.iter().map(|disk| row(disk, &options)).collect();
+    print_table(&headers(&options), &rows, &options);
     if had_error {
         2
     } else {
         0
     }
+}
+
+fn parse(args: &[String]) -> Result<Parsed, String> {
+    let mut size = Size::Blocks(1024);
+    let mut options = Options {
+        size: Size::Blocks(1024),
+        portability: false,
+        print_type: false,
+        local: false,
+        include_types: Vec::new(),
+        exclude_types: Vec::new(),
+        paths: Vec::new(),
+    };
+    let mut index = 0;
+    let mut operands_only = false;
+    while index < args.len() {
+        let arg = args[index].as_str();
+        index += 1;
+        if operands_only || arg == "-" || !arg.starts_with('-') {
+            options.paths.push(PathBuf::from(arg));
+        } else if arg == "--" {
+            operands_only = true;
+        } else if arg == "--help" {
+            return Ok(Parsed::Help);
+        } else if let Some(long) = arg.strip_prefix("--") {
+            parse_long(long, args, &mut index, &mut size, &mut options)?;
+        } else {
+            for (position, letter) in arg[1..].char_indices() {
+                if matches!(letter, 'B' | 't' | 'x') {
+                    let rest = &arg[1 + position + letter.len_utf8()..];
+                    let value = value_or_next(rest, args, &mut index, &letter.to_string())?;
+                    apply_value(letter, &value, &mut size, &mut options)?;
+                    break;
+                }
+                apply_flag(letter, &mut size, &mut options)?;
+            }
+        }
+    }
+    options.size = size;
+    Ok(Parsed::Run(options))
+}
+
+fn apply_flag(letter: char, size: &mut Size, options: &mut Options) -> Result<(), String> {
+    match letter {
+        'k' => *size = Size::Blocks(1024),
+        'm' => *size = Size::Blocks(1024 * 1024),
+        'h' => *size = Size::Human(1024),
+        'H' => *size = Size::Human(1000),
+        'T' => options.print_type = true,
+        'P' => options.portability = true,
+        'l' => options.local = true,
+        'a' => {}
+        'i' => {
+            return Err(
+                "-i (inode usage) is not available: the OS interface does not report inode counts"
+                    .to_string(),
+            )
+        }
+        other => return Err(format!("unknown option: -{other}")),
+    }
+    Ok(())
+}
+
+fn apply_value(
+    letter: char,
+    value: &str,
+    size: &mut Size,
+    options: &mut Options,
+) -> Result<(), String> {
+    match letter {
+        'B' => *size = Size::Blocks(parse_block_size(value)?),
+        't' => options.include_types.push(value.to_string()),
+        _ => options.exclude_types.push(value.to_string()),
+    }
+    Ok(())
+}
+
+fn value_or_next(
+    inline: &str,
+    args: &[String],
+    index: &mut usize,
+    name: &str,
+) -> Result<String, String> {
+    if !inline.is_empty() {
+        return Ok(inline.to_string());
+    }
+    let value = args
+        .get(*index)
+        .cloned()
+        .ok_or_else(|| format!("option requires an argument -- '{name}'"))?;
+    *index += 1;
+    Ok(value)
+}
+
+fn parse_long(
+    long: &str,
+    args: &[String],
+    index: &mut usize,
+    size: &mut Size,
+    options: &mut Options,
+) -> Result<(), String> {
+    let (name, inline) = match long.split_once('=') {
+        Some((name, value)) => (name, Some(value)),
+        None => (long, None),
+    };
+    match name {
+        "human-readable" => *size = Size::Human(1024),
+        "si" => *size = Size::Human(1000),
+        "print-type" => options.print_type = true,
+        "portability" => options.portability = true,
+        "local" => options.local = true,
+        "all" => {}
+        "inodes" => return apply_flag('i', size, options),
+        "block-size" | "type" | "exclude-type" => {
+            let value = match inline {
+                Some(value) => value.to_string(),
+                None => {
+                    let value = args
+                        .get(*index)
+                        .cloned()
+                        .ok_or_else(|| format!("option '--{name}' requires an argument"))?;
+                    *index += 1;
+                    value
+                }
+            };
+            let letter = match name {
+                "block-size" => 'B',
+                "type" => 't',
+                _ => 'x',
+            };
+            apply_value(letter, &value, size, options)?;
+        }
+        _ => return Err(format!("unknown option: --{name}")),
+    }
+    Ok(())
+}
+
+/// Parses `N`, `K`, `M`, `G`, `T`, `P` (powers of 1024), or `KB`, `MB`, ... (powers of 1000),
+/// with an optional leading count.
+fn parse_block_size(text: &str) -> Result<u64, String> {
+    const SUFFIXES: [(&str, u64); 10] = [
+        ("PB", 1_000_000_000_000_000),
+        ("TB", 1_000_000_000_000),
+        ("GB", 1_000_000_000),
+        ("MB", 1_000_000),
+        ("KB", 1_000),
+        ("P", 1 << 50),
+        ("T", 1 << 40),
+        ("G", 1 << 30),
+        ("M", 1 << 20),
+        ("K", 1 << 10),
+    ];
+    let invalid = || format!("invalid block size: '{text}'");
+    let (number, factor) = SUFFIXES
+        .iter()
+        .find_map(|(suffix, factor)| text.strip_suffix(suffix).map(|rest| (rest, *factor)))
+        .unwrap_or((text, 1));
+    let count = if number.is_empty() {
+        1
+    } else {
+        number.parse::<u64>().map_err(|_| invalid())?
+    };
+    let bytes = count.checked_mul(factor).ok_or_else(invalid)?;
+    if bytes == 0 {
+        return Err(invalid());
+    }
+    Ok(bytes)
+}
+
+/// Returns the mounts to report and whether a path could not be resolved.
+fn select<'a>(mounted: &'a [Disk], paths: &[PathBuf]) -> (Vec<&'a Disk>, bool) {
+    if paths.is_empty() {
+        return (mounted.iter().collect(), false);
+    }
+    let mut selected: Vec<&Disk> = Vec::new();
+    let mut failed = false;
+    for path in paths {
+        let canonical = match std::fs::canonicalize(path) {
+            Ok(path) => path,
+            Err(error) => {
+                eprintln!("df: cannot access '{}': {error}", path.display());
+                failed = true;
+                continue;
+            }
+        };
+        let disk = mounted
+            .iter()
+            .filter(|disk| contains_path(disk.mount_point(), &canonical))
+            .max_by_key(|disk| disk.mount_point().components().count());
+        match disk {
+            Some(disk)
+                if !selected
+                    .iter()
+                    .any(|item| item.mount_point() == disk.mount_point()) =>
+            {
+                selected.push(disk);
+            }
+            Some(_) => {}
+            None => {
+                eprintln!("df: no mounted filesystem found for '{}'", path.display());
+                failed = true;
+            }
+        }
+    }
+    (selected, failed)
+}
+
+fn keeps(disk: &Disk, options: &Options) -> bool {
+    let fs_type = disk.file_system().to_string_lossy();
+    if options.local && NETWORK_TYPES.contains(&fs_type.as_ref()) {
+        return false;
+    }
+    if !options.include_types.is_empty()
+        && !options
+            .include_types
+            .iter()
+            .any(|wanted| wanted == fs_type.as_ref())
+    {
+        return false;
+    }
+    !options
+        .exclude_types
+        .iter()
+        .any(|unwanted| unwanted == fs_type.as_ref())
+}
+
+fn headers(options: &Options) -> Vec<String> {
+    let size = match options.size {
+        Size::Human(_) => "Size".to_string(),
+        Size::Blocks(block) if options.portability => format!("{block}-blocks"),
+        Size::Blocks(block) => format!("{}-blocks", block_label(block)),
+    };
+    let (used, avail, percent) = if options.portability {
+        ("Used", "Available", "Capacity")
+    } else {
+        ("Used", "Avail", "Use%")
+    };
+    let mut headers = vec!["Filesystem".to_string()];
+    if options.print_type {
+        headers.push("Type".to_string());
+    }
+    headers.extend([
+        size,
+        used.to_string(),
+        avail.to_string(),
+        percent.to_string(),
+    ]);
+    headers.push("Mounted on".to_string());
+    headers
+}
+
+/// `1K`, `1M`, `1G` for exact powers of 1024, otherwise the byte count.
+fn block_label(bytes: u64) -> String {
+    for (suffix, factor) in [("G", 1u64 << 30), ("M", 1 << 20), ("K", 1 << 10)] {
+        if bytes >= factor && bytes.is_multiple_of(factor) {
+            return format!("{}{suffix}", bytes / factor);
+        }
+    }
+    bytes.to_string()
+}
+
+fn row(disk: &Disk, options: &Options) -> Vec<String> {
+    let total = disk.total_space();
+    let free = disk.available_space();
+    let used = total.saturating_sub(free);
+    let percent = if total == 0 {
+        0
+    } else {
+        ((u128::from(used) * 100).div_ceil(u128::from(total))) as u64
+    };
+    let mut cells = vec![device_name(disk)];
+    if options.print_type {
+        cells.push(disk.file_system().to_string_lossy().into_owned());
+    }
+    cells.push(format_size(total, options.size));
+    cells.push(format_size(used, options.size));
+    cells.push(format_size(free, options.size));
+    cells.push(format!("{percent}%"));
+    cells.push(crate::display_path(disk.mount_point()));
+    cells
+}
+
+/// The device name on Unix. Windows reports a volume label there instead, so the drive
+/// root (for example `C:`) is shown.
+fn device_name(disk: &Disk) -> String {
+    let name = disk.name().to_string_lossy().into_owned();
+    let mount = crate::display_path(disk.mount_point());
+    let trimmed = mount.trim_end_matches('/');
+    if cfg!(windows) || name.is_empty() {
+        if trimmed.is_empty() {
+            "/".to_string()
+        } else {
+            trimmed.to_string()
+        }
+    } else {
+        name
+    }
+}
+
+fn format_size(bytes: u64, size: Size) -> String {
+    match size {
+        Size::Blocks(block) => bytes.div_ceil(block).to_string(),
+        Size::Human(base) => human(bytes, base),
+    }
+}
+
+/// GNU-style human size: one decimal below 10 units, rounded up, with the suffix.
+fn human(bytes: u64, base: u64) -> String {
+    let suffixes: [&str; 6] = if base == 1000 {
+        ["", "k", "M", "G", "T", "P"]
+    } else {
+        ["", "K", "M", "G", "T", "P"]
+    };
+    let base = u128::from(base);
+    let bytes = u128::from(bytes);
+    let mut divisor: u128 = 1;
+    let mut unit = 0;
+    while unit + 1 < suffixes.len() && bytes >= divisor * base {
+        divisor *= base;
+        unit += 1;
+    }
+    if unit == 0 {
+        return bytes.to_string();
+    }
+    let tenths = (bytes * 10).div_ceil(divisor);
+    if tenths < 100 {
+        format!("{}.{}{}", tenths / 10, tenths % 10, suffixes[unit])
+    } else {
+        format!("{}{}", bytes.div_ceil(divisor), suffixes[unit])
+    }
+}
+
+fn print_table(headers: &[String], rows: &[Vec<String>], options: &Options) -> i32 {
+    let last = headers.len() - 1;
+    let widths: Vec<usize> = (0..headers.len())
+        .map(|index| {
+            rows.iter()
+                .map(|row| row[index].chars().count())
+                .fold(headers[index].chars().count(), usize::max)
+        })
+        .collect();
+    let mut out = String::new();
+    let mut push = |cells: &[String]| {
+        let line: Vec<String> = cells
+            .iter()
+            .enumerate()
+            .map(|(index, cell)| {
+                if index == last {
+                    cell.clone()
+                } else if is_text_column(index, options) {
+                    format!("{cell:<width$}", width = widths[index])
+                } else {
+                    format!("{cell:>width$}", width = widths[index])
+                }
+            })
+            .collect();
+        out.push_str(line.join(" ").trim_end());
+        out.push('\n');
+    };
+    push(headers);
+    for row in rows {
+        push(row);
+    }
+    match io::stdout().lock().write_all(out.as_bytes()) {
+        Ok(()) => 0,
+        Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
+        Err(error) => {
+            eprintln!("df: cannot write output: {error}");
+            2
+        }
+    }
+}
+
+/// Filesystem and Type columns are left-aligned; all numbers are right-aligned.
+fn is_text_column(index: usize, options: &Options) -> bool {
+    index == 0 || (options.print_type && index == 1)
 }
 
 fn contains_path(mount_point: &std::path::Path, path: &std::path::Path) -> bool {
@@ -133,34 +508,58 @@ fn contains_path(mount_point: &std::path::Path, path: &std::path::Path) -> bool 
     }
 }
 
-fn size(bytes: u64, human: bool) -> String {
-    if !human {
-        return bytes.div_ceil(1024).to_string();
-    }
-    const UNITS: [&str; 6] = ["B", "K", "M", "G", "T", "P"];
-    let mut value = bytes as f64;
-    let mut unit = 0;
-    while value >= 1024.0 && unit < UNITS.len() - 1 {
-        value /= 1024.0;
-        unit += 1;
-    }
-    if unit == 0 {
-        format!("{bytes}B")
-    } else {
-        format!("{value:.1}{}", UNITS[unit])
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use super::size;
+    use super::{block_label, human, parse, parse_block_size, Parsed, Size};
+
+    fn owned(args: &[&str]) -> Vec<String> {
+        args.iter().map(|arg| arg.to_string()).collect()
+    }
+
+    fn size_of(args: &[&str]) -> Size {
+        match parse(&owned(args)) {
+            Ok(Parsed::Run(options)) => options.size,
+            _ => panic!("expected options for {args:?}"),
+        }
+    }
 
     #[test]
-    fn sizes_use_kib_blocks_and_binary_human_units() {
-        assert_eq!(size(0, false), "0");
-        assert_eq!(size(1, false), "1");
-        assert_eq!(size(1_048_576, false), "1024");
-        assert_eq!(size(1_048_576, true), "1.0M");
-        assert_eq!(size(512, true), "512B");
+    fn human_sizes_round_up_like_gnu() {
+        assert_eq!(human(512, 1024), "512");
+        assert_eq!(human(1024, 1024), "1.0K");
+        assert_eq!(human(1_610_612_736, 1024), "1.5G");
+        assert_eq!(human(10 * (1 << 30), 1024), "10G");
+        assert_eq!(human(1_500_000_000, 1000), "1.5G");
+        assert_eq!(human(1_000_000_000_001, 1000), "1.1T");
+    }
+
+    #[test]
+    fn block_sizes_accept_units() {
+        assert_eq!(parse_block_size("M").unwrap(), 1 << 20);
+        assert_eq!(parse_block_size("2G").unwrap(), 2 << 30);
+        assert_eq!(parse_block_size("MB").unwrap(), 1_000_000);
+        assert_eq!(parse_block_size("512").unwrap(), 512);
+        assert!(parse_block_size("0").is_err());
+        assert!(parse_block_size("xM").is_err());
+    }
+
+    #[test]
+    fn labels_blocks_by_unit() {
+        assert_eq!(block_label(1024), "1K");
+        assert_eq!(block_label(1 << 20), "1M");
+        assert_eq!(block_label(512), "512");
+    }
+
+    #[test]
+    fn bundles_flags_and_attached_values() {
+        assert_eq!(size_of(&["-Ph"]), Size::Human(1024));
+        assert_eq!(size_of(&["-hH"]), Size::Human(1000));
+        assert_eq!(size_of(&["-BM"]), Size::Blocks(1 << 20));
+        assert_eq!(size_of(&["-m", "-k"]), Size::Blocks(1024));
+    }
+
+    #[test]
+    fn rejects_inode_report() {
+        assert!(parse(&owned(&["-i"])).is_err());
     }
 }

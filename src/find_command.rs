@@ -1,169 +1,87 @@
-use std::fs;
-use std::io::{self, Write};
-use std::path::{Path, PathBuf};
+//! `find`: a GNU-style expression parser and evaluator for file tree searches.
+//!
+//! The implementation is split into submodules: `parse` (arguments to expression tree),
+//! `expr` (tree types and tests), `walk` (traversal and actions), `printf` (`-printf` and
+//! `-ls` output), `exec` (command spawning) and `glob` (wildcards).
 
-#[derive(Default)]
-struct FindOptions {
-    name: Option<String>,
-    kind: Option<char>,
-    max_depth: usize,
-}
+mod exec;
+mod expr;
+mod glob;
+mod parse;
+mod printf;
+mod walk;
+
+const HELP: &str = "Usage: find [PATH...] [EXPRESSION]
+
+Search for files in a directory hierarchy. Default starting point: '.'.
+Output is in directory order (entries sorted by name within each directory).
+
+Options (anywhere in the expression):
+  -maxdepth N, -mindepth N   Limit or start the depth of tests and actions
+  -depth                     Process directory contents before the directory
+  -L, -follow                Follow symbolic links (loops are detected)
+  -H                         Follow symbolic links only for starting points
+  -P                         Never follow symbolic links (default)
+  -xdev, -mount, -noleaf     Accepted; mount boundaries are not enforced
+
+Tests:
+  -name PAT, -iname PAT      Basename matches a wildcard (* ? [...] \\ escape)
+  -path PAT, -ipath PAT      Whole path matches a wildcard (also -wholename)
+  -regex RE, -iregex RE      Whole path matches a regular expression (Rust regex syntax)
+  -type f|d|l[,...]          File type; b c p s are accepted on Unix only
+  -empty                     Empty regular file or directory
+  -size [+-]N[cwbkMG]        Size; sizes round up to whole units (default 512-byte blocks)
+  -newer FILE                Modified later than FILE (also -anewer, -cnewer)
+  -mtime/-atime/-ctime [+-]N Age in whole days (-mmin/-amin/-cmin in minutes)
+  -perm [-/]MODE             Octal mode (Unix only)
+  -readable, -writable, -executable
+                             Best-effort access checks
+  -true, -false
+
+Actions:
+  -print, -print0, -ls       Print the path (default action when none is given)
+  -printf FORMAT             Formatted output: %p %P %f %h %s %d %y %m %T@ and escapes
+                             \\n \\t \\0 \\\\ (other %T letters are rejected)
+  -prune                     Do not descend into the directory
+  -quit                      Stop after the current entry
+  -delete                    Remove entries (implies -depth; '.' is kept)
+  -exec CMD {} ;             Run CMD per entry; success means exit status 0
+  -exec CMD {} +             Run CMD with batches of paths
+  -execdir CMD {} ;          Like -exec, run in the entry's directory with ./NAME
+  -ok, -okdir                Rejected (interactive prompts are not supported)
+
+Operators: ( ) ! -not -a -and -o -or , (precedence as in GNU find).
+Exit status: 0 on success, 1 when some entries below a starting point could not be read
+or an action failed, 2 on invalid usage or a starting point that does not exist.
+";
 
 pub fn find(args: &[String]) -> i32 {
-    let mut roots = Vec::new();
-    let mut options = FindOptions {
-        max_depth: usize::MAX,
-        ..FindOptions::default()
-    };
-    let mut i = 0;
-    let mut positional_only = false;
-    while i < args.len() {
-        let arg = &args[i];
-        if !positional_only && arg == "--" {
-            positional_only = true;
-        } else if !positional_only && (arg == "-h" || arg == "--help") {
-            println!("Usage: find [PATH...] [-name GLOB] [-type f|d|l] [-maxdepth N]\nFind paths recursively. Patterns match the basename; '*' matches any sequence and '?' one character.\nSymlinks are listed but never traversed.\n\nExit status: 0 on success, 2 on traversal or argument error.");
-            return 0;
-        } else if !positional_only && (arg == "-name" || arg == "-type" || arg == "-maxdepth") {
-            i += 1;
-            let Some(value) = args.get(i) else {
-                eprintln!("find: {arg} requires a value");
-                return 2;
-            };
-            match arg.as_str() {
-                "-name" => options.name = Some(value.clone()),
-                "-type" => {
-                    let mut chars = value.chars();
-                    let Some(kind @ ('f' | 'd' | 'l')) = chars.next() else {
-                        eprintln!("find: -type accepts f, d, or l");
-                        return 2;
-                    };
-                    if chars.next().is_some() {
-                        eprintln!("find: -type accepts one of f, d, or l");
-                        return 2;
-                    }
-                    options.kind = Some(kind);
-                }
-                "-maxdepth" => match value.parse::<usize>() {
-                    Ok(depth) => options.max_depth = depth,
-                    Err(_) => {
-                        eprintln!("find: invalid -maxdepth value: {value}");
-                        return 2;
-                    }
-                },
-                _ => unreachable!(),
-            }
-        } else if !positional_only && arg.starts_with('-') && arg != "-" {
-            eprintln!("find: unknown expression or option: {arg}\nTry 'find --help' for usage.");
-            return 2;
-        } else {
-            roots.push(PathBuf::from(arg));
-        }
-        i += 1;
+    if matches!(args.first().map(String::as_str), Some("--help" | "-h")) {
+        print!("{HELP}");
+        return 0;
     }
-    if roots.is_empty() {
-        roots.push(PathBuf::from("."));
-    }
-    let mut matches = Vec::new();
-    for root in roots {
-        if let Err(error) = visit(&root, 0, &options, &mut matches) {
-            eprintln!("find: {error}");
-            return 2;
+    match parse::parse(args) {
+        Ok(plan) => walk::run(plan),
+        Err(error) => {
+            eprintln!("find: {error}\nTry 'find --help' for usage.");
+            2
         }
     }
-    matches.sort();
-    let stdout = io::stdout();
-    let mut output = stdout.lock();
-    for path in matches {
-        if let Err(error) = writeln!(output, "{}", path.display()) {
-            eprintln!("find: cannot write output: {error}");
-            return 2;
-        }
-    }
-    0
-}
-
-fn visit(
-    path: &Path,
-    depth: usize,
-    options: &FindOptions,
-    matches: &mut Vec<PathBuf>,
-) -> Result<(), String> {
-    let metadata = fs::symlink_metadata(path)
-        .map_err(|error| format!("cannot access '{}': {error}", path.display()))?;
-    if matches_options(path, &metadata, options) {
-        matches.push(path.to_path_buf());
-    }
-    if !metadata.is_dir() || depth >= options.max_depth {
-        return Ok(());
-    }
-    let entries =
-        fs::read_dir(path).map_err(|error| format!("cannot read '{}': {error}", path.display()))?;
-    let mut entries = entries
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|error| format!("cannot read '{}': {error}", path.display()))?;
-    entries.sort_by_key(|entry| entry.file_name());
-    for entry in entries {
-        visit(&entry.path(), depth + 1, options, matches)?;
-    }
-    Ok(())
-}
-
-fn matches_options(path: &Path, metadata: &fs::Metadata, options: &FindOptions) -> bool {
-    if let Some(pattern) = &options.name {
-        let name = path
-            .file_name()
-            .unwrap_or(path.as_os_str())
-            .to_string_lossy();
-        if !wildcard_match(&name, pattern) {
-            return false;
-        }
-    }
-    if let Some(kind) = options.kind {
-        let file_type = metadata.file_type();
-        return match kind {
-            'f' => file_type.is_file(),
-            'd' => file_type.is_dir(),
-            'l' => file_type.is_symlink(),
-            _ => false,
-        };
-    }
-    true
-}
-
-fn wildcard_match(text: &str, pattern: &str) -> bool {
-    let text = text.chars().collect::<Vec<_>>();
-    let pattern = pattern.chars().collect::<Vec<_>>();
-    let mut previous = vec![false; pattern.len() + 1];
-    previous[0] = true;
-    for (j, token) in pattern.iter().enumerate() {
-        if *token == '*' {
-            previous[j + 1] = previous[j];
-        }
-    }
-    for character in &text {
-        let mut current = vec![false; pattern.len() + 1];
-        for (j, token) in pattern.iter().enumerate() {
-            current[j + 1] = if *token == '*' {
-                current[j] || previous[j + 1]
-            } else {
-                previous[j] && (*token == '?' || *token == *character)
-            };
-        }
-        previous = current;
-    }
-    previous[pattern.len()]
 }
 
 #[cfg(test)]
 mod tests {
-    use super::wildcard_match;
+    use super::find;
 
     #[test]
-    fn find_name_globs_match_star_and_question() {
-        assert!(wildcard_match("main.rs", "*.rs"));
-        assert!(wildcard_match("a.txt", "?.txt"));
-        assert!(!wildcard_match("long.txt", "?.txt"));
-        assert!(wildcard_match("abc", "a*c"));
+    fn rejects_unknown_predicates_with_usage_status() {
+        let args = ["-bogus".to_string()];
+        assert_eq!(find(&args), 2);
+    }
+
+    #[test]
+    fn rejects_unbalanced_parentheses() {
+        let args = ["(".to_string(), "-name".to_string(), "x".to_string()];
+        assert_eq!(find(&args), 2);
     }
 }
