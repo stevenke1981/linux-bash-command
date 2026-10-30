@@ -23,7 +23,10 @@ fn ln_symbolic_link_stores_target_as_given() {
     let sb = Sandbox::new();
     sb.write("a", b"x");
     assert_eq!(code(&run_in(sb.path(), "ln", &["-s", "a", "l"], b"")), 0);
-    assert_eq!(fs::read_link(sb.path().join("l")).unwrap(), Path::new("a"));
+    assert_eq!(
+        fs::read_link(sb.path().join("l")).unwrap(),
+        std::path::Path::new("a")
+    );
 }
 
 #[test]
@@ -38,7 +41,7 @@ fn ln_relative_symbolic_link_from_nested_directory() {
     );
     assert_eq!(
         fs::read_link(sb.path().join("e/l")).unwrap(),
-        Path::new("../d/t")
+        std::path::Path::new("../d/t")
     );
 }
 
