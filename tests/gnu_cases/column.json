@@ -1,0 +1,344 @@
+{
+  "command": "column",
+  "cases": [
+    {
+      "name": "fill_default",
+      "args": [],
+      "stdin": "a\nbb\nccc\ndddd\ne\nff\ng\n"
+    },
+    {
+      "name": "fill_width_20",
+      "args": [
+        "-c",
+        "20"
+      ],
+      "stdin": "a\nbb\nccc\ndddd\ne\nff\ng\n"
+    },
+    {
+      "name": "fill_fillrows",
+      "args": [
+        "-x",
+        "-c",
+        "20"
+      ],
+      "stdin": "a\nbb\nccc\ndddd\ne\nff\ng\n"
+    },
+    {
+      "name": "fill_width_24_of_7_char_items",
+      "args": [
+        "-c",
+        "24"
+      ],
+      "stdin": "abcdefg\nabcdefg\nabcdefg\n"
+    },
+    {
+      "name": "fill_width_8",
+      "args": [
+        "-c",
+        "8"
+      ],
+      "stdin": "a\nbb\nccc\ndddd\ne\nff\ng\n"
+    },
+    {
+      "name": "fill_width_zero",
+      "args": [
+        "-c",
+        "0"
+      ],
+      "stdin": "a\nbb\nccc\ndddd\ne\nff\ng\n"
+    },
+    {
+      "name": "fill_tabs_in_items",
+      "args": [],
+      "stdin": "a\tb\nlong-name\tx\n"
+    },
+    {
+      "name": "fill_keep_empty_lines",
+      "args": [
+        "-L"
+      ],
+      "stdin": "x y\n\n\nz\n"
+    },
+    {
+      "name": "fill_skips_empty_lines",
+      "args": [],
+      "stdin": "x y\n\n\nz\n"
+    },
+    {
+      "name": "fill_file_operand",
+      "args": [
+        "items.txt"
+      ],
+      "files": {
+        "items.txt": "one two\nthree\n\nfour five six\n"
+      }
+    },
+    {
+      "name": "fill_output_separator_ignored",
+      "args": [
+        "-o",
+        " | ",
+        "-c",
+        "30"
+      ],
+      "stdin": "a\nbb\nccc\ndddd\ne\nff\ng\n"
+    },
+    {
+      "name": "table_default",
+      "args": [
+        "-t",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "name age city\nalice 30 paris\nbob 4 rome\n"
+      }
+    },
+    {
+      "name": "table_right_column",
+      "args": [
+        "-t",
+        "-R",
+        "2",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "name age city\nalice 30 paris\nbob 4 rome\n"
+      }
+    },
+    {
+      "name": "table_right_two_columns",
+      "args": [
+        "-t",
+        "-R",
+        "1,2",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "name age city\nalice 30 paris\nbob 4 rome\n"
+      }
+    },
+    {
+      "name": "table_names",
+      "args": [
+        "-t",
+        "-N",
+        "A,B,C",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "name age city\nalice 30 paris\nbob 4 rome\n"
+      }
+    },
+    {
+      "name": "table_comma_separator_keeps_empty_fields",
+      "args": [
+        "-t",
+        "-s",
+        ",",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "name,age,city\nalice,30,paris\nbob,4,\n"
+      }
+    },
+    {
+      "name": "table_colon_separator_output",
+      "args": [
+        "-t",
+        "-s",
+        ":",
+        "-o",
+        " | ",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "a:b:c\n1:22:333\n"
+      }
+    },
+    {
+      "name": "table_limit_columns",
+      "args": [
+        "-t",
+        "-l",
+        "2",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "a b c d\n1 2 3 4 5\n"
+      }
+    },
+    {
+      "name": "table_fewer_names_than_columns",
+      "args": [
+        "-t",
+        "-N",
+        "A",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "a b c d\n1 2 3 4 5\n"
+      }
+    },
+    {
+      "name": "table_hide_by_name",
+      "args": [
+        "-t",
+        "-N",
+        "A,B,C,D",
+        "-H",
+        "B",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "a b c d\n1 2 3 4 5\n"
+      }
+    },
+    {
+      "name": "table_hide_by_number",
+      "args": [
+        "-t",
+        "-H",
+        "2",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "a b c d\n1 2 3 4 5\n"
+      }
+    },
+    {
+      "name": "table_json",
+      "args": [
+        "-t",
+        "-N",
+        "n,a,c",
+        "-J",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "name age city\nalice 30 paris\nbob 4 rome\n"
+      }
+    },
+    {
+      "name": "table_json_requires_names",
+      "args": [
+        "-t",
+        "-J",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "name age city\nalice 30 paris\nbob 4 rome\n"
+      }
+    },
+    {
+      "name": "table_name_option",
+      "args": [
+        "-t",
+        "-n",
+        "tab",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "name age city\nalice 30 paris\nbob 4 rome\n"
+      }
+    },
+    {
+      "name": "table_keep_empty_lines",
+      "args": [
+        "-t",
+        "-L",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "a  b  \n\n  c d\n"
+      }
+    },
+    {
+      "name": "table_skips_empty_lines",
+      "args": [
+        "-t",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "a  b  \n\n  c d\n"
+      }
+    },
+    {
+      "name": "table_wide_characters",
+      "args": [
+        "-t",
+        "w.txt"
+      ],
+      "files": {
+        "w.txt": "日本 x\nab y\n"
+      },
+      "env": {
+        "LC_ALL": "C.UTF-8"
+      }
+    },
+    {
+      "name": "table_stdin",
+      "args": [
+        "-t"
+      ],
+      "stdin": "name age\nbob 4\n"
+    },
+    {
+      "name": "table_empty_input",
+      "args": [
+        "-t"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "fill_empty_input",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "table_and_fillrows_conflict",
+      "args": [
+        "-t",
+        "-x",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "a b\n"
+      }
+    },
+    {
+      "name": "invalid_width",
+      "args": [
+        "-c",
+        "x",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "a\n"
+      }
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "nosuch"
+      ]
+    },
+    {
+      "name": "unknown_option",
+      "args": [
+        "-Z"
+      ]
+    },
+    {
+      "name": "undefined_column_name",
+      "args": [
+        "-t",
+        "-R",
+        "x",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "a b\n"
+      }
+    }
+  ]
+}

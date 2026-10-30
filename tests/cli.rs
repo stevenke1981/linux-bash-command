@@ -82,6 +82,12 @@ fn diff_has_expected_status_and_missing_newline_marker() {
     let output = fixture.run(&["diff", "a", "b"]);
     assert_eq!(output.status.code(), Some(1));
     let text = String::from_utf8(output.stdout).unwrap();
+    assert_eq!(
+        text,
+        "2c2\n< two\n---\n> changed\n\\ No newline at end of file\n"
+    );
+    let unified = fixture.run(&["diff", "-u", "a", "b"]);
+    let text = String::from_utf8(unified.stdout).unwrap();
     assert!(text.contains("@@"));
     assert!(text.contains("-two\n"));
     assert!(text.contains("+changed"));

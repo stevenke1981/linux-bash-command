@@ -1,0 +1,237 @@
+{
+  "command": "dos2unix",
+  "cases": [
+    {
+      "name": "crlf_stdin",
+      "args": [],
+      "stdin": "a\r\nb\r\n"
+    },
+    {
+      "name": "lone_cr_kept",
+      "args": [],
+      "stdin": "a\rb\nc\r\n"
+    },
+    {
+      "name": "no_final_newline",
+      "args": [],
+      "stdin": "a\r\nb"
+    },
+    {
+      "name": "bom_removed_by_default",
+      "args": [],
+      "stdin": "﻿a\r\nb\r\n"
+    },
+    {
+      "name": "bom_kept",
+      "args": [
+        "-b"
+      ],
+      "stdin": "﻿a\r\nb\r\n"
+    },
+    {
+      "name": "bom_added",
+      "args": [
+        "-m"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "add_eol",
+      "args": [
+        "-e"
+      ],
+      "stdin": "a\r\nb"
+    },
+    {
+      "name": "form_feed_is_text",
+      "args": [],
+      "stdin": "a\f\r\n"
+    },
+    {
+      "name": "tab_is_text",
+      "args": [],
+      "stdin": "a\tb\r\n"
+    },
+    {
+      "name": "high_bytes_are_text",
+      "args": [],
+      "stdin_hex": "636166e90d0a"
+    },
+    {
+      "name": "empty_stdin",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "in_place_converts",
+      "args": [
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "x\r\ny\r\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "in_place_skips_binary",
+      "args": [
+        "esc.txt"
+      ],
+      "files": {
+        "esc.txt": "a\u001b\r\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "in_place_force_binary",
+      "args": [
+        "-f",
+        "esc.txt"
+      ],
+      "files": {
+        "esc.txt": "a\u001b\r\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "in_place_bom_and_eol",
+      "args": [
+        "-e",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "﻿a\r\nb"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "newfile_pair",
+      "args": [
+        "-n",
+        "in.txt",
+        "out.txt"
+      ],
+      "files": {
+        "in.txt": "p\r\nq\r\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "newfile_missing_input",
+      "args": [
+        "-n",
+        "nosuch",
+        "out.txt"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "quiet_in_place",
+      "args": [
+        "-q",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "x\r\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "missing_file_continues",
+      "args": [
+        "nosuch",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "x\r\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "directory_operand",
+      "args": [
+        "d"
+      ],
+      "files": {
+        "d": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "unknown_option",
+      "args": [
+        "-Z"
+      ],
+      "skip_reason": "GNU prints its usage text on stdout for an unknown option; usage errors go to stderr here (02 §4)"
+    },
+    {
+      "name": "convmode_ascii",
+      "args": [
+        "-c",
+        "ascii"
+      ],
+      "stdin": "a\r\n"
+    },
+    {
+      "name": "convmode_mac_unsupported",
+      "args": [
+        "-c",
+        "mac"
+      ],
+      "stdin": "a\r\n",
+      "skip_reason": "spec accepts only -c ascii; GNU also accepts mac mode (not implemented, exit 1)"
+    },
+    {
+      "name": "dash_operand_is_stdin_here",
+      "args": [
+        "-"
+      ],
+      "stdin": "a\r\n",
+      "skip_reason": "GNU dos2unix 7.5.1 treats '-' as a file name (convention: stdin, see 02 §5)"
+    },
+    {
+      "name": "binary_stdin_skipped",
+      "args": [],
+      "stdin": "a\u001b\r\n",
+      "skip_reason": "GNU writes the bytes before the first binary symbol and exits 1; this port outputs nothing"
+    }
+  ]
+}

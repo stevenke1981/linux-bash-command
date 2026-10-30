@@ -1,0 +1,156 @@
+{
+  "command": "unix2dos",
+  "cases": [
+    {
+      "name": "lf_stdin",
+      "args": [],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "crlf_unchanged",
+      "args": [],
+      "stdin": "a\r\nb\r\n"
+    },
+    {
+      "name": "lone_cr_kept",
+      "args": [],
+      "stdin": "a\rb\nc\n"
+    },
+    {
+      "name": "no_final_newline_kept",
+      "args": [],
+      "stdin": "a\nb"
+    },
+    {
+      "name": "add_eol",
+      "args": [
+        "-e"
+      ],
+      "stdin": "a\nb"
+    },
+    {
+      "name": "bom_kept_by_default",
+      "args": [],
+      "stdin": "﻿a\n"
+    },
+    {
+      "name": "bom_removed",
+      "args": [
+        "-r"
+      ],
+      "stdin": "﻿a\nb\n"
+    },
+    {
+      "name": "bom_added",
+      "args": [
+        "-m"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "in_place_converts",
+      "args": [
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "x\ny\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "in_place_skips_binary",
+      "args": [
+        "nul.txt"
+      ],
+      "files": {
+        "nul.txt": "a\u0000\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "in_place_force_binary",
+      "args": [
+        "-f",
+        "nul.txt"
+      ],
+      "files": {
+        "nul.txt": "a\u0000\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "newfile_pair",
+      "args": [
+        "-n",
+        "in.txt",
+        "out.txt"
+      ],
+      "files": {
+        "in.txt": "p\nq\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "quiet",
+      "args": [
+        "-q"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "nosuch"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "keep_date_option",
+      "args": [
+        "-k",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "x\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "help_is_not_compared",
+      "args": [
+        "--version"
+      ],
+      "skip_reason": "--version prints the agentcmd version line by convention (02 §2)"
+    },
+    {
+      "name": "cr_run_before_lf",
+      "args": [],
+      "stdin": "a\r\r\n",
+      "skip_reason": "GNU unix2dos rewrites runs of CR before LF (CR CR LF) differently; not reproduced"
+    }
+  ]
+}
