@@ -1,0 +1,26 @@
+{
+  "command": "timeout",
+  "cases": [
+    { "name": "expires_with_124", "args": ["0.1", "sleep", "5"], "timeout_ms": 20000 },
+    { "name": "command_success", "args": ["5", "true"] },
+    { "name": "command_exit_status_passes_through", "args": ["5", "sh", "-c", "exit 3"] },
+    { "name": "kill_signal_gives_137", "args": ["-s", "KILL", "0.1", "sleep", "5"], "timeout_ms": 20000 },
+    { "name": "kill_signal_long_option_gives_137", "args": ["--signal=KILL", "0.1", "sleep", "5"], "timeout_ms": 20000 },
+    { "name": "hup_signal_gives_124", "args": ["-s", "HUP", "0.1", "sleep", "5"], "timeout_ms": 20000 },
+    { "name": "kill_after_escalates_to_137", "args": ["-k", "0.1", "0.1", "sh", "-c", "trap '' TERM; sleep 5"], "timeout_ms": 20000 },
+    { "name": "preserve_status_reports_signal_status", "args": ["--preserve-status", "0.1", "sleep", "5"], "timeout_ms": 20000 },
+    { "name": "missing_command_127", "args": ["5", "agentcmd-no-such-command-zz"] },
+    { "name": "not_executable_126", "args": ["5", "/etc/hostname"], "files": {} },
+    { "name": "invalid_duration_125", "args": ["x", "true"] },
+    { "name": "invalid_signal_125", "args": ["-s", "BOGUS", "1", "true"] },
+    { "name": "zero_duration_disables_limit", "args": ["0", "true"] },
+    { "name": "missing_command_operand_125", "args": ["5"] },
+    { "name": "no_arguments_125", "args": [] },
+    { "name": "verbose_expiry_stdout_unchanged", "args": ["-v", "0.1", "sleep", "5"], "timeout_ms": 20000 },
+    { "name": "foreground_expiry_124", "args": ["--foreground", "0.1", "sleep", "5"], "timeout_ms": 20000 },
+    { "name": "suffix_seconds", "args": ["0.1s", "sleep", "5"], "timeout_ms": 20000 },
+    { "name": "help_exit_status", "args": ["--help"], "compare": ["exit"] },
+    { "name": "version_exit_status", "args": ["--version"], "compare": ["exit"] },
+    { "name": "short_p_is_preserve_status", "args": ["-p", "0.1", "sleep", "5"], "timeout_ms": 20000, "skip_reason": "GNU coreutils 9.4 has no -p short option (only --preserve-status); agentcmd follows spec 04 which lists -p. Known difference." }
+  ]
+}

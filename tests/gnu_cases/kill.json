@@ -1,0 +1,25 @@
+{
+  "command": "kill",
+  "cases": [
+    { "name": "list_all_names", "args": ["-l"] },
+    { "name": "list_name_for_number", "args": ["-l", "15"] },
+    { "name": "list_name_for_nine", "args": ["-l", "9"] },
+    { "name": "list_number_for_name", "args": ["-l", "TERM"] },
+    { "name": "list_number_for_sig_prefixed_name", "args": ["-l", "SIGKILL"] },
+    { "name": "list_name_is_case_insensitive", "args": ["-l", "term"] },
+    { "name": "list_uses_first_operand_only", "args": ["-l", "1", "2", "3"] },
+    { "name": "list_zero_rejected", "args": ["-l", "0"], "skip_reason": "procps kill prints 'unknown signal name 0' yet exits 0; agentcmd exits 1 as spec 04 requires (any failure exits 1). Known difference." },
+    { "name": "list_out_of_range_rejected", "args": ["-l", "999"], "skip_reason": "procps kill exits 0 after the error message; agentcmd exits 1 per spec 04. Known difference." },
+    { "name": "table", "args": ["-L"] },
+    { "name": "no_arguments_usage", "args": [], "compare": ["stdout", "exit"] },
+    { "name": "missing_process", "args": ["2000000000"] },
+    { "name": "signal_option_missing_process", "args": ["-s", "TERM", "2000000000"] },
+    { "name": "signal_number_missing_process", "args": ["-9", "2000000000"] },
+    { "name": "bad_dash_signal_rejected", "args": ["-BOGUS", "2000000000"] },
+    { "name": "zero_signal_missing_process", "args": ["-0", "2000000000"] },
+    { "name": "dash_n_option_number", "args": ["-n", "9", "2000000000"] },
+    { "name": "signal_option_missing_argument", "args": ["-s"] },
+    { "name": "version_exit_status", "args": ["--version"], "compare": ["exit"] },
+    { "name": "help_exit_status", "args": ["--help"], "compare": ["exit"] }
+  ]
+}
