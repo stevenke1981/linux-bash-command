@@ -31,7 +31,8 @@
       ],
       "compare": [
         "exit"
-      ]
+      ],
+      "skip_reason": "hostname -d is not supported by agentcmd; GNU output depends on the host's DNS domain"
     },
     {
       "name": "set_name_refused",

@@ -251,6 +251,7 @@ mod tests {
         );
     }
 
+    #[cfg(unix)]
     #[test]
     fn clamp_nanos_keeps_range() {
         assert_eq!(clamp_nanos(-5), 0);

@@ -251,6 +251,7 @@ pub fn clear_readonly(path: &Path) {
     if let Ok(meta) = fs::symlink_metadata(path) {
         let mut perms = meta.permissions();
         if perms.readonly() {
+            #[allow(clippy::permissions_set_readonly_false)]
             perms.set_readonly(false);
             let _ = fs::set_permissions(path, perms);
         }

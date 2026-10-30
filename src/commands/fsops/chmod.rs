@@ -342,9 +342,10 @@ mod io_tests {
     fn recursive_applies_to_directory_contents() {
         let t = TempDir::new("chmod-rec");
         let file = t.write("d/f", "x");
-        let s = settings(ModeSpec::Absolute(0o640), true);
+        // The directory keeps its search bit so non-root users can recurse into it.
+        let s = settings(ModeSpec::Absolute(0o750), true);
         assert!(process(&t.at("d"), "d", &s, true));
-        assert_eq!(bits(&file), 0o640);
+        assert_eq!(bits(&file), 0o750);
     }
 
     #[test]

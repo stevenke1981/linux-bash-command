@@ -5,7 +5,6 @@
 mod common;
 
 use std::fs;
-use std::path::Path;
 use std::process::Output;
 
 use common::{run, run_in, Sandbox};
@@ -486,5 +485,8 @@ fn cp_symbolic_link_is_copied_as_a_link_by_default_when_recursive() {
     sb.write("t", b"x");
     sb.symlink("t", "l");
     assert_eq!(code(&run_in(sb.path(), "cp", &["-R", "l", "m"], b"")), 0);
-    assert_eq!(fs::read_link(sb.path().join("m")).unwrap(), Path::new("t"));
+    assert_eq!(
+        fs::read_link(sb.path().join("m")).unwrap(),
+        std::path::Path::new("t")
+    );
 }
