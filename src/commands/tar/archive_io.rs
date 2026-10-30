@@ -163,6 +163,8 @@ mod tests {
         let mut text = Vec::new();
         reader.read_to_end(&mut text).unwrap();
         assert_eq!(text, b"payload");
+        // Close the reader before removing the file: Windows refuses to delete open files.
+        drop(reader);
         std::fs::remove_dir_all(&dir).unwrap();
     }
 }

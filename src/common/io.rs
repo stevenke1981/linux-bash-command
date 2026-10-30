@@ -127,6 +127,8 @@ mod tests {
         let missing = dir.join("missing.txt");
         let error = open_input(&missing.to_string_lossy()).err().unwrap();
         assert_eq!(error.kind(), io::ErrorKind::NotFound);
+        // Close the reader before removing the file: Windows refuses to delete open files.
+        drop(reader);
         std::fs::remove_dir_all(&dir).unwrap();
     }
 

@@ -99,23 +99,25 @@ fn existing_mode_requires_the_whole_path() {
 
 #[test]
 fn relative_output_rules() {
+    // Build absolute paths from the current directory: on Windows "/base" is rooted but has
+    // no drive, so it is not an absolute base and would be resolved against the cwd.
+    let cwd = std::env::current_dir().unwrap();
+    let base = cwd.join("base");
     let config = RealpathConfig {
         existence: Existence::AllButLast,
         links: Links::Physical,
         quiet: false,
         zero: false,
         relative_to: None,
-        relative_base: Some(PathBuf::from("/base")),
+        relative_base: Some(base.clone()),
         operands: Vec::new(),
     };
     assert_eq!(
-        relative_output(Path::new("/base/x/y"), &config),
-        PathBuf::from("x/y")
+        relative_output(&base.join("x").join("y"), &config),
+        PathBuf::from("x").join("y")
     );
-    assert_eq!(
-        relative_output(Path::new("/other/y"), &config),
-        PathBuf::from("/other/y")
-    );
+    let other = cwd.join("other").join("y");
+    assert_eq!(relative_output(&other, &config), other);
 }
 
 #[test]

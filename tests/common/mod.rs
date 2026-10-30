@@ -107,11 +107,16 @@ impl Sandbox {
         #[cfg(windows)]
         {
             let parent = link.parent().unwrap_or(&self.path).to_path_buf();
-            if parent.join(target).is_dir() {
-                std::os::windows::fs::symlink_dir(target, &link).ok()
+            let created = if parent.join(target).is_dir() {
+                std::os::windows::fs::symlink_dir(target, &link)
             } else {
-                std::os::windows::fs::symlink_file(target, &link).ok()
-            }
+                std::os::windows::fs::symlink_file(target, &link)
+            };
+            // Some environments (Wine) accept the call but create nothing; report that as
+            // "no symlinks here" so the test skips instead of failing.
+            created
+                .ok()
+                .filter(|()| fs::symlink_metadata(&link).is_ok())
         }
     }
 
