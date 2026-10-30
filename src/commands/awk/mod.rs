@@ -9,6 +9,7 @@
 mod ast;
 mod format;
 mod lexer;
+mod parser;
 mod regex;
 mod value;
 
