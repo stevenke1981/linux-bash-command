@@ -10,6 +10,9 @@ use super::interp::{Fault, Interp, Slot};
 use super::regex::RegexCache;
 use super::value::Value;
 
+/// The largest field number that can be assigned (guards against runaway allocation).
+const MAX_FIELDS: usize = 1 << 24;
+
 /// `$0`, its fields, and the splitting settings captured when the record was set.
 #[derive(Debug)]
 pub struct Record {
@@ -96,6 +99,11 @@ impl Interp {
 
     /// Assigning `NF` truncates or extends the record.
     pub(super) fn set_nf(&mut self, count: usize) -> Result<(), Fault> {
+        if count > MAX_FIELDS {
+            return Err(Fault::Fatal(format!(
+                "NF set to too large a value: {count}"
+            )));
+        }
         self.ensure_split()?;
         self.rec.fields.resize(count, Value::Uninit);
         self.rec.text_valid = false;
@@ -123,6 +131,11 @@ impl Interp {
             let text = self.to_str(&value).into_owned();
             self.set_record(text);
             return Ok(());
+        }
+        if index > MAX_FIELDS {
+            return Err(Fault::Fatal(format!(
+                "trying to access out of range field {index}"
+            )));
         }
         self.ensure_split()?;
         if index > self.rec.fields.len() {
