@@ -292,6 +292,8 @@ struct LineOptions {
     retry: bool,
     sleep: Duration,
     pid: Option<u32>,
+    /// `-z`: lines end in NUL instead of newline.
+    zero: bool,
 }
 
 impl LineOptions {
@@ -307,11 +309,21 @@ impl LineOptions {
             retry: false,
             sleep: DEFAULT_SLEEP,
             pid: None,
+            zero: false,
         }
     }
 
     fn follows(&self) -> bool {
         self.follow != Follow::No
+    }
+
+    /// The line terminator used by `-n` counting: NUL with `-z`, newline otherwise.
+    fn delimiter(&self) -> u8 {
+        if self.zero {
+            0
+        } else {
+            b'\n'
+        }
     }
 
     fn apply_short(
@@ -334,6 +346,7 @@ impl LineOptions {
                 's' if is_tail => return self.take_value("--sleep-interval", rest, next),
                 'q' => self.headers = HeaderMode::Never,
                 'v' => self.headers = HeaderMode::Always,
+                'z' => self.zero = true,
                 'f' if is_tail => self.follow = Follow::Descriptor,
                 'F' if is_tail => {
                     self.follow = Follow::Name;
@@ -369,6 +382,7 @@ impl LineOptions {
         match (name, inline) {
             ("--quiet" | "--silent", None) => self.headers = HeaderMode::Never,
             ("--verbose", None) => self.headers = HeaderMode::Always,
+            ("--zero-terminated", None) => self.zero = true,
             ("--follow", None | Some("descriptor")) if is_tail => {
                 self.follow = Follow::Descriptor;
             }
@@ -552,7 +566,15 @@ impl Headers {
     }
 }
 
-const HEAD_LONGS: &[&str] = &["bytes", "help", "lines", "quiet", "silent", "verbose"];
+const HEAD_LONGS: &[&str] = &[
+    "bytes",
+    "help",
+    "lines",
+    "quiet",
+    "silent",
+    "verbose",
+    "zero-terminated",
+];
 
 pub fn head(args: &[String]) -> i32 {
     let expanded = match prepare_legacy(
@@ -607,20 +629,28 @@ fn head_one(
     output: &mut dyn Write,
 ) -> io::Result<()> {
     let value = options.count.value;
+    let delimiter = options.delimiter();
     match (options.unit, options.count.sign) {
-        (Unit::Lines, Sign::Minus) => head_all_but_last_lines(input, as_usize(value), output),
-        (Unit::Lines, _) => head_first_lines(input, value, output),
+        (Unit::Lines, Sign::Minus) => {
+            head_all_but_last_lines(input, as_usize(value), delimiter, output)
+        }
+        (Unit::Lines, _) => head_first_lines(input, value, delimiter, output),
         (Unit::Bytes, Sign::Minus) => head_all_but_last_bytes(input, as_usize(value), output),
         (Unit::Bytes, _) => io::copy(&mut (&mut *input).take(value), output).map(|_| ()),
     }
 }
 
-fn head_first_lines(input: &mut dyn BufRead, count: u64, output: &mut dyn Write) -> io::Result<()> {
+fn head_first_lines(
+    input: &mut dyn BufRead,
+    count: u64,
+    delimiter: u8,
+    output: &mut dyn Write,
+) -> io::Result<()> {
     let mut line = Vec::new();
     let mut remaining = count;
     while remaining > 0 {
         line.clear();
-        if input.read_until(b'\n', &mut line)? == 0 {
+        if input.read_until(delimiter, &mut line)? == 0 {
             break;
         }
         output.write_all(&line)?;
@@ -633,13 +663,14 @@ fn head_first_lines(input: &mut dyn BufRead, count: u64, output: &mut dyn Write)
 fn head_all_but_last_lines(
     input: &mut dyn BufRead,
     keep: usize,
+    delimiter: u8,
     output: &mut dyn Write,
 ) -> io::Result<()> {
     let mut pending = VecDeque::new();
     let mut line = Vec::new();
     loop {
         line.clear();
-        if input.read_until(b'\n', &mut line)? == 0 {
+        if input.read_until(delimiter, &mut line)? == 0 {
             return Ok(());
         }
         pending.push_back(std::mem::take(&mut line));
@@ -684,6 +715,7 @@ const TAIL_LONGS: &[&str] = &[
     "silent",
     "sleep-interval",
     "verbose",
+    "zero-terminated",
 ];
 
 pub fn tail(args: &[String]) -> i32 {
@@ -762,21 +794,27 @@ fn tail_initial(
     output: &mut dyn Write,
 ) -> io::Result<()> {
     let value = options.count.value;
+    let delimiter = options.delimiter();
     match (options.unit, options.count.sign) {
-        (Unit::Lines, Sign::Plus) => tail_from_line(input, value, output),
-        (Unit::Lines, _) => tail_last_lines(input, as_usize(value), output),
+        (Unit::Lines, Sign::Plus) => tail_from_line(input, value, delimiter, output),
+        (Unit::Lines, _) => tail_last_lines(input, as_usize(value), delimiter, output),
         (Unit::Bytes, Sign::Plus) => tail_from_byte(input, value, output),
         (Unit::Bytes, _) => tail_last_bytes(input, as_usize(value), output),
     }
 }
 
 /// `-n +N`: output starting at 1-based line N (`+0` behaves like `+1`).
-fn tail_from_line(input: &mut dyn BufRead, start: u64, output: &mut dyn Write) -> io::Result<()> {
+fn tail_from_line(
+    input: &mut dyn BufRead,
+    start: u64,
+    delimiter: u8,
+    output: &mut dyn Write,
+) -> io::Result<()> {
     let mut line = Vec::new();
     let mut to_skip = start.saturating_sub(1);
     while to_skip > 0 {
         line.clear();
-        if input.read_until(b'\n', &mut line)? == 0 {
+        if input.read_until(delimiter, &mut line)? == 0 {
             return Ok(());
         }
         to_skip -= 1;
@@ -791,12 +829,17 @@ fn tail_from_byte(input: &mut dyn BufRead, start: u64, output: &mut dyn Write) -
     io::copy(input, output).map(|_| ())
 }
 
-fn tail_last_lines(input: &mut dyn BufRead, keep: usize, output: &mut dyn Write) -> io::Result<()> {
+fn tail_last_lines(
+    input: &mut dyn BufRead,
+    keep: usize,
+    delimiter: u8,
+    output: &mut dyn Write,
+) -> io::Result<()> {
     let mut lines: VecDeque<Vec<u8>> = VecDeque::with_capacity(keep.min(1024));
     let mut line = Vec::new();
     loop {
         line.clear();
-        if input.read_until(b'\n', &mut line)? == 0 {
+        if input.read_until(delimiter, &mut line)? == 0 {
             break;
         }
         lines.push_back(std::mem::take(&mut line));
@@ -1007,6 +1050,6 @@ fn report_failure(command: &str, path: &str, error: &io::Error) {
 
 const CAT_HELP: &str = "Usage: cat [OPTION]... [FILE]...\n\nConcatenate FILE(s) to standard output. With no FILE, or when FILE is -, read standard input.\n\nOptions:\n  -A, --show-all          Same as -vET\n  -b, --number-nonblank   Number non-empty output lines (overrides -n)\n  -e                      Same as -vE\n  -E, --show-ends         Show $ at the end of each line\n  -n, --number            Number all output lines (format: %6d TAB)\n  -s, --squeeze-blank     Suppress repeated empty output lines\n  -t                      Same as -vT\n  -T, --show-tabs         Show TAB characters as ^I\n  -u                      Accepted and ignored\n  -v, --show-nonprinting  Show control characters with ^ and M- notation\n  -h, --help              Show this help\n\nExit status: 0 on success, 1 if an input could not be read.\n";
 
-const HEAD_HELP: &str = "Usage: head [OPTION]... [FILE]...\n\nPrint the first 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[-]N      Print the first N lines; with -N, all but the last N lines\n  -c, --bytes=[-]N      Print the first N bytes; with -N, all but the last N bytes\n  -N                    Same as -n N (for example -5)\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024). +N is the same as N.\nExit status: 0 on success, 1 if an input could not be read.\n";
+const HEAD_HELP: &str = "Usage: head [OPTION]... [FILE]...\n\nPrint the first 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[-]N      Print the first N lines; with -N, all but the last N lines\n  -c, --bytes=[-]N      Print the first N bytes; with -N, all but the last N bytes\n  -N                    Same as -n N (for example -5)\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -z, --zero-terminated Line delimiter is NUL, not newline\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024). +N is the same as N.\nExit status: 0 on success, 1 if an input could not be read.\n";
 
-const TAIL_HELP: &str = "Usage: tail [OPTION]... [FILE]...\n\nPrint the last 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[+]N      Print the last N lines; with +N, start at line N\n  -c, --bytes=[+]N      Print the last N bytes; with +N, start at byte N\n  -N                    Same as -n N (for example -5)\n  -f, --follow[=name|descriptor]\n                        Print appended data as the file grows\n  -F                    Same as --follow=name --retry\n      --retry           Keep trying to open a file that is missing (with -F)\n  -s, --sleep-interval=S\n                        Poll interval in seconds while following (default 0.5)\n      --pid=PID         With -f, stop following when process PID exits\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024).\nFollowing stdin is not supported and ends at end of input, like GNU tail.\nReplacement detection with -F uses file identity on Unix only.\nExit status: 0 on success, 1 if an input could not be read.\n";
+const TAIL_HELP: &str = "Usage: tail [OPTION]... [FILE]...\n\nPrint the last 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[+]N      Print the last N lines; with +N, start at line N\n  -c, --bytes=[+]N      Print the last N bytes; with +N, start at byte N\n  -N                    Same as -n N (for example -5)\n  -f, --follow[=name|descriptor]\n                        Print appended data as the file grows\n  -F                    Same as --follow=name --retry\n      --retry           Keep trying to open a file that is missing (with -F)\n  -s, --sleep-interval=S\n                        Poll interval in seconds while following (default 0.5)\n      --pid=PID         With -f, stop following when process PID exits\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -z, --zero-terminated Line delimiter is NUL, not newline\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024).\nFollowing stdin is not supported and ends at end of input, like GNU tail.\nReplacement detection with -F uses file identity on Unix only.\nExit status: 0 on success, 1 if an input could not be read.\n";
