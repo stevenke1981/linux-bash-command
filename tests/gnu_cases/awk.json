@@ -1,0 +1,2355 @@
+{
+  "command": "awk",
+  "cases": [
+    {
+      "name": "pattern_only_prints_record",
+      "args": [
+        "/bob/"
+      ],
+      "stdin": "alice 30 NY\nbob 25 LA\ncarol 35 SF\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_pattern_negated",
+      "args": [
+        "!/bob/"
+      ],
+      "stdin": "alice 30 NY\nbob 25 LA\ncarol 35 SF\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "expression_pattern",
+      "args": [
+        "$2 > 26"
+      ],
+      "stdin": "alice 30 NY\nbob 25 LA\ncarol 35 SF\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "begin_end_order",
+      "args": [
+        "BEGIN{print \"b\"} {print \"m\"} END{print \"e\"}"
+      ],
+      "stdin": "x\ny\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "multiple_begin_end_blocks",
+      "args": [
+        "BEGIN{a=1} BEGIN{print a+1} END{print \"x\"} END{print \"y\"}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "range_pattern",
+      "args": [
+        "/b/,/c/"
+      ],
+      "stdin": "a\nb\nc\nd\nb\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "range_same_line_start_end",
+      "args": [
+        "NR==2,NR==2{print \"hit\", $0}"
+      ],
+      "stdin": "1\n2\n3\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "range_never_closes",
+      "args": [
+        "/x/,/nomatch/"
+      ],
+      "stdin": "a\nx\nb\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "next_skips_rest",
+      "args": [
+        "NR==2{next} {print}"
+      ],
+      "stdin": "1\n2\n3\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "nextfile_skips_file",
+      "args": [
+        "FNR==2{nextfile} {print FILENAME, $0}",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "1\n2\n3\n",
+        "b.txt": "x\ny\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "exit_code_in_main",
+      "args": [
+        "{ if (NR == 2) exit 4 } { print }"
+      ],
+      "stdin": "a\nb\nc\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "exit_in_begin_runs_end",
+      "args": [
+        "BEGIN { print \"start\"; exit 5 } END { print \"end\" }"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "exit_in_end_stops_end_blocks",
+      "args": [
+        "END { print \"one\"; exit; print \"no\" } END { print \"two\" }"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "exit_keeps_previous_status",
+      "args": [
+        "BEGIN { exit 6 } END { exit }"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "default_action_prints_record",
+      "args": [
+        "1"
+      ],
+      "stdin": "one\ntwo\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "empty_program_with_operands_exits_zero",
+      "args": [
+        "BEGIN{}"
+      ],
+      "stdin": "ignored\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "default_field_split_tabs_spaces",
+      "args": [
+        "{print $2\"|\"$3}"
+      ],
+      "stdin": "a\t b   c\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "nf_and_dollar_zero",
+      "args": [
+        "{print NF, $NF, $0}"
+      ],
+      "stdin": "alice 30 NY\nbob 25 LA\ncarol 35 SF\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "assign_field_rebuilds_record",
+      "args": [
+        "{$2 = \"X\"; print}"
+      ],
+      "stdin": "a b c\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "assign_field_beyond_nf",
+      "args": [
+        "{$5 = \"e\"; print; print NF}"
+      ],
+      "stdin": "a b\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "assign_nf_truncates",
+      "args": [
+        "{NF = 2; print; print NF}"
+      ],
+      "stdin": "a b c d\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "assign_nf_extends",
+      "args": [
+        "{NF = 4; $0 = $0; print NF}"
+      ],
+      "stdin": "a b\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "ofs_applies_on_rebuild",
+      "args": [
+        "BEGIN{OFS=\"-\"} {$1=$1; print}"
+      ],
+      "stdin": "a b c\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "dollar_zero_assignment_resplits",
+      "args": [
+        "{$0 = \"x y z\"; print NF, $3}"
+      ],
+      "stdin": "q\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "fs_single_char_colon",
+      "args": [
+        "-F:",
+        "{print $2}"
+      ],
+      "stdin": "root:x:0\nuser:y:1000\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "fs_tab_option_t",
+      "args": [
+        "-Ft",
+        "{print $2}"
+      ],
+      "stdin": "a\tb c\td\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "fs_regex_multichar",
+      "args": [
+        "-F",
+        "[,;]+",
+        "{print $3, NF}"
+      ],
+      "stdin": "a,b;;c\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "fs_assigned_in_begin",
+      "args": [
+        "BEGIN{FS=\",\"} {print $2}"
+      ],
+      "stdin": "x,y,z\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "fs_change_applies_next_record",
+      "args": [
+        "{FS=\",\"; print $1}"
+      ],
+      "stdin": "a,b c\nd,e f\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "fs_empty_splits_chars",
+      "args": [
+        "BEGIN{FS=\"\"} {print NF, $2}"
+      ],
+      "stdin": "abc\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "fs_pipe_is_literal",
+      "args": [
+        "-F|",
+        "{print $2}"
+      ],
+      "stdin": "a|b|c\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "fs_dot_is_literal",
+      "args": [
+        "-F.",
+        "{print $1, NF}"
+      ],
+      "stdin": "1.2.3\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "paragraph_mode_fields",
+      "args": [
+        "BEGIN{RS=\"\"} {print NR\": \"$1\"-\"$NF\" NF=\"NF}"
+      ],
+      "stdin": "a b\nc\n\n\nd e f\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "paragraph_mode_newline_is_separator",
+      "args": [
+        "BEGIN{RS=\"\";FS=\":\"} {print NF; print $2}"
+      ],
+      "stdin": "a:b\nc:d\n\ne:f\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "rs_single_char",
+      "args": [
+        "BEGIN{RS=\";\"} {print NR\":\"$0}"
+      ],
+      "stdin": "a;b;c\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "rs_newline_default_no_trailing",
+      "args": [
+        "{print NR, $0}"
+      ],
+      "stdin": "one\ntwo",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "nr_fnr_multiple_files",
+      "args": [
+        "{print FILENAME, NR, FNR}",
+        "f1",
+        "f2"
+      ],
+      "files": {
+        "f1": "a\nb\n",
+        "f2": "c\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "filename_in_begin_empty",
+      "args": [
+        "BEGIN{print \"[\" FILENAME \"]\"}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "assignment_operand_before_file",
+      "args": [
+        "{print x, $0}",
+        "x=1",
+        "f1",
+        "x=2",
+        "f1"
+      ],
+      "files": {
+        "f1": "row\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "assignment_operand_escape_processing",
+      "args": [
+        "{print v}",
+        "v=a\\tb",
+        "f1"
+      ],
+      "files": {
+        "f1": "\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "dash_reads_stdin",
+      "args": [
+        "{print \"got\", $0}",
+        "f1",
+        "-"
+      ],
+      "stdin": "from-stdin\n",
+      "files": {
+        "f1": "from-file\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "no_input_when_only_begin",
+      "args": [
+        "BEGIN{print \"only\"}",
+        "nosuchfile"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "ofs_ors_in_print",
+      "args": [
+        "BEGIN{OFS=\":\"; ORS=\"|\"} {print $1, $2}"
+      ],
+      "stdin": "a b\nc d\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "print_no_args_is_record",
+      "args": [
+        "{print}"
+      ],
+      "stdin": "keep me\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "environ_lookup",
+      "args": [
+        "BEGIN{print ENVIRON[\"AWK_T\"]}"
+      ],
+      "env": {
+        "AWK_T": "hello"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "strnum_field_numeric_compare",
+      "args": [
+        "$1 < $2 {print \"lt\"} $1 >= $2 {print \"ge\"}"
+      ],
+      "stdin": "10 9\n9 10\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "string_constant_compare",
+      "args": [
+        "{print ($1 < \"9\")}"
+      ],
+      "stdin": "10\n9\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "non_numeric_field_string_compare",
+      "args": [
+        "{print ($1 > 5)}"
+      ],
+      "stdin": "abc\n10\n 4 \n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "leading_space_strnum",
+      "args": [
+        "{print ($1 == 10), ($1 == \"10\")}"
+      ],
+      "stdin": " 10 \n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "uninit_vs_zero_and_empty",
+      "args": [
+        "BEGIN{print (x == 0), (x == \"\"), (x < 1)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "getline_var_strnum",
+      "args": [
+        "BEGIN{getline v < \"d.txt\"; print (v < 9), (v == 10.0)}"
+      ],
+      "files": {
+        "d.txt": "10.0\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "split_elements_strnum",
+      "args": [
+        "BEGIN{split(\"10 9 x\", a); print (a[1] > a[2]), (a[3] > a[1])}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "v_assignment_strnum",
+      "args": [
+        "-v",
+        "n=10",
+        "BEGIN{print (n > 9)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "numeric_string_truthiness",
+      "args": [
+        "{print ($1 ? \"t\" : \"f\")}"
+      ],
+      "stdin": "0\n0.0\n00\nx\n\n 0 \n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "string_numeric_conversion",
+      "args": [
+        "BEGIN{print \"3x\"+1, \" 12 \"*2, \"+.5\"+0, \"1e2\"+0, \"abc\"+0}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "numbers_from_input_arithmetic",
+      "args": [
+        "{s += $1} END {print s}"
+      ],
+      "stdin": "10\n9\n3.5\nabc\n 10 \n1e1\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "arithmetic_basics",
+      "args": [
+        "BEGIN{print 7+3, 7-3, 7*3, 7/2, 7%3, -7%3}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "inc_dec_pre_post",
+      "args": [
+        "BEGIN{i=5; print i++, i, ++i, i--, --i, i}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "field_inc_dec",
+      "args": [
+        "{ $2++; print; print $1++ + 1, $1 }"
+      ],
+      "stdin": "3 9\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "compound_assignments",
+      "args": [
+        "BEGIN{x=10; x+=2; x-=1; x*=3; x/=5; x%=4; print x}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "ternary_nested",
+      "args": [
+        "{print ($1>10 ? \"big\" : $1>5 ? \"mid\" : \"small\")}"
+      ],
+      "stdin": "12\n7\n2\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "logical_short_circuit",
+      "args": [
+        "BEGIN{x=0; if (0 && (x=1)) print \"no\"; if (1 || (x=2)) print x+0}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "logical_not_and_or",
+      "args": [
+        "BEGIN{print !0, !1, !\"\", !\"a\", (1 && 0) || 1}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "concatenation_precedence",
+      "args": [
+        "BEGIN{print 1 \" \" 2+3, 2 3 * 4, \"x\" -1}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "comparison_in_non_print_context",
+      "args": [
+        "BEGIN{x = (3 > 2); print x}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_match_operators",
+      "args": [
+        "{print ($0 ~ /^a/), ($0 !~ \"b\")}"
+      ],
+      "stdin": "abc\nxyz\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "in_operator_and_delete",
+      "args": [
+        "BEGIN{a[\"x\"]; print (\"x\" in a), (\"y\" in a); delete a[\"x\"]; print (\"x\" in a)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "multi_subscript_subsep",
+      "args": [
+        "BEGIN{a[1,2]=\"v\"; for (k in a) {split(k, p, SUBSEP); print p[1], p[2]}; print ((1,2) in a), ((2,1) in a)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "modulus_negative_and_fractional",
+      "args": [
+        "BEGIN{print 5.5 % 2, -5 % 2, 5 % -2}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "unary_plus_minus",
+      "args": [
+        "BEGIN{x = \"5\"; print -x, +x, - -x}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "string_comparison_ops",
+      "args": [
+        "BEGIN{print (\"abc\" < \"abd\"), (\"B\" < \"a\"), (\"a\" != \"a\")}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "integer_valued_output",
+      "args": [
+        "BEGIN{print 3.0, 1e6, 100000000000000, -0.0}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "fractional_output_ofmt",
+      "args": [
+        "BEGIN{OFMT=\"%.2f\"; x=3.14159; print x, x \"\"}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "convfmt_for_concatenation",
+      "args": [
+        "BEGIN{CONVFMT=\"%.3e\"; x=1234.5678; y = x \"\"; print y}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "subscript_uses_convfmt",
+      "args": [
+        "BEGIN{CONVFMT=\"%.2g\"; a[0.123456]=1; for(k in a) print k}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "default_six_significant_digits",
+      "args": [
+        "BEGIN{print 1/3, 123456789.5, 0.000012345}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "large_and_small_exponents",
+      "args": [
+        "BEGIN{print 1e300*10, 2^53, 1e-5}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "number_to_string_in_print_list",
+      "args": [
+        "BEGIN{x = 17/4; print x, x*4}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "length_forms",
+      "args": [
+        "{print length, length($0), length(\"abc\")}"
+      ],
+      "stdin": "hello\n\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "substr_two_and_three_args",
+      "args": [
+        "BEGIN{s=\"hello\"; print substr(s,2), substr(s,2,3), substr(s,0,2), substr(s,-1), substr(s,4,100)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "substr_out_of_range",
+      "args": [
+        "BEGIN{print \"[\" substr(\"abc\", 5) \"]\", \"[\" substr(\"abc\", 2, -1) \"]\"}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "index_found_and_missing",
+      "args": [
+        "BEGIN{print index(\"foobar\", \"bar\"), index(\"foo\", \"z\"), index(\"abc\", \"\")}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "split_default_fs",
+      "args": [
+        "BEGIN{n = split(\"  a  b c \", arr); print n, arr[1], arr[3]}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "split_single_char_sep",
+      "args": [
+        "BEGIN{n = split(\"a:b::c\", arr, \":\"); print n; for(i=1;i<=n;i++) print i, arr[i]}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "split_regex_literal",
+      "args": [
+        "BEGIN{n = split(\"a1b22c333d\", arr, /[0-9]+/); print n, arr[1], arr[4]}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "split_string_regex",
+      "args": [
+        "BEGIN{n = split(\"x.y.z\", arr, \"[.]\"); print n, arr[2]}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "split_into_chars",
+      "args": [
+        "BEGIN{n = split(\"abc\", a, \"\"); print n, a[1], a[3]}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "sub_first_only",
+      "args": [
+        "{n = sub(/o/, \"0\"); print n, $0}"
+      ],
+      "stdin": "foo boo\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "gsub_all_matches",
+      "args": [
+        "{n = gsub(/o/, \"0\"); print n, $0}"
+      ],
+      "stdin": "foo boo\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "gsub_ampersand",
+      "args": [
+        "{gsub(/[a-z]+/, \"<&>\"); print}"
+      ],
+      "stdin": "ab cd\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "gsub_escaped_ampersand",
+      "args": [
+        "{gsub(/b/, \"\\\\&\"); print}"
+      ],
+      "stdin": "abc\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "gsub_double_backslash",
+      "args": [
+        "{gsub(/b/, \"\\\\\\\\\"); print}"
+      ],
+      "stdin": "abc\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "gsub_empty_matches",
+      "args": [
+        "BEGIN{s=\"abc\"; gsub(/x*/, \"-\", s); print s}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "gsub_empty_match_after_match",
+      "args": [
+        "BEGIN{s=\"abc\"; gsub(/b*/, \"-\", s); print s}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "gsub_on_field_rebuilds",
+      "args": [
+        "{gsub(/a/, \"A\", $2); print}"
+      ],
+      "stdin": "x aaa y\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "gsub_on_array_element",
+      "args": [
+        "BEGIN{a[1]=\"hello\"; gsub(/l/, \"L\", a[1]); print a[1]}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "sub_no_match_returns_zero",
+      "args": [
+        "BEGIN{s=\"abc\"; print sub(/z/, \"y\", s), s}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "match_rstart_rlength",
+      "args": [
+        "BEGIN{print match(\"xxabbbc\", /ab+/), RSTART, RLENGTH; print match(\"abc\", /z/), RSTART, RLENGTH}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "match_anchored_and_empty",
+      "args": [
+        "BEGIN{print match(\"abc\", /^a/), RLENGTH; print match(\"abc\", /x*/), RLENGTH}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "sprintf_builds_string",
+      "args": [
+        "BEGIN{s = sprintf(\"%s-%03d-%x\", \"id\", 7, 255); print s, length(s)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "tolower_toupper",
+      "args": [
+        "BEGIN{print tolower(\"MiXed 123\"), toupper(\"MiXed 123\")}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "concatenate_builtin_results",
+      "args": [
+        "BEGIN{print substr(\"hello\", 1, 1) toupper(\"x\") length(\"ab\")}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "int_truncates_toward_zero",
+      "args": [
+        "BEGIN{print int(3.9), int(-3.9), int(\"42abc\"), int(0.5)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "sqrt_exp_log",
+      "args": [
+        "BEGIN{print sqrt(16), exp(0), exp(1), log(1), log(10)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "trig_functions",
+      "args": [
+        "BEGIN{print sin(0), cos(0), atan2(0, -1), atan2(1, 1)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "rand_range_and_determinism",
+      "args": [
+        "BEGIN{srand(1); a = rand(); srand(1); b = rand(); print (a == b), (a >= 0 && a < 1)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_decimal_flags",
+      "args": [
+        "BEGIN{printf \"[%d][%5d][%-5d][%05d][%+d][% d]\\n\", 42, 42, 42, 42, 42, 42}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_decimal_negative_and_precision",
+      "args": [
+        "BEGIN{printf \"[%d][%5d][%05d][%.3d][%-6.2d]\\n\", -42, -42, -42, 7, 3}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_integer_i",
+      "args": [
+        "BEGIN{printf \"%i|%i\\n\", 3.9, -3.9}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_octal_and_hex",
+      "args": [
+        "BEGIN{printf \"%o %x %X %#o %#x %#X\\n\", 8, 255, 255, 8, 255, 255}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_unsigned",
+      "args": [
+        "BEGIN{printf \"%u %u\\n\", 3, 42}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_char_numeric_and_string",
+      "args": [
+        "BEGIN{printf \"%c%c%c|%3c|%-3c|\\n\", 65, \"BCD\", 97, \"x\", \"y\"}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_float_f",
+      "args": [
+        "BEGIN{printf \"%f|%.2f|%10.3f|%-10.1f|%+.1f\\n\", 3.14159, 2.5, 3.14159, 2.25, 1}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_exponent_e",
+      "args": [
+        "BEGIN{printf \"%e|%.2E|%12.3e\\n\", 12345.678, 0.000123, -5}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_general_g",
+      "args": [
+        "BEGIN{printf \"%g|%g|%G|%.3g|%g\\n\", 100000, 1000000, 1e-5, 3.14159, 0.0001}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_upper_f_and_zero_pad",
+      "args": [
+        "BEGIN{printf \"%F|%010.3f|%-8.2e|\\n\", 2.5, -3.14159, 1234}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_string_precision_width",
+      "args": [
+        "BEGIN{printf \"[%s][%10s][%-10s][%.2s][%5.1s]\\n\", \"hello\", \"hi\", \"hi\", \"hello\", \"xyz\"}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_star_width_precision",
+      "args": [
+        "BEGIN{printf \"[%*d][%-*d][%.*f][%*.*s]\\n\", 5, 42, 4, 7, 2, 3.14159, 6, 2, \"abcdef\"}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_percent_and_literal",
+      "args": [
+        "BEGIN{printf \"100%% sure %d%%\\n\", 50}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_missing_args",
+      "args": [
+        "BEGIN{printf \"[%s][%d]\\n\"}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ],
+      "skip_reason": "gawk --posix reports a fatal error for missing printf arguments; agentcmd prints empty/0 (known difference)"
+    },
+    {
+      "name": "printf_extra_args_ignored",
+      "args": [
+        "BEGIN{printf \"%d\\n\", 1, 2, 3}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_no_newline_and_print_mix",
+      "args": [
+        "BEGIN{printf \"a\"; printf \"b\\n\"; print \"c\"}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_to_parenthesized_list",
+      "args": [
+        "BEGIN{printf(\"%s=%d\\n\", \"n\", 3)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_from_fields",
+      "args": [
+        "{printf \"%-6s|%4.1f\\n\", $1, $2}"
+      ],
+      "stdin": "alice 30.25 NY\nbob 25 LA\ncarol 35 SF\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "if_else_chain",
+      "args": [
+        "{ if ($1 > 10) print \"big\"; else if ($1 > 5) print \"mid\"; else print \"small\" }"
+      ],
+      "stdin": "12\n7\n2\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "while_loop_break_continue",
+      "args": [
+        "BEGIN{i=0; while (1) { i++; if (i==2) continue; if (i>4) break; printf \"%d \", i }; print \"\"}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "do_while_runs_once",
+      "args": [
+        "BEGIN{i=10; do { print \"once\", i } while (i < 5)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "for_loop_classic",
+      "args": [
+        "BEGIN{for (i=1; i<=3; i++) s = s i; print s}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "for_in_single_key",
+      "args": [
+        "BEGIN{a[\"k\"]=1; for (k in a) print k, a[k]}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "for_in_numeric_keys_sum",
+      "args": [
+        "BEGIN{for (i=1;i<=5;i++) a[i]=i*i; for (k in a) t += a[k]; print t}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "nested_loops_break_inner",
+      "args": [
+        "BEGIN{for(i=0;i<3;i++){for(j=0;j<3;j++){if(j==1)break; printf \"%d%d \", i, j}}; print \"\"}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "empty_statement_and_semicolons",
+      "args": [
+        "BEGIN{;; x=1;; print x;}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "while_with_getline_loop",
+      "args": [
+        "BEGIN{while ((getline line < \"in.txt\") > 0) n++; print n, line}"
+      ],
+      "files": {
+        "in.txt": "a\nb\nc\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "recursive_function",
+      "args": [
+        "function fact(n) { return n <= 1 ? 1 : n * fact(n-1) } BEGIN{print fact(10)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "scalar_passed_by_value",
+      "args": [
+        "function f(x) { x = 99 } BEGIN{y = 1; f(y); print y}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "local_variables_are_fresh",
+      "args": [
+        "function f(n,  tmp) { tmp = tmp n; return tmp } BEGIN{print f(1), f(2)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "local_array_per_call",
+      "args": [
+        "function f(k,  loc) { loc[k]=1; n=0; for (x in loc) n++; return n } BEGIN{print f(1), f(2)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "function_with_newline_in_params",
+      "args": [
+        "function add(a,\n b) { return a + b }\nBEGIN { print add(2, 3) }"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "function_call_without_return",
+      "args": [
+        "function noop(x) { x++ } BEGIN { v = noop(1); print \"[\" v \"]\" }"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "function_next_from_action",
+      "args": [
+        "function skip() { next } NR==2 { skip() } { print }"
+      ],
+      "stdin": "a\nb\nc\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "function_exit_from_expression",
+      "args": [
+        "function quit(c) { exit c } BEGIN { x = 1 + quit(7); print \"no\" } END { print \"end\" }"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "function_calls_builtin_and_user",
+      "args": [
+        "function sq(x) { return x*x } { print sq($1) + length($2) }"
+      ],
+      "stdin": "3 abcd\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "plain_getline_updates_nr_and_fields",
+      "args": [
+        "NR==1{ getline; print \"after\", NR, $0, NF }"
+      ],
+      "stdin": "one two\nthree four five\nsix\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "getline_var_updates_nr_not_fields",
+      "args": [
+        "NR==1{ getline x; print NR, x, $0 }"
+      ],
+      "stdin": "a b\nc d\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "getline_at_eof_returns_zero",
+      "args": [
+        "{ r = getline; print r, $0 }"
+      ],
+      "stdin": "only\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "getline_from_file_sets_record_not_nr",
+      "args": [
+        "BEGIN{ while ((getline < \"f.txt\") > 0) print NR, NF, $1 }"
+      ],
+      "files": {
+        "f.txt": "x y\nz\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "getline_var_from_file",
+      "args": [
+        "BEGIN{ while ((getline line < \"f.txt\") > 0) print \"L:\" line; print NR }"
+      ],
+      "files": {
+        "f.txt": "one\ntwo\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "getline_missing_file_returns_minus_one",
+      "args": [
+        "BEGIN{ print (getline x < \"nosuch.txt\") }"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "getline_file_then_close_reopens",
+      "args": [
+        "BEGIN{ getline a < \"f.txt\"; close(\"f.txt\"); getline b < \"f.txt\"; print a, b }"
+      ],
+      "files": {
+        "f.txt": "first\nsecond\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "getline_var_in_main_loop_skip_lines",
+      "args": [
+        "NR==1 { while ((getline line) > 0) last = line } END { print NR, last }"
+      ],
+      "stdin": "1\n2\n3\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "getline_from_stdin_dash_file",
+      "args": [
+        "BEGIN { getline x < \"-\"; print \"got\", x }"
+      ],
+      "stdin": "piped\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "cmd_pipe_getline_unsupported",
+      "args": [
+        "BEGIN { \"echo hi\" | getline x; print x }"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ],
+      "skip_reason": "pipes need a shell (spec: unsupported, exit 2); gawk runs the command"
+    },
+    {
+      "name": "print_pipe_unsupported",
+      "args": [
+        "BEGIN { print \"x\" | \"cat\"; print \"y\" }"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ],
+      "skip_reason": "output pipes need a shell (spec: unsupported, exit 2); gawk runs the command"
+    },
+    {
+      "name": "system_unsupported",
+      "args": [
+        "BEGIN { r = system(\"true\"); print r }"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ],
+      "skip_reason": "system() needs a shell (spec: unsupported, exit 2); gawk runs the command"
+    },
+    {
+      "name": "print_to_file_then_read",
+      "args": [
+        "{ print $1 > \"out.txt\" } END { close(\"out.txt\"); print \"done\" }"
+      ],
+      "stdin": "alice 30 NY\nbob 25 LA\ncarol 35 SF\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "append_redirection",
+      "args": [
+        "BEGIN { print \"one\" >> \"log.txt\"; print \"two\" >> \"log.txt\" }"
+      ],
+      "files": {
+        "log.txt": "zero\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "same_file_stays_open_between_prints",
+      "args": [
+        "BEGIN { print \"a\" > \"o.txt\"; print \"b\" > \"o.txt\"; printf \"%s\\n\", \"c\" > \"o.txt\" }"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "printf_to_file",
+      "args": [
+        "BEGIN { printf \"%d-%d\\n\", 1, 2 > \"p.txt\" }"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "print_to_dev_stdout",
+      "args": [
+        "BEGIN { print \"to stdout\" > \"/dev/stdout\"; print \"plain\" }"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "close_returns_status",
+      "args": [
+        "BEGIN { print \"x\" > \"c.txt\"; print close(\"c.txt\"), close(\"never\") }"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "redirect_target_expression",
+      "args": [
+        "BEGIN { f = \"d\" \"1.txt\"; print \"v\" > f; close(f) }"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "fflush_returns_zero",
+      "args": [
+        "BEGIN { print \"q\"; print fflush(), fflush(\"nothing\") }"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "split_clears_previous_contents",
+      "args": [
+        "BEGIN{a[\"old\"]=1; split(\"p q\", a); for (k in a) n++; print n, (\"old\" in a)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_classes_and_anchors",
+      "args": [
+        "/^[[:alpha:]]+[[:digit:]]$/ {print \"yes\", $0} !/^[[:alpha:]]+[[:digit:]]$/ {print \"no\", $0}"
+      ],
+      "stdin": "abc1\n12\nab\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_alternation_grouping",
+      "args": [
+        "/^(cat|dog)s?$/ {print $0}"
+      ],
+      "stdin": "cats\ndog\ncow\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_interval_expressions",
+      "args": [
+        "/^a{2,3}b$/ {print \"match\", $0}"
+      ],
+      "stdin": "aab\naaaab\nab\naaab\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_dot_matches_any",
+      "args": [
+        "{print match($0, /a.c/), RLENGTH}"
+      ],
+      "stdin": "xxabcyy\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_escaped_metacharacters",
+      "args": [
+        "/\\.\\*/ {print \"lit\", $0}"
+      ],
+      "stdin": "a.*b\nab\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_bracket_special_chars",
+      "args": [
+        "{gsub(/[]^a-]/, \"_\"); print}"
+      ],
+      "stdin": "a]^-b\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_slash_in_brackets",
+      "args": [
+        "/[/]/ {print \"slash\"}"
+      ],
+      "stdin": "a/b\nab\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "dynamic_regex_from_string",
+      "args": [
+        "BEGIN{p=\"^[0-9]+$\"} $0 ~ p {print \"num\", $0} $0 !~ p {print \"txt\", $0}"
+      ],
+      "stdin": "123\nabc\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "dynamic_regex_with_escaped_dot",
+      "args": [
+        "BEGIN{n = split(\"a.b.c\", parts, \"\\\\.\"); print n}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_match_in_condition_and_value",
+      "args": [
+        "{ x = /b/; print x, (/z/ ? \"z\" : \"no-z\") }"
+      ],
+      "stdin": "abc\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_case_sensitive",
+      "args": [
+        "/ABC/{print \"upper\"} /abc/{print \"lower\"}"
+      ],
+      "stdin": "abc\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "regex_word_chars_and_space",
+      "args": [
+        "{ n = gsub(/[^ ]+/, \"w\"); print n, $0 }"
+      ],
+      "stdin": "one  two three\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "unknown_function_exit_2",
+      "args": [
+        "BEGIN { nosuch(1) }"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "division_by_zero_exit_2",
+      "args": [
+        "{ print 1 / $1 }"
+      ],
+      "stdin": "0\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "uninit_scalar_used_as_array_exit_2",
+      "args": [
+        "BEGIN { x = 1; x[1] = 2 }"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "option_v_bad_name_exit_2",
+      "args": [
+        "-v",
+        "1bad=2",
+        "BEGIN{}"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "unknown_option_exit_2",
+      "args": [
+        "-z",
+        "BEGIN{}"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "no_program_exit_2",
+      "args": [],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "program_file_option",
+      "args": [
+        "-f",
+        "prog.awk",
+        "in.txt"
+      ],
+      "files": {
+        "prog.awk": "BEGIN { print \"from file\" }\n{ print \"line:\", $0 }\n",
+        "in.txt": "x\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "multiple_program_files",
+      "args": [
+        "-f",
+        "p1.awk",
+        "-f",
+        "p2.awk"
+      ],
+      "files": {
+        "p1.awk": "function twice(x) { return x * 2 }\n",
+        "p2.awk": "BEGIN { print twice(21) }\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "double_dash_ends_options",
+      "args": [
+        "--",
+        "{print}",
+        "f1"
+      ],
+      "files": {
+        "f1": "dd\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "assign_option_multiple",
+      "args": [
+        "-v",
+        "a=1",
+        "-v",
+        "b=two",
+        "BEGIN { print a + 1, b }"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "fs_option_with_escape_tab",
+      "args": [
+        "-F",
+        "\\t",
+        "{print $2}"
+      ],
+      "stdin": "a\tb\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "power_operators",
+      "args": [
+        "BEGIN{print 2^10, 2^3^2, -2^2, 2^-1}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "power_assign",
+      "args": [
+        "BEGIN{x=3; x^=2; print x}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "power_double_star",
+      "args": [
+        "BEGIN{print 2**3}"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ],
+      "skip_reason": "gawk --posix rejects the ** operator (syntax error); agentcmd accepts ** and **= as gawk does"
+    },
+    {
+      "name": "power_double_star_assign",
+      "args": [
+        "BEGIN{y=2; y**=3; print y}"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ],
+      "skip_reason": "gawk --posix rejects the **= operator; agentcmd accepts it as gawk does"
+    },
+    {
+      "name": "division_by_zero_fails",
+      "args": [
+        "BEGIN{z=0; print 1; x = 1/z; print 2}"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "argv_and_argc",
+      "args": [
+        "BEGIN{print ARGC; for(i=1;i<ARGC;i++) print i, ARGV[i]}",
+        "p",
+        "q"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "length_of_array",
+      "args": [
+        "BEGIN{a[1];a[2];a[3]; print length(a)}"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ],
+      "skip_reason": "gawk --posix rejects length(array) (fatal); agentcmd supports the array form that the spec requires; covered by CLI tests"
+    },
+    {
+      "name": "split_empty_string_and_clear",
+      "args": [
+        "BEGIN{a[9]=1; n = split(\"\", a); for (k in a) c++; print n, c+0}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "srand_returns_previous_seed",
+      "args": [
+        "BEGIN{srand(5); print srand(7), srand()}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "array_passed_by_reference",
+      "args": [
+        "function fill(a, n,  i) { for (i=1;i<=n;i++) a[i]=i*10 } BEGIN{fill(arr, 3); print arr[2], arr[3], (4 in arr)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "uninit_arg_becomes_array",
+      "args": [
+        "function mk(a) { a[\"x\"] = 1 } BEGIN{mk(z); print (\"x\" in z)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "delete_whole_array_in_function",
+      "args": [
+        "function clear(a) { delete a } BEGIN{x[1]; x[2]; clear(x); print (\"1\" in x), (\"2\" in x)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "array_count_by_key",
+      "args": [
+        "{ cnt[$1]++ } END { print cnt[\"a\"], cnt[\"b\"]; for (k in cnt) n++; print n }"
+      ],
+      "stdin": "a\nb\na\n",
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "delete_element_then_length",
+      "args": [
+        "BEGIN{a[1];a[2];a[3]; delete a[2]; for (k in a) n++; print n, (2 in a)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "array_reference_creates_element",
+      "args": [
+        "BEGIN{ if (a[\"x\"] == \"\") print \"empty\"; print (\"x\" in a) }"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "numeric_keys_as_strings",
+      "args": [
+        "BEGIN{a[\"1\"]=\"s\"; a[1]=\"n\"; print a[\"1\"]; for (k in a) n++; print n}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "delete_during_iteration_safe",
+      "args": [
+        "BEGIN{for(i=0;i<4;i++)a[i]; for (k in a) delete a[k]; for (k in a) n++; print n+0}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "syntax_error_exit_2",
+      "args": [
+        "BEGIN { print ( }"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ],
+      "skip_reason": "spec requires exit 2 for syntax errors; gawk --posix exits 1 (known difference)"
+    },
+    {
+      "name": "rs_multichar_regex",
+      "args": [
+        "BEGIN{RS=\"[0-9]+\"} {print \"[\" $0 \"]\"}"
+      ],
+      "stdin": "a12b345c",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ],
+      "skip_reason": "gawk --posix ignores multi-character RS regexes; agentcmd supports them as the spec requires (gawk extension)"
+    },
+    {
+      "name": "hex_string_is_zero",
+      "args": [
+        "BEGIN{print \"0x1A\"+0}"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ],
+      "skip_reason": "gawk converts hex strings through glibc strtod (26); agentcmd uses POSIX decimal conversion (0)"
+    },
+    {
+      "name": "missing_file_fatal_before_later_files",
+      "args": [
+        "{print}",
+        "nope",
+        "f1"
+      ],
+      "files": {
+        "f1": "ok\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "substr_zero_start_length_from_one",
+      "args": [
+        "BEGIN{print substr(\"hello\", 0, 2), substr(\"hello\", -1, 3)}"
+      ],
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    },
+    {
+      "name": "getline_field_target",
+      "args": [
+        "BEGIN { getline $2 < \"f.txt\"; print NF, $0 }"
+      ],
+      "files": {
+        "f.txt": "new value\n"
+      },
+      "gnu": [
+        "gawk",
+        "--posix"
+      ]
+    }
+  ]
+}
