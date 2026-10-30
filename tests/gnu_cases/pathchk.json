@@ -1,0 +1,69 @@
+{
+  "command": "pathchk",
+  "cases": [
+    {
+      "name": "plain_name_passes",
+      "args": ["ok.txt"]
+    },
+    {
+      "name": "posix_name_passes",
+      "args": ["-p", "ok.txt"]
+    },
+    {
+      "name": "leading_dash_option_passes_without_dash_check",
+      "args": ["-p", "--", "-ok"]
+    },
+    {
+      "name": "portability_passes",
+      "args": ["--portability", "ok.txt"]
+    },
+    {
+      "name": "empty_name_default_is_error",
+      "args": [""]
+    },
+    {
+      "name": "empty_name_posix_is_error",
+      "args": ["-p", ""]
+    },
+    {
+      "name": "empty_name_leading_dash_mode_is_error",
+      "args": ["-P", ""]
+    },
+    {
+      "name": "non_portable_space",
+      "args": ["-p", "a b"]
+    },
+    {
+      "name": "leading_dash_component",
+      "args": ["-P", "dir/-abc"]
+    },
+    {
+      "name": "missing_directory_is_not_checked",
+      "args": ["nodir/x"]
+    },
+    {
+      "name": "dot_components_are_fine",
+      "args": ["-p", "a/./b"]
+    },
+    {
+      "name": "double_slash_is_fine",
+      "args": ["-P", "a//b"]
+    },
+    {
+      "name": "posix_component_limit_14",
+      "args": ["-p", "aaaaaaaaaaaaaaa"]
+    },
+    {
+      "name": "posix_component_limit_14_nested",
+      "args": ["-p", "aaaaaaaaaaaaaa/x"]
+    },
+    {
+      "name": "one_failure_among_names",
+      "args": ["-p", "ok.txt", "a b"]
+    },
+    {
+      "name": "missing_operand",
+      "args": []
+    }
+  ]
+}
