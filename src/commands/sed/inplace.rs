@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use super::output::Output;
+use crate::common::path::strip_verbatim;
 
 /// An open temporary file standing in for one input file.
 pub struct InPlace {
@@ -20,7 +21,8 @@ pub struct InPlace {
 /// file (GNU behaviour); with it, the link's target is edited.
 pub fn start(name: &str, follow: bool) -> io::Result<InPlace> {
     let target = if follow {
-        fs::canonicalize(name)?
+        // Windows canonical paths carry a `\\?\` prefix that is not shown to users.
+        strip_verbatim(&fs::canonicalize(name)?)
     } else {
         PathBuf::from(name)
     };
