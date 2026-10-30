@@ -65,6 +65,16 @@ fn text(bytes: &[u8]) -> String {
     String::from_utf8_lossy(bytes).into_owned()
 }
 
+#[test]
+fn connection_refused_returns_curl_exit_code_seven() {
+    let fixture = Fixture::new();
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let address = listener.local_addr().unwrap();
+    drop(listener);
+    let output = fixture.run(&[&format!("http://{address}")], b"");
+    assert_eq!(output.status.code(), Some(7), "{}", text(&output.stderr));
+}
+
 /// Starts a server on 127.0.0.1 and returns its base URL. Routes:
 /// `/echo` (method, target, lowercased headers, then `--BODY--` and the raw body),
 /// `/redirect` (302 to `/final`), `/final`, `/missing` (404), `/flaky` (503 once, then 200),

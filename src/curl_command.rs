@@ -12,6 +12,8 @@ use std::time::{Duration, Instant};
 
 const EXIT_USAGE: i32 = 2;
 const EXIT_TRANSPORT: i32 = 2;
+const EXIT_RESOLVE_HOST: i32 = 6;
+const EXIT_CONNECT: i32 = 7;
 const EXIT_HTTP_ERROR: i32 = 22;
 const EXIT_WRITE: i32 = 23;
 const EXIT_READ_LOCAL: i32 = 26;
@@ -79,7 +81,8 @@ Network:
       --url URL            Set the URL (same as the positional argument)
       --help               Show this help
 
-Exit status: 0 on success; 2 for usage and transport errors; 22 for -f or
+Exit status: 0 on success; 2 for usage or other transport errors; 6 for host
+resolution failure; 7 for connection failure; 22 for -f or
 --fail-with-body HTTP errors; 23 for local write errors; 26 for unreadable
 data files; 28 for timeouts; 47 when --max-redirs is exceeded.
 "#;
@@ -302,7 +305,7 @@ pub fn run(args: &[String]) -> i32 {
         Ok(Some(options)) => options,
         Ok(None) => return 0,
         Err(error) => {
-            eprintln!("curl: {error}\nUse 'curl --help' for usage.");
+            eprintln!("curl: {error}\nTry 'curl --help' for more information.");
             return EXIT_USAGE;
         }
     };
@@ -964,6 +967,16 @@ fn transport_failure(
     }
     if error.is_timeout() {
         return fail(EXIT_TIMEOUT, "operation timed out");
+    }
+    if error.is_connect() {
+        let mut cause: Option<&(dyn std::error::Error + 'static)> = Some(error);
+        while let Some(error) = cause {
+            if error.to_string().to_ascii_lowercase().contains("dns error") {
+                return fail(EXIT_RESOLVE_HOST, "could not resolve host");
+            }
+            cause = error.source();
+        }
+        return fail(EXIT_CONNECT, "failed to connect");
     }
     fail(
         EXIT_TRANSPORT,
