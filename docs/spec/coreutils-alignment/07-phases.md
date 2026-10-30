@@ -75,6 +75,19 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | sed | pattern 內 backreference 不支援 | `regex` crate 限制 | `sed_backref`（skip） |
 | awk | 不支援 pipe／`system()` | 需 shell | — |
 | diff | 預設 unified → P4 改 normal | 對齊 GNU | — |
+| cksum | `-a crc32b` 為 spec 所列，GNU 9.x 不支援；本專案依 CRC-32（IEEE）實作，標籤 `CRC32B` | spec 指定 | `crc32b_not_in_gnu`（skip） |
+| cksum | `-a sm3` 未實作（GNU 有，spec 未列） | 不在 spec 範圍 | `sm3_not_in_spec`（skip） |
+| cksum | `-c` 僅支援雜湊演算法；`-a crc32b -c` 回報不支援 | 無對應檢查格式 | — |
+| cksum sum | 無運算元（讀 stdin）時 legacy 格式（crc／bsd／sysv）不印檔名，同 GNU | 對齊 GNU | `default_crc_stdin`、`sum/bsd_stdin` |
+| hostname | `-f` 為盡力：不做 DNS 反查，回傳主機名 | spec 允許 | `fqdn`（skip） |
+| hostname | `-d -a -A -i -I -y` 不支援；帶運算元（設定主機名）不支援 | spec 規定 | `set_name_refused`（skip） |
+| hostname | 測試機之 hostname 3.23（Debian）用法錯誤與 `--help` 為 exit 255；本專案依 coreutils（1／0） | 工具差異 | `unknown_option`、`help_exit`（skip） |
+| free | `-v`（committed）、`-L` 不支援（GNU procps 有） | spec 列 `-v` 不支援；`-L` 未列 | `committed_unsupported`（skip） |
+| free | shared／buff-cache 僅 Linux（`/proc/meminfo`），其他平台為 0；`-l` 之 Low／High 為近似 | spec 允許 | — |
+| uname | Linux 上 `-p`、`-i` 取機器名（與 Ubuntu 之 GNU 相同）；其他 Unix 為 `unknown` | 對齊 GNU Ubuntu | — |
+| uptime | users 欄僅 Linux（utmp）；load average 僅 Unix；Windows 兩者皆省略 | spec 允許省略 | — |
+| uptime | `-h` 為說明（同 procps；spec 未列） | 對齊 procps | — |
+| whoami uname free uptime hostname nproc arch | 系統值（主機相關）以 CLI 形狀測試，差分僅比確定性輸出 | 06-testing §1 | — |
 | （Codex 補充） | | | |
 
 ## 回報格式（每階段完成時，Codex 輸出）
