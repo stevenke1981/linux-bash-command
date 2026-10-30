@@ -1,0 +1,151 @@
+{
+  "command": "egrep",
+  "cases": [
+    {
+      "name": "alternation",
+      "args": ["cat|dog", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "a cat\na bird\na dog\n"}
+    },
+    {
+      "name": "plus_quantifier",
+      "args": ["ab+c", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "abbc\nac\n"}
+    },
+    {
+      "name": "count_two_files",
+      "args": ["-c", "o+", "a.txt", "b.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "foo\nbar\n", "b.txt": "none\n"}
+    },
+    {
+      "name": "only_matching_digits",
+      "args": ["-o", "[0-9]+", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "id 42 and 7\nnone\n"}
+    },
+    {
+      "name": "word_alternation",
+      "args": ["-w", "is|was", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "this is\nisland\nwas\n"}
+    },
+    {
+      "name": "ignore_case_alternation",
+      "args": ["-i", "HELLO|bye", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "hello\nbye\nno\n"}
+    },
+    {
+      "name": "invert_alternation",
+      "args": ["-v", "x|y", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "xa\nb\nyc\nd\n"}
+    },
+    {
+      "name": "line_number_group",
+      "args": ["-n", "(a|b){2}", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "ab\na\nbba\n"}
+    },
+    {
+      "name": "files_with_matches",
+      "args": ["-l", "needle", "a.txt", "b.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "a needle\n", "b.txt": "none\n"}
+    },
+    {
+      "name": "files_without_match",
+      "args": ["-L", "needle", "a.txt", "b.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "a needle\n", "b.txt": "none\n"}
+    },
+    {
+      "name": "max_count_alternation",
+      "args": ["-m", "1", "a|b", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "a\nb\na\n"}
+    },
+    {
+      "name": "after_context",
+      "args": ["-A1", "x+", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "x\ny\nz\nxx\n"}
+    },
+    {
+      "name": "null_data_alternation",
+      "args": ["-z", "two|four", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}}
+    },
+    {
+      "name": "null_data_count",
+      "args": ["-zc", "t.", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}}
+    },
+    {
+      "name": "null_null_list",
+      "args": ["-lZ", "cat", "a.txt", "b.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "cat\n", "b.txt": "dog\n"}
+    },
+    {
+      "name": "byte_offset_group",
+      "args": ["-b", "b+", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "a\nabbb\n"}
+    },
+    {
+      "name": "recursive_group",
+      "args": ["-r", "gr+ey", "d"],
+      "gnu": ["grep", "-E"],
+      "files": {"d/x.txt": "grey\n", "d/y.txt": "no\n"}
+    },
+    {
+      "name": "label_stdin",
+      "args": ["--label=in", "-H", "a|b"],
+      "stdin": "a\nc\n",
+      "gnu": ["grep", "-E"]
+    },
+    {
+      "name": "stdin_count",
+      "args": ["-c", "x|y"],
+      "stdin": "x\nz\ny\n",
+      "gnu": ["grep", "-E"]
+    },
+    {
+      "name": "quiet_exit_zero",
+      "args": ["-q", "z+", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "zz\n"}
+    },
+    {
+      "name": "no_pattern_is_usage_error",
+      "args": [],
+      "gnu": ["grep", "-E"],
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "missing_file_keeps_matches",
+      "args": ["a", "missing.txt", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "a\n"},
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "invalid_group_is_error",
+      "args": ["(", "a.txt"],
+      "gnu": ["grep", "-E"],
+      "files": {"a.txt": "(\n"},
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "exclude_from_recursive",
+      "args": ["--exclude-from=ex.lst", "-r", "x", "d"],
+      "gnu": ["grep", "-E"],
+      "files": {"ex.lst": "*.log\n", "d/a.log": "x\n", "d/b.txt": "x\n"}
+    }
+  ]
+}

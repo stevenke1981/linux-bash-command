@@ -118,6 +118,269 @@
       "name": "perl_digits",
       "args": ["-P", "\\d{2}", "a.txt"],
       "files": { "a.txt": "a1\nb22\n" }
+    },
+    {
+      "name": "null_data_lines",
+      "args": ["-z", "hello", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}}
+    },
+    {
+      "name": "null_data_count",
+      "args": ["-zc", "hello", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}}
+    },
+    {
+      "name": "null_data_only_matching",
+      "args": ["-zo", "h[a-z]*", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}}
+    },
+    {
+      "name": "null_data_dot_matches_newline",
+      "args": ["-z", "one.two", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}}
+    },
+    {
+      "name": "null_data_caret_is_record_start",
+      "args": ["-z", "^two", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}}
+    },
+    {
+      "name": "null_data_dollar_is_record_end",
+      "args": ["-z", "one$", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}}
+    },
+    {
+      "name": "null_data_line_number_and_offset",
+      "args": ["-zn", "-b", "three", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}}
+    },
+    {
+      "name": "null_data_invert",
+      "args": ["-zv", "hello", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}}
+    },
+    {
+      "name": "null_data_list_names",
+      "args": ["-zl", "hello", "a.txt", "b.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}, "b.txt": {"hex": "6e6f7468696e6700"}}
+    },
+    {
+      "name": "null_data_list_without_match",
+      "args": ["-zL", "zzz", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}},
+      "skip_reason": "GNU 3.11 -L exits 0 only when a line is selected; agentcmd exits 0 when a file is listed (existing behaviour, not changed in P1). Known difference."
+    },
+    {
+      "name": "null_data_quiet_exit",
+      "args": ["-zq", "four", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f2068656c6c6f0074687265652068656c6c6f00666f757200"}}
+    },
+    {
+      "name": "null_data_nul_is_not_binary",
+      "args": ["-z", "hello", "bin.dat"],
+      "files": {"bin.dat": {"hex": "68656c6c6f00ff00776f726c6400"}}
+    },
+    {
+      "name": "null_data_stdin_count",
+      "args": ["-zc", "hello"],
+      "stdin_hex": "610068656c6c6f00"
+    },
+    {
+      "name": "null_null_lines",
+      "args": ["-Z", "-n", "hello", "a.txt", "b.txt"],
+      "files": {"a.txt": "hello\nworld\n", "b.txt": "hello b\n"}
+    },
+    {
+      "name": "null_null_list",
+      "args": ["-lZ", "hello", "a.txt", "b.txt"],
+      "files": {"a.txt": "hello\n", "b.txt": "no\n"}
+    },
+    {
+      "name": "null_null_count",
+      "args": ["-cZ", "hello", "a.txt", "b.txt"],
+      "files": {"a.txt": "hello\nhello\n", "b.txt": "x\n"}
+    },
+    {
+      "name": "null_null_with_context",
+      "args": ["-Z", "-n", "-A1", "world", "a.txt", "b.txt"],
+      "files": {"a.txt": "hello\nworld\nxx\n", "b.txt": "world\nyy\n"}
+    },
+    {
+      "name": "null_null_only_matching",
+      "args": ["-Zo", "hello", "a.txt"],
+      "files": {"a.txt": "hello\nhello\n"}
+    },
+    {
+      "name": "byte_offset_lines",
+      "args": ["-b", "hello", "a.txt", "b.txt"],
+      "files": {"a.txt": "hello there\nno\nsay hello\n", "b.txt": "x\nhello b\n"}
+    },
+    {
+      "name": "byte_offset_only_matching",
+      "args": ["-bo", "hello", "a.txt"],
+      "files": {"a.txt": "say hello and hello\n"}
+    },
+    {
+      "name": "byte_offset_before_context",
+      "args": ["-b", "-B1", "xx", "a.txt"],
+      "files": {"a.txt": "one\ntwo\nxx\nthree\n"}
+    },
+    {
+      "name": "byte_offset_with_count",
+      "args": ["-bc", "hello", "a.txt"],
+      "files": {"a.txt": "hello\nno\n"}
+    },
+    {
+      "name": "initial_tab_filename",
+      "args": ["-T", "hello", "a.txt", "b.txt"],
+      "files": {"a.txt": "hello\nworld hello\n", "b.txt": "hello b\n"}
+    },
+    {
+      "name": "initial_tab_padded_numbers",
+      "args": ["-T", "-n", "hello", "pad.txt"],
+      "files": {"pad.txt": "xxxxxxxxxxxxxxxxxxx\nxxxxxxxxxxxxxxxxxxx\nxxxxxxxxxxxxxxxxxxx\nxxxxxxxxxxxxxxxxxxx\nxxxxxxxxxxxxxxxxxxx\nhello\n"}
+    },
+    {
+      "name": "initial_tab_number_and_offset",
+      "args": ["-T", "-b", "-n", "-H", "hello", "a.txt"],
+      "files": {"a.txt": "hello\nworld hello\nxx\n"}
+    },
+    {
+      "name": "initial_tab_context",
+      "args": ["-T", "-n", "-C1", "world", "a.txt"],
+      "files": {"a.txt": "hello\nworld hello\nxx\n"}
+    },
+    {
+      "name": "initial_tab_only_matching",
+      "args": ["-T", "-o", "-n", "hello", "a.txt"],
+      "files": {"a.txt": "hello\nworld hello\n"}
+    },
+    {
+      "name": "initial_tab_without_prefix",
+      "args": ["-T", "hello", "a.txt"],
+      "files": {"a.txt": "hello\n"}
+    },
+    {
+      "name": "initial_tab_null_names",
+      "args": ["-TZ", "-n", "hello", "a.txt", "b.txt"],
+      "files": {"a.txt": "hello\n", "b.txt": "hello\n"}
+    },
+    {
+      "name": "label_stdin_with_filename",
+      "args": ["--label=LBL", "-H", "hello"],
+      "stdin": "hello\nx\n"
+    },
+    {
+      "name": "label_stdin_count",
+      "args": ["--label", "LBL", "-c", "hello", "-"],
+      "stdin": "hello\nx\n"
+    },
+    {
+      "name": "label_stdin_numbered",
+      "args": ["-Hn", "--label=in", "hello"],
+      "stdin": "x\nhello\n"
+    },
+    {
+      "name": "line_buffered_flag",
+      "args": ["--line-buffered", "hello", "a.txt"],
+      "files": {"a.txt": "hello\n"}
+    },
+    {
+      "name": "binary_flag_accepted",
+      "args": ["-U", "hello", "a.txt"],
+      "files": {"a.txt": "hello\n"}
+    },
+    {
+      "name": "no_ignore_case_overrides_i",
+      "args": ["-i", "--no-ignore-case", "HELLO", "a.txt"],
+      "files": {"a.txt": "hello\nHELLO\n"}
+    },
+    {
+      "name": "y_is_ignore_case",
+      "args": ["-y", "HELLO", "a.txt"],
+      "files": {"a.txt": "hello\n"}
+    },
+    {
+      "name": "exclude_from_recursive",
+      "args": ["-r", "--exclude-from=ex.lst", "hello", "d"],
+      "files": {"ex.lst": "*.txt\n", "d/x.txt": "hello\n", "d/y.log": "hello\n"}
+    },
+    {
+      "name": "exclude_from_operands",
+      "args": ["--exclude-from", "ex.lst", "hello", "a.txt", "b.txt"],
+      "files": {"ex.lst": "b.txt\n", "a.txt": "hello\n", "b.txt": "hello\n"}
+    },
+    {
+      "name": "exclude_from_no_final_newline",
+      "args": ["--exclude-from=ex.lst", "hello", "a.txt", "b.txt"],
+      "files": {"ex.lst": "b.txt", "a.txt": "hello\n", "b.txt": "hello\n"}
+    },
+    {
+      "name": "exclude_from_missing_file",
+      "args": ["--exclude-from=nope.lst", "hello", "a.txt"],
+      "files": {"a.txt": "hello\n"},
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "devices_skip_dev_null",
+      "args": ["-D", "skip", "hello", "/dev/null"],
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "devices_read_dev_null",
+      "args": ["-D", "read", "hello", "/dev/null"],
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "devices_long_skip",
+      "args": ["--devices=skip", "hello", "/dev/null"],
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "devices_unknown_method",
+      "args": ["-D", "bogus", "x", "a.txt"],
+      "files": {"a.txt": "x\n"},
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "directories_skip_operand",
+      "args": ["-d", "skip", "hello", "d", "a.txt"],
+      "files": {"d/x.txt": "hello\n", "a.txt": "hello\n"}
+    },
+    {
+      "name": "directories_default_is_error",
+      "args": ["hello", "d"],
+      "files": {"d/x.txt": "hello\n"},
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "directories_recurse",
+      "args": ["-d", "recurse", "hello", "d"],
+      "files": {"d/x.txt": "hello\n"}
+    },
+    {
+      "name": "directories_read_with_recursion_off",
+      "args": ["-r", "-d", "read", "hello", "d"],
+      "files": {"d/x.txt": "hello\n"},
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "directories_skip_then_recursive",
+      "args": ["-d", "skip", "-r", "hello", "d"],
+      "files": {"d/x.txt": "hello\n"}
+    },
+    {
+      "name": "directories_unknown_action",
+      "args": ["-d", "bogus", "hello", "d"],
+      "files": {"d/x.txt": "hello\n"},
+      "compare": ["stdout", "exit"],
+      "skip_reason": "GNU 3.11 exits 1 for an invalid -d argument; 05/02 spec sets grep usage errors to 2, so the spec wins. Known difference."
+    },
+    {
+      "name": "directories_long_skip",
+      "args": ["--directories=skip", "hello", "d"],
+      "files": {"d/x.txt": "hello\n"},
+      "compare": ["stdout", "exit"]
     }
   ]
 }

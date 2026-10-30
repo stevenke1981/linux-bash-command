@@ -61,6 +61,62 @@
       "args": ["a.txt", "missing.txt"],
       "files": { "a.txt": "present\n" },
       "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "zero_last_two",
+      "args": ["-z", "-n", "2", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650074776f00746872656500666f757200"}}
+    },
+    {
+      "name": "zero_from_line",
+      "args": ["-z", "-n", "+3", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650074776f00746872656500666f757200"}}
+    },
+    {
+      "name": "zero_dash_number",
+      "args": ["-z", "-1", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650074776f00746872656500"}},
+      "skip_reason": "GNU tail rejects the obsolete -N form after other options (exit 1); agentcmd accepts it anywhere (existing behaviour). Known difference."
+    },
+    {
+      "name": "zero_no_trailing_terminator",
+      "args": ["-z", "-n", "1", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650074776f"}}
+    },
+    {
+      "name": "zero_long_option",
+      "args": ["--zero-terminated", "-n", "2", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650074776f00746872656500"}}
+    },
+    {
+      "name": "zero_multiple_headers",
+      "args": ["-z", "-n", "1", "a.txt", "b.txt"],
+      "files": {"a.txt": {"hex": "613100613200"}, "b.txt": {"hex": "623100623200"}}
+    },
+    {
+      "name": "zero_stdin_from_line",
+      "args": ["-z", "-n", "+2"],
+      "stdin_hex": "733100733200733300"
+    },
+    {
+      "name": "zero_last_bytes_unaffected",
+      "args": ["-z", "-c", "3", "a.txt"],
+      "files": {"a.txt": {"hex": "6162006364006566"}}
+    },
+    {
+      "name": "zero_quiet_headers",
+      "args": ["-zq", "-n", "1", "a.txt", "b.txt"],
+      "files": {"a.txt": {"hex": "613100613200"}, "b.txt": {"hex": "623100"}}
+    },
+    {
+      "name": "zero_verbose_header",
+      "args": ["-zv", "-n", "1", "a.txt"],
+      "files": {"a.txt": {"hex": "763100763200"}}
+    },
+    {
+      "name": "zero_count_zero",
+      "args": ["-z", "-n", "0", "a.txt"],
+      "files": {"a.txt": {"hex": "6e6576657200"}}
     }
   ]
 }

@@ -71,6 +71,37 @@
       "name": "missing_file_only",
       "args": ["nope.txt"],
       "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "unbuffered_short_u_file",
+      "args": ["-u", "a.txt"],
+      "files": {"a.txt": "one\ntwo\n"}
+    },
+    {
+      "name": "unbuffered_with_number",
+      "args": ["-u", "-n", "a.txt"],
+      "files": {"a.txt": "one\ntwo\n"}
+    },
+    {
+      "name": "unbuffered_stdin",
+      "args": ["-u"],
+      "stdin": "x\ny\n"
+    },
+    {
+      "name": "unbuffered_clustered_show_ends",
+      "args": ["-uE", "a.txt"],
+      "files": {"a.txt": "one\n\ntwo"}
+    },
+    {
+      "name": "unbuffered_long_option",
+      "args": ["--unbuffered", "a.txt"],
+      "files": {"a.txt": "one\n"},
+      "skip_reason": "GNU cat has no --unbuffered option (exit 1); agentcmd accepts it as an existing extension. Known difference."
+    },
+    {
+      "name": "unbuffered_binary_bytes",
+      "args": ["-u", "bin.dat"],
+      "files": {"bin.dat": {"hex": "00ff800a"}}
     }
   ]
 }
