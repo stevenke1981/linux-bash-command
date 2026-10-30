@@ -394,6 +394,29 @@ fn comm_rejects_conflicting_delimiters() {
 }
 
 #[test]
+fn comm_suppressed_columns_and_zero_terminated_input() {
+    let sandbox = Sandbox::new();
+    sandbox.write("a.txt", b"x\ny\n");
+    sandbox.write("b.txt", b"y\nz\n");
+    let only_common = run_in(sandbox.path(), "comm", &["-1", "-3", "a.txt", "b.txt"], b"");
+    assert_eq!(stdout(&only_common), "z\n");
+    sandbox.write("z.bin", b"y\0z\0");
+    let zero = run_in(sandbox.path(), "comm", &["-z", "-", "z.bin"], b"a\0y\0");
+    assert_eq!(code(&zero), 0);
+    assert_eq!(stdout(&zero).as_bytes(), b"a\0\t\ty\0\tz\0");
+}
+
+#[test]
+fn comm_missing_second_file_reports_it() {
+    let sandbox = Sandbox::new();
+    sandbox.write("a.txt", b"a\n");
+    let output = run_in(sandbox.path(), "comm", &["a.txt", "nofile.txt"], b"");
+    assert_eq!(code(&output), 1);
+    assert!(stdout(&output).is_empty());
+    assert!(stderr(&output).contains("comm: nofile.txt: No such file or directory"));
+}
+
+#[test]
 fn xargs_help_version_and_unknown_option() {
     let help = run("xargs", &["--help"], b"");
     assert_eq!(code(&help), 0);
