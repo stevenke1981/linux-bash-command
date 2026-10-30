@@ -121,6 +121,74 @@ pub fn inode_nlink(_meta: &Metadata) -> (u64, u64) {
     (0, 1)
 }
 
+/// `(volume, file index, hard-link count)` of the file a path names. The first two identify
+/// a file across hard links. With `follow` false a symbolic link is identified by its own
+/// entry. `None` when the path cannot be opened or inspected.
+#[cfg(unix)]
+pub fn path_identity(path: &Path, follow: bool) -> Option<(u64, u64, u64)> {
+    use std::os::unix::fs::MetadataExt;
+    let meta = if follow {
+        std::fs::metadata(path)
+    } else {
+        std::fs::symlink_metadata(path)
+    }
+    .ok()?;
+    Some((meta.dev(), meta.ino(), meta.nlink()))
+}
+
+/// See the Unix variant. The identity comes from `GetFileInformationByHandle`, so the
+/// file is opened briefly (with `FILE_FLAG_OPEN_REPARSE_POINT` when not following links).
+#[cfg(windows)]
+pub fn path_identity(path: &Path, follow: bool) -> Option<(u64, u64, u64)> {
+    use std::iter::once;
+    use std::os::windows::ffi::OsStrExt;
+    use windows_sys::Win32::Foundation::{CloseHandle, INVALID_HANDLE_VALUE};
+    use windows_sys::Win32::Storage::FileSystem::{
+        CreateFileW, GetFileInformationByHandle, BY_HANDLE_FILE_INFORMATION,
+        FILE_FLAG_BACKUP_SEMANTICS, FILE_FLAG_OPEN_REPARSE_POINT, FILE_READ_ATTRIBUTES,
+        FILE_SHARE_DELETE, FILE_SHARE_READ, FILE_SHARE_WRITE, OPEN_EXISTING,
+    };
+    let wide: Vec<u16> = path.as_os_str().encode_wide().chain(once(0)).collect();
+    let mut flags = FILE_FLAG_BACKUP_SEMANTICS;
+    if !follow {
+        flags |= FILE_FLAG_OPEN_REPARSE_POINT;
+    }
+    // SAFETY: `wide` is a NUL-terminated UTF-16 buffer that outlives the call; the handle is
+    // checked before use and closed exactly once.
+    unsafe {
+        let handle = CreateFileW(
+            wide.as_ptr(),
+            FILE_READ_ATTRIBUTES,
+            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+            std::ptr::null(),
+            OPEN_EXISTING,
+            flags,
+            std::ptr::null_mut(),
+        );
+        if handle == INVALID_HANDLE_VALUE {
+            return None;
+        }
+        let mut info: BY_HANDLE_FILE_INFORMATION = std::mem::zeroed();
+        let ok = GetFileInformationByHandle(handle, &mut info);
+        CloseHandle(handle);
+        if ok == 0 {
+            return None;
+        }
+        let index = (u64::from(info.nFileIndexHigh) << 32) | u64::from(info.nFileIndexLow);
+        Some((
+            u64::from(info.dwVolumeSerialNumber),
+            index,
+            u64::from(info.nNumberOfLinks),
+        ))
+    }
+}
+
+/// Identity on platforms without one: `None`, so callers fall back to canonical paths.
+#[cfg(not(any(unix, windows)))]
+pub fn path_identity(_path: &Path, _follow: bool) -> Option<(u64, u64, u64)> {
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
