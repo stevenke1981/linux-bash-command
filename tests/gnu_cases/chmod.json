@@ -1,0 +1,29 @@
+{
+  "command": "chmod",
+  "cases": [
+    { "name": "octal_mode", "args": ["600", "f"], "files": { "f": { "text": "x\n", "mode": "644" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "symbolic_user_exec_group_ro", "args": ["u+x,g=r", "f"], "files": { "f": { "text": "x\n", "mode": "600" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "who_less_respects_umask", "args": ["-v", "+x", "f"], "files": { "f": { "text": "x\n", "mode": "644" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "invalid_symbolic_mode", "args": ["u=q", "f"], "files": { "f": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "invalid_octal_mode", "args": ["9", "f"], "files": { "f": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_file_is_error", "args": ["0644", "nope"], "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_operand", "args": [], "compare": ["stdout", "exit", "files"] },
+    { "name": "mode_without_file_is_error", "args": ["0644"], "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_changed", "args": ["-v", "600", "f"], "files": { "f": { "text": "x\n", "mode": "644" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_retained", "args": ["-v", "644", "f"], "files": { "f": { "text": "x\n", "mode": "644" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "changes_only_reports_changes", "args": ["-c", "644", "f"], "files": { "f": { "text": "x\n", "mode": "644" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "changes_reports_real_change", "args": ["-c", "600", "f"], "files": { "f": { "text": "x\n", "mode": "644" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "silent_missing_still_fails", "args": ["-f", "0644", "nope"], "compare": ["stdout", "exit", "files"] },
+    { "name": "recursive_tree", "args": ["-R", "u-w", "d"], "files": { "d": { "dir": true, "mode": "755" }, "d/f": { "text": "x\n", "mode": "644" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "reference_mode_verbose", "args": ["-v", "--reference=ref", "f"], "files": { "ref": { "text": "r\n", "mode": "755" }, "f": { "text": "x\n", "mode": "644" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "reference_missing_is_error", "args": ["--reference=nope", "f"], "files": { "f": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "reference_without_files_is_error", "args": ["--reference=ref"], "files": { "ref": "r\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "capital_x_on_directory", "args": ["-v", "a+X", "d"], "files": { "d": { "dir": true, "mode": "600" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "capital_x_on_plain_file_unchanged", "args": ["-v", "a+X", "f"], "files": { "f": { "text": "x\n", "mode": "600" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "setuid_setgid_verbose", "args": ["-v", "u+s,g+s", "f"], "files": { "f": { "text": "x\n", "mode": "755" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "sticky_bit_verbose", "args": ["-v", "+t", "f"], "files": { "f": { "text": "x\n", "mode": "755" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "symlink_operand_follows", "args": ["-v", "644", "l"], "files": { "t": { "text": "x\n", "mode": "600" }, "l": { "symlink": "t" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "all_bits_clear", "args": ["-v", "0", "f"], "files": { "f": { "text": "x\n", "mode": "644" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "equals_clears_then_sets", "args": ["-v", "a=r", "f"], "files": { "f": { "text": "x\n", "mode": "700" } }, "compare": ["stdout", "exit", "files"] }
+  ]
+}

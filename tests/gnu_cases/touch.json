@@ -1,0 +1,29 @@
+{
+  "command": "touch",
+  "cases": [
+    { "name": "creates_empty_file", "args": ["new"], "compare": ["stdout", "exit", "files"] },
+    { "name": "existing_file_untouched_contents", "args": ["a"], "files": { "a": "keep\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "multiple_files", "args": ["a", "b"], "files": { "a": "1\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "no_create_skips_missing", "args": ["-c", "nope"], "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_directory_is_error", "args": ["nodir/x"], "compare": ["stdout", "exit", "files"] },
+    { "name": "no_operand_is_error", "args": [], "compare": ["stdout", "exit", "files"] },
+    { "name": "date_epoch", "args": ["-d", "@1000000", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "date_iso_with_time", "args": ["-d", "2001-02-03 04:05:06", "a"], "compare": ["stdout", "exit", "files"] },
+    { "name": "date_iso_date_only", "args": ["--date=2020-01-01", "a"], "compare": ["stdout", "exit", "files"] },
+    { "name": "date_bogus_is_error", "args": ["-d", "bogus", "a"], "compare": ["stdout", "exit", "files"] },
+    { "name": "stamp_with_seconds", "args": ["-t", "200102030405.06", "a"], "compare": ["stdout", "exit", "files"] },
+    { "name": "stamp_two_digit_year", "args": ["-t", "0102030405", "a"], "compare": ["stdout", "exit", "files"] },
+    { "name": "stamp_too_short_is_error", "args": ["-t", "12", "a"], "compare": ["stdout", "exit", "files"] },
+    { "name": "stamp_bad_month_is_error", "args": ["-t", "200113031200", "a"], "compare": ["stdout", "exit", "files"] },
+    { "name": "reference_file", "args": ["-r", "ref", "a"], "files": { "ref": { "text": "r\n", "mtime": 1500000000 }, "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "reference_missing_is_error", "args": ["-r", "nope", "a"], "compare": ["stdout", "exit", "files"] },
+    { "name": "access_only", "args": ["-a", "-d", "@5", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "modify_only", "args": ["-m", "-d", "@5", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "no_dereference_link", "args": ["-h", "-d", "@5", "l"], "files": { "t": "x\n", "l": { "symlink": "t" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "time_atime_word", "args": ["--time=atime", "-d", "@5", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "time_bogus_is_error", "args": ["--time=bogus", "a"], "compare": ["stdout", "exit", "files"] },
+    { "name": "two_time_sources_is_error", "args": ["-d", "@1", "-t", "200101010101", "a"], "compare": ["stdout", "exit", "files"] },
+    { "name": "dash_name_after_double_dash", "args": ["--", "-x"], "compare": ["stdout", "exit", "files"] },
+    { "name": "force_flag_ignored", "args": ["-f", "a"], "compare": ["stdout", "exit", "files"] }
+  ]
+}

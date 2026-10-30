@@ -1,0 +1,33 @@
+{
+  "command": "truncate",
+  "cases": [
+    { "name": "shrink_absolute", "args": ["-s", "2", "f"], "files": { "f": "hello\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "extend_absolute", "args": ["-s", "10", "f"], "files": { "f": "hi" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "extend_relative_plus", "args": ["-s", "+3", "f"], "files": { "f": "hi" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "reduce_relative_minus", "args": ["-s", "-2", "f"], "files": { "f": "hello\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "reduce_past_zero", "args": ["-s", "-50", "f"], "files": { "f": "hello\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "at_most_shrinks_only", "args": ["-s", "<3", "f"], "files": { "f": "hello\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "at_most_leaves_smaller", "args": ["-s", "<30", "f"], "files": { "f": "hi" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "at_least_extends_only", "args": ["-s", ">20", "f"], "files": { "f": "hi" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "round_down", "args": ["-s", "/4", "f"], "files": { "f": "abcdefghij" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "round_up", "args": ["-s", "%4", "f"], "files": { "f": "abcdefghij" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "kibibyte_suffix", "args": ["-s", "1K", "f"], "files": { "f": "" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "kilobyte_suffix_1000", "args": ["-s", "1KB", "f"], "files": { "f": "" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "mebibyte_suffix", "args": ["-s", "1MiB", "f"], "files": { "f": "" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "creates_missing_file", "args": ["-s", "3", "new"], "compare": ["stdout", "exit", "files"] },
+    { "name": "no_create_skips_missing", "args": ["-c", "-s", "3", "nope"], "compare": ["stdout", "exit", "files"] },
+    { "name": "reference_size", "args": ["-r", "ref", "f"], "files": { "ref": "abcdef", "f": "x" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "reference_relative_size", "args": ["-r", "ref", "-s", "+1", "f"], "files": { "ref": "abcdef", "f": "x" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "reference_absolute_size_is_error", "args": ["-r", "ref", "-s", "4", "f"], "files": { "ref": "abcdef", "f": "x" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "reference_missing_is_error", "args": ["-r", "nope", "f"], "files": { "f": "x" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_size_is_error", "args": ["f"], "files": { "f": "x" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "invalid_size_is_error", "args": ["-s", "x", "f"], "files": { "f": "x" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "overflowing_size_is_error", "args": ["-s", "1Q", "f"], "files": { "f": "x" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "no_operand_is_error", "args": ["-s", "1"], "compare": ["stdout", "exit", "files"] },
+    { "name": "directory_is_error", "args": ["-s", "1", "d"], "files": { "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "multiple_files", "args": ["-s", "1", "a", "b"], "files": { "a": "xyz", "b": "pq" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "io_blocks_multiplier", "args": ["-o", "-s", "2", "f"], "files": { "f": "x" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "zero_size_empties_file", "args": ["-s", "0", "f"], "files": { "f": "data\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_operand_only_reports", "args": [], "compare": ["stdout", "exit", "files"] }
+  ]
+}

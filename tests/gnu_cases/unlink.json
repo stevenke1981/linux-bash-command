@@ -1,0 +1,20 @@
+{
+  "command": "unlink",
+  "cases": [
+    { "name": "removes_file", "args": ["a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_file_is_error", "args": ["nope"], "compare": ["stdout", "exit", "files"] },
+    { "name": "directory_is_error", "args": ["d"], "files": { "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_operand", "args": [], "compare": ["stdout", "exit", "files"] },
+    { "name": "extra_operand_is_error", "args": ["a", "b"], "files": { "a": "x\n", "b": "y\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "unknown_option_is_error", "args": ["-r", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "double_dash_dash_name", "args": ["--", "-x"], "files": { "-x": "q\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "symlink_removed_not_target", "args": ["l"], "files": { "t": "x\n", "l": { "symlink": "t" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "symlink_to_directory_removed", "args": ["ld"], "files": { "real": { "dir": true }, "real/f": "x\n", "ld": { "symlink": "real" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "dangling_symlink_removed", "args": ["dang"], "files": { "dang": { "symlink": "nowhere" } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "one_of_hard_links_removed", "args": ["h"], "files": { "a": "x\n", "h": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "file_in_subdirectory", "args": ["d/f"], "files": { "d/f": "x\n", "d/g": "y\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "missing_directory_component_is_error", "args": ["nodir/f"], "compare": ["stdout", "exit", "files"] },
+    { "name": "file_with_space", "args": ["a b"], "files": { "a b": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "two_dashes_only_is_missing_operand", "args": ["--"], "compare": ["stdout", "exit", "files"] }
+  ]
+}

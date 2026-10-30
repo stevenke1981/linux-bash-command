@@ -1,0 +1,26 @@
+{
+  "command": "ln",
+  "cases": [
+    { "name": "hard_link", "args": ["a", "b"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "symbolic_link_as_given", "args": ["-s", "a", "l"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "link_into_directory", "args": ["-s", "a", "d"], "files": { "a": "x\n", "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "existing_destination_is_error", "args": ["a", "b"], "files": { "a": "x\n", "b": "y\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "force_replaces_destination", "args": ["-f", "a", "b"], "files": { "a": "x\n", "b": "y\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "symbolic_force_replaces", "args": ["-sf", "a", "b"], "files": { "a": "x\n", "b": "y\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "hard_link_missing_target_is_error", "args": ["nope", "x"], "compare": ["stdout", "exit", "files"] },
+    { "name": "symbolic_dangling_is_ok", "args": ["-s", "nope", "x"], "compare": ["stdout", "exit", "files"] },
+    { "name": "relative_symlink_from_cwd", "args": ["-sr", "d/t", "l"], "files": { "d/t": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "relative_symlink_climbs", "args": ["-sr", "d/t", "e/l"], "files": { "d/t": "x\n", "e": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_symbolic", "args": ["-sv", "a", "l"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "verbose_hard", "args": ["-v", "a", "l"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "no_target_directory_onto_dir_is_error", "args": ["-T", "a", "d"], "files": { "a": "x\n", "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "target_directory_option", "args": ["-t", "d", "a", "b"], "files": { "a": "x\n", "b": "y\n", "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "several_targets_need_directory", "args": ["a", "b", "c"], "files": { "a": "1\n", "b": "2\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "no_operand_is_error", "args": [], "compare": ["stdout", "exit", "files"] },
+    { "name": "backup_on_symbolic_overwrite", "args": ["-sb", "a", "b"], "files": { "a": "x\n", "b": "y\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "double_dash_operands", "args": ["-s", "--", "-t", "-l"], "compare": ["stdout", "exit", "files"] },
+    { "name": "directory_target_hard_link_is_error", "args": ["d", "dl"], "files": { "d": { "dir": true } }, "compare": ["stdout", "exit", "files"] },
+    { "name": "directory_option_unsupported", "args": ["-d", "a", "b"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"], "skip_reason": "agentcmd: -d/--directory not supported (spec 03 ln)" },
+    { "name": "capital_f_option_unsupported", "args": ["-F", "a", "b"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"], "skip_reason": "agentcmd: -F not supported (spec 03 ln)" }
+  ]
+}
