@@ -72,6 +72,8 @@ fn text_commands_handle_binary_streams_and_counts() {
     assert_eq!(f.run("head", &["-n", "2"], bytes).stdout, b"one\n\xfftwo\n");
     assert_eq!(f.run("tail", &["-n", "2"], bytes).stdout, b"\xfftwo\nthree");
     assert!(f.run("head", &["-n", "0"], bytes).stdout.is_empty());
+    assert_eq!(f.run("head", &["-1"], bytes).stdout, b"one\n");
+    assert_eq!(f.run("tail", &["-1"], bytes).stdout, b"three");
     assert_eq!(f.run("cat", &["missing"], b"").status.code(), Some(2));
     f.write("a", b"first");
     f.write("b", b"second");
@@ -122,6 +124,24 @@ fn filesystem_tools_list_find_and_resolve_directories() {
     assert!(String::from_utf8(f.run("ls", &["-a"], b"").stdout)
         .unwrap()
         .contains(".secret"));
+    // Git for Windows aliases `ls` to `ls -F --color=auto --show-control-chars`.
+    let out = f.run(
+        "ls",
+        &["-F", "--color=auto", "--show-control-chars", "-1"],
+        b"",
+    );
+    assert_eq!(out.status.code(), Some(0));
+    let text = String::from_utf8(out.stdout).unwrap();
+    assert!(text.lines().any(|line| line == "sub/"));
+    assert!(text.lines().any(|line| line == "visible.txt"));
+    assert_eq!(
+        f.run("ls", &["-alF", "--color"], b"").status.code(),
+        Some(0)
+    );
+    assert_eq!(
+        f.run("ls", &["--color=sometimes"], b"").status.code(),
+        Some(2)
+    );
     let found = f.run("find", &[".", "-name", "*.rs", "-type", "f"], b"");
     assert_eq!(found.status.code(), Some(0));
     assert!(String::from_utf8(found.stdout)

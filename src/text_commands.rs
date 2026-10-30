@@ -154,6 +154,9 @@ fn parse_lines(
             count = parse_count(&arg[8..], command)?;
         } else if options && arg.starts_with("-n") && arg.len() > 2 {
             count = parse_count(&arg[2..], command)?;
+        } else if options && arg.len() > 1 && arg[1..].bytes().all(|b| b.is_ascii_digit()) {
+            // Traditional `head -20` form.
+            count = parse_count(&arg[1..], command)?;
         } else if options && arg.starts_with('-') && arg != "-" {
             return Err(format!("unknown option: {arg}"));
         } else {
@@ -236,5 +239,5 @@ fn copy_last_lines(
 }
 
 const CAT_HELP: &str = "Usage: cat [FILE...]\n\nCopy files to standard output. With no FILE, read standard input. Use '-' for standard input.\n\nOptions:\n  -h, --help  Show this help\n";
-const HEAD_HELP: &str = "Usage: head [-n N | --lines N] [FILE...]\n\nPrint the first N lines of each file (default: 10). With no FILE, read standard input. Use '-' for standard input.\n\nOptions:\n  -n, --lines N  Number of lines to print (zero is allowed)\n  -h, --help     Show this help\n";
-const TAIL_HELP: &str = "Usage: tail [-n N | --lines N] [FILE...]\n\nPrint the last N lines of each file (default: 10). With no FILE, read standard input. Use '-' for standard input.\n\nOptions:\n  -n, --lines N  Number of lines to print (zero is allowed)\n  -h, --help     Show this help\n";
+const HEAD_HELP: &str = "Usage: head [-n N | --lines N] [FILE...]\n\nPrint the first N lines of each file (default: 10). With no FILE, read standard input. Use '-' for standard input.\n\nOptions:\n  -n, --lines N  Number of lines to print (zero is allowed)\n  -N             Same as -n N\n  -h, --help     Show this help\n";
+const TAIL_HELP: &str = "Usage: tail [-n N | --lines N] [FILE...]\n\nPrint the last N lines of each file (default: 10). With no FILE, read standard input. Use '-' for standard input.\n\nOptions:\n  -n, --lines N  Number of lines to print (zero is allowed)\n  -N             Same as -n N\n  -h, --help     Show this help\n";

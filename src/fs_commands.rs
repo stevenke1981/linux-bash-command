@@ -27,23 +27,29 @@ pub fn pwd(args: &[String]) -> i32 {
 pub fn ls(args: &[String]) -> i32 {
     let mut all = false;
     let mut long = false;
+    let mut classify = false;
     let mut paths = Vec::new();
     let mut options = true;
     for arg in args {
         if options && arg == "--" {
             options = false;
         } else if options && (arg == "-h" || arg == "--help") {
-            println!("Usage: ls [-a] [-l] [PATH...]\nList directory entries by name (non-recursive).\n\nOptions:\n  -a, --all   Include dot-prefixed names\n  -l, --long  Show type, read-only status, size and modification time\n  -h, --help  Show this help\n\nExit status: 0 on success, 2 if any path could not be listed.");
+            println!("Usage: ls [-a] [-l] [-F] [PATH...]\nList directory entries by name (non-recursive).\n\nOptions:\n  -a, --all       Include dot-prefixed names\n  -l, --long      Show type, read-only status, size and modification time\n  -F, --classify  Append / to directories and @ to symlinks\n  -h, --help      Show this help\n\nAccepted for compatibility and ignored: -1, -A, -C, --color[=WHEN],\n--show-control-chars (Git for Windows aliases ls to use some of these).\n\nExit status: 0 on success, 2 if any path could not be listed.");
             return 0;
         } else if options && (arg == "-a" || arg == "--all") {
             all = true;
         } else if options && (arg == "-l" || arg == "--long") {
             long = true;
+        } else if options && arg == "--classify" {
+            classify = true;
+        } else if options && is_ignored_ls_long_option(arg) {
         } else if options && arg.starts_with('-') && arg.len() > 1 && !arg.starts_with("--") {
             for flag in arg[1..].chars() {
                 match flag {
-                    'a' => all = true,
+                    'a' | 'A' => all = true,
                     'l' => long = true,
+                    'F' => classify = true,
+                    '1' | 'C' => {}
                     _ => {
                         eprintln!("ls: unknown option: -{flag}");
                         return 2;
@@ -91,7 +97,12 @@ pub fn ls(args: &[String]) -> i32 {
                     if !all && name.to_string_lossy().starts_with('.') {
                         continue;
                     }
-                    let displayed = name.to_string_lossy();
+                    let mut displayed = name.to_string_lossy().into_owned();
+                    if classify {
+                        if let Ok(kind) = entry.file_type() {
+                            displayed.push_str(classify_suffix(kind));
+                        }
+                    }
                     if long {
                         match entry.metadata() {
                             Ok(metadata) => print_long(&displayed, &metadata),
@@ -109,10 +120,14 @@ pub fn ls(args: &[String]) -> i32 {
                 }
             }
             Ok(metadata) => {
+                let mut displayed = path.display().to_string();
+                if classify {
+                    displayed.push_str(classify_suffix(metadata.file_type()));
+                }
                 if long {
-                    print_long(&path.display().to_string(), &metadata);
+                    print_long(&displayed, &metadata);
                 } else {
-                    println!("{}", path.display());
+                    println!("{displayed}");
                 }
             }
             Err(error) => {
@@ -125,6 +140,35 @@ pub fn ls(args: &[String]) -> i32 {
         2
     } else {
         0
+    }
+}
+
+fn is_ignored_ls_long_option(arg: &str) -> bool {
+    match arg.strip_prefix("--color") {
+        Some("") => true,
+        Some(when) => matches!(
+            when,
+            "=auto"
+                | "=always"
+                | "=never"
+                | "=yes"
+                | "=no"
+                | "=tty"
+                | "=force"
+                | "=none"
+                | "=if-tty"
+        ),
+        None => arg == "--show-control-chars",
+    }
+}
+
+fn classify_suffix(kind: fs::FileType) -> &'static str {
+    if kind.is_symlink() {
+        "@"
+    } else if kind.is_dir() {
+        "/"
+    } else {
+        ""
     }
 }
 
