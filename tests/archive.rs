@@ -417,11 +417,12 @@ fn files_from_list_with_newlines_or_nuls() {
         sorted_lines(&run_in(sb.path(), "tar", &["-tf", "f.tar"], b"")),
         vec!["src/a.txt", "src/sub/", "src/sub/b.txt"]
     );
-    sb.write("nul.txt", b"src/a.txt\0");
+    // Not "nul.txt": NUL is a reserved device name on Windows.
+    sb.write("zeros.txt", b"src/a.txt\0");
     let nul = run_in(
         sb.path(),
         "tar",
-        &["-cf", "n.tar", "--null", "-T", "nul.txt"],
+        &["-cf", "n.tar", "--null", "-T", "zeros.txt"],
         b"",
     );
     assert_eq!(code(&nul), 0);

@@ -58,6 +58,7 @@ fn kind_text(kind: io::ErrorKind) -> Option<&'static str> {
         io::ErrorKind::DirectoryNotEmpty => "Directory not empty",
         io::ErrorKind::CrossesDevices => "Invalid cross-device link",
         io::ErrorKind::ReadOnlyFilesystem => "Read-only file system",
+        io::ErrorKind::InvalidInput => "Invalid argument",
         _ => return None,
     })
 }

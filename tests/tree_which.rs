@@ -352,8 +352,10 @@ fn which_invalid_option_exits_2() {
 #[test]
 fn which_silent_mode_prints_nothing() {
     let sandbox = Sandbox::new();
-    sandbox.write("tool", b"x");
-    make_executable(&sandbox.path().join("tool"));
+    // Windows finds programs by PATHEXT extension, so the file needs one there.
+    let tool = if cfg!(windows) { "tool.exe" } else { "tool" };
+    sandbox.write(tool, b"x");
+    make_executable(&sandbox.path().join(tool));
     let path = sandbox.path().display().to_string();
     let found = which_with_path(sandbox.path(), &path, &["-s", "tool"]);
     assert_eq!(code(&found), 0);

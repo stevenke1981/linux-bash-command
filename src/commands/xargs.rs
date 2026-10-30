@@ -200,7 +200,10 @@ impl<'a> Runner<'a> {
             .iter()
             .map(|s| s.as_bytes().to_vec())
             .collect();
-        let builtin_echo = template.is_empty() && resolve_command("echo").is_none();
+        // Windows has no `echo` program, so `echo` (the default, or named explicitly) falls
+        // back to the built-in one.
+        let names_echo = template.first().is_none_or(|word| word == b"echo");
+        let builtin_echo = names_echo && resolve_command("echo").is_none();
         if template.is_empty() {
             template.push(b"echo".to_vec());
         }

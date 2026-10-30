@@ -147,6 +147,8 @@ fn hash_tools_check_ignore_missing_and_warn_and_strict() {
     assert!(stderr(&warned).contains("sums: 3: improperly formatted MD5 checksum line"));
 }
 
+// Windows forbids newlines in file names, so the escaping of such names is Unix-only.
+#[cfg(unix)]
 #[test]
 fn hash_tools_escape_backslash_and_newline_names() {
     let sandbox = Sandbox::new();

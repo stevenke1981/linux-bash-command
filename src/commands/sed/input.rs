@@ -217,6 +217,8 @@ mod tests {
         assert!(input.has_more(true));
         let line = input.read().unwrap().unwrap();
         assert_eq!((line.text.as_slice(), line.file), (&b"y"[..], 1));
+        // Close the open files before removing them: Windows refuses to delete open files.
+        drop(input);
         std::fs::remove_dir_all(&dir).unwrap();
     }
 

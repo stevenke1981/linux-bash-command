@@ -274,20 +274,32 @@ fn convert_in_place(options: &Options, name: &str) -> i32 {
 
 fn replace_file(path: &Path, meta: &Metadata, options: &Options) -> io::Result<()> {
     let (temp_path, temp) = create_temp(path)?;
-    let result = (|| {
-        let mut input = File::open(path)?;
-        let mut writer = BufWriter::new(temp);
-        convert(&mut input, &mut writer, options)?;
-        let file = writer.into_inner().map_err(|error| error.into_error())?;
-        drop(file);
-        fs::set_permissions(&temp_path, meta.permissions())?;
-        finish_metadata(&temp_path, meta, options)?;
-        fs::rename(&temp_path, path)
-    })();
+    let result = write_converted(path, &temp_path, temp, meta, options)
+        .and_then(|()| fs::rename(&temp_path, path));
     if result.is_err() {
         let _ = fs::remove_file(&temp_path);
     }
     result
+}
+
+/// Writes the converted contents of `path` into `temp`, then gives the temporary file the
+/// original's permissions. The input is closed before returning: Windows cannot replace a
+/// file that is still open.
+fn write_converted(
+    path: &Path,
+    temp_path: &Path,
+    temp: File,
+    meta: &Metadata,
+    options: &Options,
+) -> io::Result<()> {
+    let mut input = File::open(path)?;
+    let mut writer = BufWriter::new(temp);
+    convert(&mut input, &mut writer, options)?;
+    let file = writer.into_inner().map_err(|error| error.into_error())?;
+    drop(file);
+    drop(input);
+    fs::set_permissions(temp_path, meta.permissions())?;
+    finish_metadata(temp_path, meta, options)
 }
 
 /// Converts one operand into a new file (`-n INFILE OUTFILE`).

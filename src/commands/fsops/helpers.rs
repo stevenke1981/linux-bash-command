@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 
 use crate::common::error::{io_error_text, EXIT_FAIL, EXIT_OK};
 use crate::common::io::{finish_output, is_broken_pipe, stdout_writer};
+use crate::common::meta::path_identity;
 
 /// Separators accepted when splitting operands. Windows also treats `\` as one.
 pub fn is_sep(c: char) -> bool {
@@ -140,11 +141,11 @@ pub fn join_name(dir: &Path, source: &str) -> PathBuf {
 
 /// True when both paths name the same file, following symbolic links.
 pub fn same_file(a: &Path, b: &Path) -> bool {
-    let (Ok(ma), Ok(mb)) = (fs::metadata(a), fs::metadata(b)) else {
+    if fs::metadata(a).is_err() || fs::metadata(b).is_err() {
         return false;
-    };
-    match (file_key(&ma), file_key(&mb)) {
-        (Some(ka), Some(kb)) => ka == kb,
+    }
+    match (path_identity(a, true), path_identity(b, true)) {
+        (Some(ka), Some(kb)) => (ka.0, ka.1) == (kb.0, kb.1),
         _ => match (fs::canonicalize(a), fs::canonicalize(b)) {
             (Ok(ca), Ok(cb)) => ca == cb,
             _ => false,
@@ -158,8 +159,8 @@ pub fn same_entry(a: &Path, b: &Path) -> bool {
     let (Ok(ma), Ok(mb)) = (fs::symlink_metadata(a), fs::symlink_metadata(b)) else {
         return false;
     };
-    match (file_key(&ma), file_key(&mb)) {
-        (Some(ka), Some(kb)) => ka == kb,
+    match (path_identity(a, false), path_identity(b, false)) {
+        (Some(ka), Some(kb)) => (ka.0, ka.1) == (kb.0, kb.1),
         _ => match (fs::canonicalize(a), fs::canonicalize(b)) {
             (Ok(ca), Ok(cb)) => {
                 ca == cb && ma.file_type().is_symlink() == mb.file_type().is_symlink()

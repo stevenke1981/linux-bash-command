@@ -71,7 +71,15 @@ pub fn raw_stat(path: &Path, meta: &Metadata) -> RawStat {
     } else {
         S_IFREG
     };
-    let (ino, nlink) = crate::common::meta::inode_nlink(meta);
+    // Identity is read from the file itself, so du and stat can tell entries apart. A
+    // symbolic link is identified by its own entry, not its target.
+    let (dev, ino, nlink) =
+        crate::common::meta::path_identity(path, !meta.file_type().is_symlink()).unwrap_or_else(
+            || {
+                let (ino, nlink) = crate::common::meta::inode_nlink(meta);
+                (0, ino, nlink)
+            },
+        );
     let permissions = crate::common::meta::permission_bits(path, meta);
     let modified = meta
         .modified()
@@ -85,7 +93,7 @@ pub fn raw_stat(path: &Path, meta: &Metadata) -> RawStat {
         .unwrap_or(modified);
     let blocks = meta.len().div_ceil(4096) * 8;
     RawStat {
-        dev: 0,
+        dev,
         ino,
         mode: kind | permissions,
         nlink,
@@ -271,7 +279,9 @@ mod tests {
 
     #[test]
     fn system_time_pair_handles_epoch() {
-        let t = std::time::SystemTime::UNIX_EPOCH + std::time::Duration::new(7, 5);
-        assert_eq!(system_time_pair(t), Some((7, 5)));
+        // Windows stores times in 100 ns ticks, so the sub-second part must be a multiple of
+        // 100 ns to survive on every platform.
+        let t = std::time::SystemTime::UNIX_EPOCH + std::time::Duration::new(7, 500);
+        assert_eq!(system_time_pair(t), Some((7, 500)));
     }
 }
