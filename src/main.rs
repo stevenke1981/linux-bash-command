@@ -1,60 +1,76 @@
-use agentcmd::{diff, files, search};
+use agentcmd::registry::{self, UTILITIES};
+use std::path::Path;
 
-const HELP: &str = "agentcmd — read-only tools for coding agents
-
-Usage: agentcmd <COMMAND> [OPTIONS]
-
-Commands:
-  search  Search text in files recursively
-  diff    Compare two text files
-  list    List files in a directory
-  read    Read numbered lines from a file
-  help    Show this help or help for a command
-
-Use 'agentcmd <COMMAND> --help' for command-specific usage.
-Exit status: 0 for success, 1 for no search matches or differing files, 2 for errors.";
+fn dispatch(name: &str, args: &[String]) -> i32 {
+    match registry::find(name) {
+        Some(utility) => (utility.run)(args),
+        None => {
+            eprintln!("agentcmd: function/utility not found: {name}");
+            1
+        }
+    }
+}
 
 fn main() {
-    let args = std::env::args_os()
-        .skip(1)
-        .map(|arg| arg.into_string())
-        .collect::<Result<Vec<_>, _>>()
-        .unwrap_or_else(|_| {
-            eprintln!("agentcmd: arguments must be valid UTF-8");
-            std::process::exit(2);
-        });
-
-    let status = match args.first().map(String::as_str) {
-        None | Some("help" | "--help" | "-h") if args.len() <= 1 => {
-            println!("{HELP}");
-            0
-        }
-        Some("--version" | "-V") if args.len() == 1 => {
-            println!("agentcmd {}", env!("CARGO_PKG_VERSION"));
-            0
-        }
-        Some("help") if args.len() == 2 => {
-            let help = vec!["--help".to_string()];
-            match args[1].as_str() {
-                "search" => search::run(&help),
-                "diff" => diff::run(&help),
-                "list" => files::list(&help),
-                "read" => files::read(&help),
-                command => {
-                    eprintln!("agentcmd: unknown command '{command}'");
-                    2
+    let argv0 = std::env::args_os().next().unwrap_or_default();
+    let basename = Path::new(&argv0)
+        .file_name()
+        .unwrap_or_default()
+        .to_string_lossy();
+    let basename = if basename.to_ascii_lowercase().ends_with(".exe") {
+        &basename[..basename.len() - 4]
+    } else {
+        &basename
+    };
+    let args = agentcmd::arguments("agentcmd");
+    let status = if basename == "agentcmd" || basename.ends_with("utils") {
+        match args.first().map(String::as_str) {
+            None => {
+                eprintln!("agentcmd: missing argument");
+                1
+            }
+            Some("--list") if args.len() == 1 => {
+                for utility in UTILITIES {
+                    println!("{}", utility.name);
                 }
+                0
+            }
+            Some("--list") => {
+                eprintln!("agentcmd: invalid argument");
+                1
+            }
+            Some("--version" | "-V") => {
+                println!("agentcmd {} (multi-call binary)", env!("CARGO_PKG_VERSION"));
+                0
+            }
+            Some("--help" | "-h" | "help") if args.len() == 1 => {
+                println!("Usage: agentcmd <utility> [arguments]\n\nUtilities:");
+                for utility in UTILITIES {
+                    println!("  {:<8} {}", utility.name, utility.summary);
+                }
+                0
+            }
+            Some("--help" | "-h" | "help") if args.len() == 2 => {
+                dispatch(&args[1], &["--help".to_owned()])
+            }
+            Some(arg) if arg.starts_with('-') => {
+                eprintln!("agentcmd: unrecognized option '{arg}'");
+                1
+            }
+            Some(name) => dispatch(name, &args[1..]),
+        }
+    } else {
+        let matched = UTILITIES
+            .iter()
+            .filter(|u| basename.ends_with(u.name))
+            .max_by_key(|u| u.name.len());
+        match matched {
+            Some(utility) => (utility.run)(&args),
+            None => {
+                eprintln!("agentcmd: function/utility not found: {basename}");
+                1
             }
         }
-        Some("search") => search::run(&args[1..]),
-        Some("diff") => diff::run(&args[1..]),
-        Some("list") => files::list(&args[1..]),
-        Some("read") => files::read(&args[1..]),
-        Some(command) => {
-            eprintln!("agentcmd: unknown command or invalid arguments '{command}'\nUse 'agentcmd --help' for usage.");
-            2
-        }
-        None => unreachable!(),
     };
     std::process::exit(status);
 }

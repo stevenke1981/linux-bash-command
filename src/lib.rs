@@ -1,3 +1,4 @@
+pub mod cd_command;
 pub mod curl_command;
 pub mod df_command;
 pub mod diff;
@@ -7,6 +8,7 @@ pub mod fs_commands;
 pub mod grep_command;
 pub mod less_command;
 pub mod ps_command;
+pub mod registry;
 pub mod search;
 pub mod text_commands;
 

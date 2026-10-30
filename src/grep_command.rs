@@ -875,12 +875,10 @@ impl<'a, W: Write> Grep<'a, W> {
                         self.walk(&entry.path(), &child_shown);
                     }
                 }
-                Some(EntryKind::File) => {
-                    if self.name_allowed(&name) {
-                        self.search_file(&entry.path(), &child_label);
-                    }
+                Some(EntryKind::File) if self.name_allowed(&name) => {
+                    self.search_file(&entry.path(), &child_label);
                 }
-                None => {}
+                Some(EntryKind::File) | None => {}
             }
         }
     }

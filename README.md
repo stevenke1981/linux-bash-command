@@ -13,7 +13,7 @@ cargo build --release --bins
 cargo test
 ```
 
-The executables are in `target/release/`, with `.exe` extensions on Windows: `search`, `diff`, `list`, `read`, `rg`, `ls`, `pwd`, `cd`, `cat`, `less`, `head`, `tail`, `grep`, `find`, `ps`, `df`, and `curl`. Each executable accepts its arguments directly; for example, run `search --help`. The previous combined `agentcmd` binary remains available for compatibility.
+The executables are in `target/release/`, with `.exe` extensions on Windows: `search`, `diff`, `list`, `read`, `rg`, `ls`, `pwd`, `cd`, `cat`, `less`, `head`, `tail`, `grep`, `find`, `ps`, `df`, and `curl`. Each executable accepts its arguments directly; for example, run `search --help`. The `agentcmd` multi-call binary also runs each command as `agentcmd <command> ...`; `agentcmd --list` lists available commands. Calling `agentcmd` without arguments now reports an error and exits 1. A copy named after a command dispatches to that command.
 
 Add the release directory to your shell's PATH to call the executables by name. For the current PowerShell session:
 
@@ -56,7 +56,7 @@ env read --start 20 --limit 30 src/main.rs
 diff --context 3 old.txt new.txt
 ```
 
-Use `--` before positional arguments that begin with a dash. Arguments must be valid UTF-8. Commands write result data to standard output and errors to standard error. Search returns **0** for matches, **1** for none and **2** for errors; diff returns **0** for equal files, **1** for differences and **2** for errors. Most other commands return **0** for success and **2** for errors; `curl -f` returns **22** for HTTP error responses. Search can emit partial results before reporting an error, so always check the exit status.
+Use `--` before positional arguments that begin with a dash. Arguments must be valid UTF-8. Commands write result data to standard output and errors to standard error. Search returns **0** for matches, **1** for none and **2** for errors; diff returns **0** for equal files, **1** for differences and **2** for errors. `cd` returns **1** for errors; most other commands currently return **0** for success and **2** for errors; `curl -f` returns **22** for HTTP error responses. Search can emit partial results before reporting an error, so always check the exit status.
 
 ### Search
 

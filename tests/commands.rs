@@ -164,7 +164,7 @@ fn filesystem_tools_list_find_and_resolve_directories() {
             .unwrap(),
         f.0.join("sub").canonicalize().unwrap()
     );
-    assert_eq!(f.run("cd", &["visible.txt"], b"").status.code(), Some(2));
+    assert_eq!(f.run("cd", &["visible.txt"], b"").status.code(), Some(1));
 }
 
 #[test]
