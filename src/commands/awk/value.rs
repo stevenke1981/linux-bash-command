@@ -25,10 +25,6 @@ impl Value {
         }
     }
 
-    pub fn from_str_lossy(text: &str) -> Value {
-        Value::Str(text.as_bytes().to_vec())
-    }
-
     /// Numeric value (POSIX conversion of strings and uninitialized values).
     pub fn to_num(&self) -> f64 {
         match self {
@@ -70,7 +66,7 @@ impl Value {
     }
 }
 
-/// Converts a number to a string: integral values within the `long` range print as integers,
+/// Converts a number to a string: integral values print as exact integers (as gawk does),
 /// everything else is formatted with `fmt` (`CONVFMT` or `OFMT`).
 pub fn number_to_string(n: f64, fmt: &[u8]) -> Vec<u8> {
     if n.is_nan() {
@@ -81,8 +77,11 @@ pub fn number_to_string(n: f64, fmt: &[u8]) -> Vec<u8> {
     if n.is_infinite() {
         return (if n < 0.0 { "-inf" } else { "inf" }).as_bytes().to_vec();
     }
-    if n.fract() == 0.0 && n > i64::MIN as f64 && n < i64::MAX as f64 {
-        return (n as i64).to_string().into_bytes();
+    if n.fract() == 0.0 {
+        if n > i64::MIN as f64 && n < i64::MAX as f64 {
+            return (n as i64).to_string().into_bytes();
+        }
+        return format!("{n:.0}").into_bytes();
     }
     sprintf(fmt, &[Value::Num(n)], fmt)
 }
@@ -209,7 +208,10 @@ mod tests {
         assert_eq!(number_to_string(3.0, CONV), b"3".to_vec());
         assert_eq!(number_to_string(-0.0, CONV), b"0".to_vec());
         assert_eq!(number_to_string(1e17, CONV), b"100000000000000000".to_vec());
-        assert_eq!(number_to_string(1e30, CONV), b"1e+30".to_vec());
+        assert_eq!(
+            number_to_string(1e30, CONV),
+            b"1000000000000000019884624838656".to_vec()
+        );
     }
 
     #[test]

@@ -231,10 +231,6 @@ impl Symbols {
     pub fn len(&self) -> usize {
         self.names.len()
     }
-
-    pub fn is_empty(&self) -> bool {
-        self.names.is_empty()
-    }
 }
 
 impl Default for Symbols {
@@ -262,6 +258,6 @@ mod tests {
         let first = symbols.intern("total");
         assert_eq!(symbols.intern("total"), first);
         assert!(first >= SPECIAL_NAMES.len());
-        assert!(!symbols.is_empty());
+        assert!(symbols.len() > SPECIAL_NAMES.len());
     }
 }
