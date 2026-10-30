@@ -1,0 +1,144 @@
+{
+  "command": "numfmt",
+  "cases": [
+    {
+      "name": "plain_number_unchanged",
+      "args": ["1024"]
+    },
+    {
+      "name": "to_si_millions",
+      "args": ["--to=si", "1000000"]
+    },
+    {
+      "name": "to_iec_mebibyte",
+      "args": ["--to=iec", "1048576"]
+    },
+    {
+      "name": "to_iec_i_suffix",
+      "args": ["--to=iec-i", "1536"]
+    },
+    {
+      "name": "from_si_kilo",
+      "args": ["--from=si", "1K"]
+    },
+    {
+      "name": "from_iec_kibi",
+      "args": ["--from=iec", "4K"]
+    },
+    {
+      "name": "from_iec_i_suffix",
+      "args": ["--from=iec-i", "4Ki"]
+    },
+    {
+      "name": "from_auto_si_suffix",
+      "args": ["--from=auto", "4K"]
+    },
+    {
+      "name": "to_si_rounds_up_one_decimal",
+      "args": ["--to=si", "1234"]
+    },
+    {
+      "name": "to_si_rolls_into_next_unit",
+      "args": ["--to=si", "999999"]
+    },
+    {
+      "name": "round_down",
+      "args": ["--to=si", "--round=down", "1234567"]
+    },
+    {
+      "name": "format_width_applies_to_number",
+      "args": ["--to=iec", "--format=%10f", "2048"]
+    },
+    {
+      "name": "format_text_around_number",
+      "args": ["--format=x%.2fy", "1500"]
+    },
+    {
+      "name": "padding_right_aligns",
+      "args": ["--padding=6", "5"]
+    },
+    {
+      "name": "padding_negative_left_aligns",
+      "args": ["--padding=-8", "--to=iec", "4096"]
+    },
+    {
+      "name": "suffix_is_appended",
+      "args": ["--to=iec", "--suffix=B", "4096"]
+    },
+    {
+      "name": "from_unit_scales_input",
+      "args": ["--from-unit=512", "--to=iec", "8"]
+    },
+    {
+      "name": "to_unit_scales_output",
+      "args": ["--to-unit=1000", "1500"]
+    },
+    {
+      "name": "below_base_rounds_to_nearest_even",
+      "args": ["--to=si", "0.5"]
+    },
+    {
+      "name": "field_selects_second_field",
+      "args": ["--field=2", "--to=iec"],
+      "stdin": "abc 4096 x\n"
+    },
+    {
+      "name": "delimiter_splits_fields",
+      "args": ["-d,", "--field=2", "--to=iec"],
+      "stdin": "a,4096,b\n"
+    },
+    {
+      "name": "whitespace_separators_are_kept",
+      "args": ["--field=2", "--to=iec"],
+      "stdin": "a  4096   b\n"
+    },
+    {
+      "name": "header_lines_pass_through",
+      "args": ["--header", "--to=iec"],
+      "stdin": "h1 h2\n4096 1048576\n"
+    },
+    {
+      "name": "invalid_warn_continues",
+      "args": ["--invalid=warn", "--to=iec"],
+      "stdin": "x\n4096\n"
+    },
+    {
+      "name": "invalid_fail_exit_two",
+      "args": ["--invalid=fail", "--to=iec"],
+      "stdin": "x\n4096\n"
+    },
+    {
+      "name": "invalid_abort_stops_after_output",
+      "args": ["--to=iec"],
+      "stdin": "4096\n\n8192\n"
+    },
+    {
+      "name": "unterminated_last_line_stays_unterminated",
+      "args": ["--to=iec"],
+      "stdin": "4096"
+    },
+    {
+      "name": "zero_terminated_records",
+      "args": ["-z", "--to=iec"],
+      "stdin_hex": "34303936"
+    },
+    {
+      "name": "bad_round_method_is_usage_error",
+      "args": ["--round=bogus", "3"]
+    },
+    {
+      "name": "suffix_without_from_is_rejected",
+      "args": ["1K"]
+    },
+    {
+      "name": "negative_input_keeps_sign",
+      "args": ["--to=iec"],
+      "stdin": "-4096\n"
+    },
+    {
+      "name": "huge_plain_number_is_gnu_error",
+      "args": ["12345678901234567890"],
+      "skip_reason": "GNU rejects values it cannot print without --to with 'value too large to be printed'; f64 keeps the digits. Not implemented."
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "command": "factor",
+  "cases": [
+    {
+      "name": "several_small_numbers",
+      "args": ["1", "2", "12", "97", "360"]
+    },
+    {
+      "name": "exponents_form",
+      "args": ["-h", "12"]
+    },
+    {
+      "name": "exponents_form_with_one",
+      "args": ["-h", "25", "1"]
+    },
+    {
+      "name": "zero_has_no_factors",
+      "args": ["0"]
+    },
+    {
+      "name": "negative_is_invalid",
+      "args": ["--", "-5"]
+    },
+    {
+      "name": "non_numeric_is_invalid",
+      "args": ["abc"]
+    },
+    {
+      "name": "large_primes_pair",
+      "args": ["9999999967", "18446744073709551557"]
+    },
+    {
+      "name": "product_of_small_primes",
+      "args": ["1000000007", "2", "3", "4"]
+    },
+    {
+      "name": "powers_of_two",
+      "args": ["4294967296"]
+    },
+    {
+      "name": "tokens_from_stdin",
+      "args": [],
+      "stdin": "12 13\n17\n"
+    },
+    {
+      "name": "project_euler_number",
+      "args": ["600851475143"]
+    },
+    {
+      "name": "mersenne_and_fermat_primes",
+      "args": ["2147483647", "65537"]
+    },
+    {
+      "name": "largest_prime_below_2_64",
+      "args": ["999999999999999989"]
+    },
+    {
+      "name": "two_to_the_64",
+      "args": ["18446744073709551616"]
+    },
+    {
+      "name": "beyond_u128_is_skipped",
+      "args": ["340282366920938463463374607431768211457"],
+      "skip_reason": "GNU factors arbitrary precision integers; agentcmd uses u128 and reports 'is too large' above that (known difference)."
+    }
+  ]
+}

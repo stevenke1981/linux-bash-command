@@ -1,0 +1,128 @@
+{
+  "command": "expr",
+  "cases": [
+    {
+      "name": "precedence_multiplication_first",
+      "args": ["1", "+", "2", "*", "3"]
+    },
+    {
+      "name": "parentheses_group",
+      "args": ["(", "1", "+", "2", ")", "*", "3"]
+    },
+    {
+      "name": "integer_division_truncates_toward_zero",
+      "args": ["-7", "/", "2"]
+    },
+    {
+      "name": "remainder_takes_sign_of_dividend",
+      "args": ["-7", "%", "2"]
+    },
+    {
+      "name": "numeric_comparison",
+      "args": ["10", ">", "9"]
+    },
+    {
+      "name": "string_comparison_when_not_numbers",
+      "args": ["10", "<", "9x"]
+    },
+    {
+      "name": "or_returns_left_when_truthy",
+      "args": ["0", "|", "x"]
+    },
+    {
+      "name": "and_zero_result_exits_one",
+      "args": ["5", "&", "0"]
+    },
+    {
+      "name": "match_returns_group",
+      "args": ["abc", ":", "a\\(b\\)c"]
+    },
+    {
+      "name": "match_without_group_no_match_is_zero",
+      "args": ["abc", ":", "b"]
+    },
+    {
+      "name": "match_length",
+      "args": ["abc", ":", ".*"]
+    },
+    {
+      "name": "match_keyword_form",
+      "args": ["match", "abc", "a\\(b\\)"]
+    },
+    {
+      "name": "length_counts_bytes",
+      "args": ["length", "abc"]
+    },
+    {
+      "name": "substr_one_based",
+      "args": ["substr", "abcdef", "2", "3"]
+    },
+    {
+      "name": "substr_zero_position_is_empty",
+      "args": ["substr", "abc", "0", "2"]
+    },
+    {
+      "name": "index_first_match",
+      "args": ["index", "abc", "c"]
+    },
+    {
+      "name": "index_empty_set_is_zero",
+      "args": ["index", "abc", ""]
+    },
+    {
+      "name": "plus_token_is_literal",
+      "args": ["+", "1", "+", "2"]
+    },
+    {
+      "name": "leading_double_dash_ends_options",
+      "args": ["--", "-3", "+", "1"]
+    },
+    {
+      "name": "leading_zeros_are_decimal",
+      "args": ["007", "+", "1"]
+    },
+    {
+      "name": "two_operands_are_syntax_error",
+      "args": ["1", "2"]
+    },
+    {
+      "name": "dangling_operator_is_syntax_error",
+      "args": ["1", "+"]
+    },
+    {
+      "name": "unmatched_paren_is_syntax_error",
+      "args": ["(", "1"]
+    },
+    {
+      "name": "help_is_only_special_as_sole_argument",
+      "args": ["5", "--help"]
+    },
+    {
+      "name": "empty_string_result_exits_one",
+      "args": [""]
+    },
+    {
+      "name": "only_double_dash_is_missing_operand",
+      "args": ["--"]
+    },
+    {
+      "name": "largest_i64_plus_one",
+      "args": ["9223372036854775807", "+", "1"]
+    },
+    {
+      "name": "division_by_zero_is_skipped",
+      "args": ["1", "/", "0"],
+      "skip_reason": "GNU exits 2 for division by zero; the specification requires exit 3 for evaluation errors (known difference)."
+    },
+    {
+      "name": "non_integer_argument_is_skipped",
+      "args": ["x", "+", "1"],
+      "skip_reason": "GNU exits 2 for a non-integer argument; the specification requires exit 3 for evaluation errors (known difference)."
+    },
+    {
+      "name": "bignum_product_is_skipped",
+      "args": ["99999999999999999999", "*", "99999999999"],
+      "skip_reason": "GNU computes with arbitrary precision integers; agentcmd uses i128 and reports overflow with exit 3 (known difference)."
+    }
+  ]
+}

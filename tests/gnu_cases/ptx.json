@@ -1,0 +1,140 @@
+{
+  "command": "ptx",
+  "cases": [
+    {
+      "name": "default_single_line",
+      "args": [],
+      "stdin": "one two three four five\n"
+    },
+    {
+      "name": "default_width_20",
+      "args": ["-w", "20"],
+      "stdin": "one two three four five\n"
+    },
+    {
+      "name": "default_gap_5",
+      "args": ["-g", "5"],
+      "stdin": "one two three four five\n"
+    },
+    {
+      "name": "default_two_lines_share_context",
+      "args": [],
+      "stdin": "a b\nc d\n"
+    },
+    {
+      "name": "traditional_roff_lines",
+      "args": ["-G"],
+      "stdin": "one two three four five\n"
+    },
+    {
+      "name": "traditional_keeps_context_on_each_line",
+      "args": ["-G"],
+      "stdin": "a b\nc d\n"
+    },
+    {
+      "name": "traditional_width_20",
+      "args": ["-G", "-w", "20"],
+      "stdin": "one two three four five\n"
+    },
+    {
+      "name": "roff_format_option",
+      "args": ["-O"],
+      "stdin": "one two three four five\n"
+    },
+    {
+      "name": "roff_macro_name",
+      "args": ["-O", "-M", "XX"],
+      "stdin": "a b\nc d\n"
+    },
+    {
+      "name": "tex_format_option",
+      "args": ["-T"],
+      "stdin": "one two three four five\n"
+    },
+    {
+      "name": "punctuation_is_part_of_word",
+      "args": ["-G"],
+      "stdin": "a-b c_d e.f\n"
+    },
+    {
+      "name": "ignore_file_removes_keyword",
+      "args": ["-G", "-i", "ign.txt"],
+      "files": {"ign.txt": "b\n"},
+      "stdin": "a b\nc d\n"
+    },
+    {
+      "name": "only_file_limits_keywords",
+      "args": ["-G", "-o", "only.txt"],
+      "files": {"only.txt": "d\n"},
+      "stdin": "a b\nc d\n"
+    },
+    {
+      "name": "ignore_case_traditional",
+      "args": ["-G", "-f"],
+      "stdin": "a b\nc d\n"
+    },
+    {
+      "name": "sentence_regexp_splits_words",
+      "args": ["-G", "-S", ";"],
+      "stdin": "a;b;c\n"
+    },
+    {
+      "name": "word_regexp_selects_keywords",
+      "args": ["-G", "-W", "[a-z]+"],
+      "stdin": "foo-bar baz\n"
+    },
+    {
+      "name": "auto_reference_file_name",
+      "args": ["-G", "-A", "s3.txt"],
+      "files": {"s3.txt": "a b\nc d\n"}
+    },
+    {
+      "name": "flag_truncation_option",
+      "args": ["-G", "-F", "/", "-w", "20"],
+      "stdin": "one two three four five\n"
+    },
+    {
+      "name": "gap_zero_is_error",
+      "args": ["-g", "0"],
+      "stdin": "a b\n"
+    },
+    {
+      "name": "missing_file_is_error",
+      "args": ["nosuch.txt"]
+    },
+    {
+      "name": "traditional_empty_input",
+      "args": ["-G"],
+      "stdin": ""
+    },
+    {
+      "name": "typeset_option_accepted",
+      "args": ["-t"],
+      "stdin": "a b\nc d\n"
+    },
+    {
+      "name": "wrapped_default_context_is_skipped",
+      "args": ["-w", "30"],
+      "stdin": "one two three four five\n",
+      "skip_reason": "GNU wraps context into 'tail' and 'head' fields with '/' markers when a line is too long; not implemented (known difference)."
+    },
+    {
+      "name": "long_default_context_is_skipped",
+      "args": [],
+      "stdin": "the quick brown fox\njumps over the lazy dog\n",
+      "skip_reason": "Default context wraps around the input; GNU tail and head fields are not implemented (known difference)."
+    },
+    {
+      "name": "right_side_references_are_skipped",
+      "args": ["-R"],
+      "stdin": "a b\nc d\n",
+      "skip_reason": "-R changes the column layout in GNU; not implemented (known difference)."
+    },
+    {
+      "name": "tiny_width_is_skipped",
+      "args": ["-w", "3"],
+      "stdin": "a b c\n",
+      "skip_reason": "Layout for widths below the gap plus marker follows GNU's tail/head rules; not reproduced (known difference)."
+    }
+  ]
+}

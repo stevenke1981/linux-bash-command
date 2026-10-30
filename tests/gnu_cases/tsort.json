@@ -1,0 +1,74 @@
+{
+  "command": "tsort",
+  "cases": [
+    {
+      "name": "two_chains",
+      "args": [],
+      "stdin": "a b\nc d\n"
+    },
+    {
+      "name": "two_chains_reversed_input",
+      "args": [],
+      "stdin": "c d\na b\n"
+    },
+    {
+      "name": "successors_released_last_added_first",
+      "args": [],
+      "stdin": "a b b c a d\n"
+    },
+    {
+      "name": "fan_out_order",
+      "args": [],
+      "stdin": "a d\na b\na c\n"
+    },
+    {
+      "name": "self_edge_is_ignored",
+      "args": [],
+      "stdin": "a a\n"
+    },
+    {
+      "name": "repeated_edge_counts_once",
+      "args": [],
+      "stdin": "a b a b\n"
+    },
+    {
+      "name": "two_node_loop",
+      "args": [],
+      "stdin": "a b\nb a\n"
+    },
+    {
+      "name": "loop_beside_independent_chain",
+      "args": [],
+      "stdin": "a b\nb c\nc a\nd e\n"
+    },
+    {
+      "name": "loop_with_dead_end_branch",
+      "args": [],
+      "stdin": "a b\nb c\nc b\nc d\n"
+    },
+    {
+      "name": "odd_token_count_is_error",
+      "args": [],
+      "stdin": "a b\nc\n"
+    },
+    {
+      "name": "empty_input",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "file_operand",
+      "args": ["g.txt"],
+      "files": {"g.txt": "x y\ny z\n"}
+    },
+    {
+      "name": "missing_file_is_error",
+      "args": ["nofile"]
+    },
+    {
+      "name": "two_loops_then_chain",
+      "args": [],
+      "stdin": "p q\nq r\nr p\ns t\nt u\n"
+    }
+  ]
+}

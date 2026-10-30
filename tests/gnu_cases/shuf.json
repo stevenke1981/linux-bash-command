@@ -1,0 +1,85 @@
+{
+  "command": "shuf",
+  "cases": [
+    {
+      "name": "echo_zero_count",
+      "args": ["-n", "0", "-e", "a", "b", "c"]
+    },
+    {
+      "name": "range_zero_count",
+      "args": ["-i", "1-5", "-n", "0"]
+    },
+    {
+      "name": "range_permutation_sorted",
+      "args": ["-i", "1-5"],
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "range_plus_sign_zero_count",
+      "args": ["-i", "+3-5", "-n", "0"]
+    },
+    {
+      "name": "range_empty_zero_count",
+      "args": ["-i", "3-2", "-n", "0"]
+    },
+    {
+      "name": "echo_permutation_sorted",
+      "args": ["-e", "a", "b", "c", "d"],
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "stdin_permutation_sorted",
+      "args": [],
+      "stdin": "x\ny\nz\n",
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "file_zero_count",
+      "args": ["-n", "0", "in.txt"],
+      "files": {"in.txt": "a\nb\n"}
+    },
+    {
+      "name": "repeat_echo_count",
+      "args": ["-r", "-n", "3", "-e", "a"]
+    },
+    {
+      "name": "repeat_zero_count_empty_input",
+      "args": ["-r", "-n", "0"],
+      "stdin": ""
+    },
+    {
+      "name": "repeat_empty_input_is_error",
+      "args": ["-r", "-n", "2"],
+      "stdin": ""
+    },
+    {
+      "name": "echo_with_input_range_is_error",
+      "args": ["-e", "-i", "1-3"]
+    },
+    {
+      "name": "descending_range_is_error",
+      "args": ["-i", "5-1"]
+    },
+    {
+      "name": "invalid_count_is_error",
+      "args": ["-n", "x", "-e", "a"]
+    },
+    {
+      "name": "extra_operand_is_error",
+      "args": ["a", "b"]
+    },
+    {
+      "name": "missing_file_is_error",
+      "args": ["nofile"]
+    },
+    {
+      "name": "zero_terminated_zero_count",
+      "args": ["-z", "-n", "0"],
+      "stdin_hex": "610062"
+    },
+    {
+      "name": "full_64_bit_range_is_error",
+      "args": ["-n", "0", "-i", "0-18446744073709551615"]
+    }
+  ]
+}
