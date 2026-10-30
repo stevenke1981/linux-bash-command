@@ -2,7 +2,7 @@ use crate::common::args::prepare_legacy;
 use crate::common::error::EXIT_FAIL;
 use crate::common::size::human;
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use sysinfo::{Disk, Disks};
 
 const HELP: &str = "Usage: df [OPTION]... [FILE]...
@@ -21,13 +21,19 @@ Size options (last one wins):
 Other options:
   -T, --print-type        Include the filesystem type column
   -P, --portability       POSIX output: 1024-blocks style header, Capacity column
+      --output[=FIELD_LIST]
+                          Show the fields in FIELD_LIST, in order: source, fstype,
+                          size, used, avail, pcent, file, target. Without a list the
+                          default fields are shown. Mutually exclusive with -T and -P
+      --total             Append a grand total row
   -l, --local             Only local filesystems (common network types are excluded)
   -a, --all               Accepted; only mounted storage that the OS reports is listed
   -t, --type=TYPE         Only filesystems of TYPE (repeatable)
   -x, --exclude-type=TYPE Exclude filesystems of TYPE (repeatable)
       --help              Show this help
 
-Not supported: -i (inode usage), because the OS interface does not report inode counts.
+Not supported: -i and --inodes (inode usage), and the itotal, iused, iavail and
+ipcent fields of --output, because the OS interface does not report inode counts.
 Available space and percentages can differ from GNU df because each OS reports
 capacity differently. The Filesystem column shows the device name on Unix and the
 drive letter on Windows.
@@ -52,6 +58,30 @@ const NETWORK_TYPES: &[&str] = &[
     "vmhgfs",
 ];
 
+/// Fields of `--output`, in GNU order.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Field {
+    Source,
+    FsType,
+    Size,
+    Used,
+    Avail,
+    Pcent,
+    File,
+    Target,
+}
+
+/// The fields shown when `--output` has no list (inode fields are not available).
+const DEFAULT_OUTPUT: &[Field] = &[
+    Field::Source,
+    Field::FsType,
+    Field::Size,
+    Field::Used,
+    Field::Avail,
+    Field::Pcent,
+    Field::Target,
+];
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum Size {
     /// Fixed block size in bytes.
@@ -67,6 +97,9 @@ struct Options {
     local: bool,
     include_types: Vec<String>,
     exclude_types: Vec<String>,
+    /// `Some` when `--output` was given (possibly with the default list).
+    output: Option<Vec<Field>>,
+    total: bool,
     paths: Vec<PathBuf>,
 }
 
@@ -83,9 +116,11 @@ const DF_LONGS: &[&str] = &[
     "human-readable",
     "inodes",
     "local",
+    "output",
     "portability",
     "print-type",
     "si",
+    "total",
     "type",
 ];
 
@@ -121,14 +156,33 @@ pub fn run(args: &[String]) -> i32 {
     }
 
     let (selected, had_error) = select(mounted, &options.paths);
-    let mut selected: Vec<&Disk> = selected
+    let mut selected: Vec<(&Disk, Option<String>)> = selected
         .into_iter()
-        .filter(|disk| keeps(disk, &options))
+        .filter(|(disk, _)| keeps(disk, &options))
         .collect();
-    selected.sort_by(|left, right| left.mount_point().cmp(right.mount_point()));
+    selected.sort_by(|left, right| left.0.mount_point().cmp(right.0.mount_point()));
 
-    let rows: Vec<Vec<String>> = selected.iter().map(|disk| row(disk, &options)).collect();
-    print_table(&headers(&options), &rows, &options);
+    let fields = active_fields(&options);
+    let mut rows: Vec<Vec<String>> = selected
+        .iter()
+        .map(|(disk, file)| cells(&Metrics::of(disk, file.clone()), &fields, &options))
+        .collect();
+    if options.total {
+        let metrics: Vec<Metrics> = selected
+            .iter()
+            .map(|(disk, _)| Metrics::of(disk, None))
+            .collect();
+        rows.push(cells(&Metrics::total(&metrics), &fields, &options));
+    }
+    let text = fields
+        .iter()
+        .map(|field| is_text(*field))
+        .collect::<Vec<_>>();
+    let headers: Vec<String> = fields
+        .iter()
+        .map(|field| header(*field, &options))
+        .collect();
+    print_table(&headers, &rows, &text);
     if had_error {
         1
     } else {
@@ -137,7 +191,6 @@ pub fn run(args: &[String]) -> i32 {
 }
 
 fn parse(args: &[String]) -> Result<Parsed, String> {
-    let mut size = Size::Blocks(1024);
     let mut options = Options {
         size: Size::Blocks(1024),
         portability: false,
@@ -145,8 +198,11 @@ fn parse(args: &[String]) -> Result<Parsed, String> {
         local: false,
         include_types: Vec::new(),
         exclude_types: Vec::new(),
+        output: None,
+        total: false,
         paths: Vec::new(),
     };
+    let mut size = Size::Blocks(1024);
     let mut index = 0;
     let mut operands_only = false;
     while index < args.len() {
@@ -173,7 +229,17 @@ fn parse(args: &[String]) -> Result<Parsed, String> {
         }
     }
     options.size = size;
+    if options.output.is_some() && (options.print_type || options.portability) {
+        let other = if options.print_type { "-T" } else { "-P" };
+        return Err(format!(
+            "options '--output' and '{other}' are mutually exclusive"
+        ));
+    }
     Ok(Parsed::Run(options))
+}
+
+fn unsupported_inode(option: &str) -> String {
+    format!("option '{option}' is not supported by agentcmd")
 }
 
 fn apply_flag(letter: char, size: &mut Size, options: &mut Options) -> Result<(), String> {
@@ -186,13 +252,8 @@ fn apply_flag(letter: char, size: &mut Size, options: &mut Options) -> Result<()
         'P' => options.portability = true,
         'l' => options.local = true,
         'a' => {}
-        'i' => {
-            return Err(
-                "-i (inode usage) is not available: the OS interface does not report inode counts"
-                    .to_string(),
-            )
-        }
-        other => return Err(format!("unknown option: -{other}")),
+        'i' => return Err(unsupported_inode("-i")),
+        other => return Err(format!("invalid option -- '{other}'")),
     }
     Ok(())
 }
@@ -246,7 +307,9 @@ fn parse_long(
         "portability" => options.portability = true,
         "local" => options.local = true,
         "all" => {}
-        "inodes" => return apply_flag('i', size, options),
+        "total" => options.total = true,
+        "inodes" => return Err(unsupported_inode("--inodes")),
+        "output" => options.output = Some(parse_output(inline)?),
         "block-size" | "type" | "exclude-type" => {
             let value = match inline {
                 Some(value) => value.to_string(),
@@ -266,9 +329,42 @@ fn parse_long(
             };
             apply_value(letter, &value, size, options)?;
         }
-        _ => return Err(format!("unknown option: --{name}")),
+        _ => return Err(format!("unrecognized option '--{name}'")),
     }
     Ok(())
+}
+
+/// Parses the `--output=FIELD_LIST` value. Without a list, the default fields are used.
+fn parse_output(list: Option<&str>) -> Result<Vec<Field>, String> {
+    let Some(list) = list else {
+        return Ok(DEFAULT_OUTPUT.to_vec());
+    };
+    let mut fields: Vec<Field> = Vec::new();
+    for name in list.split(',') {
+        let field = match name {
+            "source" => Field::Source,
+            "fstype" => Field::FsType,
+            "size" => Field::Size,
+            "used" => Field::Used,
+            "avail" => Field::Avail,
+            "pcent" => Field::Pcent,
+            "file" => Field::File,
+            "target" => Field::Target,
+            "itotal" | "iused" | "iavail" | "ipcent" => {
+                return Err(format!(
+                    "option '--output' field '{name}' is not supported by agentcmd"
+                ))
+            }
+            _ => return Err(format!("option '--output': field '{name}' is unknown")),
+        };
+        if fields.contains(&field) {
+            return Err(format!(
+                "option '--output': field '{name}' is used more than once"
+            ));
+        }
+        fields.push(field);
+    }
+    Ok(fields)
 }
 
 /// Parses `N`, `K`, `M`, `G`, `T`, `P` (powers of 1024), or `KB`, `MB`, ... (powers of 1000),
@@ -303,12 +399,13 @@ fn parse_block_size(text: &str) -> Result<u64, String> {
     Ok(bytes)
 }
 
-/// Returns the mounts to report and whether a path could not be resolved.
-fn select<'a>(mounted: &'a [Disk], paths: &[PathBuf]) -> (Vec<&'a Disk>, bool) {
+/// Returns the mounts to report, each with the path operand that selected it, and whether a
+/// path could not be resolved.
+fn select<'a>(mounted: &'a [Disk], paths: &[PathBuf]) -> (Vec<(&'a Disk, Option<String>)>, bool) {
     if paths.is_empty() {
-        return (mounted.iter().collect(), false);
+        return (mounted.iter().map(|disk| (disk, None)).collect(), false);
     }
-    let mut selected: Vec<&Disk> = Vec::new();
+    let mut selected: Vec<(&Disk, Option<String>)> = Vec::new();
     let mut failed = false;
     for path in paths {
         let canonical = match std::fs::canonicalize(path) {
@@ -327,9 +424,9 @@ fn select<'a>(mounted: &'a [Disk], paths: &[PathBuf]) -> (Vec<&'a Disk>, bool) {
             Some(disk)
                 if !selected
                     .iter()
-                    .any(|item| item.mount_point() == disk.mount_point()) =>
+                    .any(|(item, _)| item.mount_point() == disk.mount_point()) =>
             {
-                selected.push(disk);
+                selected.push((disk, Some(crate::display_path(path))));
             }
             Some(_) => {}
             None => {
@@ -360,29 +457,49 @@ fn keeps(disk: &Disk, options: &Options) -> bool {
         .any(|unwanted| unwanted == fs_type.as_ref())
 }
 
-fn headers(options: &Options) -> Vec<String> {
-    let size = match options.size {
-        Size::Human(_) => "Size".to_string(),
-        Size::Blocks(block) if options.portability => format!("{block}-blocks"),
-        Size::Blocks(block) => format!("{}-blocks", block_label(block)),
-    };
-    let (used, avail, percent) = if options.portability {
-        ("Used", "Available", "Capacity")
-    } else {
-        ("Used", "Avail", "Use%")
-    };
-    let mut headers = vec!["Filesystem".to_string()];
-    if options.print_type {
-        headers.push("Type".to_string());
+/// The columns to print: the `--output` list, or the default set (with Type under `-T`).
+fn active_fields(options: &Options) -> Vec<Field> {
+    if let Some(fields) = &options.output {
+        return fields.clone();
     }
-    headers.extend([
-        size,
-        used.to_string(),
-        avail.to_string(),
-        percent.to_string(),
+    let mut fields = vec![Field::Source];
+    if options.print_type {
+        fields.push(Field::FsType);
+    }
+    fields.extend([
+        Field::Size,
+        Field::Used,
+        Field::Avail,
+        Field::Pcent,
+        Field::Target,
     ]);
-    headers.push("Mounted on".to_string());
-    headers
+    fields
+}
+
+fn is_text(field: Field) -> bool {
+    matches!(
+        field,
+        Field::Source | Field::FsType | Field::File | Field::Target
+    )
+}
+
+fn header(field: Field, options: &Options) -> String {
+    match field {
+        Field::Source => "Filesystem".to_string(),
+        Field::FsType => "Type".to_string(),
+        Field::Size => match options.size {
+            Size::Human(_) => "Size".to_string(),
+            Size::Blocks(block) if options.portability => format!("{block}-blocks"),
+            Size::Blocks(block) => format!("{}-blocks", block_label(block)),
+        },
+        Field::Used => "Used".to_string(),
+        Field::Avail if options.portability => "Available".to_string(),
+        Field::Avail => "Avail".to_string(),
+        Field::Pcent if options.portability => "Capacity".to_string(),
+        Field::Pcent => "Use%".to_string(),
+        Field::File => "File".to_string(),
+        Field::Target => "Mounted on".to_string(),
+    }
 }
 
 /// `1K`, `1M`, `1G` for exact powers of 1024, otherwise the byte count.
@@ -395,25 +512,69 @@ fn block_label(bytes: u64) -> String {
     bytes.to_string()
 }
 
-fn row(disk: &Disk, options: &Options) -> Vec<String> {
-    let total = disk.total_space();
-    let free = disk.available_space();
-    let used = total.saturating_sub(free);
-    let percent = if total == 0 {
-        0
-    } else {
-        ((u128::from(used) * 100).div_ceil(u128::from(total))) as u64
-    };
-    let mut cells = vec![device_name(disk)];
-    if options.print_type {
-        cells.push(disk.file_system().to_string_lossy().into_owned());
+/// The values of one row (one mount, or the grand total).
+struct Metrics {
+    source: String,
+    fstype: String,
+    total: u64,
+    used: u64,
+    free: u64,
+    file: Option<String>,
+    target: String,
+}
+
+impl Metrics {
+    fn of(disk: &Disk, file: Option<String>) -> Self {
+        let total = disk.total_space();
+        let free = disk.available_space();
+        Self {
+            source: device_name(disk),
+            fstype: disk.file_system().to_string_lossy().into_owned(),
+            total,
+            used: total.saturating_sub(free),
+            free,
+            file,
+            target: crate::display_path(disk.mount_point()),
+        }
     }
-    cells.push(format_size(total, options.size));
-    cells.push(format_size(used, options.size));
-    cells.push(format_size(free, options.size));
-    cells.push(format!("{percent}%"));
-    cells.push(crate::display_path(disk.mount_point()));
-    cells
+
+    /// The sums of the given mounts, labelled `total`.
+    fn total(rows: &[Metrics]) -> Self {
+        let sum = |pick: fn(&Metrics) -> u64| rows.iter().map(pick).sum::<u64>();
+        Self {
+            source: "total".to_string(),
+            fstype: String::new(),
+            total: sum(|row| row.total),
+            used: sum(|row| row.used),
+            free: sum(|row| row.free),
+            file: None,
+            target: String::new(),
+        }
+    }
+
+    fn percent(&self) -> u64 {
+        if self.total == 0 {
+            0
+        } else {
+            ((u128::from(self.used) * 100).div_ceil(u128::from(self.total))) as u64
+        }
+    }
+}
+
+fn cells(metrics: &Metrics, fields: &[Field], options: &Options) -> Vec<String> {
+    fields
+        .iter()
+        .map(|field| match field {
+            Field::Source => metrics.source.clone(),
+            Field::FsType => metrics.fstype.clone(),
+            Field::Size => format_size(metrics.total, options.size),
+            Field::Used => format_size(metrics.used, options.size),
+            Field::Avail => format_size(metrics.free, options.size),
+            Field::Pcent => format!("{}%", metrics.percent()),
+            Field::File => metrics.file.clone().unwrap_or_else(|| "-".to_string()),
+            Field::Target => metrics.target.clone(),
+        })
+        .collect()
 }
 
 /// The device name on Unix. Windows reports a volume label there instead, so the drive
@@ -440,7 +601,7 @@ fn format_size(bytes: u64, size: Size) -> String {
     }
 }
 
-fn print_table(headers: &[String], rows: &[Vec<String>], options: &Options) -> i32 {
+fn print_table(headers: &[String], rows: &[Vec<String>], text: &[bool]) -> i32 {
     let last = headers.len() - 1;
     let widths: Vec<usize> = (0..headers.len())
         .map(|index| {
@@ -457,7 +618,7 @@ fn print_table(headers: &[String], rows: &[Vec<String>], options: &Options) -> i
             .map(|(index, cell)| {
                 if index == last {
                     cell.clone()
-                } else if is_text_column(index, options) {
+                } else if text[index] {
                     format!("{cell:<width$}", width = widths[index])
                 } else {
                     format!("{cell:>width$}", width = widths[index])
@@ -481,15 +642,10 @@ fn print_table(headers: &[String], rows: &[Vec<String>], options: &Options) -> i
     }
 }
 
-/// Filesystem and Type columns are left-aligned; all numbers are right-aligned.
-fn is_text_column(index: usize, options: &Options) -> bool {
-    index == 0 || (options.print_type && index == 1)
-}
-
-fn contains_path(mount_point: &std::path::Path, path: &std::path::Path) -> bool {
+fn contains_path(mount_point: &Path, path: &Path) -> bool {
     #[cfg(windows)]
     {
-        fn normalized(path: &std::path::Path) -> String {
+        fn normalized(path: &Path) -> String {
             let value = path.to_string_lossy().replace('/', "\\");
             let value = if value.to_ascii_lowercase().starts_with("\\\\?\\unc\\") {
                 format!("\\\\{}", &value[8..])
@@ -512,7 +668,7 @@ fn contains_path(mount_point: &std::path::Path, path: &std::path::Path) -> bool 
 
 #[cfg(test)]
 mod tests {
-    use super::{block_label, human, parse, parse_block_size, Parsed, Size};
+    use super::{block_label, human, parse, parse_block_size, parse_output, Field, Parsed, Size};
 
     fn owned(args: &[&str]) -> Vec<String> {
         args.iter().map(|arg| arg.to_string()).collect()
@@ -563,5 +719,25 @@ mod tests {
     #[test]
     fn rejects_inode_report() {
         assert!(parse(&owned(&["-i"])).is_err());
+        assert!(parse(&owned(&["--inodes"])).is_err());
+    }
+
+    #[test]
+    fn output_fields_parse_in_order_and_reject_inode_fields() {
+        assert_eq!(
+            parse_output(Some("target,size,pcent")).unwrap(),
+            [Field::Target, Field::Size, Field::Pcent]
+        );
+        assert_eq!(parse_output(None).unwrap().len(), 7);
+        assert!(parse_output(Some("iused")).is_err());
+        assert!(parse_output(Some("size,size")).is_err());
+        assert!(parse_output(Some("bogus")).is_err());
+    }
+
+    #[test]
+    fn output_conflicts_with_type_and_portability() {
+        assert!(parse(&owned(&["--output=size", "-T"])).is_err());
+        assert!(parse(&owned(&["--output=size", "-P"])).is_err());
+        assert!(parse(&owned(&["--output=size", "--total"])).is_ok());
     }
 }
