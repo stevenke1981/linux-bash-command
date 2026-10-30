@@ -1,0 +1,66 @@
+{
+  "command": "tail",
+  "cases": [
+    {
+      "name": "default_ten_lines",
+      "args": ["a.txt"],
+      "files": { "a.txt": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n" }
+    },
+    {
+      "name": "lines_n",
+      "args": ["-n", "3", "a.txt"],
+      "files": { "a.txt": "1\n2\n3\n4\n5\n" }
+    },
+    {
+      "name": "dash_number_shorthand",
+      "args": ["-2", "a.txt"],
+      "files": { "a.txt": "1\n2\n3\n4\n5\n" }
+    },
+    {
+      "name": "from_line_plus_n",
+      "args": ["-n", "+3", "a.txt"],
+      "files": { "a.txt": "1\n2\n3\n4\n5\n" }
+    },
+    {
+      "name": "zero_lines",
+      "args": ["-n", "0", "a.txt"],
+      "files": { "a.txt": "never shown\n" }
+    },
+    {
+      "name": "last_bytes_c",
+      "args": ["-c", "5", "a.txt"],
+      "files": { "a.txt": "hello world\n" }
+    },
+    {
+      "name": "from_byte_plus_c",
+      "args": ["-c", "+4", "a.txt"],
+      "files": { "a.txt": "abcdefgh\n" }
+    },
+    {
+      "name": "no_trailing_newline",
+      "args": ["-n", "1", "a.txt"],
+      "files": { "a.txt": "first\nsecond-no-newline" }
+    },
+    {
+      "name": "multiple_files_headers",
+      "args": ["a.txt", "b.txt"],
+      "files": { "a.txt": "a1\na2\n", "b.txt": "b1\nb2\n" }
+    },
+    {
+      "name": "quiet_suppresses_headers",
+      "args": ["-q", "-n", "1", "a.txt", "b.txt"],
+      "files": { "a.txt": "a1\na2\n", "b.txt": "b1\nb2\n" }
+    },
+    {
+      "name": "stdin_last_two",
+      "args": ["-n", "2"],
+      "stdin": "s1\ns2\ns3\n"
+    },
+    {
+      "name": "missing_file_exit_status",
+      "args": ["a.txt", "missing.txt"],
+      "files": { "a.txt": "present\n" },
+      "compare": ["stdout", "exit"]
+    }
+  ]
+}

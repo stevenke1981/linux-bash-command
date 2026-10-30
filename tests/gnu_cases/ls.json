@@ -1,0 +1,106 @@
+{
+  "command": "ls",
+  "cases": [
+    {
+      "name": "default_sorted_hides_dotfiles",
+      "args": [],
+      "files": { "b.txt": "b\n", "a.txt": "a\n", "C.txt": "c\n", ".hidden": "h\n" }
+    },
+    {
+      "name": "all_includes_dot_entries",
+      "args": ["-a"],
+      "files": { "b.txt": "b\n", ".hidden": "h\n" }
+    },
+    {
+      "name": "almost_all",
+      "args": ["-A"],
+      "files": { "b.txt": "b\n", ".hidden": "h\n" }
+    },
+    {
+      "name": "reverse_order",
+      "args": ["-r"],
+      "files": { "a.txt": "a\n", "b.txt": "b\n", "c.txt": "c\n" }
+    },
+    {
+      "name": "sort_by_mtime_newest_first",
+      "args": ["-t"],
+      "files": {
+        "old.txt": { "text": "o\n", "mtime": 1600000000 },
+        "new.txt": { "text": "n\n", "mtime": 1800000000 },
+        "mid.txt": { "text": "m\n", "mtime": 1700000000 }
+      }
+    },
+    {
+      "name": "sort_by_size_largest_first",
+      "args": ["-S"],
+      "files": { "small": "x", "large": "xxxxxxxxxx", "medium": "xxxxx" }
+    },
+    {
+      "name": "recursive_listing",
+      "args": ["-R"],
+      "files": { "top.txt": "t\n", "sub/inner.txt": "i\n" }
+    },
+    {
+      "name": "classify_dir_and_exec",
+      "args": ["-F"],
+      "files": {
+        "plain.txt": "p\n",
+        "dir/x": "x\n",
+        "run.sh": { "text": "#!/bin/sh\n", "mode": "755" }
+      }
+    },
+    {
+      "name": "slash_for_directories",
+      "args": ["-p"],
+      "files": { "file.txt": "f\n", "folder/inside.txt": "i\n" }
+    },
+    {
+      "name": "directory_itself",
+      "args": ["-d", "sub"],
+      "files": { "sub/inside.txt": "i\n" }
+    },
+    {
+      "name": "natural_version_sort",
+      "args": ["-v"],
+      "files": { "file10": "x\n", "file2": "x\n", "file1": "x\n" }
+    },
+    {
+      "name": "group_directories_first",
+      "args": ["--group-directories-first"],
+      "files": { "zeta.txt": "z\n", "alpha/keep": "k\n", "beta/keep": "k\n" }
+    },
+    {
+      "name": "one_per_line_flag",
+      "args": ["-1"],
+      "files": { "one": "1\n", "two": "2\n" }
+    },
+    {
+      "name": "several_operands",
+      "args": ["sub", "top.txt"],
+      "files": { "top.txt": "t\n", "sub/inner.txt": "i\n" }
+    },
+    {
+      "name": "unordered_listing_sorted_compare",
+      "args": ["-U"],
+      "files": { "p.txt": "p\n", "q.txt": "q\n", "r.txt": "r\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "missing_path_exit_status",
+      "args": ["nope"],
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "long_format_owner_and_date",
+      "args": ["-l", "a.txt"],
+      "files": { "a.txt": { "text": "abc\n", "mtime": 1700000000, "mode": "644" } },
+      "skip_reason": "-l shows '-' for owner and group (GNU shows user and group names), and the time column format differs from GNU's locale date"
+    },
+    {
+      "name": "block_size_flag",
+      "args": ["-s", "a.txt"],
+      "files": { "a.txt": "abc\n" },
+      "skip_reason": "-s (allocated block counts) is not supported; the command exits 2 while GNU prints sizes"
+    }
+  ]
+}
