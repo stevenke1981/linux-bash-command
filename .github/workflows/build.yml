@@ -4,6 +4,15 @@ on:
   pull_request:
   workflow_dispatch:
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --locked -- -D warnings
   build:
     strategy:
       fail-fast: false
@@ -24,15 +33,35 @@ jobs:
       - name: Collect commands
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p artifacts
-          for name in search diff list read rg ls pwd cd cat less head tail grep find ps df curl; do
-            if [[ "$RUNNER_OS" == Windows ]]; then
-              cp "target/release/$name.exe" artifacts/
-            else
-              cp "target/release/$name" artifacts/
-            fi
-          done
+          ext=""
+          if [[ "$RUNNER_OS" == Windows ]]; then ext=".exe"; fi
+          # The registry is the single source of truth for the command list.
+          while IFS= read -r name; do
+            [[ -z "$name" || "$name" == "[" ]] && continue
+            if [[ "$RUNNER_OS" == Windows && "$name" == "link" ]]; then continue; fi
+            cp "target/release/$name$ext" artifacts/
+          done < <("target/release/agentcmd$ext" --list)
+          # "[" is the test utility under another name; it is copied only once test exists.
+          if [[ -f "target/release/test$ext" ]]; then
+            cp "target/release/test$ext" "artifacts/[$ext"
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: agent-commands-${{ runner.os }}-${{ runner.arch }}
           path: artifacts/
+  gnu-diff:
+    # Pinned: ubuntu-latest moves to Ubuntu 26 and would change the GNU versions compared.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install GNU reference tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gawk tree xxd dos2unix patch bsdextrautils
+      - name: GNU differential tests
+        env:
+          AGENTCMD_GNU_DIFF: "1"
+        run: cargo test --locked --test gnu_diff
