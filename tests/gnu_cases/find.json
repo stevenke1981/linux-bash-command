@@ -126,6 +126,144 @@
       "files": { "a.txt": { "text": "a\n", "mtime": 1700000000 } },
       "compare": ["stdout_sorted", "exit"],
       "skip_reason": "-ls prints owner and group as '-' and a fixed UTC date format; GNU prints user/group names and locale-style dates"
+    },
+    {
+      "name": "user_name_root_files",
+      "args": [".", "-user", "root", "-type", "f"],
+      "files": { "old.txt": { "text": "o\n", "mtime": 1600000000 }, "new.txt": "n\n", "d/inner": "i\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "uid_and_gid_numeric_zero",
+      "args": [".", "-uid", "0", "-gid", "0", "-type", "d"],
+      "files": { "old.txt": "o\n", "d/inner": "i\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "nouser_or_nogroup_none",
+      "args": [".", "-nouser", "-o", "-nogroup"],
+      "files": { "old.txt": "o\n", "d/inner": "i\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "links_count_directory",
+      "args": [".", "-type", "d", "-links", "2"],
+      "files": { "old.txt": "o\n", "d/inner": "i\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "inum_zero_matches_nothing",
+      "args": [".", "-inum", "0"],
+      "files": { "old.txt": "o\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "samefile_reference_itself",
+      "args": [".", "-samefile", "old.txt"],
+      "files": { "old.txt": "o\n", "new.txt": "n\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "lname_matches_link_target",
+      "args": [".", "-lname", "old*"],
+      "files": { "old.txt": "o\n", "link": { "symlink": "old.txt" } },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "ilname_is_case_insensitive",
+      "args": [".", "-ilname", "OLD*"],
+      "files": { "old.txt": "o\n", "link": { "symlink": "old.txt" } },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "xtype_finds_dangling_links",
+      "args": [".", "-xtype", "l"],
+      "files": { "old.txt": "o\n", "dang": { "symlink": "nowhere" } },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "xtype_classifies_link_by_target",
+      "args": [".", "-xtype", "f", "-name", "link"],
+      "files": { "old.txt": "o\n", "link": { "symlink": "old.txt" } },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "newermm_orders_by_mtime",
+      "args": [".", "-newermm", "old.txt", "-type", "f"],
+      "files": {
+        "old.txt": { "text": "o\n", "mtime": 1600000000 },
+        "new.txt": { "text": "n\n", "mtime": 1800000000 }
+      },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "newermt_date_string",
+      "args": [".", "-type", "f", "-newermt", "2021-01-01"],
+      "files": {
+        "old.txt": { "text": "o\n", "mtime": 1600000000 },
+        "new.txt": { "text": "n\n", "mtime": 1800000000 }
+      },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "regextype_posix_basic_pattern",
+      "args": [".", "-regextype", "posix-basic", "-regex", "./o.*\\.txt"],
+      "files": { "old.txt": "o\n", "new.txt": "n\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "regextype_posix_extended_alternation",
+      "args": [".", "-regextype", "posix-extended", "-regex", "./(old|new)\\.txt"],
+      "files": { "old.txt": "o\n", "new.txt": "n\n", "other.txt": "x\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "true_and_false_predicates",
+      "args": [".", "-maxdepth", "1", "-true", "-false", "-o", "-name", "old.txt"],
+      "files": { "old.txt": "o\n", "new.txt": "n\n" },
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "fprint_writes_named_file",
+      "args": [".", "-name", "old.txt", "-fprint", "out.txt"],
+      "files": { "old.txt": "o\n", "new.txt": "n\n" },
+      "compare": ["stdout", "exit", "files"]
+    },
+    {
+      "name": "fprint0_writes_nul_terminated",
+      "args": [".", "-name", "old.txt", "-fprint0", "z.bin"],
+      "files": { "old.txt": "o\n" },
+      "compare": ["stdout", "exit", "files"]
+    },
+    {
+      "name": "fprintf_writes_formatted_file",
+      "args": [".", "-name", "old.txt", "-fprintf", "names.txt", "%f:%s\\n"],
+      "files": { "old.txt": "o\n", "new.txt": "n\n" },
+      "compare": ["stdout", "exit", "files"]
+    },
+    {
+      "name": "ok_runs_command_when_answered_yes",
+      "args": [".", "-name", "old.txt", "-ok", "echo", "{}", ";"],
+      "files": { "old.txt": "o\n", "new.txt": "n\n" },
+      "stdin": "y\n"
+    },
+    {
+      "name": "ok_skips_command_when_answered_no",
+      "args": [".", "-name", "old.txt", "-ok", "echo", "{}", ";"],
+      "files": { "old.txt": "o\n" },
+      "stdin": "n\n"
+    },
+    {
+      "name": "okdir_runs_in_entry_directory",
+      "args": [".", "-name", "old.txt", "-okdir", "echo", "{}", ";"],
+      "files": { "old.txt": "o\n" },
+      "stdin": "Y\n"
+    },
+    {
+      "name": "xdev_noleaf_and_race_options_accepted",
+      "args": [".", "-xdev", "-noleaf", "-ignore_readdir_race", "-name", "new.txt"],
+      "files": { "old.txt": "o\n", "new.txt": "n\n" },
+      "compare": ["stdout_sorted", "exit"]
     }
   ]
 }

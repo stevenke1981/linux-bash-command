@@ -1,9 +1,10 @@
-//! Time parsing for `touch`. Local to this command until `common::datetime` exists.
+//! Time parsing for `touch`.
 //!
 //! - `-t [[CC]YY]MMDDhhmm[.ss]` (POSIX), read in the local time zone.
-//! - `-d` accepts `@EPOCH` (with an optional sign and fraction), `now`, and
-//!   `YYYY-MM-DD[( |T)HH:MM[:SS[.frac]]]`, read in the local time zone.
+//! - `-d` uses `common::datetime::parse` (GNU date strings); `@EPOCH` (with an optional sign
+//!   and fraction) is read here so fractions keep their exact nanoseconds.
 
+use crate::common::datetime;
 use filetime::FileTime;
 use jiff::{civil, tz::TimeZone, Zoned};
 
@@ -42,7 +43,7 @@ fn stamp(text: &str) -> Result<FileTime, ()> {
     )
 }
 
-/// Parses a `-d` date string.
+/// Parses a `-d` date string (GNU syntax, via `common::datetime`).
 pub fn parse_date(text: &str) -> Option<FileTime> {
     date(text).ok()
 }
@@ -51,20 +52,12 @@ fn date(text: &str) -> Result<FileTime, ()> {
     if let Some(epoch) = text.strip_prefix('@') {
         return parse_epoch(epoch);
     }
-    if text == "now" {
-        return Ok(FileTime::now());
-    }
-    let split = text.find([' ', 'T']);
-    let (date, time) = match split {
-        Some(index) => (&text[..index], Some(&text[index + 1..])),
-        None => (text, None),
-    };
-    let (year, month, day) = parse_ymd(date)?;
-    let (hour, minute, second, nanos) = match time {
-        Some(time) => parse_hms(time)?,
-        None => (0, 0, 0, 0),
-    };
-    civil_time(year, month, day, hour, minute, second, nanos)
+    let zone = datetime::zone_from_env();
+    let timestamp = datetime::parse(text, datetime::now(), &zone).map_err(|_| ())?;
+    Ok(FileTime::from_unix_time(
+        timestamp.as_second(),
+        timestamp.subsec_nanosecond() as u32,
+    ))
 }
 
 fn digits(text: &str) -> Result<u32, ()> {
@@ -85,43 +78,6 @@ fn yy_to_year(yy: u32) -> i16 {
 
 fn current_year() -> Result<i16, ()> {
     Ok(Zoned::now().year())
-}
-
-fn parse_ymd(text: &str) -> Result<(i16, i8, i8), ()> {
-    let mut parts = text.split('-');
-    let (Some(y), Some(m), Some(d), None) =
-        (parts.next(), parts.next(), parts.next(), parts.next())
-    else {
-        return Err(());
-    };
-    if y.len() != 4 {
-        return Err(());
-    }
-    Ok((digits(y)? as i16, digits(m)? as i8, digits(d)? as i8))
-}
-
-/// `HH:MM`, `HH:MM:SS` or `HH:MM:SS.frac`.
-fn parse_hms(text: &str) -> Result<(i8, i8, i8, i32), ()> {
-    let (clock, fraction) = match text.split_once('.') {
-        Some((clock, fraction)) => (clock, Some(fraction)),
-        None => (text, None),
-    };
-    let mut parts = clock.split(':');
-    let (Some(h), Some(mi)) = (parts.next(), parts.next()) else {
-        return Err(());
-    };
-    let second = match parts.next() {
-        Some(s) => digits(s)? as i8,
-        None => 0,
-    };
-    if parts.next().is_some() || h.len() != 2 || mi.len() != 2 {
-        return Err(());
-    }
-    let nanos = match fraction {
-        None => 0,
-        Some(frac) => fraction_nanos(frac)?,
-    };
-    Ok((digits(h)? as i8, digits(mi)? as i8, second, nanos))
 }
 
 /// Up to nine decimal digits, scaled to nanoseconds.
@@ -252,6 +208,21 @@ mod tests {
         ] {
             assert!(parse_date(text).is_none(), "{text}");
         }
+    }
+
+    #[test]
+    fn free_form_dates_use_the_shared_parser() {
+        let base = parse_date("2000-01-01 10:00").unwrap();
+        assert_eq!(parse_date("1 Jan 2000 10:00"), Some(base));
+        assert_eq!(parse_date("Jan 1 2000 10:00"), Some(base));
+        let later = parse_date("2000-01-01 10:00 +2 hours").unwrap();
+        assert_eq!(later.unix_seconds() - base.unix_seconds(), 7200);
+        assert_eq!(
+            parse_date("2000-01-01 10:00:00 UTC")
+                .unwrap()
+                .unix_seconds(),
+            parse_date("@946720800").unwrap().unix_seconds()
+        );
     }
 
     #[test]

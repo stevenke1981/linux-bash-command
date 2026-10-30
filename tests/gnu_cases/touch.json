@@ -24,6 +24,14 @@
     { "name": "time_bogus_is_error", "args": ["--time=bogus", "a"], "compare": ["stdout", "exit", "files"] },
     { "name": "two_time_sources_is_error", "args": ["-d", "@1", "-t", "200101010101", "a"], "compare": ["stdout", "exit", "files"] },
     { "name": "dash_name_after_double_dash", "args": ["--", "-x"], "compare": ["stdout", "exit", "files"] },
-    { "name": "force_flag_ignored", "args": ["-f", "a"], "compare": ["stdout", "exit", "files"] }
+    { "name": "force_flag_ignored", "args": ["-f", "a"], "compare": ["stdout", "exit", "files"] },
+    { "name": "date_free_form_day_month_year", "args": ["-d", "1 Jan 2000 10:00", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "date_month_name_first", "args": ["-d", "Jan 1 2000 10:00", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "date_relative_items", "args": ["-d", "2000-01-01 +2 days", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "date_with_zone_name", "args": ["-d", "2000-01-01 10:00:00 UTC", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "date_weekday_name", "args": ["-d", "next monday", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "date_keyword_now", "args": ["-d", "now", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "date_epoch_fraction", "args": ["-d", "@1.5", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] },
+    { "name": "date_free_form_invalid_is_error", "args": ["-d", "not a date", "a"], "files": { "a": "x\n" }, "compare": ["stdout", "exit", "files"] }
   ]
 }

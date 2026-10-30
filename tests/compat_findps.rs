@@ -271,7 +271,7 @@ fn find_rejects_invalid_expressions_with_status_one() {
         vec![".", "-maxdepth", "x"],
         vec![".", "-type", "z"],
         vec![".", "-printf", "%u"],
-        vec![".", "-ok", "rm", "{}", ";"],
+        vec![".", "-ok", "rm", "{}"],
         vec![".", "(", "-name", "a.txt"],
         vec![".", "-size", "3Q"],
     ] {
