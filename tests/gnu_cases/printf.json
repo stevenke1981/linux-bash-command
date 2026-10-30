@@ -1,0 +1,140 @@
+{
+  "command": "printf",
+  "cases": [
+    {
+      "name": "basic_directives",
+      "args": ["%d-%s\n", "3", "x"]
+    },
+    {
+      "name": "format_reused_for_extra_args",
+      "args": ["%s|", "a", "b", "c"]
+    },
+    {
+      "name": "no_arguments_use_defaults",
+      "args": ["%s:%d\n"]
+    },
+    {
+      "name": "hex_octal_unsigned",
+      "args": ["%x %X %o %u\n", "255", "255", "8", "7"]
+    },
+    {
+      "name": "negative_unsigned_wraps",
+      "args": ["%u %x %o\n", "-1", "-1", "-1"]
+    },
+    {
+      "name": "char_constants",
+      "args": ["%d %d %d\n", "'A", "\"B", "'"]
+    },
+    {
+      "name": "width_precision_from_arguments",
+      "args": ["[%*d][%-*d][%.*s]\n", "5", "42", "4", "7", "2", "abcdef"]
+    },
+    {
+      "name": "fixed_point_exact_ties",
+      "args": ["%f %.2f %.0f\n", "1.5", "0.125", "2.5"]
+    },
+    {
+      "name": "scientific_notation",
+      "args": ["%e %E %.2e\n", "12345.678", "0.000123", "5"]
+    },
+    {
+      "name": "general_format",
+      "args": ["%g %g %G %g\n", "0.0001", "1234567", "1e-5", "100"]
+    },
+    {
+      "name": "format_escapes",
+      "args": ["a\\tb\\x41\\101\\\\\\n"]
+    },
+    {
+      "name": "format_octal_with_zero_prefix",
+      "args": ["\\0101\\n"]
+    },
+    {
+      "name": "percent_b_stops_at_backslash_c",
+      "args": ["%b|%b\n", "x\\ty", "\\0101\\c", "z"]
+    },
+    {
+      "name": "percent_b_keeps_unknown_escapes",
+      "args": ["%b\n", "a\\qb\\\"c"]
+    },
+    {
+      "name": "percent_q_quoting",
+      "args": ["%q %q %q %q %q\n", "a b", "it's", "", "-x", "a#b"]
+    },
+    {
+      "name": "percent_q_control_bytes",
+      "args": ["%q\n", "a\tb"]
+    },
+    {
+      "name": "format_stop_escape",
+      "args": ["one\\c", "two"]
+    },
+    {
+      "name": "invalid_number_continues",
+      "args": ["%d|%d\n", "x", "5"]
+    },
+    {
+      "name": "partial_number_uses_prefix",
+      "args": ["%d %d\n", "1.5", "7"]
+    },
+    {
+      "name": "overflow_clamps",
+      "args": ["%d\n", "99999999999999999999"]
+    },
+    {
+      "name": "empty_numeric_argument_is_zero",
+      "args": ["%d|%s|\n", ""]
+    },
+    {
+      "name": "invalid_conversion_stops",
+      "args": ["ab%zcd"]
+    },
+    {
+      "name": "percent_with_width_is_invalid",
+      "args": ["%5%"]
+    },
+    {
+      "name": "excess_arguments_no_conversion",
+      "args": ["abc", "1", "2"]
+    },
+    {
+      "name": "percent_percent",
+      "args": ["100%%\n"]
+    },
+    {
+      "name": "char_conversion",
+      "args": ["%c%c|%5c|%-3c|\n", "hello", "", "65", "x"]
+    },
+    {
+      "name": "flags_plus_space_zero",
+      "args": ["%+d|% d|%05d|%-5d|%+5d|\n", "3", "3", "-42", "7", "9"]
+    },
+    {
+      "name": "precision_on_integers",
+      "args": ["%i %5.3d %.0d|%#o %#x\n", "-7", "4", "0", "8", "255"]
+    },
+    {
+      "name": "byte_based_widths",
+      "args": ["%.2s|%5s|%-4s|\n", "éa", "é", "ab"]
+    },
+    {
+      "name": "missing_operand",
+      "args": []
+    },
+    {
+      "name": "percent_b_hex_without_digits",
+      "args": ["%b|\n", "\\x"],
+      "skip_reason": null
+    },
+    {
+      "name": "hex_float_long_double",
+      "args": ["%a\n", "1"],
+      "skip_reason": "GNU printf converts with long double (1 prints 0x8p-3); agentcmd uses f64 (0x1p+0). Known difference, see 07-phases.md."
+    },
+    {
+      "name": "long_double_rounding_case",
+      "args": ["%.3f\n", "2.0005"],
+      "skip_reason": "GNU printf uses long double, so 2.0005 rounds to 2.001; f64 rounds to 2.000. Known difference, see 07-phases.md."
+    }
+  ]
+}
