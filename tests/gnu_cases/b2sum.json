@@ -1,0 +1,656 @@
+{
+  "command": "b2sum",
+  "cases": [
+    {
+      "name": "stdin_default",
+      "args": [],
+      "stdin": "hello\n"
+    },
+    {
+      "name": "stdin_empty",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "dash_operand",
+      "args": [
+        "-"
+      ],
+      "stdin": "abc"
+    },
+    {
+      "name": "two_files",
+      "args": [
+        "a",
+        "b c"
+      ],
+      "files": {
+        "a": "hello\n",
+        "b c": "xyz\n"
+      }
+    },
+    {
+      "name": "binary_flag",
+      "args": [
+        "-b",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "text_flag",
+      "args": [
+        "-t",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "tag_flag",
+      "args": [
+        "--tag",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "tag_with_binary_ignored",
+      "args": [
+        "--tag",
+        "-b",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "zero_terminated",
+      "args": [
+        "-z",
+        "a",
+        "b c"
+      ],
+      "files": {
+        "a": "hello\n",
+        "b c": "xyz\n"
+      }
+    },
+    {
+      "name": "zero_tag",
+      "args": [
+        "-z",
+        "--tag",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "backslash_in_name",
+      "args": [
+        "a\\b"
+      ],
+      "files": {
+        "a\\b": "hello\n"
+      }
+    },
+    {
+      "name": "newline_in_name",
+      "args": [
+        "n\nl"
+      ],
+      "files": {
+        "n\nl": "hello\n"
+      }
+    },
+    {
+      "name": "newline_in_name_tag",
+      "args": [
+        "--tag",
+        "n\nl"
+      ],
+      "files": {
+        "n\nl": "hello\n"
+      }
+    },
+    {
+      "name": "newline_in_name_zero_not_escaped",
+      "args": [
+        "-z",
+        "n\nl"
+      ],
+      "files": {
+        "n\nl": "hello\n"
+      }
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "nosuch"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "partial_failure",
+      "args": [
+        "a",
+        "nosuch"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "directory_operand",
+      "args": [
+        "d"
+      ],
+      "files": {
+        "d": {
+          "dir": true
+        }
+      }
+    },
+    {
+      "name": "unknown_long_option",
+      "args": [
+        "--bogus"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown_short_option",
+      "args": [
+        "-x",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "check_ok_binary_marker",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f *a\n"
+      }
+    },
+    {
+      "name": "check_bsd_tag_line",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "BLAKE2b (a) = f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f\n"
+      }
+    },
+    {
+      "name": "check_uppercase_hex",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "F60CE482E5CC1229F39D71313171A8D9F4CA3A87D066BF4B205EFFB528192A75F14F3271E2C1A90E1DE53F275B4D4793EEF2F5E31EA90D2CE29D2E481C36435F  a\n"
+      }
+    },
+    {
+      "name": "check_mismatch",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "812572bce66942e5523667aeae7d6f7a1ea2c74989965c1f4d2b53d75ba071b408751caf7b236e456ac34fb9cd4f19c37ed1ac5352993726a25683a1e303e88b  a\n"
+      }
+    },
+    {
+      "name": "check_mismatch_quiet",
+      "args": [
+        "-c",
+        "--quiet",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "812572bce66942e5523667aeae7d6f7a1ea2c74989965c1f4d2b53d75ba071b408751caf7b236e456ac34fb9cd4f19c37ed1ac5352993726a25683a1e303e88b  a\nf60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  a\n"
+      }
+    },
+    {
+      "name": "check_status_mismatch",
+      "args": [
+        "-c",
+        "--status",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "812572bce66942e5523667aeae7d6f7a1ea2c74989965c1f4d2b53d75ba071b408751caf7b236e456ac34fb9cd4f19c37ed1ac5352993726a25683a1e303e88b  a\n"
+      }
+    },
+    {
+      "name": "check_status_ok",
+      "args": [
+        "-c",
+        "--status",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  a\n"
+      }
+    },
+    {
+      "name": "check_warn_bad_line",
+      "args": [
+        "-c",
+        "-w",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "junk\nf60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  a\n"
+      }
+    },
+    {
+      "name": "check_bad_line_default",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "junk\nf60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  a\n"
+      }
+    },
+    {
+      "name": "check_strict_bad_line",
+      "args": [
+        "-c",
+        "--strict",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "junk\nf60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  a\n"
+      }
+    },
+    {
+      "name": "check_empty_list",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "sums": ""
+      }
+    },
+    {
+      "name": "check_only_bad_lines",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "sums": "junk\nmore junk\n"
+      }
+    },
+    {
+      "name": "check_ignore_missing",
+      "args": [
+        "-c",
+        "--ignore-missing",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  gone\nf60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  a\n"
+      }
+    },
+    {
+      "name": "check_ignore_missing_none_verified",
+      "args": [
+        "-c",
+        "--ignore-missing",
+        "sums"
+      ],
+      "files": {
+        "sums": "f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  gone\n"
+      }
+    },
+    {
+      "name": "check_missing_file_fails",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "sums": "f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  gone\n"
+      }
+    },
+    {
+      "name": "check_escaped_name",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "n\nl": "hello\n",
+        "sums": "\\f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  n\\nl\n"
+      }
+    },
+    {
+      "name": "check_bsd_escaped_name",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "b\\s": "hello\n",
+        "sums": "BLAKE2b (b\\\\s) = f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f\n"
+      }
+    },
+    {
+      "name": "check_stdin_list",
+      "args": [
+        "-c"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "stdin": "f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  a\n"
+    },
+    {
+      "name": "check_many_mismatches",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "812572bce66942e5523667aeae7d6f7a1ea2c74989965c1f4d2b53d75ba071b408751caf7b236e456ac34fb9cd4f19c37ed1ac5352993726a25683a1e303e88b  a\n812572bce66942e5523667aeae7d6f7a1ea2c74989965c1f4d2b53d75ba071b408751caf7b236e456ac34fb9cd4f19c37ed1ac5352993726a25683a1e303e88b  a\n"
+      }
+    },
+    {
+      "name": "check_strict_all_ok",
+      "args": [
+        "-c",
+        "--strict",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  a\n"
+      }
+    },
+    {
+      "name": "check_missing_list_file",
+      "args": [
+        "-c",
+        "nosuch"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "check_with_zero_rejected",
+      "args": [
+        "-c",
+        "-z",
+        "sums"
+      ],
+      "files": {
+        "sums": "f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  a\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "check_with_tag_rejected",
+      "args": [
+        "-c",
+        "--tag",
+        "sums"
+      ],
+      "files": {
+        "sums": "f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  a\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "status_without_check",
+      "args": [
+        "--status",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "strict_without_check",
+      "args": [
+        "--strict",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "ignore_missing_without_check",
+      "args": [
+        "--ignore-missing",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "warn_without_check",
+      "args": [
+        "-w",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "help_exit",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "length_256",
+      "args": [
+        "-l",
+        "256",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "length_zero_means_default",
+      "args": [
+        "-l",
+        "0",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "length_8",
+      "args": [
+        "-l",
+        "8",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "length_not_multiple_of_8",
+      "args": [
+        "-l",
+        "7",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "length_above_max",
+      "args": [
+        "-l",
+        "1024",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "length_not_numeric",
+      "args": [
+        "-l",
+        "abc",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "length_tag",
+      "args": [
+        "--tag",
+        "-l",
+        "16",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "length_long_form",
+      "args": [
+        "--length=256",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "check_length_256",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "93becc6e9882211c3ec3708c95bcd69baab7bb59c7f4bc84ce637b88a534b783  a\n"
+      }
+    },
+    {
+      "name": "check_bsd_length_tag",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "BLAKE2b-16 (a) = 9265\n"
+      }
+    },
+    {
+      "name": "check_tag_of_other_algorithm_rejected",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "MD5 (a) = b1946ac92492d2347c6235b4d2611184\n"
+      }
+    },
+    {
+      "name": "check_ok",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f  a\n"
+      }
+    }
+  ]
+}

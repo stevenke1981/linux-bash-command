@@ -1,0 +1,481 @@
+{
+  "command": "cksum",
+  "cases": [
+    {
+      "name": "default_crc_stdin",
+      "args": [],
+      "stdin": "hello\n"
+    },
+    {
+      "name": "default_crc_file",
+      "args": [
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "default_crc_two_files",
+      "args": [
+        "a",
+        "b c"
+      ],
+      "files": {
+        "a": "hello\n",
+        "b c": "xyz\n"
+      }
+    },
+    {
+      "name": "default_crc_empty",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "algorithm_sysv",
+      "args": [
+        "-a",
+        "sysv",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "algorithm_bsd",
+      "args": [
+        "-a",
+        "bsd",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "algorithm_crc_explicit",
+      "args": [
+        "-a",
+        "crc",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "algorithm_md5",
+      "args": [
+        "-a",
+        "md5",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "algorithm_sha1",
+      "args": [
+        "-a",
+        "sha1",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "algorithm_sha224",
+      "args": [
+        "-a",
+        "sha224",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "algorithm_sha256_stdin",
+      "args": [
+        "-a",
+        "sha256"
+      ],
+      "stdin": "hello\n"
+    },
+    {
+      "name": "algorithm_sha384",
+      "args": [
+        "-a",
+        "sha384",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "algorithm_sha512",
+      "args": [
+        "-a",
+        "sha512",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "algorithm_blake2b",
+      "args": [
+        "-a",
+        "blake2b",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "algorithm_blake2b_length_256",
+      "args": [
+        "-a",
+        "blake2b",
+        "-l",
+        "256",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "algorithm_invalid",
+      "args": [
+        "-a",
+        "bogus",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "untagged_sha256",
+      "args": [
+        "-a",
+        "sha256",
+        "--untagged",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "tag_sha1",
+      "args": [
+        "-a",
+        "sha1",
+        "--tag",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "base64_sha256",
+      "args": [
+        "-a",
+        "sha256",
+        "--base64",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "base64_untagged_md5",
+      "args": [
+        "-a",
+        "md5",
+        "--base64",
+        "--untagged",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "raw_sha256",
+      "args": [
+        "-a",
+        "sha256",
+        "--raw",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "raw_default_crc",
+      "args": [
+        "--raw",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "zero_md5",
+      "args": [
+        "-a",
+        "md5",
+        "-z",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "zero_default_crc",
+      "args": [
+        "-z",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "length_with_sha1_rejected",
+      "args": [
+        "-a",
+        "sha1",
+        "-l",
+        "8",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "length_not_multiple",
+      "args": [
+        "-a",
+        "blake2b",
+        "-l",
+        "7",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "base64_and_raw_conflict",
+      "args": [
+        "--base64",
+        "--raw",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "nosuch"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "partial_failure",
+      "args": [
+        "a",
+        "nosuch"
+      ],
+      "files": {
+        "a": "hello\n"
+      }
+    },
+    {
+      "name": "check_legacy_rejected",
+      "args": [
+        "-a",
+        "crc",
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "sums": "3015617425 6 a\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "check_sysv_rejected",
+      "args": [
+        "-a",
+        "sysv",
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "sums": "542 1 a\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "check_tagged_sha256",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "SHA256 (a) = 5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03\n"
+      }
+    },
+    {
+      "name": "check_tagged_blake2b",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "BLAKE2b (a) = f60ce482e5cc1229f39d71313171a8d9f4ca3a87d066bf4b205effb528192a75f14f3271e2c1a90e1de53f275b4d4793eef2f5e31ea90d2ce29d2e481c36435f\n"
+      }
+    },
+    {
+      "name": "check_untagged_without_algorithm",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "b1946ac92492d2347c6235b4d2611184  a\n"
+      }
+    },
+    {
+      "name": "check_untagged_with_algorithm",
+      "args": [
+        "-a",
+        "md5",
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "b1946ac92492d2347c6235b4d2611184  a\n"
+      }
+    },
+    {
+      "name": "check_mismatch_tag",
+      "args": [
+        "-c",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "MD5 (a) = 00000000000000000000000000000000\n"
+      }
+    },
+    {
+      "name": "check_status_quiet",
+      "args": [
+        "-c",
+        "--status",
+        "sums"
+      ],
+      "files": {
+        "a": "hello\n",
+        "sums": "MD5 (a) = 00000000000000000000000000000000\n"
+      }
+    },
+    {
+      "name": "option_check_only_without_check",
+      "args": [
+        "--quiet",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "help_exit",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "crc32b_not_in_gnu",
+      "args": [
+        "-a",
+        "crc32b",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "skip_reason": "crc32b is listed in the spec but GNU coreutils 9.x does not implement it; agentcmd output is checked by unit tests"
+    },
+    {
+      "name": "sm3_not_in_spec",
+      "args": [
+        "-a",
+        "sm3",
+        "a"
+      ],
+      "files": {
+        "a": "hello\n"
+      },
+      "skip_reason": "sm3 is a GNU algorithm not listed in 03-commands-core.md; known difference"
+    }
+  ]
+}

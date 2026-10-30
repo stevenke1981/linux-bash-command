@@ -1,0 +1,287 @@
+{
+  "command": "basenc",
+  "cases": [
+    {
+      "name": "enc_base64",
+      "args": [
+        "--base64"
+      ],
+      "stdin": "hello world"
+    },
+    {
+      "name": "enc_base64url",
+      "args": [
+        "--base64url"
+      ],
+      "stdin_hex": "fbff"
+    },
+    {
+      "name": "enc_base32",
+      "args": [
+        "--base32"
+      ],
+      "stdin": "hi"
+    },
+    {
+      "name": "enc_base32hex",
+      "args": [
+        "--base32hex"
+      ],
+      "stdin": "hi"
+    },
+    {
+      "name": "enc_base16",
+      "args": [
+        "--base16"
+      ],
+      "stdin": "hi"
+    },
+    {
+      "name": "enc_base2msbf",
+      "args": [
+        "--base2msbf"
+      ],
+      "stdin": "hi"
+    },
+    {
+      "name": "enc_base2lsbf",
+      "args": [
+        "--base2lsbf"
+      ],
+      "stdin": "hi"
+    },
+    {
+      "name": "z85_encode_four_bytes",
+      "args": [
+        "--z85"
+      ],
+      "stdin_hex": "864fd26fb559f75b"
+    },
+    {
+      "name": "z85_encode_bad_length",
+      "args": [
+        "--z85"
+      ],
+      "stdin": "hi",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "base16_wrap",
+      "args": [
+        "--base16",
+        "-w",
+        "3"
+      ],
+      "stdin": "hi"
+    },
+    {
+      "name": "base2msbf_wrap_five",
+      "args": [
+        "--base2msbf",
+        "-w",
+        "5"
+      ],
+      "stdin": "hi"
+    },
+    {
+      "name": "base64_wrap_zero",
+      "args": [
+        "--base64",
+        "-w",
+        "0"
+      ],
+      "stdin": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. "
+    },
+    {
+      "name": "base64_wrapped_default",
+      "args": [
+        "--base64"
+      ],
+      "stdin": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. "
+    },
+    {
+      "name": "base64url_decode",
+      "args": [
+        "--base64url",
+        "-d"
+      ],
+      "stdin": "_w==\n"
+    },
+    {
+      "name": "base16_decode",
+      "args": [
+        "--base16",
+        "-d"
+      ],
+      "stdin": "6869\n"
+    },
+    {
+      "name": "base16_decode_lowercase",
+      "args": [
+        "--base16",
+        "-d"
+      ],
+      "stdin": "6A6b\n"
+    },
+    {
+      "name": "base16_decode_odd_length",
+      "args": [
+        "--base16",
+        "-d"
+      ],
+      "stdin": "686",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "base2msbf_decode",
+      "args": [
+        "--base2msbf",
+        "-d"
+      ],
+      "stdin": "01101000\n"
+    },
+    {
+      "name": "base2lsbf_decode",
+      "args": [
+        "--base2lsbf",
+        "-d"
+      ],
+      "stdin": "00010110\n"
+    },
+    {
+      "name": "base2_decode_short",
+      "args": [
+        "--base2msbf",
+        "-d"
+      ],
+      "stdin": "0110",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "base32hex_decode",
+      "args": [
+        "--base32hex",
+        "-d"
+      ],
+      "stdin": "D1KG====\n"
+    },
+    {
+      "name": "base32_decode_ignore_garbage",
+      "args": [
+        "--base32",
+        "-d",
+        "-i"
+      ],
+      "stdin": "NBUQ!!====\n"
+    },
+    {
+      "name": "z85_decode",
+      "args": [
+        "--z85",
+        "-d"
+      ],
+      "stdin": "HelloWorld\n"
+    },
+    {
+      "name": "z85_decode_bad_length",
+      "args": [
+        "--z85",
+        "-d"
+      ],
+      "stdin": "Hello0",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_encoding",
+      "args": [],
+      "stdin": "x",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "last_encoding_wins",
+      "args": [
+        "--base16",
+        "--base32"
+      ],
+      "stdin": "hi"
+    },
+    {
+      "name": "base64_decode_bad_char",
+      "args": [
+        "--base64",
+        "-d"
+      ],
+      "stdin": "aGk=!",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "extra_operand",
+      "args": [
+        "--base64",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "file_operand",
+      "args": [
+        "--base16",
+        "a"
+      ],
+      "files": {
+        "a": "hi"
+      }
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "--base64",
+        "nosuch"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "help_exit",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "command": "nproc",
+  "cases": [
+    {
+      "name": "default",
+      "args": []
+    },
+    {
+      "name": "all",
+      "args": [
+        "--all"
+      ]
+    },
+    {
+      "name": "ignore_one",
+      "args": [
+        "--ignore=1"
+      ]
+    },
+    {
+      "name": "ignore_long_space",
+      "args": [
+        "--ignore",
+        "1"
+      ]
+    },
+    {
+      "name": "ignore_not_numeric",
+      "args": [
+        "--ignore=abc"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "omp_threads_first_value",
+      "args": [],
+      "env": {
+        "OMP_NUM_THREADS": "2,3"
+      }
+    },
+    {
+      "name": "omp_thread_limit",
+      "args": [],
+      "env": {
+        "OMP_THREAD_LIMIT": "1"
+      }
+    },
+    {
+      "name": "omp_threads_all_ignores_env",
+      "args": [
+        "--all"
+      ],
+      "env": {
+        "OMP_NUM_THREADS": "2"
+      }
+    },
+    {
+      "name": "extra_operand",
+      "args": [
+        "x"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown_option",
+      "args": [
+        "-x"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "help_exit",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "command": "whoami",
+  "cases": [
+    {
+      "name": "default",
+      "args": []
+    },
+    {
+      "name": "extra_operand",
+      "args": [
+        "x"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown_option",
+      "args": [
+        "-x"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "help_exit",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

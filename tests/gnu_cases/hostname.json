@@ -1,0 +1,76 @@
+{
+  "command": "hostname",
+  "cases": [
+    {
+      "name": "default",
+      "args": []
+    },
+    {
+      "name": "short",
+      "args": [
+        "-s"
+      ]
+    },
+    {
+      "name": "short_long_form",
+      "args": [
+        "--short"
+      ]
+    },
+    {
+      "name": "fqdn",
+      "args": [
+        "-f"
+      ],
+      "skip_reason": "best-effort: agentcmd does not resolve DNS; equal only when the host has no domain"
+    },
+    {
+      "name": "domain_unsupported",
+      "args": [
+        "-d"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "set_name_refused",
+      "args": [
+        "agentcmd-test-name"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": "GNU would change the host name when run as root; agentcmd refuses, covered by CLI tests"
+    },
+    {
+      "name": "unknown_option",
+      "args": [
+        "-x"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": "Debian hostname 3.23 exits 255 on usage errors; agentcmd follows coreutils (exit 1)"
+    },
+    {
+      "name": "help_exit",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": "Debian hostname 3.23 exits 255 for --help; agentcmd follows coreutils (exit 0)"
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

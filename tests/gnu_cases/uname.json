@@ -1,0 +1,111 @@
+{
+  "command": "uname",
+  "cases": [
+    {
+      "name": "default",
+      "args": []
+    },
+    {
+      "name": "kernel_name",
+      "args": [
+        "-s"
+      ]
+    },
+    {
+      "name": "nodename",
+      "args": [
+        "-n"
+      ]
+    },
+    {
+      "name": "kernel_release",
+      "args": [
+        "-r"
+      ]
+    },
+    {
+      "name": "kernel_version",
+      "args": [
+        "-v"
+      ]
+    },
+    {
+      "name": "machine",
+      "args": [
+        "-m"
+      ]
+    },
+    {
+      "name": "operating_system",
+      "args": [
+        "-o"
+      ]
+    },
+    {
+      "name": "processor",
+      "args": [
+        "-p"
+      ]
+    },
+    {
+      "name": "hardware_platform",
+      "args": [
+        "-i"
+      ]
+    },
+    {
+      "name": "all",
+      "args": [
+        "-a"
+      ]
+    },
+    {
+      "name": "long_kernel_name",
+      "args": [
+        "--kernel-name"
+      ]
+    },
+    {
+      "name": "clustered",
+      "args": [
+        "-smo"
+      ]
+    },
+    {
+      "name": "unknown_option",
+      "args": [
+        "-x"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "extra_operand",
+      "args": [
+        "x"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "help_exit",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

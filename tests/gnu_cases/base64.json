@@ -1,0 +1,227 @@
+{
+  "command": "base64",
+  "cases": [
+    {
+      "name": "encode_stdin",
+      "args": [],
+      "stdin": "hello world"
+    },
+    {
+      "name": "encode_empty",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "encode_one_byte",
+      "args": [],
+      "stdin": "a"
+    },
+    {
+      "name": "encode_two_bytes",
+      "args": [],
+      "stdin": "ab"
+    },
+    {
+      "name": "encode_three_bytes",
+      "args": [],
+      "stdin": "abc"
+    },
+    {
+      "name": "encode_wrapped_default",
+      "args": [],
+      "stdin": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. "
+    },
+    {
+      "name": "encode_wrap_zero",
+      "args": [
+        "-w",
+        "0"
+      ],
+      "stdin": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. "
+    },
+    {
+      "name": "encode_wrap_four",
+      "args": [
+        "-w",
+        "4"
+      ],
+      "stdin": "hello world"
+    },
+    {
+      "name": "encode_wrap_long_form",
+      "args": [
+        "--wrap=10"
+      ],
+      "stdin": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. "
+    },
+    {
+      "name": "encode_binary_stdin_hex",
+      "args": [],
+      "stdin_hex": "00ff107f80c3a9"
+    },
+    {
+      "name": "encode_file",
+      "args": [
+        "a"
+      ],
+      "files": {
+        "a": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. "
+      }
+    },
+    {
+      "name": "encode_dash",
+      "args": [
+        "-"
+      ],
+      "stdin": "dash"
+    },
+    {
+      "name": "encode_wrap_empty_zero",
+      "args": [
+        "-w",
+        "0"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "decode_valid",
+      "args": [
+        "-d"
+      ],
+      "stdin": "aGVsbG8gd29ybGQ=\n"
+    },
+    {
+      "name": "decode_long_form",
+      "args": [
+        "--decode"
+      ],
+      "stdin": "aGVsbG8gd29ybGQ=\n"
+    },
+    {
+      "name": "decode_wrapped_input",
+      "args": [
+        "-d"
+      ],
+      "stdin": "aGVs\nbG8g\nd29y\nbGQ=\n"
+    },
+    {
+      "name": "decode_invalid_partial_output",
+      "args": [
+        "-d"
+      ],
+      "stdin": "aGVsbG8=!!\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "decode_garbage_stops",
+      "args": [
+        "-d"
+      ],
+      "stdin": "aGVs bG8=\n"
+    },
+    {
+      "name": "decode_ignore_garbage",
+      "args": [
+        "-d",
+        "-i"
+      ],
+      "stdin": "aGVs bG8=\n"
+    },
+    {
+      "name": "decode_truncated",
+      "args": [
+        "-d"
+      ],
+      "stdin": "aGVsbG8"
+    },
+    {
+      "name": "decode_binary_round_trip_input",
+      "args": [
+        "-d"
+      ],
+      "stdin": "AP8Q/4DDqQ==\n"
+    },
+    {
+      "name": "decode_empty",
+      "args": [
+        "-d"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "wrap_invalid",
+      "args": [
+        "-w",
+        "abc"
+      ],
+      "stdin": "x",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "wrap_negative",
+      "args": [
+        "-w",
+        "-1"
+      ],
+      "stdin": "x",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "extra_operand",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "nosuch"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown_option",
+      "args": [
+        "--bogus"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "help_exit",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}
