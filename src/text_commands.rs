@@ -41,8 +41,8 @@ pub fn cat(args: &[String]) -> i32 {
         Ok(Some(parsed)) => parsed,
         Ok(None) => return 0,
         Err(error) => {
-            eprintln!("cat: {error}\nTry 'cat --help' for usage.");
-            return 2;
+            eprintln!("cat: {error}\nTry 'cat --help' for more information.");
+            return 1;
         }
     };
     let inputs = if paths.is_empty() {
@@ -537,8 +537,8 @@ pub fn head(args: &[String]) -> i32 {
         Ok(Some(parsed)) => parsed,
         Ok(None) => return 0,
         Err(error) => {
-            eprintln!("head: {error}\nTry 'head --help' for usage.");
-            return 2;
+            eprintln!("head: {error}\nTry 'head --help' for more information.");
+            return 1;
         }
     };
     let stdout = io::stdout();
@@ -644,8 +644,8 @@ pub fn tail(args: &[String]) -> i32 {
         Ok(Some(parsed)) => parsed,
         Ok(None) => return 0,
         Err(error) => {
-            eprintln!("tail: {error}\nTry 'tail --help' for usage.");
-            return 2;
+            eprintln!("tail: {error}\nTry 'tail --help' for more information.");
+            return 1;
         }
     };
     let stdout = io::stdout();
@@ -691,7 +691,7 @@ pub fn tail(args: &[String]) -> i32 {
     }
     let code = follow(&mut followers, &options, &mut headers, &mut output);
     if had_error {
-        2
+        1
     } else {
         code
     }
@@ -886,7 +886,7 @@ fn follow(
                     follower.path,
                     io_message(&error)
                 );
-                return 2;
+                return 1;
             }
             if buffer.is_empty() {
                 continue;
@@ -899,7 +899,7 @@ fn follow(
                     0
                 } else {
                     eprintln!("tail: cannot write output: {}", io_message(&error));
-                    2
+                    1
                 };
             }
         }
@@ -929,7 +929,7 @@ fn as_usize(value: u64) -> usize {
 
 fn status(had_error: bool) -> i32 {
     if had_error {
-        2
+        1
     } else {
         0
     }
@@ -960,8 +960,8 @@ fn report_failure(command: &str, path: &str, error: &io::Error) {
     eprintln!("{command}: '{path}': {}", io_message(error));
 }
 
-const CAT_HELP: &str = "Usage: cat [OPTION]... [FILE]...\n\nConcatenate FILE(s) to standard output. With no FILE, or when FILE is -, read standard input.\n\nOptions:\n  -A, --show-all          Same as -vET\n  -b, --number-nonblank   Number non-empty output lines (overrides -n)\n  -e                      Same as -vE\n  -E, --show-ends         Show $ at the end of each line\n  -n, --number            Number all output lines (format: %6d TAB)\n  -s, --squeeze-blank     Suppress repeated empty output lines\n  -t                      Same as -vT\n  -T, --show-tabs         Show TAB characters as ^I\n  -u                      Accepted and ignored\n  -v, --show-nonprinting  Show control characters with ^ and M- notation\n  -h, --help              Show this help\n\nExit status: 0 on success, 2 if an input could not be read.\n";
+const CAT_HELP: &str = "Usage: cat [OPTION]... [FILE]...\n\nConcatenate FILE(s) to standard output. With no FILE, or when FILE is -, read standard input.\n\nOptions:\n  -A, --show-all          Same as -vET\n  -b, --number-nonblank   Number non-empty output lines (overrides -n)\n  -e                      Same as -vE\n  -E, --show-ends         Show $ at the end of each line\n  -n, --number            Number all output lines (format: %6d TAB)\n  -s, --squeeze-blank     Suppress repeated empty output lines\n  -t                      Same as -vT\n  -T, --show-tabs         Show TAB characters as ^I\n  -u                      Accepted and ignored\n  -v, --show-nonprinting  Show control characters with ^ and M- notation\n  -h, --help              Show this help\n\nExit status: 0 on success, 1 if an input could not be read.\n";
 
-const HEAD_HELP: &str = "Usage: head [OPTION]... [FILE]...\n\nPrint the first 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[-]N      Print the first N lines; with -N, all but the last N lines\n  -c, --bytes=[-]N      Print the first N bytes; with -N, all but the last N bytes\n  -N                    Same as -n N (for example -5)\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024). +N is the same as N.\nExit status: 0 on success, 2 if an input could not be read.\n";
+const HEAD_HELP: &str = "Usage: head [OPTION]... [FILE]...\n\nPrint the first 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[-]N      Print the first N lines; with -N, all but the last N lines\n  -c, --bytes=[-]N      Print the first N bytes; with -N, all but the last N bytes\n  -N                    Same as -n N (for example -5)\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024). +N is the same as N.\nExit status: 0 on success, 1 if an input could not be read.\n";
 
-const TAIL_HELP: &str = "Usage: tail [OPTION]... [FILE]...\n\nPrint the last 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[+]N      Print the last N lines; with +N, start at line N\n  -c, --bytes=[+]N      Print the last N bytes; with +N, start at byte N\n  -N                    Same as -n N (for example -5)\n  -f, --follow[=name|descriptor]\n                        Print appended data as the file grows\n  -F                    Same as --follow=name --retry\n      --retry           Keep trying to open a file that is missing (with -F)\n  -s, --sleep-interval=S\n                        Poll interval in seconds while following (default 0.5)\n      --pid=PID         With -f, stop following when process PID exits\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024).\nFollowing stdin is not supported and ends at end of input, like GNU tail.\nReplacement detection with -F uses file identity on Unix only.\nExit status: 0 on success, 2 if an input could not be read.\n";
+const TAIL_HELP: &str = "Usage: tail [OPTION]... [FILE]...\n\nPrint the last 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[+]N      Print the last N lines; with +N, start at line N\n  -c, --bytes=[+]N      Print the last N bytes; with +N, start at byte N\n  -N                    Same as -n N (for example -5)\n  -f, --follow[=name|descriptor]\n                        Print appended data as the file grows\n  -F                    Same as --follow=name --retry\n      --retry           Keep trying to open a file that is missing (with -F)\n  -s, --sleep-interval=S\n                        Poll interval in seconds while following (default 0.5)\n      --pid=PID         With -f, stop following when process PID exits\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024).\nFollowing stdin is not supported and ends at end of input, like GNU tail.\nReplacement detection with -F uses file identity on Unix only.\nExit status: 0 on success, 1 if an input could not be read.\n";

@@ -74,7 +74,7 @@ fn text_commands_handle_binary_streams_and_counts() {
     assert!(f.run("head", &["-n", "0"], bytes).stdout.is_empty());
     assert_eq!(f.run("head", &["-1"], bytes).stdout, b"one\n");
     assert_eq!(f.run("tail", &["-1"], bytes).stdout, b"three");
-    assert_eq!(f.run("cat", &["missing"], b"").status.code(), Some(2));
+    assert_eq!(f.run("cat", &["missing"], b"").status.code(), Some(1));
     f.write("a", b"first");
     f.write("b", b"second");
     assert_eq!(f.run("less", &["a", "b"], b"").stdout, b"firstsecond");

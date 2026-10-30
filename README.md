@@ -56,7 +56,7 @@ env read --start 20 --limit 30 src/main.rs
 diff --context 3 old.txt new.txt
 ```
 
-Use `--` before positional arguments that begin with a dash. Arguments must be valid UTF-8. Commands write result data to standard output and errors to standard error. Search returns **0** for matches, **1** for none and **2** for errors; diff returns **0** for equal files, **1** for differences and **2** for errors. `cd` returns **1** for errors; most other commands currently return **0** for success and **2** for errors; `curl -f` returns **22** for HTTP error responses. Search can emit partial results before reporting an error, so always check the exit status.
+Use `--` before positional arguments that begin with a dash. Arguments must be valid UTF-8. Commands write result data to standard output and errors to standard error. Search returns **0** for matches, **1** for none and **2** for errors; diff returns **0** for equal files, **1** for differences and **2** for errors. `cat`, `cd`, `head`, and `tail` return **1** for errors; most other commands currently return **0** for success and **2** for errors; `curl -f` returns **22** for HTTP error responses. Search can emit partial results before reporting an error, so always check the exit status.
 
 ### Search
 

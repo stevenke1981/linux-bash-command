@@ -206,15 +206,15 @@ fn head_quiet_and_verbose_control_headers_for_multiple_files() {
 }
 
 #[test]
-fn head_and_tail_reject_unsupported_options_with_exit_two() {
+fn head_and_tail_reject_unsupported_options_with_exit_one() {
     let f = Fixture::new();
-    assert_eq!(f.run("head", &["--bogus"], b"x").status.code(), Some(2));
-    assert_eq!(f.run("head", &["-c", "x"], b"x").status.code(), Some(2));
+    assert_eq!(f.run("head", &["--bogus"], b"x").status.code(), Some(1));
+    assert_eq!(f.run("head", &["-c", "x"], b"x").status.code(), Some(1));
     assert_eq!(
         f.run("tail", &["-s", "x", "-f"], b"x").status.code(),
-        Some(2)
+        Some(1)
     );
-    assert_eq!(f.run("head", &["-f"], b"x").status.code(), Some(2));
+    assert_eq!(f.run("head", &["-f"], b"x").status.code(), Some(1));
 }
 
 #[test]
