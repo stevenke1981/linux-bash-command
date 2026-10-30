@@ -81,7 +81,7 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | sed | 比對以位元組進行（C locale）；`I` 旗標僅折疊 ASCII | 對齊 `LC_ALL=C` | — |
 | sed | 缺少 `-f` 腳本檔為 exit 4（同 GNU）；`-i` 無檔案 exit 4（同 GNU） | 對齊 GNU | — |
 | awk | 不支援 pipe／`system()` | 需 shell | — |
-| diff | 預設 unified → P4 改 normal | 對齊 GNU | — |
+| diff | 預設格式已於 P4 由 unified 改為 normal（破壞性變更，README 已載明） | 對齊 GNU | — |
 | grep | `-L` 退出碼依列出之檔案（GNU 3.11 依是否選取到行） | 既有行為，P1 不改 | `grep/null_data_list_without_match`（skip） |
 | grep | 無效 `-d ACTION` 退出 2（GNU 3.11 為 1） | 規格：grep 用法錯誤為 2 | `grep/directories_unknown_action`（skip） |
 | grep | `-T` 於無法取得大小之輸入（管線）欄寬固定 18（GNU 3.11 觀察值） | GNU 規則未明載，依觀察實作 | 僅 `-T` 於一般檔案比對（`initial_tab_*`） |
@@ -106,7 +106,6 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | cp | `--reflink=always` 與 `--attributes-only` 不支援（用法錯誤，exit 1） | 規格 03 指定不支援；無 clone 支援 | `reflink_always_unsupported`、`attributes_only_unsupported`（skip） |
 | mkdir | `-Z`／`--context` 不支援（GNU 於無 SELinux 時靜默成功） | 規格 03；SELinux 不在範圍 | `context_option_not_supported`（skip） |
 | ln | `-d`／`--directory`、`-F` 不支援 | 規格 03 ln | `directory_option_unsupported`、`capital_f_option_unsupported`（skip） |
-| touch | `-d` 僅接受 `@EPOCH`、`now`、`YYYY-MM-DD[( \|T)HH:MM[:SS[.frac]]]`；GNU 較寬鬆的日期字串（如 `1 Jan 2000`）報 `invalid date format` | `common::datetime` 尚未就緒，暫以 touch 局部解析（jiff）實作 | 僅 CLI 測試（`-d`/`-t` 無差分） |
 | rm cp mv（Windows） | `--one-file-system` 無作用（Windows 無 device 號）；`--preserve=ownership` 為 no-op | 平台無 uid/gid 與 dev 號 | — |
 | chmod（Windows） | 只有 owner 寫入位有效（清除即設 read-only）；其餘位元接受但忽略 | 規格 04 chmod | — |
 | mkdir（Windows） | `-m` 只驗證語法，不套用（目錄唯讀語意不同） | 規格 03 mkdir | — |
@@ -125,7 +124,56 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | pr | `-F`（換頁字元）以黑箱觀察之頁尾格式實作 | 規格未細述 | — |
 | pr | `-D` 以 jiff 的 strftime 格式化，特殊格式可能與 GNU 不同 | 時區與格式由 jiff 提供 | — |
 | join | `-t ''` 視為換行分隔（黑箱觀察） | 規格未明 | — |
-| （Codex 補充） | | | |
+| find | `-ls` owner/group 顯示 `-`、日期格式固定 | 無 uid→name 解析 | `find/ls_action_skipped_owner_columns`（skip） |
+| ls | `-l` owner/group 顯示 `-`，時間欄格式不同 | 無 uid→name 解析 | `ls/long_format_owner_and_date`（skip） |
+| find | `-exec {} +` 批次順序：同目錄內排序，GNU 依 readdir 順序 | 決定性輸出 | — |
+| printf | `%a` 與部分 `%.Nf` 末位以 f64 計算 | Rust 無 long double | `printf/hex_float_long_double`、`printf/long_double_rounding_case`（skip） |
+| test [ | `<`、`>` 依規格為二元運算子（GNU 9.4 拒絕） | 規格明文 | `test/string_less_than` 等（skip） |
+| test | `( ( a ) )` 依文法求值（GNU 報錯） | 文法一致 | `test/nested_parentheses`（skip） |
+| [ | `--help`／`--version` 文字與 GNU 不同 | 本專案自訂文字 | `[/help_is_only_argument` 等（skip） |
+| test | 整數錯誤訊息 `invalid integer`（GNU `integer expression expected`） | 規格明文 | — |
+| yes | 無限輸出不納入差分 | 差分器無管線 | `yes/*`（skip，CLI 測試涵蓋） |
+| sleep | 不接受十六進位浮點數 | 不實作 strtod hex | `sleep/hex_operand`（skip） |
+| env | `--block-signal` 等訊號選項不支援 | Windows 無訊號 | — |
+| sort | `--debug` 不支援；`-R` 次序與 GNU 不同；`-T` 只用第一個目錄；`--parallel` 接受但單執行緒；`-S` 不接受 `%` | 範圍取捨 | `sort/debug_unsupported`（skip） |
+| xargs | `-p`、`-o` 不支援；`--show-limits` 數值不同（預設 `-s` 固定 128 KiB）；`-P` 接受但序列執行 | 互動／平台相依 | `xargs/unsupported_*`、`xargs/show_limits_values_differ`（skip） |
+| wc | `-m`、`-L` 依規格以 UTF-8 字元計（GNU C locale 以位元組計） | 規格明文（02 §5） | `wc/chars_utf8_skip`、`wc/max_line_wide_utf8_skip`（skip） |
+| tac | 整檔讀入記憶體（無 seekable 反向分塊讀） | 簡化 | — |
+| tac | `-r` regex 由左至右匹配 | regex crate | — |
+| date | 接受 `noon`／`midnight`（GNU 9.4 拒絕）；拒絕軍用時區字母 `x`（GNU 接受） | 規格明文 | `date/noon_keyword`、`date/military_zone_letter`（skip） |
+| date | `-s`、`--debug` 不支援；單一非 `+` 運算元回 `cannot set date` | 不改系統時間 | — |
+| du | `--inodes` 不支援 | 範圍取捨 | `du/inodes_option_unsupported`（skip） |
+| stat | `-f` 僅 Unix；`%T` 只認 10 種檔案系統；`%m` 以裝置邊界推得；`%C` 恆為 `?` | 無 SELinux／mount 表解析 | — |
+| realpath readlink | `-L` 先以字面方式消去 `..` 再解析 symlink | 近似 GNU | — |
+| shuf | `--random-source` 可重現但序列與 GNU 不同 | 自有 PRNG | 差分以 `stdout_sorted` |
+| numfmt | 以 f64 計算；超大數不報 `value too large` | 不引入 bignum | `numfmt/huge_plain_number_is_gnu_error`（skip） |
+| factor | 僅 u128；更大者報 `is too large` | 不引入 bignum | `factor/beyond_u128_is_skipped`（skip） |
+| expr | 除以零、非整數引數 exit 3（GNU 2） | 規格：運算錯誤 3 | `expr/division_by_zero_is_skipped` 等（skip） |
+| pathchk | 預設上限固定 4096／255（不呼叫 pathconf） | 跨平台 | — |
+| ptx | 過長行之 wrap 欄（`/` 標記）、`-R` 版面、極小 `-w` 未重現 | 範圍取捨 | `ptx/*_is_skipped`（skip） |
+| which | 用法錯誤寫 stderr、`--help` exit 0、接受 `--`（debianutils 皆不同） | 02 §1、§2、§4 | `which/invalid_option` 等（skip） |
+| tree | 預設 box-drawing 連接線（GNU C locale 為 ASCII）；續行用一般空白（GNU 用 U+00A0）；規格外選項拒絕 | 規格明文 | `tree/default_charset_is_utf8`、`tree/utf8_nested_nbsp_continuation`（skip） |
+| timeout | 接受 `-p`（GNU 9.4 無）；不轉送收到之訊號給子行程 | 規格明文／簡化 | `timeout/short_p_is_preserve_status`（skip） |
+| kill | `-l` 未知值 exit 1（procps 0） | 規格：失敗 exit 1 | `kill/list_*_rejected`（skip） |
+| pgrep pkill | 規格外選項拒絕；`pkill -e` 輸出格式自訂 | 範圍取捨 | — |
+| cmp | 預設訊息 `differ: byte N, line M`（GNU 3.10 為 `char N`） | 規格明文 | `cmp/default_differ`（skip） |
+| rev | `-` 為 stdin（util-linux 視為檔名）；無效 UTF-8 逐位元組反轉 | 02 §5／規格 | `rev/dash_is_a_file_name`（skip） |
+| column | 規格外選項不支援；寬字元寬度以 CJK 範圍表近似 | 範圍取捨 | — |
+| dos2unix unix2dos | `-` 為 stdin；`-c` 只支援 ascii；二進位 stdin 不輸出；用法錯誤寫 stderr；UTF-16 視為二進位；unix2dos 對 CR CR LF 處理不同 | 02 §4–§5／規格 | `dos2unix/*`、`unix2dos/*`（skip） |
+| diff | `-u` 標頭不含時間；`-y -B` 不列隱藏空行；`--context N`（空白分隔）不再接受 | 05 §4／GNU | `diff/unified_without_labels`、`diff/side_blank_lines_with_B`（skip） |
+| awk | `printf` 引數不足時補空字串／0（gawk --posix 致命錯誤） | 寬鬆處理 | `awk/printf_missing_args`（skip） |
+| awk | `cmd \| getline`、`print \| cmd`、`system()` 不支援（exit 2） | 規格明文 | `awk/*_unsupported`（skip） |
+| awk | 接受 `length(array)`、多字元 regex `RS`、`**`／`**=`（gawk --posix 拒絕）；語法錯誤 exit 2（gawk 1） | 規格明文 | `awk/length_of_array` 等（skip） |
+| awk | 字串轉數不認十六進位（gawk 經 strtod 認） | POSIX 十進位轉換 | `awk/hex_string_is_zero`（skip） |
+| awk | regex 交替為 leftmost-first（POSIX 為 leftmost-longest）；`length` 等以 UTF-8 字元計；初始 `srand()` 回傳 0 | regex crate／規格 | — |
+| gzip | 壓縮位元組與 GNU 不同（flate2）；不支援 `.Z`／`.z` | 不同 deflate 實作 | 差分只比解壓結果 |
+| tar | 無模式／未知選項 exit 1（GNU 2／64）；`-j -J --zstd --lzma`、`-r -u --delete` 不支援；建立之封存非逐位元組相同；硬連結存為複本；裝置／FIFO 不封存 | 規格／`tar` crate | `tar/no_mode_is_usage_error` 等（skip） |
+| ls | `-l` 預設時間欄為 `YYYY-MM-DD HH:MM`（GNU C locale 為 `Nov 14  2023`）；`-Z`、`-D` 不支援；`--sort=width` 近似 | 既有行為／範圍 | `ls/long_format_owner_and_date`（skip） |
+| find | 輸出依名稱排序；`-inum`、`-samefile` 僅 Unix | 決定性輸出 | — |
+| df | `-i` 不支援；`--output` 無清單時不含 inode 與 file 欄 | 跨平台 | — |
+| patch | context diff 不支援；CRLF 目標正規化後套用（GNU 失敗）；拒絕絕對路徑與 `..` 目標；互動問題一律答 n；全部解析完才套用 | 規格明文／安全 | `patch/*`（skip） |
+| xxd | `-E`、`-R` 不支援；`-r` 向後移動須可 seek 之輸出 | 範圍取捨 | — |
+| file | libmagic 子集，自訂措辭；只檢查前 1 MiB | 規格 | golden 測試 |
 
 ## 回報格式（每階段完成時，Codex 輸出）
 
