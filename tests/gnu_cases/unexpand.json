@@ -1,0 +1,133 @@
+{
+  "command": "unexpand",
+  "cases": [
+    {
+      "name": "default_leading_blanks",
+      "args": [],
+      "stdin": "        a       b\n"
+    },
+    {
+      "name": "all_blanks",
+      "args": [
+        "-a"
+      ],
+      "stdin": "        a       b\n"
+    },
+    {
+      "name": "first_only_long",
+      "args": [
+        "--first-only"
+      ],
+      "stdin": "        a       b\n"
+    },
+    {
+      "name": "tabs_implies_all",
+      "args": [
+        "-t",
+        "4"
+      ],
+      "stdin": "        a       b\n"
+    },
+    {
+      "name": "tabs_first_only",
+      "args": [
+        "-t",
+        "4",
+        "--first-only"
+      ],
+      "stdin": "        a       b\n"
+    },
+    {
+      "name": "first_only_overrides_all",
+      "args": [
+        "-a",
+        "--first-only"
+      ],
+      "stdin": "        a       b\n"
+    },
+    {
+      "name": "all_long_option",
+      "args": [
+        "--all"
+      ],
+      "stdin": "ab  c\n"
+    },
+    {
+      "name": "single_space_not_converted",
+      "args": [
+        "-a"
+      ],
+      "stdin": "1234567 8\n"
+    },
+    {
+      "name": "two_spaces_at_stop_converted",
+      "args": [
+        "-a"
+      ],
+      "stdin": "1234567  8\n"
+    },
+    {
+      "name": "tabs_list_long",
+      "args": [
+        "--tabs=8",
+        "-a"
+      ],
+      "stdin": "        x\n"
+    },
+    {
+      "name": "legacy_numeric",
+      "args": [
+        "-4"
+      ],
+      "stdin": "        a\n"
+    },
+    {
+      "name": "trailing_blanks_all",
+      "args": [
+        "-a"
+      ],
+      "stdin": "abc     \n"
+    },
+    {
+      "name": "existing_tabs_kept",
+      "args": [
+        "-a"
+      ],
+      "stdin": "a\tb\n"
+    },
+    {
+      "name": "no_trailing_newline",
+      "args": [
+        "-a"
+      ],
+      "stdin": "        x"
+    },
+    {
+      "name": "zero_tab_size_error",
+      "args": [
+        "-t",
+        "0"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_file_continues",
+      "args": [
+        "-a",
+        "nope.txt",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "        a\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    }
+  ]
+}

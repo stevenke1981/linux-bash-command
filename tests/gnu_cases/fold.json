@@ -1,0 +1,182 @@
+{
+  "command": "fold",
+  "cases": [
+    {
+      "name": "default_width_wraps_at_80",
+      "args": [],
+      "stdin": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\n"
+    },
+    {
+      "name": "width_w",
+      "args": [
+        "-w",
+        "5",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "abcdefghijklmnop\nxy\n"
+      }
+    },
+    {
+      "name": "legacy_numeric_width",
+      "args": [
+        "-5",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "abcdefghijklmnop\n"
+      }
+    },
+    {
+      "name": "break_at_spaces",
+      "args": [
+        "-s",
+        "-w",
+        "8",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "hello world foo\n"
+      }
+    },
+    {
+      "name": "bytes_mode",
+      "args": [
+        "-b",
+        "-w",
+        "4",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "abcdefghijklmnop\nxy\tz\n"
+      }
+    },
+    {
+      "name": "tab_columns",
+      "args": [
+        "-w",
+        "4"
+      ],
+      "stdin": "a\tbc\td\n"
+    },
+    {
+      "name": "tab_columns_bytes",
+      "args": [
+        "-b",
+        "-w",
+        "4"
+      ],
+      "stdin": "a\tbc\td\n"
+    },
+    {
+      "name": "backspace_and_cr",
+      "args": [
+        "-w",
+        "3"
+      ],
+      "stdin": "ab\bcd\re\n"
+    },
+    {
+      "name": "long_width_option",
+      "args": [
+        "--width=6"
+      ],
+      "stdin": "abcdefghijklmnop\n"
+    },
+    {
+      "name": "long_spaces_width",
+      "args": [
+        "--spaces",
+        "--width",
+        "8"
+      ],
+      "stdin": "hello world foo\n"
+    },
+    {
+      "name": "no_trailing_newline",
+      "args": [
+        "-w",
+        "2"
+      ],
+      "stdin": "abcd"
+    },
+    {
+      "name": "empty_lines_kept",
+      "args": [
+        "-w",
+        "3"
+      ],
+      "stdin": "\n\nab\n"
+    },
+    {
+      "name": "multiple_files",
+      "args": [
+        "-w",
+        "3",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "abcdef\n",
+        "b.txt": "ghijkl\n"
+      }
+    },
+    {
+      "name": "missing_file_continues",
+      "args": [
+        "-w",
+        "3",
+        "nope.txt",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "abcdef\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "zero_width_error",
+      "args": [
+        "-w",
+        "0"
+      ],
+      "stdin": "abc\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid_width_error",
+      "args": [
+        "-w",
+        "x"
+      ],
+      "stdin": "abc\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "bytes_long_option_attached",
+      "args": [
+        "--bytes",
+        "-w5"
+      ],
+      "stdin": "abcdefgh\n"
+    },
+    {
+      "name": "spaces_no_blank_hard_break",
+      "args": [
+        "-s",
+        "-w",
+        "3"
+      ],
+      "stdin": "abcdefgh\n"
+    }
+  ]
+}

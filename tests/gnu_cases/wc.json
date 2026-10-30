@@ -1,0 +1,331 @@
+{
+  "command": "wc",
+  "cases": [
+    {
+      "name": "default_single_file",
+      "args": [
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "hello world\nfoo\n"
+      }
+    },
+    {
+      "name": "lines_only_single",
+      "args": [
+        "-l",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "hello world\nfoo\n"
+      }
+    },
+    {
+      "name": "stdin_default",
+      "args": [],
+      "stdin": "hello world\nfoo\n"
+    },
+    {
+      "name": "stdin_lines_only",
+      "args": [
+        "-l"
+      ],
+      "stdin": "one\ntwo\nthree\n"
+    },
+    {
+      "name": "stdin_dash_operand_with_file",
+      "args": [
+        "-",
+        "a.txt"
+      ],
+      "stdin": "x y\n",
+      "files": {
+        "a.txt": "hello world\nfoo\n"
+      }
+    },
+    {
+      "name": "words_bytes_multi",
+      "args": [
+        "-w",
+        "-c",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "hello world\nfoo\n",
+        "b.txt": "x\n"
+      }
+    },
+    {
+      "name": "multi_files_total",
+      "args": [
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "hello world\nfoo\n",
+        "b.txt": "x\n"
+      }
+    },
+    {
+      "name": "total_always_single",
+      "args": [
+        "--total=always",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "hello world\n"
+      }
+    },
+    {
+      "name": "total_only",
+      "args": [
+        "--total=only",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "hello world\nfoo\n",
+        "b.txt": "x\n"
+      }
+    },
+    {
+      "name": "total_never",
+      "args": [
+        "--total=never",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "hello world\nfoo\n",
+        "b.txt": "x\n"
+      }
+    },
+    {
+      "name": "total_invalid_value",
+      "args": [
+        "--total=bogus",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "x\n"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_file_continues",
+      "args": [
+        "nope.txt",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "hello world\nfoo\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "directory_operand",
+      "args": [
+        "dd"
+      ],
+      "files": {
+        "dd": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "max_line_length",
+      "args": [
+        "-L",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "a\tb\nxyz\n"
+      }
+    },
+    {
+      "name": "max_line_length_cr_formfeed",
+      "args": [
+        "-L"
+      ],
+      "stdin": "abc\rdefgh\n"
+    },
+    {
+      "name": "chars_ascii_only",
+      "args": [
+        "-m",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "hello\n"
+      }
+    },
+    {
+      "name": "files0_from_names",
+      "args": [
+        "--files0-from=list0"
+      ],
+      "files": {
+        "list0": {
+          "hex": "612e74787400622e74787400"
+        },
+        "a.txt": "hello world\nfoo\n",
+        "b.txt": "x\n"
+      }
+    },
+    {
+      "name": "files0_from_stdin",
+      "args": [
+        "--files0-from=-"
+      ],
+      "stdin_hex": "612e74787400",
+      "files": {
+        "a.txt": "hello world\nfoo\n"
+      }
+    },
+    {
+      "name": "files0_extra_operand",
+      "args": [
+        "--files0-from=list0",
+        "a.txt"
+      ],
+      "files": {
+        "list0": {
+          "hex": "612e7478740000"
+        },
+        "a.txt": "x\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "files0_empty_entry",
+      "args": [
+        "--files0-from=list0"
+      ],
+      "files": {
+        "list0": {
+          "hex": "612e7478740000"
+        },
+        "a.txt": "x\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "width_digits_from_sizes",
+      "args": [
+        "-l",
+        "big.txt",
+        "a.txt"
+      ],
+      "files": {
+        "big.txt": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n",
+        "a.txt": "hello world\nfoo\n"
+      }
+    },
+    {
+      "name": "width_default_with_big_file",
+      "args": [
+        "big.txt",
+        "a.txt"
+      ],
+      "files": {
+        "big.txt": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n",
+        "a.txt": "hello world\nfoo\n"
+      }
+    },
+    {
+      "name": "regular_stdin_sized_like_file",
+      "args": [
+        "-",
+        "a.txt"
+      ],
+      "stdin_hex": "68656c6c6f0a",
+      "files": {
+        "a.txt": "x\n"
+      }
+    },
+    {
+      "name": "help_exit",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version_exit",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown_option_exit",
+      "args": [
+        "-x"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "lines_and_bytes_combined",
+      "args": [
+        "-lc",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "hello world\nfoo\n"
+      }
+    },
+    {
+      "name": "long_options",
+      "args": [
+        "--lines",
+        "--words",
+        "--bytes",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "hello world\nfoo\n"
+      }
+    },
+    {
+      "name": "chars_utf8_skip",
+      "args": [
+        "-m"
+      ],
+      "stdin_hex": "c3a9e282ac0a",
+      "skip_reason": "spec: -m counts UTF-8 characters (U+00E9 and U+20AC count 1 each); GNU in the C locale counts bytes (5)"
+    },
+    {
+      "name": "max_line_wide_utf8_skip",
+      "args": [
+        "-L"
+      ],
+      "stdin": "é\n",
+      "skip_reason": "spec: -L counts UTF-8 characters; GNU in the C locale counts non-ASCII bytes as width 0"
+    }
+  ]
+}

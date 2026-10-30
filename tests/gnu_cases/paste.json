@@ -1,0 +1,249 @@
+{
+  "command": "paste",
+  "cases": [
+    {
+      "name": "parallel_two_files",
+      "args": [
+        "p1.txt",
+        "p2.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n3\n",
+        "p2.txt": "a\nb\n"
+      }
+    },
+    {
+      "name": "parallel_custom_delimiter",
+      "args": [
+        "-d",
+        ":",
+        "p1.txt",
+        "p2.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n3\n",
+        "p2.txt": "a\nb\n"
+      }
+    },
+    {
+      "name": "parallel_delimiter_cycle",
+      "args": [
+        "-d",
+        "\\n\\t",
+        "p1.txt",
+        "p2.txt",
+        "p1.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n3\n",
+        "p2.txt": "a\nb\n"
+      }
+    },
+    {
+      "name": "parallel_delimiter_pair_cycle",
+      "args": [
+        "-d",
+        "ab",
+        "p1.txt",
+        "p2.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n3\n",
+        "p2.txt": "a\nb\n"
+      }
+    },
+    {
+      "name": "serial_default",
+      "args": [
+        "-s",
+        "p1.txt",
+        "p2.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n3\n",
+        "p2.txt": "a\nb\n"
+      }
+    },
+    {
+      "name": "serial_delimiter",
+      "args": [
+        "-s",
+        "-d",
+        ",",
+        "p1.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n3\n"
+      }
+    },
+    {
+      "name": "serial_delimiter_cycle_per_file",
+      "args": [
+        "-s",
+        "-d",
+        "ab",
+        "p1.txt",
+        "p2.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n3\n",
+        "p2.txt": "a\nb\n"
+      }
+    },
+    {
+      "name": "stdin_pairs_dash_dash",
+      "args": [
+        "-",
+        "-"
+      ],
+      "stdin": "l1\nl2\nl3\n"
+    },
+    {
+      "name": "missing_file_no_output",
+      "args": [
+        "nope.txt",
+        "p2.txt"
+      ],
+      "files": {
+        "p2.txt": "a\nb\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_file_serial_no_output",
+      "args": [
+        "-s",
+        "p2.txt",
+        "nope.txt"
+      ],
+      "files": {
+        "p2.txt": "a\nb\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "zero_terminated_parallel",
+      "args": [
+        "-z",
+        "p1.txt",
+        "p2.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n",
+        "p2.txt": "a\nb\n"
+      }
+    },
+    {
+      "name": "empty_delimiter_list",
+      "args": [
+        "-d",
+        "",
+        "p1.txt",
+        "p2.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n",
+        "p2.txt": "a\nb\n"
+      }
+    },
+    {
+      "name": "trailing_backslash_error",
+      "args": [
+        "-d",
+        "a\\",
+        "p1.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "single_file_passthrough",
+      "args": [
+        "p1.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n"
+      }
+    },
+    {
+      "name": "stdin_default_no_args",
+      "args": [],
+      "stdin": "x\ny\n"
+    },
+    {
+      "name": "unknown_escape_in_delimiter",
+      "args": [
+        "-d",
+        "\\q",
+        "p1.txt",
+        "p2.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n",
+        "p2.txt": "a\nb\n"
+      }
+    },
+    {
+      "name": "serial_stdin",
+      "args": [
+        "-s",
+        "-"
+      ],
+      "stdin": "s1\ns2\n"
+    },
+    {
+      "name": "serial_empty_file",
+      "args": [
+        "-s",
+        "empty.txt"
+      ],
+      "files": {
+        "empty.txt": ""
+      }
+    },
+    {
+      "name": "parallel_empty_files",
+      "args": [
+        "e1.txt",
+        "e2.txt"
+      ],
+      "files": {
+        "e1.txt": "",
+        "e2.txt": ""
+      }
+    },
+    {
+      "name": "serial_zero_terminated",
+      "args": [
+        "-s",
+        "-z",
+        "p1.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n"
+      }
+    },
+    {
+      "name": "long_options",
+      "args": [
+        "--serial",
+        "--delimiters=:",
+        "p1.txt"
+      ],
+      "files": {
+        "p1.txt": "1\n2\n"
+      }
+    }
+  ]
+}

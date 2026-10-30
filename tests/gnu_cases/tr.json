@@ -1,0 +1,247 @@
+{
+  "command": "tr",
+  "cases": [
+    {
+      "name": "upper_range",
+      "args": [
+        "a-z",
+        "A-Z"
+      ],
+      "stdin": "hello World 123\n"
+    },
+    {
+      "name": "class_lower_to_upper",
+      "args": [
+        "[:lower:]",
+        "[:upper:]"
+      ],
+      "stdin": "hello World\n"
+    },
+    {
+      "name": "delete_digits_class",
+      "args": [
+        "-d",
+        "[:digit:]"
+      ],
+      "stdin": "a1b2c3\n"
+    },
+    {
+      "name": "delete_complement_alnum_newline",
+      "args": [
+        "-cd",
+        "[:alnum:]\n"
+      ],
+      "stdin": "hello, world!\n"
+    },
+    {
+      "name": "squeeze_one_set",
+      "args": [
+        "-s",
+        " "
+      ],
+      "stdin": "a   b  c\n"
+    },
+    {
+      "name": "squeeze_space_class",
+      "args": [
+        "-s",
+        "[:space:]"
+      ],
+      "stdin": "a \t b\n\n c\n"
+    },
+    {
+      "name": "translate_pads_with_last",
+      "args": [
+        "abc",
+        "xy"
+      ],
+      "stdin": "abcd\n"
+    },
+    {
+      "name": "truncate_set1",
+      "args": [
+        "-t",
+        "abc",
+        "xy"
+      ],
+      "stdin": "abcabc\n"
+    },
+    {
+      "name": "complement_translate",
+      "args": [
+        "-c",
+        "a-zA-Z",
+        "_"
+      ],
+      "stdin": "a-b c!\n"
+    },
+    {
+      "name": "delete_and_squeeze",
+      "args": [
+        "-ds",
+        "a",
+        "b"
+      ],
+      "stdin": "aabbcc\n"
+    },
+    {
+      "name": "repeat_in_set2_fills",
+      "args": [
+        "abc",
+        "[x*]"
+      ],
+      "stdin": "aabbcc\n"
+    },
+    {
+      "name": "repeat_count_in_set1",
+      "args": [
+        "[x*3]",
+        "ab"
+      ],
+      "stdin": "xyz\n"
+    },
+    {
+      "name": "octal_escape_range",
+      "args": [
+        "\\101-\\103",
+        "x"
+      ],
+      "stdin": "ABCD\n"
+    },
+    {
+      "name": "equivalence_class",
+      "args": [
+        "[=l=]",
+        "L"
+      ],
+      "stdin": "hello\n"
+    },
+    {
+      "name": "escape_tab_newline",
+      "args": [
+        "\\t\\n",
+        "_ "
+      ],
+      "stdin": "a\tb\n"
+    },
+    {
+      "name": "unknown_escape_drops_backslash",
+      "args": [
+        "\\q",
+        "Q"
+      ],
+      "stdin": "qwq\n"
+    },
+    {
+      "name": "complement_long_option_delete",
+      "args": [
+        "--complement",
+        "--delete",
+        "a-z"
+      ],
+      "stdin": "ab12\n"
+    },
+    {
+      "name": "complement_upper_alias",
+      "args": [
+        "-C",
+        "a-z",
+        "-"
+      ],
+      "stdin": "ab-\n"
+    },
+    {
+      "name": "reverse_range_error",
+      "args": [
+        "z-a",
+        "x"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_operand_error",
+      "args": [
+        "a"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "extra_operand_error",
+      "args": [
+        "a",
+        "b",
+        "c"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "repeat_in_set1_error",
+      "args": [
+        "[a*]",
+        "x"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "bad_class_error",
+      "args": [
+        "[:foo:]",
+        "x"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "misaligned_class_error",
+      "args": [
+        "a",
+        "[:upper:]"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "delete_two_operands_error",
+      "args": [
+        "-d",
+        "a",
+        "b"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "squeeze_stdin_lines",
+      "args": [
+        "-s",
+        "a-z"
+      ],
+      "stdin": "aaa bbb\nccc\n"
+    }
+  ]
+}

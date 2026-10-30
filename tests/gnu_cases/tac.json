@@ -1,0 +1,148 @@
+{
+  "command": "tac",
+  "cases": [
+    {
+      "name": "default_newline",
+      "args": [],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "multiple_files",
+      "args": [
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "1\n2\n",
+        "b.txt": "3\n"
+      }
+    },
+    {
+      "name": "no_trailing_newline",
+      "args": [],
+      "stdin": "l1\nl2"
+    },
+    {
+      "name": "custom_separator",
+      "args": [
+        "-s",
+        "X"
+      ],
+      "stdin": "aXbXc"
+    },
+    {
+      "name": "before_mode",
+      "args": [
+        "-b"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "regex_single_char",
+      "args": [
+        "-r",
+        "-s",
+        "[0-9]"
+      ],
+      "stdin": "a1b22c\n"
+    },
+    {
+      "name": "before_regex",
+      "args": [
+        "-b",
+        "-r",
+        "-s",
+        "[0-9]"
+      ],
+      "stdin": "a1b22c\n"
+    },
+    {
+      "name": "multi_char_separator",
+      "args": [
+        "-s",
+        "--"
+      ],
+      "stdin": "a--b--c"
+    },
+    {
+      "name": "missing_file_continues",
+      "args": [
+        "nope.txt",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "1\n2\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "empty_input",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "empty_separator_is_nul",
+      "args": [
+        "-s",
+        ""
+      ],
+      "stdin_hex": "7a00007900"
+    },
+    {
+      "name": "long_options",
+      "args": [
+        "--before",
+        "--separator=2"
+      ],
+      "stdin": "a2b2c\n"
+    },
+    {
+      "name": "long_regex",
+      "args": [
+        "--regex",
+        "-s",
+        "2"
+      ],
+      "stdin": "a2b2c\n"
+    },
+    {
+      "name": "separator_at_end",
+      "args": [
+        "-s",
+        "\n"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "separator_not_found",
+      "args": [
+        "-s",
+        "Q"
+      ],
+      "stdin": "abc\n"
+    },
+    {
+      "name": "files_separator_spans_files",
+      "args": [
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "x\ny",
+        "b.txt": "z\n"
+      }
+    },
+    {
+      "name": "regex_with_no_match",
+      "args": [
+        "-r",
+        "-s",
+        "[Q]"
+      ],
+      "stdin": "abc\n"
+    }
+  ]
+}

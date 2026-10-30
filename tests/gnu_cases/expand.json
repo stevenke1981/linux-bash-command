@@ -1,0 +1,164 @@
+{
+  "command": "expand",
+  "cases": [
+    {
+      "name": "default_eight_columns",
+      "args": [],
+      "stdin": "a\tb\n  \tc\n"
+    },
+    {
+      "name": "tabs_n",
+      "args": [
+        "-t",
+        "4"
+      ],
+      "stdin": "a\tb\n  \tc\n"
+    },
+    {
+      "name": "tabs_explicit_list",
+      "args": [
+        "-t",
+        "3,6"
+      ],
+      "stdin": "a\tb\tc\td\te\n"
+    },
+    {
+      "name": "tabs_plus_increment",
+      "args": [
+        "-t",
+        "+3"
+      ],
+      "stdin": "a\tb\tc\n"
+    },
+    {
+      "name": "tabs_slash_multiple",
+      "args": [
+        "-t",
+        "/3"
+      ],
+      "stdin": "a\tb\tc\n"
+    },
+    {
+      "name": "tabs_list_with_increment",
+      "args": [
+        "-t",
+        "2,+3"
+      ],
+      "stdin": "a\tb\tc\td\te\n"
+    },
+    {
+      "name": "tab_beyond_last_stop_single_space",
+      "args": [
+        "-t",
+        "3,6"
+      ],
+      "stdin": "abcdefghijk\tz\n"
+    },
+    {
+      "name": "initial_only",
+      "args": [
+        "-i"
+      ],
+      "stdin": "a\tb\n\tc\n"
+    },
+    {
+      "name": "initial_long_option",
+      "args": [
+        "--initial",
+        "-t",
+        "4"
+      ],
+      "stdin": "a\tb\n  \tc\n"
+    },
+    {
+      "name": "legacy_numeric",
+      "args": [
+        "-4"
+      ],
+      "stdin": "a\tb\n"
+    },
+    {
+      "name": "tabs_long_equals",
+      "args": [
+        "--tabs=4"
+      ],
+      "stdin": "a\tb\n"
+    },
+    {
+      "name": "backspace_before_tab",
+      "args": [],
+      "stdin": "ab\b\tc\n"
+    },
+    {
+      "name": "multiple_files",
+      "args": [
+        "-t",
+        "4",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "x\ty\n",
+        "b.txt": "\tz\n"
+      }
+    },
+    {
+      "name": "missing_file_continues",
+      "args": [
+        "nope.txt",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "a\tb\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "zero_tab_size_error",
+      "args": [
+        "-t",
+        "0"
+      ],
+      "stdin": "a\tb\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "descending_list_error",
+      "args": [
+        "-t",
+        "5,3"
+      ],
+      "stdin": "a\tb\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid_tab_char_error",
+      "args": [
+        "-t",
+        "x"
+      ],
+      "stdin": "a\tb\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "no_trailing_newline",
+      "args": [
+        "-t",
+        "4"
+      ],
+      "stdin": "a\tb"
+    }
+  ]
+}
