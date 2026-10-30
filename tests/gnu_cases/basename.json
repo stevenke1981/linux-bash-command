@@ -1,0 +1,31 @@
+{
+  "command": "basename",
+  "cases": [
+    { "name": "trailing_slash_removed", "args": ["/usr/lib/"] },
+    { "name": "two_operand_suffix", "args": ["a/b.txt", ".txt"] },
+    { "name": "suffix_option_short", "args": ["-s", ".txt", "a/b.txt", "c.txt"] },
+    { "name": "suffix_option_long_equals", "args": ["--suffix=.c", "x/y.c"] },
+    { "name": "multiple_option", "args": ["-a", "x/y", "z/w"] },
+    { "name": "multiple_long_option", "args": ["--multiple", "p/q", "r"] },
+    { "name": "zero_terminated", "args": ["-z", "a/b"] },
+    { "name": "zero_with_multiple", "args": ["-z", "-a", "a", "b"] },
+    { "name": "missing_operand", "args": [] },
+    { "name": "extra_operand", "args": ["a", "b", "c"] },
+    { "name": "root_path", "args": ["/"] },
+    { "name": "double_slash_path", "args": ["//"] },
+    { "name": "empty_name", "args": [""] },
+    { "name": "suffix_equal_to_name_kept", "args": [".txt", ".txt"] },
+    { "name": "suffix_not_matching", "args": ["foo", "bar"] },
+    { "name": "empty_suffix_operand", "args": ["a.c", ""] },
+    { "name": "suffix_option_missing_value", "args": ["-s"] },
+    { "name": "invalid_short_option", "args": ["-x", "a"] },
+    { "name": "no_permutation_after_operand", "args": ["a/b", "-a"] },
+    { "name": "double_dash_option_like_name", "args": ["--", "-a"] },
+    { "name": "multiple_with_trailing_slashes", "args": ["-a", "a//", "b/"] },
+    { "name": "suffix_implies_multiple", "args": ["-s", "c", "x.c", "y.h"] },
+    { "name": "suffix_long_missing_value", "args": ["--suffix"] },
+    { "name": "long_prefix_multiple", "args": ["--mult", "m/n"] },
+    { "name": "help_alone_exit_status", "args": ["--help"], "compare": ["exit"] },
+    { "name": "version_alone_exit_status", "args": ["--version"], "compare": ["exit"] }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "command": "yes",
+  "cases": [
+    { "name": "help_exit_status", "args": ["--help"], "compare": ["exit"] },
+    { "name": "version_exit_status", "args": ["--version"], "compare": ["exit"] },
+    { "name": "help_after_operand", "args": ["a", "--help"], "compare": ["exit"] },
+    { "name": "version_after_operand", "args": ["a", "--version"], "compare": ["exit"] },
+    { "name": "help_prefix", "args": ["--he"], "compare": ["exit"] },
+    { "name": "help_and_version_together", "args": ["--help", "--version"], "compare": ["exit"] },
+    { "name": "invalid_short_option", "args": ["-x"] },
+    { "name": "short_h_is_invalid", "args": ["-h"] },
+    { "name": "unknown_long_option", "args": ["--bogus"] },
+    { "name": "long_option_with_argument", "args": ["--help=x"] },
+    { "name": "short_digit_is_invalid", "args": ["-5"] },
+    { "name": "double_dash_then_help_is_operand", "args": ["--", "--help"], "skip_reason": "unbounded output: the runner cannot stop yes without a pipe; covered by tests/text_p1_simple.rs" },
+    { "name": "default_repeats_y", "args": [], "skip_reason": "unbounded output: the runner cannot stop yes without a pipe; covered by tests/text_p1_simple.rs" },
+    { "name": "operands_joined_with_spaces", "args": ["a", "b"], "skip_reason": "unbounded output: the runner cannot stop yes without a pipe; covered by tests/text_p1_simple.rs" },
+    { "name": "lone_dash_is_operand", "args": ["-"], "skip_reason": "unbounded output: the runner cannot stop yes without a pipe; covered by tests/text_p1_simple.rs" },
+    { "name": "option_like_operand_after_double_dash", "args": ["--", "-y"], "skip_reason": "unbounded output: the runner cannot stop yes without a pipe; covered by tests/text_p1_simple.rs" }
+  ]
+}
