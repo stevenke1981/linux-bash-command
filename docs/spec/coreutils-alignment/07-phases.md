@@ -75,6 +75,18 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | sed | pattern 內 backreference 不支援 | `regex` crate 限制 | `sed_backref`（skip） |
 | awk | 不支援 pipe／`system()` | 需 shell | — |
 | diff | 預設 unified → P4 改 normal | 對齊 GNU | — |
+| od | `-t fL`／`f16`（long double）以 f64 解碼後輸出 | Rust 無 f80 | — |
+| od | `-w0` GNU 中止（exit 134）；本專案報 `invalid width`，exit 1 | GNU 缺陷不複製 | — |
+| od | `-S` 的字串只在 NUL 結尾時輸出（依 GNU 黑箱行為實作） | 規格未明 | — |
+| split | `--filter` 不支援（exit 1，規格允許） | 需 shell | `split/c36_filter_cat_ten`（skip） |
+| split | `-n N`／`-n l/N` 需要總大小：stdin 先複製到暫存檔（TMPDIR） | 無法在不知總長時分割 | — |
+| split | 未指定 `-a` 時，第 651 個以後名稱（`zaaa` 起）依黑箱觀察實作；超過 `-a N` 的範圍報 `output file suffixes exhausted` | 黑箱推導 | — |
+| csplit | 整份輸入先讀入記憶體（向後搜尋與負偏移需要） | 設計 | — |
+| fmt | 最佳斷行成本函數為黑箱推導（目標寬 `round(0.93·w)`、末行單字加罰、行寬 < w）；與 GNU 在測試輸入一致，其他輸入可能有差異 | 未讀 GNU 原始碼 | `fmt` 差分 39 案例（全部一致） |
+| pr | `-c`（控制字元記號）、`-i`（輸出 tab）與多欄、`-n` 併用之對齊未逐一黑箱比對 | 規格未細述 | — |
+| pr | `-F`（換頁字元）以黑箱觀察之頁尾格式實作 | 規格未細述 | — |
+| pr | `-D` 以 jiff 的 strftime 格式化，特殊格式可能與 GNU 不同 | 時區與格式由 jiff 提供 | — |
+| join | `-t ''` 視為換行分隔（黑箱觀察） | 規格未明 | — |
 | （Codex 補充） | | | |
 
 ## 回報格式（每階段完成時，Codex 輸出）
