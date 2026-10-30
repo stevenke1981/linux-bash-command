@@ -160,9 +160,20 @@ pub fn readlink(args: &[String]) -> i32 {
     run_each(&config.operands, "readlink", framing, |path| {
         match config.mode {
             Some(existence) => canonical(path, existence, Links::Physical),
-            None => fs::read_link(path),
+            None => fs::read_link(path).map_err(not_a_link_is_invalid),
         }
     })
+}
+
+/// Windows reports reading a non-link as `ERROR_NOT_A_REPARSE_POINT`; GNU readlink reports
+/// `EINVAL` ("Invalid argument"), so the error is mapped to that.
+fn not_a_link_is_invalid(error: io::Error) -> io::Error {
+    const ERROR_NOT_A_REPARSE_POINT: i32 = 4390;
+    if cfg!(windows) && error.raw_os_error() == Some(ERROR_NOT_A_REPARSE_POINT) {
+        io::Error::from(io::ErrorKind::InvalidInput)
+    } else {
+        error
+    }
 }
 
 /// Options after parsing `realpath`.

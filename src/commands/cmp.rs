@@ -231,6 +231,11 @@ fn open_operand(name: &str) -> Result<Input, i32> {
     let size = if name == "-" || name == "/dev/stdin" {
         None
     } else {
+        // Windows refuses to open a directory at all, so it is reported before opening.
+        if fs::metadata(name).is_ok_and(|meta| meta.is_dir()) {
+            eprintln!("{CMD}: {name}: Is a directory");
+            return Err(EXIT_TROUBLE);
+        }
         fs::metadata(name)
             .ok()
             .filter(|meta| meta.is_file())

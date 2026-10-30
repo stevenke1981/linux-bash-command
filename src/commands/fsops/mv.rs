@@ -200,10 +200,13 @@ impl Mover<'_> {
     fn rename_or_copy(&self, src: &Path, src_is_dir: bool, dst: &Path) -> bool {
         let src_text = display_path(src);
         let dst_text = display_path(dst);
-        if cfg!(windows) && src_is_dir {
-            // Windows will not rename over an existing directory, even an empty one.
-            if fs::metadata(dst).is_ok_and(|meta| meta.is_dir()) {
-                let _ = fs::remove_dir(dst);
+        if cfg!(windows) && src_is_dir && fs::metadata(dst).is_ok_and(|meta| meta.is_dir()) {
+            // Windows will not rename over an existing directory, even an empty one. A
+            // non-empty destination is reported as GNU does, not as a rename access error.
+            if fs::remove_dir(dst).is_err() && has_entries(dst) {
+                return self.fail(&format!(
+                    "cannot move '{src_text}' to '{dst_text}': Directory not empty"
+                ));
             }
         }
         match fs::rename(src, dst) {
@@ -258,6 +261,11 @@ impl Mover<'_> {
             )),
         }
     }
+}
+
+/// True when the directory `path` has at least one entry.
+fn has_entries(path: &Path) -> bool {
+    fs::read_dir(path).is_ok_and(|mut entries| entries.next().is_some())
 }
 
 /// True when `rename` failed because source and destination are on different devices.
