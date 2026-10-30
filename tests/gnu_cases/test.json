@@ -1,0 +1,170 @@
+{
+  "command": "test",
+  "cases": [
+    {
+      "name": "no_arguments_false",
+      "args": []
+    },
+    {
+      "name": "one_nonempty_true",
+      "args": ["x"]
+    },
+    {
+      "name": "one_empty_false",
+      "args": [""]
+    },
+    {
+      "name": "one_dash_string_is_nonempty",
+      "args": ["-n"]
+    },
+    {
+      "name": "bang_empty_true",
+      "args": ["!", ""]
+    },
+    {
+      "name": "string_equal",
+      "args": ["a", "=", "a"]
+    },
+    {
+      "name": "string_double_equal_and_not_equal",
+      "args": ["a", "!=", "a"]
+    },
+    {
+      "name": "integers_with_space_and_sign",
+      "args": [" +4 ", "-ge", "-2"]
+    },
+    {
+      "name": "integer_negative_less",
+      "args": ["-3", "-lt", "2"]
+    },
+    {
+      "name": "integer_invalid_is_error",
+      "args": ["x", "-eq", "1"]
+    },
+    {
+      "name": "integer_overflow_clamps",
+      "args": ["99999999999999999999", "-eq", "1"]
+    },
+    {
+      "name": "zero_and_nonzero_length",
+      "args": ["-z", ""]
+    },
+    {
+      "name": "nonzero_length_argument",
+      "args": ["-n", "abc"]
+    },
+    {
+      "name": "regular_file",
+      "args": ["-f", "a.txt"],
+      "files": { "a.txt": "hello\n" }
+    },
+    {
+      "name": "directory_is_not_regular",
+      "args": ["-f", "sub"],
+      "files": { "sub": { "dir": true } }
+    },
+    {
+      "name": "missing_file_exists_false",
+      "args": ["-e", "nope"]
+    },
+    {
+      "name": "empty_file_size_false",
+      "args": ["-s", "empty.txt"],
+      "files": { "empty.txt": "" }
+    },
+    {
+      "name": "newer_than",
+      "args": ["new.txt", "-nt", "old.txt"],
+      "files": {
+        "old.txt": { "text": "1", "mtime": 1600000000 },
+        "new.txt": { "text": "2", "mtime": 1700000000 }
+      }
+    },
+    {
+      "name": "older_than",
+      "args": ["old.txt", "-ot", "new.txt"],
+      "files": {
+        "old.txt": { "text": "1", "mtime": 1600000000 },
+        "new.txt": { "text": "2", "mtime": 1700000000 }
+      }
+    },
+    {
+      "name": "newer_than_missing_file",
+      "args": ["a.txt", "-nt", "missing.txt"],
+      "files": { "a.txt": "x" }
+    },
+    {
+      "name": "same_file",
+      "args": ["a.txt", "-ef", "a.txt"],
+      "files": { "a.txt": "x" }
+    },
+    {
+      "name": "different_files_not_same",
+      "args": ["a.txt", "-ef", "b.txt"],
+      "files": { "a.txt": "x", "b.txt": "x" }
+    },
+    {
+      "name": "parentheses_and_connectives",
+      "args": ["(", "a", "=", "a", ")", "-a", "!", "b", "=", "c"]
+    },
+    {
+      "name": "or_and_precedence",
+      "args": ["a", "-o", "b", "-a", ""]
+    },
+    {
+      "name": "and_binds_tighter_than_or",
+      "args": ["", "-a", "x", "-o", "y", "-a", ""]
+    },
+    {
+      "name": "four_argument_negation",
+      "args": ["!", "a", "=", "b"]
+    },
+    {
+      "name": "double_negation",
+      "args": ["!", "!", "a"]
+    },
+    {
+      "name": "nested_parentheses",
+      "args": ["(", "(", "a", ")", ")"],
+      "skip_reason": "GNU test 9.4 rejects a parenthesised group nested directly in another group, e.g. ( ( a ) ), with \"missing argument after ')'\" (exit 2). agentcmd evaluates the grammar as written (exit 0). Known difference."
+    },
+    {
+      "name": "unknown_unary_is_error",
+      "args": ["-Q", "x"]
+    },
+    {
+      "name": "missing_argument_after_binary",
+      "args": ["a", "="]
+    },
+    {
+      "name": "extra_argument_is_error",
+      "args": ["1", "2", "3", "4", "5", "6"]
+    },
+    {
+      "name": "terminal_check_on_pipe",
+      "args": ["-t", "1"]
+    },
+    {
+      "name": "help_is_just_a_string",
+      "args": ["--help"]
+    },
+    {
+      "name": "version_is_just_a_string",
+      "args": ["--version"]
+    },
+    {
+      "name": "dash_dash_is_not_end_of_options",
+      "args": ["--", "-n"]
+    },
+    {
+      "name": "string_less_than",
+      "args": ["abc", "<", "abd"],
+      "skip_reason": "GNU test 9.4 does not implement < and > (reports \"'<': binary operator expected\"); agentcmd follows the spec, which lists them. Known difference."
+    },
+    {
+      "name": "string_greater_than",
+      "args": ["b", ">", "a"],
+      "skip_reason": "GNU test 9.4 does not implement < and > (reports \"'>': binary operator expected\"); agentcmd follows the spec, which lists them. Known difference."
+    }
+  ]
+}

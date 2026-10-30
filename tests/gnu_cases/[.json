@@ -1,0 +1,125 @@
+{
+  "command": "[",
+  "cases": [
+    {
+      "name": "nonempty_string",
+      "args": ["-n", "x", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "negated_zero_length",
+      "args": ["!", "-z", "x", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "integer_greater",
+      "args": ["3", "-gt", "2", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "missing_closing_bracket",
+      "args": ["x"],
+      "gnu": ["["]
+    },
+    {
+      "name": "missing_closing_bracket_after_expression",
+      "args": ["a", "=", "a"],
+      "gnu": ["["]
+    },
+    {
+      "name": "empty_expression_false",
+      "args": ["]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "directory_test",
+      "args": ["-d", "sub", "]"],
+      "files": { "sub": { "dir": true } },
+      "gnu": ["["]
+    },
+    {
+      "name": "regular_file_test",
+      "args": ["-f", "a.txt", "]"],
+      "files": { "a.txt": "x" },
+      "gnu": ["["]
+    },
+    {
+      "name": "string_equal",
+      "args": ["a", "=", "a", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "string_not_equal",
+      "args": ["a", "!=", "b", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "parenthesised_or",
+      "args": ["(", "x", ")", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "empty_or_nonempty",
+      "args": ["-z", "", "-o", "", "-a", "x", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "two_integer_comparisons",
+      "args": ["1", "-eq", "1", "-a", "2", "-eq", "2", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "integer_invalid",
+      "args": ["1", "-le", "x", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "missing_argument_after_and",
+      "args": ["x", "-a", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "extra_bracket_is_extra_argument",
+      "args": ["a", "-a", "b", "]", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "terminal_fd_not_open",
+      "args": ["-t", "5", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "missing_file_false",
+      "args": ["-e", "missing", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "executable_file",
+      "args": ["-x", "/bin/sh", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "bang_bang_string",
+      "args": ["!", "!", "a", "]"],
+      "gnu": ["["]
+    },
+    {
+      "name": "help_is_only_argument",
+      "args": ["--help"],
+      "gnu": ["["],
+      "skip_reason": "Help text wording is agentcmd's own (same options and usage shape as GNU); the text cannot match byte for byte."
+    },
+    {
+      "name": "version_is_only_argument",
+      "args": ["--version"],
+      "gnu": ["["],
+      "skip_reason": "Version line is agentcmd's own (`[ (agentcmd) X.Y.Z`); GNU prints its coreutils version."
+    },
+    {
+      "name": "string_less_than_with_bracket",
+      "args": ["a", "<", "b", "]"],
+      "gnu": ["["],
+      "skip_reason": "GNU test 9.4 does not implement < and > (reports \"'<': binary operator expected\"); agentcmd follows the spec, which lists them. Known difference."
+    }
+  ]
+}
