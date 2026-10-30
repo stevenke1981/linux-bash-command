@@ -1,0 +1,185 @@
+{
+  "command": "nl",
+  "cases": [
+    {
+      "name": "default_numbering",
+      "args": [],
+      "stdin": "one\n\ntwo\n"
+    },
+    {
+      "name": "body_all_lines",
+      "args": [
+        "-ba"
+      ],
+      "stdin": "one\n\ntwo\n"
+    },
+    {
+      "name": "body_none",
+      "args": [
+        "-bn"
+      ],
+      "stdin": "one\ntwo\n"
+    },
+    {
+      "name": "format_rz",
+      "args": [
+        "-n",
+        "rz"
+      ],
+      "stdin": "one\ntwo\n"
+    },
+    {
+      "name": "format_ln_width",
+      "args": [
+        "-n",
+        "ln",
+        "-w",
+        "3"
+      ],
+      "stdin": "one\ntwo\n"
+    },
+    {
+      "name": "start_and_increment",
+      "args": [
+        "-v",
+        "10",
+        "-i",
+        "5"
+      ],
+      "stdin": "a\n\nb\nc\n"
+    },
+    {
+      "name": "separator_string",
+      "args": [
+        "-s",
+        "::"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "width_option",
+      "args": [
+        "-w",
+        "2"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "no_renumber_across_pages",
+      "args": [
+        "-ha",
+        "-p"
+      ],
+      "stdin": "\\:\\:\\:\nh1\n\\:\\:\nb1\n"
+    },
+    {
+      "name": "pages_default",
+      "args": [],
+      "stdin": "\\:\\:\\:\nh1\n\\:\\:\nb1\n\\:\nf1\n"
+    },
+    {
+      "name": "pages_header_footer_all",
+      "args": [
+        "-h",
+        "a",
+        "-f",
+        "a"
+      ],
+      "stdin": "\\:\\:\\:\nh1\nh2\n\\:\\:\nb1\nb2\n\\:\nf1\n"
+    },
+    {
+      "name": "regex_body_style",
+      "args": [
+        "-b",
+        "pb"
+      ],
+      "stdin": "abc\nxyz\nbbb\n"
+    },
+    {
+      "name": "join_blank_lines",
+      "args": [
+        "-ba",
+        "-l",
+        "2"
+      ],
+      "stdin": "a\n\n\n\nb\n"
+    },
+    {
+      "name": "custom_section_delimiter",
+      "args": [
+        "-d",
+        "xy",
+        "-h",
+        "a"
+      ],
+      "stdin": "xyxyxy\nh1\nxyxy\nb1\n"
+    },
+    {
+      "name": "long_options",
+      "args": [
+        "--body-numbering=a",
+        "--number-width=4",
+        "--number-format=rz"
+      ],
+      "stdin": "x\ny\n"
+    },
+    {
+      "name": "invalid_body_style_error",
+      "args": [
+        "-b",
+        "x"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid_format_error",
+      "args": [
+        "-n",
+        "xx"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_file_continues",
+      "args": [
+        "nope.txt",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "negative_start",
+      "args": [
+        "-v",
+        "-5"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "multiple_files_continue_numbering",
+      "args": [
+        "-ba",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "a\n",
+        "b.txt": "b\n"
+      }
+    }
+  ]
+}

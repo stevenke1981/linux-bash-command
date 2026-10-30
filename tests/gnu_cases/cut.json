@@ -1,0 +1,305 @@
+{
+  "command": "cut",
+  "cases": [
+    {
+      "name": "fields_basic",
+      "args": [
+        "-d,",
+        "-f2",
+        "f.csv"
+      ],
+      "files": {
+        "f.csv": "a,b,c\nno delim\n,x,\n"
+      }
+    },
+    {
+      "name": "fields_multi_ranges",
+      "args": [
+        "-d",
+        ",",
+        "-f",
+        "1,3-"
+      ],
+      "files": {
+        "f.csv": "a,b,c,d\n1,2,3,4\n"
+      }
+    },
+    {
+      "name": "fields_only_delimited",
+      "args": [
+        "-d,",
+        "-s",
+        "-f2",
+        "f.csv"
+      ],
+      "files": {
+        "f.csv": "a,b,c\nno delim\n,x,\n"
+      }
+    },
+    {
+      "name": "fields_complement",
+      "args": [
+        "-d,",
+        "--complement",
+        "-f1",
+        "f.csv"
+      ],
+      "files": {
+        "f.csv": "a,b,c\n"
+      }
+    },
+    {
+      "name": "fields_output_delimiter",
+      "args": [
+        "-d,",
+        "-f1,3",
+        "--output-delimiter=;",
+        "f.csv"
+      ],
+      "files": {
+        "f.csv": "a,b,c\n"
+      }
+    },
+    {
+      "name": "fields_beyond_end_empty_line",
+      "args": [
+        "-d,",
+        "-f5",
+        "f.csv"
+      ],
+      "files": {
+        "f.csv": "a,b\n"
+      }
+    },
+    {
+      "name": "fields_order_preserved",
+      "args": [
+        "-d:",
+        "-f3,1",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "a:b:c\n"
+      }
+    },
+    {
+      "name": "bytes_basic",
+      "args": [
+        "-b",
+        "1-3,5",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abcdef\nxy\n"
+      }
+    },
+    {
+      "name": "bytes_output_delimiter_gaps",
+      "args": [
+        "-b",
+        "1,3",
+        "--output-delimiter=:",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abcdef\nxy\n"
+      }
+    },
+    {
+      "name": "chars_is_bytes",
+      "args": [
+        "-c",
+        "2-",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abcdef\nxy\n"
+      }
+    },
+    {
+      "name": "bytes_complement",
+      "args": [
+        "-b",
+        "2-3",
+        "--complement",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abcdef\nxy\n"
+      }
+    },
+    {
+      "name": "bytes_overlapping_ranges",
+      "args": [
+        "-b",
+        "1-3,2-4"
+      ],
+      "stdin": "abcdef\n"
+    },
+    {
+      "name": "bytes_beyond_end_empty",
+      "args": [
+        "-b",
+        "10-"
+      ],
+      "stdin": "abc\n"
+    },
+    {
+      "name": "no_trailing_newline_adds_one",
+      "args": [
+        "-b1"
+      ],
+      "stdin": "xyz"
+    },
+    {
+      "name": "zero_terminated_fields",
+      "args": [
+        "-z",
+        "-d,",
+        "-f2"
+      ],
+      "stdin_hex": "612c62006263"
+    },
+    {
+      "name": "empty_delimiter_is_nul",
+      "args": [
+        "-d",
+        "",
+        "-f2"
+      ],
+      "stdin_hex": "610062630a"
+    },
+    {
+      "name": "stdin_default_tab",
+      "args": [
+        "-f2"
+      ],
+      "stdin": "a\tb\tc\nno tab\n"
+    },
+    {
+      "name": "n_option_accepted",
+      "args": [
+        "-n",
+        "-b2"
+      ],
+      "stdin": "abc\n"
+    },
+    {
+      "name": "missing_file_continues",
+      "args": [
+        "-b1",
+        "nope.txt",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "no_list_error",
+      "args": [
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "two_lists_error",
+      "args": [
+        "-b1",
+        "-f1",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "delimiter_with_bytes_error",
+      "args": [
+        "-b1",
+        "-d,",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "suppress_with_bytes_error",
+      "args": [
+        "-b1",
+        "-s",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "multi_char_delimiter_error",
+      "args": [
+        "-d",
+        "ab",
+        "-f1",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "zero_position_error",
+      "args": [
+        "-f0",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "decreasing_range_error",
+      "args": [
+        "-b3-1",
+        "t.txt"
+      ],
+      "files": {
+        "t.txt": "abc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    }
+  ]
+}
