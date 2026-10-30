@@ -1,0 +1,339 @@
+{
+  "command": "tree",
+  "cases": [
+    {
+      "name": "plain_ascii",
+      "args": ["--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        "B_upper": "y\n",
+        "a.d/zz": "z",
+        ".hid/h": "h",
+        ".dotfile": "rr",
+        "link": {"symlink": "b/file.txt"},
+        "dangling": {"symlink": "nowhere"},
+        "run.sh": {"text": "#!/bin/sh\n", "mode": "755"}
+      }
+    },
+    {
+      "name": "all_hidden",
+      "args": ["-a", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        ".hid/h": "h",
+        ".dotfile": "rr",
+        "run.sh": "echo\n"
+      }
+    },
+    {
+      "name": "directories_only",
+      "args": ["-d", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        "a.d/zz": "z"
+      }
+    },
+    {
+      "name": "level_one",
+      "args": ["-L", "1", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        "a.d/zz": "z"
+      }
+    },
+    {
+      "name": "level_two_full_path",
+      "args": ["-L", "2", "-f", "--charset=ascii", "b"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n"
+      }
+    },
+    {
+      "name": "classify_marks",
+      "args": ["-F", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "run.sh": {"text": "#!/bin/sh\n", "mode": "755"},
+        "link": {"symlink": "b/file.txt"}
+      }
+    },
+    {
+      "name": "no_indentation_lines",
+      "args": ["-i"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n"
+      }
+    },
+    {
+      "name": "size_bytes",
+      "args": ["-s", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        "big.bin": {"hex": "00"}
+      }
+    },
+    {
+      "name": "size_human",
+      "args": ["-h", "--charset=ascii"],
+      "files": {
+        "small.txt": "hi\n",
+        "kib.bin": {"hex": "00"}
+      }
+    },
+    {
+      "name": "size_si_units",
+      "args": ["--si", "--charset=ascii"],
+      "files": {
+        "small.txt": "hi\n"
+      }
+    },
+    {
+      "name": "no_report",
+      "args": ["--noreport", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n"
+      }
+    },
+    {
+      "name": "dirs_first",
+      "args": ["--dirsfirst", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        "a.d/zz": "z",
+        "zfile": "z\n"
+      }
+    },
+    {
+      "name": "files_first",
+      "args": ["--filesfirst", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "a.d/zz": "z",
+        "zfile": "z\n"
+      }
+    },
+    {
+      "name": "reverse_order",
+      "args": ["-r", "--charset=ascii"],
+      "files": {
+        "alpha": "a\n",
+        "beta": "bb\n",
+        "gamma": "ccc\n"
+      }
+    },
+    {
+      "name": "sort_by_size",
+      "args": ["--sort=size", "--charset=ascii"],
+      "files": {
+        "alpha": "a\n",
+        "beta": "bbbbbbbbbb\n",
+        "gamma": "cc\n"
+      }
+    },
+    {
+      "name": "version_sort",
+      "args": ["-v", "--charset=ascii"],
+      "files": {
+        "file1": "1",
+        "file2": "2",
+        "file10": "10"
+      }
+    },
+    {
+      "name": "ignore_pattern_alternatives",
+      "args": ["-I", "a.d|sub", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        "a.d/zz": "z",
+        "B_upper": "y\n"
+      }
+    },
+    {
+      "name": "include_pattern_files_only",
+      "args": ["-P", "*.txt", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        "a.d/zz": "z",
+        "top.bin": "x"
+      }
+    },
+    {
+      "name": "include_pattern_prune",
+      "args": ["-P", "*.txt", "--prune", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        "a.d/zz": "z"
+      }
+    },
+    {
+      "name": "ignore_case_pattern",
+      "args": ["--ignore-case", "-P", "FILE*", "--charset=ascii", "b"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/other.md": "x\n"
+      }
+    },
+    {
+      "name": "permissions",
+      "args": ["-p", "--charset=ascii"],
+      "files": {
+        "run.sh": {"text": "#!/bin/sh\n", "mode": "755"},
+        "data.txt": {"text": "d\n", "mode": "640"},
+        "sub/x": "x"
+      }
+    },
+    {
+      "name": "json_tree",
+      "args": ["-J"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        "link": {"symlink": "b/file.txt"}
+      }
+    },
+    {
+      "name": "json_no_report",
+      "args": ["-J", "--noreport"],
+      "files": {
+        "b/file.txt": "hello\n"
+      }
+    },
+    {
+      "name": "json_directories_only",
+      "args": ["-J", "-d"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        "a.d/zz": "z"
+      }
+    },
+    {
+      "name": "json_sizes_of_one_subdirectory",
+      "args": ["-J", "-s", "-L", "1", "b"],
+      "files": {
+        "b/file.txt": "hello\n"
+      }
+    },
+    {
+      "name": "filelimit_exceeded",
+      "args": ["--filelimit", "2", "--charset=ascii"],
+      "files": {
+        "one": "1",
+        "two": "2",
+        "three": "3"
+      }
+    },
+    {
+      "name": "filelimit_not_reached",
+      "args": ["--filelimit", "10", "--charset=ascii"],
+      "files": {
+        "one": "1",
+        "two": "2"
+      }
+    },
+    {
+      "name": "prune_matchdirs_keeps_match",
+      "args": ["-P", "z", "--matchdirs", "--prune", "--charset=ascii"],
+      "files": {
+        "x/keep.txt": "k",
+        "z": {"dir": true}
+      }
+    },
+    {
+      "name": "time_with_format",
+      "args": ["-D", "--timefmt=%Y-%m-%d", "--charset=ascii"],
+      "files": {
+        "old.txt": {"text": "o", "mtime": 1000000000},
+        "new.txt": {"text": "n", "mtime": 1700000000}
+      }
+    },
+    {
+      "name": "gitignore_hides_matches",
+      "args": ["--gitignore", "--charset=ascii"],
+      "files": {
+        ".gitignore": "*.log\n",
+        "keep.txt": "k\n",
+        "drop.log": "d\n"
+      }
+    },
+    {
+      "name": "sort_by_mtime_newest_first",
+      "args": ["-t", "--charset=ascii"],
+      "files": {
+        "old.txt": {"text": "o", "mtime": 1000000000},
+        "new.txt": {"text": "n", "mtime": 1700000000},
+        "mid.txt": {"text": "m", "mtime": 1400000000}
+      }
+    },
+    {
+      "name": "utf8_connectors_flat",
+      "args": ["-L", "1", "--charset=utf-8"],
+      "files": {
+        "alpha": "a\n",
+        "beta": "b\n"
+      }
+    },
+    {
+      "name": "multiple_roots",
+      "args": ["b", "a.d", "--charset=ascii"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "a.d/zz": "z"
+      }
+    },
+    {
+      "name": "missing_root_exit_status",
+      "args": ["nosuch_dir_zz"],
+      "files": {
+        "x": "x"
+      }
+    },
+    {
+      "name": "color_flag_accepted_without_color",
+      "args": ["-n", "--charset=ascii", "b"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n"
+      }
+    },
+    {
+      "name": "level_zero_rejected",
+      "args": ["-L", "0"],
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "unknown_option_rejected",
+      "args": ["-y"],
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "default_charset_is_utf8",
+      "args": [],
+      "files": {
+        "b/file.txt": "hello\n"
+      },
+      "skip_reason": "GNU tree in LC_ALL=C prints ASCII connectors by default; agentcmd follows spec 04 (box-drawing default, no locale). Known difference."
+    },
+    {
+      "name": "utf8_nested_nbsp_continuation",
+      "args": ["--charset=utf-8", "b"],
+      "files": {
+        "b/file.txt": "hello\n",
+        "b/sub/deep.txt": "x\n",
+        "c.txt": "c"
+      },
+      "skip_reason": "GNU tree writes U+00A0 (no-break space) in the vertical continuation '│   '; agentcmd uses plain spaces as spec 04 writes it. Known difference."
+    }
+  ]
+}
