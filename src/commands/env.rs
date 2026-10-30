@@ -527,7 +527,7 @@ pub fn run_printenv(args: &[String]) -> i32 {
     {
         Ok(items) => items,
         // GNU printenv exits 2 here; 02-conventions §3 requires 1 (known difference).
-        Err(error) => return report_usage("printenv", &error, EXIT_FAIL),
+        Err(error) => return report_usage("printenv", &error, 2),
     };
     let mut null = false;
     let mut names = Vec::new();

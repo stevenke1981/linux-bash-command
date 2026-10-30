@@ -568,9 +568,9 @@ fn printenv_option_after_a_name_is_a_name() {
 }
 
 #[test]
-fn printenv_invalid_option_exits_one() {
+fn printenv_invalid_option_exits_two() {
     let output = run("printenv", &["-x"], b"");
-    assert_eq!(status(&output), 1);
+    assert_eq!(status(&output), 2);
     assert!(stderr(&output).contains("invalid option -- 'x'"));
 }
 

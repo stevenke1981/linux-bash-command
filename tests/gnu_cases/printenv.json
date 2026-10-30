@@ -17,8 +17,8 @@
     { "name": "double_dash_ends_options", "args": ["--", "FOO"], "env": { "FOO": "bar" } },
     { "name": "name_with_equals_not_found", "args": ["FOO=bar"], "env": { "FOO": "bar" } },
     { "name": "empty_name_not_found", "args": [""], "env": { "FOO": "bar" } },
-    { "name": "invalid_short_option", "args": ["-x"], "skip_reason": "GNU printenv exits 2 on usage errors; 02-conventions §3 requires 1 (known difference; CLI test printenv_invalid_option_exits_one)" },
-    { "name": "unknown_long_option", "args": ["--nope"], "skip_reason": "GNU printenv exits 2 on usage errors; 02-conventions §3 requires 1 (known difference)" },
+    { "name": "invalid_short_option", "args": ["-x"] },
+    { "name": "unknown_long_option", "args": ["--nope"] },
     { "name": "null_only_no_names_has_values", "args": ["-0", "LC_ALL"] },
     { "name": "help_alone_exit_status", "args": ["--help"], "compare": ["exit"] },
     { "name": "version_alone_exit_status", "args": ["--version"], "compare": ["exit"] }
