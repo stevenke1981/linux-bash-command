@@ -1,0 +1,651 @@
+{
+  "command": "split",
+  "cases": [
+    {
+      "name": "c00_ten",
+      "args": [
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c01_l_3_ten",
+      "args": [
+        "-l",
+        "3",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c02_b_7_ten_p",
+      "args": [
+        "-b",
+        "7",
+        "ten",
+        "p-"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c03_n_3_ten",
+      "args": [
+        "-n",
+        "3",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c04_n_l_3_ten",
+      "args": [
+        "-n",
+        "l/3",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c05_n_r_3_ten",
+      "args": [
+        "-n",
+        "r/3",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c06_n_2_3_ten",
+      "args": [
+        "-n",
+        "2/3",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c07_n_r_2_3_ten",
+      "args": [
+        "-n",
+        "r/2/3",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c08_n_l_2_3_ten",
+      "args": [
+        "-n",
+        "l/2/3",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c09_n_3_t10",
+      "args": [
+        "-n",
+        "3",
+        "t10"
+      ],
+      "files": {
+        "t10": "0123456789"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c10_n_12_e_t10",
+      "args": [
+        "-n",
+        "12",
+        "-e",
+        "t10"
+      ],
+      "files": {
+        "t10": "0123456789"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c11_n_12_t10",
+      "args": [
+        "-n",
+        "12",
+        "t10"
+      ],
+      "files": {
+        "t10": "0123456789"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c12_n_3_empty",
+      "args": [
+        "-n",
+        "3",
+        "empty"
+      ],
+      "files": {
+        "empty": ""
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c13_n_3_e_empty",
+      "args": [
+        "-n",
+        "3",
+        "-e",
+        "empty"
+      ],
+      "files": {
+        "empty": ""
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c14_l_4_empty",
+      "args": [
+        "-l",
+        "4",
+        "empty"
+      ],
+      "files": {
+        "empty": ""
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c15_l_4_d_a_3_additional_suffix_txt_ten",
+      "args": [
+        "-l",
+        "4",
+        "-d",
+        "-a",
+        "3",
+        "--additional-suffix=.txt",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c16_x_l_4_ten",
+      "args": [
+        "-x",
+        "-l",
+        "4",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c17_numeric_suffixes_5_l_5_ten",
+      "args": [
+        "--numeric-suffixes=5",
+        "-l",
+        "5",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c18_a_1_l_4_ten",
+      "args": [
+        "-a",
+        "1",
+        "-l",
+        "4",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c19_a_1_l_1_s30",
+      "args": [
+        "-a",
+        "1",
+        "-l",
+        "1",
+        "s30"
+      ],
+      "files": {
+        "s30": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c20_t_l_2_csv",
+      "args": [
+        "-t",
+        ",",
+        "-l",
+        "2",
+        "csv"
+      ],
+      "files": {
+        "csv": "a,b,c,d"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c21_C_5_c",
+      "args": [
+        "-C",
+        "5",
+        "c"
+      ],
+      "files": {
+        "c": "abcdefgh\nij\nklmnopqrstuvwxyz\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c22_C_2_c",
+      "args": [
+        "-C",
+        "2",
+        "c"
+      ],
+      "files": {
+        "c": "a\nbb\nccc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c23_b_1K_ten",
+      "args": [
+        "-b",
+        "1K",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c24_b_2_verbose_t10",
+      "args": [
+        "-b",
+        "2",
+        "--verbose",
+        "t10"
+      ],
+      "files": {
+        "t10": "0123456789"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c25_l_0_ten",
+      "args": [
+        "-l",
+        "0",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c26_b_0_ten",
+      "args": [
+        "-b",
+        "0",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c27_C_0_ten",
+      "args": [
+        "-C",
+        "0",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c28_n_x_ten",
+      "args": [
+        "-n",
+        "x",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c29_n_l_0_ten",
+      "args": [
+        "-n",
+        "l/0",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c30_n_4_3_ten",
+      "args": [
+        "-n",
+        "4/3",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c31_n_0_3_ten",
+      "args": [
+        "-n",
+        "0/3",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c32_a_x_ten",
+      "args": [
+        "-a",
+        "x",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c33_l_3_b_3_ten",
+      "args": [
+        "-l",
+        "3",
+        "-b",
+        "3",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c34_nosuch",
+      "args": [
+        "nosuch"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c35_ten_a_b",
+      "args": [
+        "ten",
+        "a",
+        "b"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c36_filter_cat_ten",
+      "args": [
+        "--filter=cat",
+        "ten"
+      ],
+      "files": {
+        "ten": "1\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": "--filter runs a shell command per piece; not supported by agentcmd (spec: unsupported is acceptable)"
+    },
+    {
+      "name": "c37_l_2",
+      "args": [
+        "-l",
+        "2",
+        "-"
+      ],
+      "stdin": "1\n2\n3\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c38_b_2_d",
+      "args": [
+        "-b",
+        "2",
+        "-d",
+        "-"
+      ],
+      "stdin": "abcdef",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "c39_n_3",
+      "args": [
+        "-n",
+        "3",
+        "-"
+      ],
+      "stdin": "abcdefghij",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    }
+  ]
+}
