@@ -1,3 +1,4 @@
+use crate::common::size::human;
 use std::io::{self, Write};
 use std::path::PathBuf;
 use sysinfo::{Disk, Disks};
@@ -409,32 +410,6 @@ fn format_size(bytes: u64, size: Size) -> String {
     match size {
         Size::Blocks(block) => bytes.div_ceil(block).to_string(),
         Size::Human(base) => human(bytes, base),
-    }
-}
-
-/// GNU-style human size: one decimal below 10 units, rounded up, with the suffix.
-fn human(bytes: u64, base: u64) -> String {
-    let suffixes: [&str; 6] = if base == 1000 {
-        ["", "k", "M", "G", "T", "P"]
-    } else {
-        ["", "K", "M", "G", "T", "P"]
-    };
-    let base = u128::from(base);
-    let bytes = u128::from(bytes);
-    let mut divisor: u128 = 1;
-    let mut unit = 0;
-    while unit + 1 < suffixes.len() && bytes >= divisor * base {
-        divisor *= base;
-        unit += 1;
-    }
-    if unit == 0 {
-        return bytes.to_string();
-    }
-    let tenths = (bytes * 10).div_ceil(divisor);
-    if tenths < 100 {
-        format!("{}.{}{}", tenths / 10, tenths % 10, suffixes[unit])
-    } else {
-        format!("{}{}", bytes.div_ceil(divisor), suffixes[unit])
     }
 }
 

@@ -1,4 +1,5 @@
 pub mod cd_command;
+pub mod common;
 pub mod curl_command;
 pub mod df_command;
 pub mod diff;
@@ -12,16 +13,7 @@ pub mod registry;
 pub mod search;
 pub mod text_commands;
 
-/// Formats a path for output. On Windows, separators become `/` so results can be
-/// pasted back into Bash (Git Bash, MSYS2) without backslash escaping.
-pub fn display_path(path: &std::path::Path) -> String {
-    let text = path.display().to_string();
-    if cfg!(windows) {
-        text.replace('\\', "/")
-    } else {
-        text
-    }
-}
+pub use common::path::display_path;
 
 pub fn arguments(command: &str) -> Vec<String> {
     std::env::args_os()

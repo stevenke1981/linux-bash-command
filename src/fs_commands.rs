@@ -1,3 +1,4 @@
+use crate::common::size::human_size;
 use std::cmp::Ordering;
 use std::env;
 use std::fs;
@@ -659,37 +660,6 @@ fn size_text(metadata: &fs::Metadata, human: bool) -> String {
     } else {
         metadata.len().to_string()
     }
-}
-
-/// Formats like GNU `ls -h`: plain bytes below 1024, otherwise one decimal below 10
-/// and a rounded-up integer above, using K, M, G, T, P, E. Values are rounded up.
-fn human_size(bytes: u64) -> String {
-    const SUFFIXES: [&str; 6] = ["K", "M", "G", "T", "P", "E"];
-    if bytes < 1024 {
-        return bytes.to_string();
-    }
-    let bytes = u128::from(bytes);
-    let mut unit: u128 = 1024;
-    let mut index = 0;
-    loop {
-        let tenths = ceil_div(bytes * 10, unit);
-        let whole = ceil_div(tenths, 10);
-        if whole >= 1024 && index + 1 < SUFFIXES.len() {
-            unit *= 1024;
-            index += 1;
-            continue;
-        }
-        let suffix = SUFFIXES[index];
-        return if tenths < 100 {
-            format!("{}.{}{suffix}", tenths / 10, tenths % 10)
-        } else {
-            format!("{whole}{suffix}")
-        };
-    }
-}
-
-fn ceil_div(numerator: u128, denominator: u128) -> u128 {
-    numerator.div_ceil(denominator)
 }
 
 /// Formats a timestamp in UTC without a date-time crate.
