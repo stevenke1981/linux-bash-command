@@ -75,6 +75,14 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | sed | pattern 內 backreference 不支援 | `regex` crate 限制 | `sed_backref`（skip） |
 | awk | 不支援 pipe／`system()` | 需 shell | — |
 | diff | 預設 unified → P4 改 normal | 對齊 GNU | — |
+| grep | `-L` 退出碼依列出之檔案（GNU 3.11 依是否選取到行） | 既有行為，P1 不改 | `grep/null_data_list_without_match`（skip） |
+| grep | 無效 `-d ACTION` 退出 2（GNU 3.11 為 1） | 規格：grep 用法錯誤為 2 | `grep/directories_unknown_action`（skip） |
+| grep | `-T` 於無法取得大小之輸入（管線）欄寬固定 18（GNU 3.11 觀察值） | GNU 規則未明載，依觀察實作 | 僅 `-T` 於一般檔案比對（`initial_tab_*`） |
+| grep | `-A0`/`-B0`/`-C0` 不輸出 `--` 分隔線（GNU 會輸出） | 既有行為，P1 不改 | — |
+| grep | 二進位命中訊息寫 stdout（GNU 3.11 寫 stderr） | 既有行為，P1 不改 | `grep/binary_file_default`（skip） |
+| grep | 無 `--version` | 既有行為，P1 不改 | — |
+| cat | 接受 `--unbuffered` 長選項（GNU 無此選項） | 既有擴充，P1 不改 | `cat/unbuffered_long_option`（skip） |
+| tail | 接受位於其他選項之後的 `-N`（GNU 拒絕） | 既有行為，P1 不改 | `tail/zero_dash_number`（skip） |
 | （Codex 補充） | | | |
 
 ## 回報格式（每階段完成時，Codex 輸出）
