@@ -66,6 +66,66 @@
       "args": ["a.txt", "missing.txt"],
       "files": { "a.txt": "present\n" },
       "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "zero_terminated_lines",
+      "args": ["-z", "-n", "2", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650074776f00746872656500"}}
+    },
+    {
+      "name": "zero_long_option",
+      "args": ["--zero-terminated", "-n", "1", "a.txt"],
+      "files": {"a.txt": {"hex": "6f6e650a74776f00746872656500"}}
+    },
+    {
+      "name": "zero_all_but_last",
+      "args": ["-z", "-n", "-1", "a.txt"],
+      "files": {"a.txt": {"hex": "610062006300"}}
+    },
+    {
+      "name": "zero_default_ten",
+      "args": ["-z", "a.txt"],
+      "files": {"a.txt": {"hex": "723100723200723300723400723500723600723700723800723900723130007231310072313200"}}
+    },
+    {
+      "name": "zero_no_trailing_terminator",
+      "args": ["-z", "-n", "5", "a.txt"],
+      "files": {"a.txt": {"hex": "780079"}}
+    },
+    {
+      "name": "zero_multiple_files",
+      "args": ["-z", "-n", "1", "a.txt", "b.txt"],
+      "files": {"a.txt": {"hex": "613100613200"}, "b.txt": {"hex": "623100623200"}}
+    },
+    {
+      "name": "zero_stdin",
+      "args": ["-z", "-n", "2"],
+      "stdin_hex": "733100733200733300"
+    },
+    {
+      "name": "zero_quiet_headers",
+      "args": ["-z", "-q", "-n", "1", "a.txt", "b.txt"],
+      "files": {"a.txt": {"hex": "613100"}, "b.txt": {"hex": "623100"}}
+    },
+    {
+      "name": "zero_bytes_unaffected",
+      "args": ["-z", "-c", "4", "a.txt"],
+      "files": {"a.txt": {"hex": "6162630064656600"}}
+    },
+    {
+      "name": "zero_zero_count",
+      "args": ["-z", "-n", "0", "a.txt"],
+      "files": {"a.txt": {"hex": "6e6576657200"}}
+    },
+    {
+      "name": "zero_keeps_newlines_inside_records",
+      "args": ["-z", "-n", "1", "a.txt"],
+      "files": {"a.txt": {"hex": "6c696e65206f6e650a6c696e652074776f007461696c00"}}
+    },
+    {
+      "name": "zero_verbose_header",
+      "args": ["-zv", "-n", "1", "a.txt"],
+      "files": {"a.txt": {"hex": "763100763200"}}
     }
   ]
 }

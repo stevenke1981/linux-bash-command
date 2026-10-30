@@ -1,0 +1,167 @@
+{
+  "command": "fgrep",
+  "cases": [
+    {
+      "name": "literal_dot",
+      "args": ["a.b", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "a.b\naxb\n"}
+    },
+    {
+      "name": "literal_star",
+      "args": ["*", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "a*b\nab\n"}
+    },
+    {
+      "name": "literal_brackets",
+      "args": ["[x]", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "[x]\nx\n"}
+    },
+    {
+      "name": "newline_separates_patterns",
+      "args": ["a.b\nxx", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "a.b\nxx\nzz\n"}
+    },
+    {
+      "name": "repeated_e",
+      "args": ["-e", "one", "-e", "two", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "one\ntwo\nthree\n"}
+    },
+    {
+      "name": "word_match",
+      "args": ["-w", "is", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "this is\nisland\n"}
+    },
+    {
+      "name": "line_match",
+      "args": ["-x", "ok", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "ok\nokay\n"}
+    },
+    {
+      "name": "ignore_case",
+      "args": ["-i", "HELLO", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "hello\nbye\n"}
+    },
+    {
+      "name": "count_literal_plus",
+      "args": ["-c", "a+", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "a+\naa\n"}
+    },
+    {
+      "name": "only_matching_literal",
+      "args": ["-o", "a.b", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "a.b a.b\n"}
+    },
+    {
+      "name": "invert_literal",
+      "args": ["-v", "x", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "xa\nb\n"}
+    },
+    {
+      "name": "null_data_literal",
+      "args": ["-z", "a.b", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": {"hex": "78612e6200616200"}}
+    },
+    {
+      "name": "byte_offset_literal",
+      "args": ["-b", "$5", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "x\nprice $5\n"}
+    },
+    {
+      "name": "files_with_matches",
+      "args": ["-l", "needle", "a.txt", "b.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "needle\n", "b.txt": "none\n"}
+    },
+    {
+      "name": "empty_pattern_matches_all",
+      "args": ["", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "one\n\ntwo\n"}
+    },
+    {
+      "name": "empty_pattern_file_matches_nothing",
+      "args": ["-f", "pats.txt", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"pats.txt": "", "a.txt": "one\n"}
+    },
+    {
+      "name": "pattern_file",
+      "args": ["-f", "pats.txt", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"pats.txt": "x.y\nzz\n", "a.txt": "x.y\nxzy\nzz\n"}
+    },
+    {
+      "name": "label_stdin_numbered",
+      "args": ["--label=L", "-Hn", "a.b"],
+      "stdin": "a.b\n",
+      "gnu": ["grep", "-F"]
+    },
+    {
+      "name": "exclude_from_recursive",
+      "args": ["-r", "--exclude-from=ex.lst", "a.b", "d"],
+      "gnu": ["grep", "-F"],
+      "files": {"ex.lst": "*.txt\n", "d/x.txt": "a.b\n", "d/y.log": "a.b\n"}
+    },
+    {
+      "name": "max_count",
+      "args": ["-m1", "a", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "a\na\n"}
+    },
+    {
+      "name": "context_lines",
+      "args": ["-C1", "xx", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "1\nxx\n3\n4\n5\nxx\n"}
+    },
+    {
+      "name": "no_match_exit_one",
+      "args": ["zzz", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "a\n"}
+    },
+    {
+      "name": "quiet_match",
+      "args": ["-q", "a", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "a\n"}
+    },
+    {
+      "name": "tab_aligned_numbers",
+      "args": ["-T", "-n", "a.b", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "a.b\nno\n"}
+    },
+    {
+      "name": "null_names_list",
+      "args": ["-Z", "-l", "a.b", "a.txt", "b.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "a.b\n", "b.txt": "a.b\n"}
+    },
+    {
+      "name": "devices_skip",
+      "args": ["-D", "skip", "a", "/dev/null"],
+      "gnu": ["grep", "-F"],
+      "compare": ["stdout", "exit"]
+    },
+    {
+      "name": "backslash_is_literal",
+      "args": ["-F", "\\d", "a.txt"],
+      "gnu": ["grep", "-F"],
+      "files": {"a.txt": "\\d\n5\n"}
+    }
+  ]
+}
