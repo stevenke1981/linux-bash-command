@@ -1,0 +1,178 @@
+{
+  "command": "gunzip",
+  "cases": [
+    {
+      "name": "decompress_file",
+      "args": [
+        "a.gz"
+      ],
+      "files": {
+        "a.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "decompress_stdin",
+      "args": [],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "stdin_hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+    },
+    {
+      "name": "decompress_stdout",
+      "args": [
+        "-c",
+        "m.gz"
+      ],
+      "files": {
+        "m.gz": {
+          "hex": "1f8b08000000000000034bcb2c2a2e51c84dcd4d4a2de20200a7f4850a0d0000001f8b08000000000000032b4e4dcecf4b51c84dcd4d4a2de2020036184b0e0e000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "test_ok",
+      "args": [
+        "-t",
+        "m.gz"
+      ],
+      "files": {
+        "m.gz": {
+          "hex": "1f8b08000000000000034bcb2c2a2e51c84dcd4d4a2de20200a7f4850a0d0000001f8b08000000000000032b4e4dcecf4b51c84dcd4d4a2de2020036184b0e0e000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "test_corrupt",
+      "args": [
+        "-t",
+        "corrupt.gz"
+      ],
+      "files": {
+        "corrupt.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be502003528590818000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "suffix_fallback_missing",
+      "args": [
+        "nosuch"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "multi_member_file",
+      "args": [
+        "m.gz"
+      ],
+      "files": {
+        "m.gz": {
+          "hex": "1f8b08000000000000034bcb2c2a2e51c84dcd4d4a2de20200a7f4850a0d0000001f8b08000000000000032b4e4dcecf4b51c84dcd4d4a2de2020036184b0e0e000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "not_gzip_keeps_input",
+      "args": [
+        "plain.txt"
+      ],
+      "files": {
+        "plain.txt": "this is not gzip\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "keep_flag",
+      "args": [
+        "-k",
+        "a.gz"
+      ],
+      "files": {
+        "a.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "list_flag",
+      "args": [
+        "-l",
+        "a.gz"
+      ],
+      "files": {
+        "a.gz": {
+          "hex": "1f8b0800000000000003cb48cdc9c95728cf2fca49e12a4e4dcecf4b51c8c9cc4be50200ca28590818000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "name_restore",
+      "args": [
+        "-N",
+        "renamed.gz"
+      ],
+      "files": {
+        "renamed.gz": {
+          "hex": "1f8b080800f1536500036f7269672e74787400cb2fca4c572848acccc94f4ce10200ee72bf4e0d000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "empty_stdin",
+      "args": [],
+      "stdin": "",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    }
+  ]
+}
