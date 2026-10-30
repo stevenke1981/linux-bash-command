@@ -21,7 +21,6 @@ use crate::common::path::display_path;
 use format::{parse_size, size_text, time_text, Scale, TimeStyle};
 
 const HELP: &str = r#"Usage: du [OPTION]... [FILE]...
-  or:  du [OPTION]... --files0-from=F
 Summarize disk usage of the set of FILEs, recursively for directories.
 
 Mandatory arguments to long options are mandatory for short options too.

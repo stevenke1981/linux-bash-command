@@ -15,7 +15,6 @@ use crate::common::io::{finish_output, is_broken_pipe, open_input, read_record, 
 const DEFAULT_FORMAT: &str = "%a %b %e %H:%M:%S %Z %Y";
 
 const HELP: &str = r#"Usage: date [OPTION]... [+FORMAT]
-  or:  date [-u|--utc|--universal] [MMDDhhmm[[CC]YY][.ss]]
 Display date and time in the given FORMAT.
 
   -d, --date=STRING          display time described by STRING, not 'now'
