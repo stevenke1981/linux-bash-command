@@ -1,0 +1,151 @@
+{
+  "command": "uniq",
+  "cases": [
+    {
+      "name": "plain_merges_runs",
+      "args": [],
+      "stdin": "a\na\nb\nc\nc\nc\nd"
+    },
+    {
+      "name": "count_prefix",
+      "args": ["-c"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "count_repeated_only",
+      "args": ["-c", "-d"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "count_unique_only",
+      "args": ["-cu"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "repeated_only",
+      "args": ["-d"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "unique_only",
+      "args": ["--unique"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "all_repeated_default",
+      "args": ["-D"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "all_repeated_prepend",
+      "args": ["--all-repeated=prepend"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "all_repeated_separate",
+      "args": ["--all-repeated=separate"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "group_separate_default",
+      "args": ["--group"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "group_prepend",
+      "args": ["--group=prepend"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "group_append",
+      "args": ["--group=append"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "group_both",
+      "args": ["--group=both"],
+      "stdin": "a\na\nb\nc\nc\nc\nd\n"
+    },
+    {
+      "name": "group_with_count_is_error",
+      "args": ["--group", "-c"],
+      "stdin": "a\n"
+    },
+    {
+      "name": "all_repeated_with_count_is_error",
+      "args": ["-D", "-c"],
+      "stdin": "a\na\n"
+    },
+    {
+      "name": "skip_fields",
+      "args": ["-f", "1"],
+      "stdin": "x a\ny a\nz b\n"
+    },
+    {
+      "name": "skip_fields_obsolete_form",
+      "args": ["-1"],
+      "stdin": "x a\ny a\nz b\n"
+    },
+    {
+      "name": "skip_chars",
+      "args": ["-s", "2"],
+      "stdin": "abcd\nxycd\nxyze\n"
+    },
+    {
+      "name": "skip_chars_obsolete_plus_form",
+      "args": ["+1"],
+      "stdin": "abc\nxbc\nxyz\n"
+    },
+    {
+      "name": "check_chars_width",
+      "args": ["-w", "2"],
+      "stdin": "abc\nabd\nxyz\n"
+    },
+    {
+      "name": "ignore_case_count",
+      "args": ["-i", "-c"],
+      "stdin": "A\na\nB\n"
+    },
+    {
+      "name": "zero_terminated",
+      "args": ["-z"],
+      "stdin_hex": "610061006200"
+    },
+    {
+      "name": "input_and_output_files",
+      "args": ["in.txt", "out.txt"],
+      "files": { "in.txt": "p\np\nq\n" },
+      "compare": ["files", "exit"]
+    },
+    {
+      "name": "extra_operand_exit1",
+      "args": ["a", "b", "c"],
+      "stdin": ""
+    },
+    {
+      "name": "invalid_skip_count_exit1",
+      "args": ["-f", "x"],
+      "stdin": "a\n"
+    },
+    {
+      "name": "bad_all_repeated_method_exit1",
+      "args": ["--all-repeated=bogus"],
+      "stdin": "a\n"
+    },
+    {
+      "name": "missing_input_exit1",
+      "args": ["nofile.txt"],
+      "stdin": ""
+    },
+    {
+      "name": "empty_input",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "no_trailing_newline_gets_one",
+      "args": [],
+      "stdin": "a\na"
+    }
+  ]
+}

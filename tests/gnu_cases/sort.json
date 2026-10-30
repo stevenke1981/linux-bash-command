@@ -1,0 +1,255 @@
+{
+  "command": "sort",
+  "cases": [
+    {
+      "name": "default_bytes",
+      "args": [],
+      "stdin": "b\na\nB\nA\n10\n9\n"
+    },
+    {
+      "name": "reverse_global",
+      "args": ["-r"],
+      "stdin": "b\na\nc\n"
+    },
+    {
+      "name": "numeric_key_reverse_csv",
+      "args": ["-t", ",", "-k2,2nr", "data.csv"],
+      "files": { "data.csv": "a,3\nb,10\nc,2\n" }
+    },
+    {
+      "name": "numeric_plain_and_negative",
+      "args": ["-n"],
+      "stdin": "5\n-3\n+4\n-.5\n.25\n-0\n 3\n-x\n12\n"
+    },
+    {
+      "name": "general_numeric_specials",
+      "args": ["-g"],
+      "stdin": "x\n-1\n1\n0\nnan\n-inf\ninf\n1e3\n0x10\n2.5\n"
+    },
+    {
+      "name": "human_numeric_units",
+      "args": ["-h"],
+      "stdin": "1K\n1024\n2M\n-3k\n1.5G\nabc\n512\n2000\n1M\n"
+    },
+    {
+      "name": "human_long_option_equivalent",
+      "args": ["--sort=human-numeric"],
+      "stdin": "9K\n10k\n1R\n1Q\n-1M\n-5K\n5\n"
+    },
+    {
+      "name": "month_names",
+      "args": ["-M"],
+      "stdin": "Mar\nfoo\nJAN\n  dec\nFeb\n\njun\n"
+    },
+    {
+      "name": "version_natural",
+      "args": ["-V"],
+      "stdin": "a10\na2\na1.10\na1.9\nx-1.0.tar.gz\nx-1.0\nx-1.0.zip\nx~\nx\n"
+    },
+    {
+      "name": "fold_unique",
+      "args": ["-f", "-u"],
+      "stdin": "b\nA\na\nB\nb\n"
+    },
+    {
+      "name": "dictionary_order",
+      "args": ["-d"],
+      "stdin": "a-b\nab\na b\n-x\nAb!\n"
+    },
+    {
+      "name": "ignore_nonprinting",
+      "args": ["-i"],
+      "stdin_hex": "610162016102620a6100"
+    },
+    {
+      "name": "leading_blanks_key",
+      "args": ["-b", "-k2"],
+      "stdin": "a   z\nb  y\nc x\n"
+    },
+    {
+      "name": "key_char_offsets",
+      "args": ["-k1.2,1.3"],
+      "stdin": "xbe\nyad\nzcc\nwab\n"
+    },
+    {
+      "name": "key_end_blanks_option",
+      "args": ["-k1,1b"],
+      "stdin": "a  b\n a z\nc\n"
+    },
+    {
+      "name": "key_per_key_modifiers",
+      "args": ["-k2,2n", "-k1,1r"],
+      "stdin": "b 10\na 2\nc 2\na 1\n"
+    },
+    {
+      "name": "global_numeric_inherited_by_key",
+      "args": ["-n", "-k1r"],
+      "stdin": "10 b\n9 a\n"
+    },
+    {
+      "name": "stable_equal_keys",
+      "args": ["-s", "-k1,1"],
+      "stdin": "x 3\ny 1\nx 1\ny 2\nx 2\n"
+    },
+    {
+      "name": "unique_by_key_keeps_first",
+      "args": ["-u", "-k1,1"],
+      "stdin": "a 2\na 1\nb 3\nb 4\n"
+    },
+    {
+      "name": "unique_whole_line",
+      "args": ["-u"],
+      "stdin": "b\na\nb\na\nc\n"
+    },
+    {
+      "name": "reverse_ties_last_resort",
+      "args": ["-r", "-k1,1"],
+      "stdin": "x 1\nx 2\nx 3\n"
+    },
+    {
+      "name": "check_sorted_ok",
+      "args": ["-c", "sorted.txt"],
+      "files": { "sorted.txt": "a\nb\nc\n" }
+    },
+    {
+      "name": "check_disorder_exit",
+      "args": ["-c", "unsorted.txt"],
+      "files": { "unsorted.txt": "a\nc\nb\nd\n" }
+    },
+    {
+      "name": "check_quiet_disorder",
+      "args": ["-C", "unsorted.txt"],
+      "files": { "unsorted.txt": "b\na\n" }
+    },
+    {
+      "name": "check_unique_duplicate",
+      "args": ["-c", "-u", "dups.txt"],
+      "files": { "dups.txt": "a\na\nb\n" }
+    },
+    {
+      "name": "check_stdin_disorder",
+      "args": ["--check=silent"],
+      "stdin": "1\n3\n2\n"
+    },
+    {
+      "name": "merge_sorted_inputs",
+      "args": ["-m", "a.txt", "b.txt"],
+      "files": { "a.txt": "apple\ncherry\n", "b.txt": "banana\ncherry\nzebra\n" }
+    },
+    {
+      "name": "merge_unique_numeric",
+      "args": ["-m", "-u", "-n", "a.txt", "b.txt"],
+      "files": { "a.txt": "1\n3\n5\n", "b.txt": "2\n3\n6\n" }
+    },
+    {
+      "name": "output_to_file",
+      "args": ["-o", "out.txt", "in.txt"],
+      "files": { "in.txt": "pear\napple\n" }
+    },
+    {
+      "name": "output_same_as_input",
+      "args": ["-o", "in.txt", "in.txt"],
+      "files": { "in.txt": "pear\napple\nfig\n" }
+    },
+    {
+      "name": "zero_terminated_records",
+      "args": ["-z"],
+      "stdin_hex": "620061000a7a00"
+    },
+    {
+      "name": "small_buffer_external_merge",
+      "args": ["-n", "-S", "64", "nums.txt"],
+      "files": { "nums.txt": "42\n7\n19\n100\n3\n58\n21\n64\n8\n77\n1\n33\n90\n12\n55\n26\n" }
+    },
+    {
+      "name": "small_buffer_unique_merge",
+      "args": ["-u", "-S", "1K", "-n", "nums.txt"],
+      "files": { "nums.txt": "5\n3\n5\n1\n3\n9\n1\n5\n2\n9\n" }
+    },
+    {
+      "name": "batch_size_merge_passes",
+      "args": ["--batch-size=2", "-S", "16", "words.txt"],
+      "files": { "words.txt": "delta\nalpha\ncharlie\nbravo\necho\nfoxtrot\ngolf\nhotel\n" }
+    },
+    {
+      "name": "temp_directory_option",
+      "args": ["-T", "tmpdir", "-S", "32", "data.txt"],
+      "files": { "tmpdir": { "dir": true }, "data.txt": "c\nb\na\nd\ne\n" }
+    },
+    {
+      "name": "parallel_accepted",
+      "args": ["--parallel=4", "-n"],
+      "stdin": "3\n1\n2\n"
+    },
+    {
+      "name": "files0_from_list",
+      "args": ["--files0-from=list.bin"],
+      "files": { "list.bin": { "hex": "62006100" }, "a": "x\n", "b": "a\n" }
+    },
+    {
+      "name": "random_source_grouping",
+      "args": ["-R", "--random-source=seed.bin", "in.txt"],
+      "files": { "seed.bin": { "hex": "00112233445566778899aabbccddeeff" }, "in.txt": "a\nb\na\nc\n" },
+      "compare": ["stdout_sorted", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "random_sort_long_option",
+      "args": ["--sort=random", "in.txt"],
+      "files": { "in.txt": "a\nb\nc\nd\n" },
+      "compare": ["stdout_sorted", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "batch_size_too_small",
+      "args": ["--batch-size=1", "-n"],
+      "stdin": "2\n1\n"
+    },
+    {
+      "name": "incompatible_modes_exit2",
+      "args": ["-nM"],
+      "stdin": "a\n"
+    },
+    {
+      "name": "bad_key_zero_exit2",
+      "args": ["-k0"],
+      "stdin": "a\n"
+    },
+    {
+      "name": "multi_character_tab_exit2",
+      "args": ["-t", "ab"],
+      "stdin": "a\n"
+    },
+    {
+      "name": "check_extra_operand_exit2",
+      "args": ["-c", "a.txt", "b.txt"],
+      "files": { "a.txt": "a\n", "b.txt": "b\n" }
+    },
+    {
+      "name": "missing_input_exit2",
+      "args": ["nofile.txt"],
+      "stdin": ""
+    },
+    {
+      "name": "unknown_option_exit2",
+      "args": ["--no-such-option"],
+      "stdin": "a\n"
+    },
+    {
+      "name": "empty_input",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "no_trailing_newline_added",
+      "args": [],
+      "stdin": "b\na"
+    },
+    {
+      "name": "debug_unsupported",
+      "args": ["--debug"],
+      "stdin": "a\n",
+      "skip_reason": "agentcmd does not implement --debug (exit 2 with 'not supported'); GNU prints key annotations"
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "command": "xargs",
+  "cases": [
+    {
+      "name": "default_echo_joins_items",
+      "args": [],
+      "stdin": "a b\nc\n"
+    },
+    {
+      "name": "max_args_one",
+      "args": ["-n", "1"],
+      "stdin": "a b c\n"
+    },
+    {
+      "name": "max_args_two_long_option",
+      "args": ["--max-args=2"],
+      "stdin": "a b c d e\n"
+    },
+    {
+      "name": "null_delimited",
+      "args": ["-0"],
+      "stdin_hex": "610062006300"
+    },
+    {
+      "name": "null_long_option_with_n",
+      "args": ["--null", "-n", "2"],
+      "stdin_hex": "6100620063006400"
+    },
+    {
+      "name": "custom_delimiter_keeps_empty_items",
+      "args": ["-d", ","],
+      "stdin": "a,b,,c\n"
+    },
+    {
+      "name": "custom_delimiter_escape_newline",
+      "args": ["-d", "\\n", "-n", "1"],
+      "stdin": "one two\nthree\n"
+    },
+    {
+      "name": "max_lines_one",
+      "args": ["-L", "1"],
+      "stdin": "a b\nc\n"
+    },
+    {
+      "name": "max_lines_two_continuation",
+      "args": ["-L", "2"],
+      "stdin": "a \nb\nc\nd\n"
+    },
+    {
+      "name": "max_lines_optional_form",
+      "args": ["-l2"],
+      "stdin": "a\n\nb\nc\nd\n"
+    },
+    {
+      "name": "replace_per_line",
+      "args": ["-I", "{}", "echo", "[{}]"],
+      "stdin": "x\n  y z\n"
+    },
+    {
+      "name": "replace_default_marker",
+      "args": ["-i", "echo", "<{}>"],
+      "stdin": "p\nq\n"
+    },
+    {
+      "name": "replace_empty_input",
+      "args": ["-I", "{}", "echo", "x{}"],
+      "stdin": ""
+    },
+    {
+      "name": "eof_string_stops_input",
+      "args": ["-E", "STOP"],
+      "stdin": "a\nSTOP\nb\n"
+    },
+    {
+      "name": "eof_string_attached_form",
+      "args": ["-estop"],
+      "stdin": "a stop b\n"
+    },
+    {
+      "name": "no_run_if_empty_skips",
+      "args": ["-r"],
+      "stdin": ""
+    },
+    {
+      "name": "runs_once_when_empty",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "quotes_and_backslashes",
+      "args": [],
+      "stdin": "'a b' \"c d\" e\\ f\n"
+    },
+    {
+      "name": "unmatched_quote_exit1",
+      "args": [],
+      "stdin": "'abc\n"
+    },
+    {
+      "name": "command_not_found_exit127",
+      "args": ["agentcmd-no-such-command-xyz"],
+      "stdin": "a\n"
+    },
+    {
+      "name": "child_failure_exit123",
+      "args": ["sh", "-c", "exit 1"],
+      "stdin": "a\n"
+    },
+    {
+      "name": "child_255_stops_exit124",
+      "args": ["-n", "1", "sh", "-c", "echo ran; exit 255"],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "child_killed_exit125",
+      "args": ["sh", "-c", "kill -9 $$"],
+      "stdin": "a\n"
+    },
+    {
+      "name": "max_chars_fits_one_run",
+      "args": ["-s", "4096"],
+      "stdin": "alpha beta gamma\n"
+    },
+    {
+      "name": "exit_on_overflow_exit1",
+      "args": ["-x", "-s", "10"],
+      "stdin": "aaaaaaaaaa bbbbbbbbbb\n"
+    },
+    {
+      "name": "verbose_prints_command_to_stderr",
+      "args": ["-t", "-n", "1"],
+      "stdin": "a b\n"
+    },
+    {
+      "name": "process_slot_variable",
+      "args": ["--process-slot-var=SLOT", "sh", "-c", "echo $SLOT"],
+      "stdin": "x\n"
+    },
+    {
+      "name": "arg_file_option",
+      "args": ["-a", "items.txt"],
+      "files": { "items.txt": "p q\n" }
+    },
+    {
+      "name": "parallel_accepted_output_sorted",
+      "args": ["-P", "2", "-n", "1"],
+      "stdin": "a\nb\nc\n",
+      "compare": ["stdout_sorted", "exit"]
+    },
+    {
+      "name": "unsupported_interactive",
+      "args": ["-p"],
+      "stdin": "a\n",
+      "skip_reason": "agentcmd does not implement -p (interactive prompts); GNU prompts on the terminal"
+    },
+    {
+      "name": "unsupported_open_tty",
+      "args": ["-o"],
+      "stdin": "a\n",
+      "skip_reason": "agentcmd does not implement -o (--open-tty); needs a controlling terminal"
+    },
+    {
+      "name": "show_limits_values_differ",
+      "args": ["--show-limits"],
+      "stdin": "",
+      "compare": ["stdout", "exit"],
+      "skip_reason": "--show-limits prints machine-dependent values (environment size, ARG_MAX)"
+    }
+  ]
+}
