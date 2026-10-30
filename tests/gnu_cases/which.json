@@ -1,0 +1,24 @@
+{
+  "command": "which",
+  "cases": [
+    { "name": "finds_first_match", "args": ["sh"] },
+    { "name": "all_matches", "args": ["-a", "sh"] },
+    { "name": "silent_found", "args": ["-s", "sh"] },
+    { "name": "silent_missing", "args": ["-s", "agentcmd-no-such-prog-zz"] },
+    { "name": "missing_program", "args": ["agentcmd-no-such-prog-zz"] },
+    { "name": "mixed_found_and_missing", "args": ["agentcmd-no-such-prog-zz", "sh"] },
+    { "name": "no_operands", "args": [] },
+    { "name": "invalid_option", "args": ["-x"], "skip_reason": "debianutils writes its usage line to stdout ('Usage: ... [-as] args', exit 2); agentcmd reports usage errors on stderr (02-conventions §1, §4). Known difference." },
+    { "name": "dot_path_entry_prefix", "args": ["tool"], "files": { "tool": { "text": "#!/bin/sh\n", "mode": "755" } }, "env": { "PATH": "." } },
+    { "name": "combined_flags", "args": ["-as", "sh"] },
+    { "name": "absolute_path_operand", "args": ["/bin/sh"] },
+    { "name": "relative_name_is_path_searched", "args": ["d1/tool"], "files": { "d1/tool": { "text": "#!/bin/sh\necho hi\n", "mode": "755" } }, "env": { "PATH": "." } },
+    { "name": "bare_name_in_relative_path_entry", "args": ["tool"], "files": { "d1/tool": { "text": "#!/bin/sh\necho hi\n", "mode": "755" } }, "env": { "PATH": "d1" } },
+    { "name": "all_with_duplicate_path_entries", "args": ["-a", "tool"], "files": { "d1/tool": { "text": "#!/bin/sh\necho hi\n", "mode": "755" } }, "env": { "PATH": "d1:d1" } },
+    { "name": "non_executable_file_is_skipped", "args": ["tool"], "files": { "d1/tool": { "text": "not runnable\n", "mode": "644" } }, "env": { "PATH": "d1" } },
+    { "name": "directory_of_same_name_is_skipped", "args": ["tool"], "files": { "d1/tool/inside": "x" }, "env": { "PATH": "d1" } },
+    { "name": "empty_path_finds_nothing", "args": ["sh"], "env": { "PATH": "" } },
+    { "name": "help_exit_status", "args": ["--help"], "compare": ["exit"], "skip_reason": "debianutils which rejects --help with usage and exit 2; agentcmd follows 02-conventions §2 (help exits 0). Known difference." },
+    { "name": "double_dash_operand", "args": ["--", "sh"], "skip_reason": "debianutils which does not accept -- (exit 2); agentcmd follows 02-conventions §1 where -- ends options. Known difference." }
+  ]
+}
