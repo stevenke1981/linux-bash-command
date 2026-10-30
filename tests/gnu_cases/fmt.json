@@ -1,0 +1,425 @@
+{
+  "command": "fmt",
+  "cases": [
+    {
+      "name": "c00_p1",
+      "args": [
+        "p1"
+      ],
+      "files": {
+        "p1": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog again and again until the paragraph is long enough to wrap around several times over.\n"
+      }
+    },
+    {
+      "name": "c01_w_50_p1",
+      "args": [
+        "-w",
+        "50",
+        "p1"
+      ],
+      "files": {
+        "p1": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog again and again until the paragraph is long enough to wrap around several times over.\n"
+      }
+    },
+    {
+      "name": "c02_w_20_p1",
+      "args": [
+        "-w",
+        "20",
+        "p1"
+      ],
+      "files": {
+        "p1": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog again and again until the paragraph is long enough to wrap around several times over.\n"
+      }
+    },
+    {
+      "name": "c03_w_40_p1",
+      "args": [
+        "-w",
+        "40",
+        "p1"
+      ],
+      "files": {
+        "p1": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog again and again until the paragraph is long enough to wrap around several times over.\n"
+      }
+    },
+    {
+      "name": "c04_w_30_p1",
+      "args": [
+        "-w",
+        "30",
+        "p1"
+      ],
+      "files": {
+        "p1": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog again and again until the paragraph is long enough to wrap around several times over.\n"
+      }
+    },
+    {
+      "name": "c05_g_20_w_30_p1",
+      "args": [
+        "-g",
+        "20",
+        "-w",
+        "30",
+        "p1"
+      ],
+      "files": {
+        "p1": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog again and again until the paragraph is long enough to wrap around several times over.\n"
+      }
+    },
+    {
+      "name": "c06_u_p2",
+      "args": [
+        "-u",
+        "p2"
+      ],
+      "files": {
+        "p2": "Hello  world.  This   is   a test.  Second sentence here.\n"
+      }
+    },
+    {
+      "name": "c07_p2",
+      "args": [
+        "p2"
+      ],
+      "files": {
+        "p2": "Hello  world.  This   is   a test.  Second sentence here.\n"
+      }
+    },
+    {
+      "name": "c08_s_w_20_p1",
+      "args": [
+        "-s",
+        "-w",
+        "20",
+        "p1"
+      ],
+      "files": {
+        "p1": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog again and again until the paragraph is long enough to wrap around several times over.\n"
+      }
+    },
+    {
+      "name": "c09_c_p3",
+      "args": [
+        "-c",
+        "p3"
+      ],
+      "files": {
+        "p3": "   First line here is indented\n   second line of the same paragraph.\n"
+      }
+    },
+    {
+      "name": "c10_t_p3",
+      "args": [
+        "-t",
+        "p3"
+      ],
+      "files": {
+        "p3": "   First line here is indented\n   second line of the same paragraph.\n"
+      }
+    },
+    {
+      "name": "c11_p3",
+      "args": [
+        "p3"
+      ],
+      "files": {
+        "p3": "   First line here is indented\n   second line of the same paragraph.\n"
+      }
+    },
+    {
+      "name": "c12_p_w_20_p4",
+      "args": [
+        "-p",
+        "# ",
+        "-w",
+        "20",
+        "p4"
+      ],
+      "files": {
+        "p4": "# one two three four five six\n# seven eight nine ten\nnot touched\n"
+      }
+    },
+    {
+      "name": "c13_20_p1",
+      "args": [
+        "-20",
+        "p1"
+      ],
+      "files": {
+        "p1": "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog again and again until the paragraph is long enough to wrap around several times over.\n"
+      }
+    },
+    {
+      "name": "c14_p5",
+      "args": [
+        "p5"
+      ],
+      "files": {
+        "p5": "para one line\nmore\n\n\npara two\n"
+      }
+    },
+    {
+      "name": "c15_i1",
+      "args": [
+        "i1"
+      ],
+      "files": {
+        "i1": "  alpha beta\ngamma delta\n"
+      }
+    },
+    {
+      "name": "c16_i8",
+      "args": [
+        "i8"
+      ],
+      "files": {
+        "i8": "alpha\n  beta gamma\n"
+      }
+    },
+    {
+      "name": "c17_s_w_20_i4",
+      "args": [
+        "-s",
+        "-w",
+        "20",
+        "i4"
+      ],
+      "files": {
+        "i4": "  alpha beta gamma delta epsilon zeta eta theta iota kappa\n"
+      }
+    },
+    {
+      "name": "c18_t_w_20_i9",
+      "args": [
+        "-t",
+        "-w",
+        "20",
+        "i9"
+      ],
+      "files": {
+        "i9": "  alpha\n    beta gamma delta epsilon\n"
+      }
+    },
+    {
+      "name": "c19_c_w_20_i9",
+      "args": [
+        "-c",
+        "-w",
+        "20",
+        "i9"
+      ],
+      "files": {
+        "i9": "  alpha\n    beta gamma delta epsilon\n"
+      }
+    },
+    {
+      "name": "c20_w_20_i9",
+      "args": [
+        "-w",
+        "20",
+        "i9"
+      ],
+      "files": {
+        "i9": "  alpha\n    beta gamma delta epsilon\n"
+      }
+    },
+    {
+      "name": "c21_c_w_20_i10",
+      "args": [
+        "-c",
+        "-w",
+        "20",
+        "i10"
+      ],
+      "files": {
+        "i10": "  alpha\nbeta gamma delta epsilon zeta eta theta\n"
+      }
+    },
+    {
+      "name": "c22_t_w_20_i10",
+      "args": [
+        "-t",
+        "-w",
+        "20",
+        "i10"
+      ],
+      "files": {
+        "i10": "  alpha\nbeta gamma delta epsilon zeta eta theta\n"
+      }
+    },
+    {
+      "name": "c23_u_i11",
+      "args": [
+        "-u",
+        "i11"
+      ],
+      "files": {
+        "i11": "Hi.  There  you.\n"
+      }
+    },
+    {
+      "name": "c24_i2",
+      "args": [
+        "i2"
+      ],
+      "files": {
+        "i2": "dog.\nThe next\n"
+      }
+    },
+    {
+      "name": "c25_i3",
+      "args": [
+        "i3"
+      ],
+      "files": {
+        "i3": "dog.  The next\nline two\n"
+      }
+    },
+    {
+      "name": "c26_u_i2",
+      "args": [
+        "-u",
+        "i2"
+      ],
+      "files": {
+        "i2": "dog.\nThe next\n"
+      }
+    },
+    {
+      "name": "c27_w_10_i5",
+      "args": [
+        "-w",
+        "10",
+        "i5"
+      ],
+      "files": {
+        "i5": "abcdefghijklmnopqrstuvwxyz0123456789 short\n"
+      }
+    },
+    {
+      "name": "c28_w_1_i4",
+      "args": [
+        "-w",
+        "1",
+        "i4"
+      ],
+      "files": {
+        "i4": "alpha beta gamma\n"
+      }
+    },
+    {
+      "name": "c29_i6",
+      "args": [
+        "i6"
+      ],
+      "files": {
+        "i6": "a b\n   \nc d\n"
+      }
+    },
+    {
+      "name": "c30_p_Z_i7",
+      "args": [
+        "-p",
+        "Z",
+        "i7"
+      ],
+      "files": {
+        "i7": "x y\n"
+      }
+    },
+    {
+      "name": "c31_g_90_w_75_i2",
+      "args": [
+        "-g",
+        "90",
+        "-w",
+        "75",
+        "i2"
+      ],
+      "files": {
+        "i2": "dog.\nThe next\n"
+      }
+    },
+    {
+      "name": "c32_w_x_i2",
+      "args": [
+        "-w",
+        "x",
+        "i2"
+      ],
+      "files": {
+        "i2": "dog.\n"
+      }
+    },
+    {
+      "name": "c33_nosuch",
+      "args": [
+        "nosuch"
+      ]
+    },
+    {
+      "name": "c34_s_u_w_12_i4",
+      "args": [
+        "-s",
+        "-u",
+        "-w",
+        "12",
+        "i4"
+      ],
+      "files": {
+        "i4": "alpha  beta.  gamma delta epsilon zeta\n"
+      }
+    },
+    {
+      "name": "c35_u_w_16_i4",
+      "args": [
+        "-u",
+        "-w",
+        "16",
+        "i4"
+      ],
+      "files": {
+        "i4": "alpha  beta.  gamma delta epsilon zeta\n"
+      }
+    },
+    {
+      "name": "c36_w_16_i4",
+      "args": [
+        "-w",
+        "16",
+        "i4"
+      ],
+      "files": {
+        "i4": "alpha  beta.  gamma delta epsilon zeta\n"
+      }
+    },
+    {
+      "name": "c37_p_s_w_12_i12",
+      "args": [
+        "-p",
+        "> ",
+        "-s",
+        "-w",
+        "12",
+        "i12"
+      ],
+      "files": {
+        "i12": "> a b c d e f g h i j\n> k\n"
+      }
+    },
+    {
+      "name": "c38_p_w_12_i12",
+      "args": [
+        "-p",
+        "> ",
+        "-w",
+        "12",
+        "i12"
+      ],
+      "files": {
+        "i12": "> a b c d e f g h i j\n> k\n"
+      }
+    }
+  ]
+}
