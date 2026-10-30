@@ -1,0 +1,297 @@
+{
+  "command": "date",
+  "cases": [
+    {
+      "name": "iso_date_only",
+      "args": ["-d", "2024-01-02"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "iso_t_with_offset",
+      "args": ["-d", "2024-01-02T05:10:00+08:00"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "epoch_fraction_and_ns",
+      "args": ["-d", "@1700000000.5", "+%s.%N"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "utc_composite_conversions",
+      "args": ["-u", "-d", "2024-01-02 15:04:05", "+%c|%x|%X|%r|%p|%P|%D|%T|%R"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "flags_pad_case",
+      "args": ["-d", "2024-01-02 15:04:05", "+%-d|%_d|%0e|%^a|%#b|%^p|%#p|%_m|%-H|%_H|%k|%l"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "fraction_widths",
+      "args": ["-d", "2024-01-02 15:04:05.123456789", "+%N|%3N|%-3N|%_3N|%10N|%5a|%-10a|%^10a|%#10b"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "iso_8601_ns_with_offset",
+      "args": ["-d", "2024-01-02 10:00:00.5 +0800", "-Ins"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "iso_8601_hours",
+      "args": ["-d", "2024-01-02 10:00 +0800", "-Ihours"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "iso_8601_minutes_long_option",
+      "args": ["--iso-8601=minutes", "-d", "2024-01-02 10:00 -0530"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "rfc_3339_seconds",
+      "args": ["-d", "2024-01-02 10:00:00 +0800", "--rfc-3339=seconds"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "rfc_3339_ns",
+      "args": ["-d", "2024-01-02 10:00:00.25 +0800", "--rfc-3339=ns"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "rfc_email_output",
+      "args": ["-R", "-d", "2024-01-02 10:00:00 +0800"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "rfc_2822_input",
+      "args": ["-d", "Thu, 30 Oct 2026 05:10:00 +0000", "+%F %T"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "relative_items_with_ago",
+      "args": ["-d", "2024-01-02 +3 days 2 hours ago", "+%F %T"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "relative_ago_applies_to_last_item",
+      "args": ["-d", "2024-01-02 1 day 2 hours ago", "+%F %T"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "month_overflow_rolls_forward",
+      "args": ["-d", "2024-01-31 +1 month", "+%F"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "month_names_with_year_and_time",
+      "args": ["-d", "Feb 29 2024 12:00", "+%F %R"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "day_names_and_slash_dates",
+      "args": ["-d", "10/30/2026 3pm", "+%F %H:%M"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "tz_prefix_selects_zone",
+      "args": ["-d", "TZ=\"Asia/Taipei\" 2026-01-01 00:00", "+%F %T %Z %z"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "negative_epoch",
+      "args": ["-d", "@-5", "+%F %T"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "weekday_ignored_with_date",
+      "args": ["-d", "Mon 2024-01-02", "+%a %F"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "years_below_one_thousand",
+      "args": ["-d", "0999-01-05 03:04:05", "+%Y|%C|%F|%y|%G|%x"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_calendar_date",
+      "args": ["-d", "2024-02-31"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_iso_argument",
+      "args": ["-Ix"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "conflicting_output_formats",
+      "args": ["-I", "-R", "-d", "2024-01-02"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "extra_operand",
+      "args": ["+%Y", "+%m"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "last_date_option_wins",
+      "args": ["-d", "2024-01-02", "-d", "2025-01-01", "+%F"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "date_from_file_lines",
+      "args": ["-f", "dates.txt", "+%F %T"],
+      "stdin": "",
+      "files": {
+        "dates.txt": "2024-01-02\n@0\n2024-03-10 12:30\n"
+      },
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "date_from_file_with_bad_line",
+      "args": ["-f", "dates.txt", "+%F"],
+      "stdin": "",
+      "files": {
+        "dates.txt": "2024-01-02\nbogus\n@86400\n"
+      },
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "reference_file_missing",
+      "args": ["-r", "no-such-file.txt"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "noon_keyword",
+      "args": ["-d", "2024-01-02 noon", "+%T"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": "GNU 9.4 rejects the noon and midnight keywords; the project spec requires them (03-commands-core.md, date)"
+    },
+    {
+      "name": "military_zone_letter",
+      "args": ["-d", "x", "+%F %T"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["date"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": "GNU accepts military zone letters (x = UTC-11); the project spec requires 'x' to be an invalid date"
+    }
+  ]
+}

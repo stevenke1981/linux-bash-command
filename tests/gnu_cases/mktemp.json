@@ -1,0 +1,158 @@
+{
+  "command": "mktemp",
+  "cases": [
+    {
+      "name": "too_few_x_in_template",
+      "args": ["XX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "no_x_in_template",
+      "args": ["abc"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "dry_run_file_name_exit_only",
+      "args": ["-u", "abcXXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "dry_run_directory_exit_only",
+      "args": ["-d", "-u", "dirXXXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "suffix_with_dry_run",
+      "args": ["-u", "--suffix=.txt", "fooXXXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "suffix_requires_trailing_x",
+      "args": ["--suffix=.txt", "fooXXXX.log"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "slash_in_suffix_rejected",
+      "args": ["-u", "XXXXX/../b"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "too_many_templates",
+      "args": ["-u", "a.XXX", "b.XXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "dry_run_ignores_missing_directory",
+      "args": ["-u", "/no-such-dir-agentcmd/xXXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "missing_directory_fails",
+      "args": ["/no-such-dir-agentcmd/xXXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "quiet_suppresses_message_only",
+      "args": ["-q", "/no-such-dir-agentcmd/xXXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "creates_file_in_working_directory",
+      "args": ["aXXXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "creates_directory_in_working_directory",
+      "args": ["-d", "dXXXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "single_component_rejects_directory_part",
+      "args": ["-t", "sub/aXXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "p_option_missing_directory",
+      "args": ["-p", "/no-such-dir-agentcmd", "aXXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "dry_run_single_component_in_tmpdir",
+      "args": ["-u", "-t", "prefixXXXX"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown_option",
+      "args": ["--bogus-option"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["mktemp"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    }
+  ]
+}

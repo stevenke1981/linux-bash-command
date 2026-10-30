@@ -1,0 +1,173 @@
+{
+  "command": "realpath",
+  "cases": [
+    {
+      "name": "existing_file_relative_output",
+      "args": ["--relative-to=.", "a.txt"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 }
+      },
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "symlink_is_resolved",
+      "args": ["--relative-to=.", "link"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 },
+        "link": { "symlink": "a.txt" }
+      },
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "dotdot_through_directory",
+      "args": ["--relative-to=.", "d/../a.txt"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 },
+        "d": { "dir": true, "mtime": 1700000000 }
+      },
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "missing_last_component_allowed",
+      "args": ["--relative-to=.", "new.txt"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "missing_middle_component_fails",
+      "args": ["--relative-to=.", "nosuch/x"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "canonicalize_existing_rejects_missing",
+      "args": ["-e", "--relative-to=.", "new.txt"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "canonicalize_missing_accepts_any",
+      "args": ["-m", "--relative-to=.", "nosuch/x/y"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "no_symlinks_keeps_link_name",
+      "args": ["-s", "--relative-to=.", "link"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 },
+        "link": { "symlink": "a.txt" }
+      },
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "logical_removes_dotdot_first",
+      "args": ["-L", "--relative-to=.", "d/../a.txt"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 },
+        "d": { "dir": true, "mtime": 1700000000 }
+      },
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "relative_base_root_then_relative_to",
+      "args": ["--relative-base=/", "--relative-to=.", "a.txt"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 }
+      },
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "zero_terminated_output",
+      "args": ["-z", "--relative-to=.", "a.txt", "d"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 },
+        "d": { "dir": true, "mtime": 1700000000 }
+      },
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "quiet_hides_message_keeps_status",
+      "args": ["-q", "nosuch/x"],
+      "stdin": "",
+      "files": {},
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "several_operands_in_order",
+      "args": ["--relative-to=.", "a.txt", "link", "new.txt"],
+      "stdin": "",
+      "files": {
+        "a.txt": { "text": "hello\n", "mtime": 1700000000 },
+        "link": { "symlink": "a.txt" }
+      },
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "trailing_slash_directory",
+      "args": ["--relative-to=.", "d/"],
+      "stdin": "",
+      "files": {
+        "d": { "dir": true, "mtime": 1700000000 }
+      },
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "current_directory_is_dot",
+      "args": ["--relative-to=.", "."],
+      "stdin": "",
+      "files": {},
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    },
+    {
+      "name": "missing_operand",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": ["realpath"],
+      "compare": ["stdout", "exit"],
+      "skip_reason": null
+    }
+  ]
+}
