@@ -75,6 +75,16 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | sed | pattern 內 backreference 不支援 | `regex` crate 限制 | `sed_backref`（skip） |
 | awk | 不支援 pipe／`system()` | 需 shell | — |
 | diff | 預設 unified → P4 改 normal | 對齊 GNU | — |
+| cp | `--reflink=always` 與 `--attributes-only` 不支援（用法錯誤，exit 1） | 規格 03 指定不支援；無 clone 支援 | `reflink_always_unsupported`、`attributes_only_unsupported`（skip） |
+| mkdir | `-Z`／`--context` 不支援（GNU 於無 SELinux 時靜默成功） | 規格 03；SELinux 不在範圍 | `context_option_not_supported`（skip） |
+| ln | `-d`／`--directory`、`-F` 不支援 | 規格 03 ln | `directory_option_unsupported`、`capital_f_option_unsupported`（skip） |
+| touch | `-d` 僅接受 `@EPOCH`、`now`、`YYYY-MM-DD[( \|T)HH:MM[:SS[.frac]]]`；GNU 較寬鬆的日期字串（如 `1 Jan 2000`）報 `invalid date format` | `common::datetime` 尚未就緒，暫以 touch 局部解析（jiff）實作 | 僅 CLI 測試（`-d`/`-t` 無差分） |
+| rm cp mv（Windows） | `--one-file-system` 無作用（Windows 無 device 號）；`--preserve=ownership` 為 no-op | 平台無 uid/gid 與 dev 號 | — |
+| chmod（Windows） | 只有 owner 寫入位有效（清除即設 read-only）；其餘位元接受但忽略 | 規格 04 chmod | — |
+| mkdir（Windows） | `-m` 只驗證語法，不套用（目錄唯讀語意不同） | 規格 03 mkdir | — |
+| cp（Windows） | symlink 建立需 Developer Mode 或提升權限，失敗訊息附註說明 | 02-conventions §7 | — |
+| truncate | `-o` 之區塊大小取檔案 `st_blksize`（Unix），Windows 固定 4096 | 不呼叫 Windows 區塊 API | — |
+| cp | 不輸出 GNU 9.4 `cp -n` 之 non-portable 警告（僅 stderr） | 警告為 GNU 過渡訊息；stderr 不比對 | — |
 | （Codex 補充） | | | |
 
 ## 回報格式（每階段完成時，Codex 輸出）
