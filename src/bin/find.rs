@@ -1,3 +1,3 @@
 fn main() {
-    std::process::exit(agentcmd::fs_commands::find(&agentcmd::arguments("find")));
+    std::process::exit(agentcmd::find_command::find(&agentcmd::arguments("find")));
 }
