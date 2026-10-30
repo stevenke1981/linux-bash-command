@@ -13,7 +13,7 @@ const DEFAULT_CONTEXT: usize = 3;
 
 const USAGE: &str = concat!(
     "Usage: diff [OPTIONS] LEFT RIGHT\n",
-    "Compare two files, or two directory trees with -r, and print a unified diff.\n",
+    "Compare two files, or two directories (-r recurses), and print a unified diff.\n",
     "\n",
     "Options:\n",
     "  -u, -U N, --unified[=N]       Unified format with N unchanged context lines (default: 3)\n",
@@ -250,11 +250,7 @@ fn compare_operands(
     let (left_path, right_path) = (Path::new(left), Path::new(right));
     let (left_is_dir, right_is_dir) = (is_directory(left_path), is_directory(right_path));
     if left_is_dir && right_is_dir {
-        if options.recursive {
-            return compare_directories(left_path, right_path, options, out);
-        }
-        writeln!(out, "Common subdirectories: {left} and {right}")?;
-        return Ok(0);
+        return compare_directories(left_path, right_path, options, out);
     }
     if left_is_dir || right_is_dir {
         return compare_against_directory(left, right, left_is_dir, options, out);
@@ -309,7 +305,7 @@ fn compare_top_level_files(
 ) -> io::Result<i32> {
     match compare_loaded(left, right, names, options) {
         Ok((status, text)) => {
-            out.write_all(text.as_bytes())?;
+            out.write_all(&text)?;
             Ok(status)
         }
         Err(message) => {
@@ -325,7 +321,7 @@ fn compare_loaded(
     right: &Path,
     names: &(String, String),
     options: &Options,
-) -> Result<(i32, String), String> {
+) -> Result<(i32, Vec<u8>), String> {
     let left_bytes = load(left, options.new_file)?;
     let right_bytes = load(right, options.new_file)?;
     Ok(report_pair(&left_bytes, &right_bytes, names, options))
@@ -427,7 +423,16 @@ fn compare_entries(
     out: &mut dyn Write,
 ) -> io::Result<i32> {
     match (left.is_dir(), right.is_dir()) {
-        (true, true) => compare_directories(left, right, options, out),
+        (true, true) if options.recursive => compare_directories(left, right, options, out),
+        (true, true) => {
+            writeln!(
+                out,
+                "Common subdirectories: {} and {}",
+                display_path(left),
+                display_path(right)
+            )?;
+            Ok(0)
+        }
         (true, false) => {
             writeln!(
                 out,
@@ -450,7 +455,8 @@ fn compare_entries(
     }
 }
 
-/// Compares one file pair found by `-r`, with the GNU `diff -r LEFT RIGHT` header before any differences.
+/// Compares one file pair found while walking directories, with a `diff LEFT RIGHT` header
+/// (`diff -r LEFT RIGHT` under -r) before any differences.
 fn compare_tree_files(
     left: &Path,
     right: &Path,
@@ -461,9 +467,10 @@ fn compare_tree_files(
     match compare_loaded(left, right, &names, options) {
         Ok((status, text)) => {
             if status != 0 && !options.brief {
-                writeln!(out, "diff -r {} {}", names.0, names.1)?;
+                let command = if options.recursive { "diff -r" } else { "diff" };
+                writeln!(out, "{command} {} {}", names.0, names.1)?;
             }
-            out.write_all(text.as_bytes())?;
+            out.write_all(&text)?;
             Ok(status)
         }
         Err(message) => {
@@ -490,16 +497,16 @@ fn report_pair(
     right: &[u8],
     names: &(String, String),
     options: &Options,
-) -> (i32, String) {
+) -> (i32, Vec<u8>) {
     match compare_contents(left, right, names, options) {
         Comparison::Same if options.report_identical => (
             0,
-            format!("Files {} and {} are identical\n", names.0, names.1),
+            format!("Files {} and {} are identical\n", names.0, names.1).into_bytes(),
         ),
-        Comparison::Same => (0, String::new()),
-        Comparison::Binary if options.brief => (1, differ_message(names, "Files")),
-        Comparison::Binary => (1, differ_message(names, "Binary files")),
-        Comparison::Text(_) if options.brief => (1, differ_message(names, "Files")),
+        Comparison::Same => (0, Vec::new()),
+        Comparison::Binary if options.brief => (1, differ_message(names, "Files").into_bytes()),
+        Comparison::Binary => (1, differ_message(names, "Binary files").into_bytes()),
+        Comparison::Text(_) if options.brief => (1, differ_message(names, "Files").into_bytes()),
         Comparison::Text(body) => (1, body),
     }
 }
@@ -511,7 +518,7 @@ fn differ_message(names: &(String, String), prefix: &str) -> String {
 enum Comparison {
     Same,
     Binary,
-    Text(String),
+    Text(Vec<u8>),
 }
 
 fn compare_contents(
@@ -526,9 +533,7 @@ fn compare_contents(
     if !options.text && (is_binary(left) || is_binary(right)) {
         return Comparison::Binary;
     }
-    let left_text = String::from_utf8_lossy(left);
-    let right_text = String::from_utf8_lossy(right);
-    match unified_body(&left_text, &right_text, names, options) {
+    match unified_body(left, right, names, options) {
         Some(body) => Comparison::Text(body),
         None => Comparison::Same,
     }
@@ -540,18 +545,18 @@ fn is_binary(bytes: &[u8]) -> bool {
 
 /// Builds the unified diff, or returns None when the texts are equal under the ignore options.
 fn unified_body(
-    left: &str,
-    right: &str,
+    left: &[u8],
+    right: &[u8],
     names: &(String, String),
     options: &Options,
-) -> Option<String> {
-    let old_lines: Vec<&str> = left.split_inclusive('\n').collect();
-    let new_lines: Vec<&str> = right.split_inclusive('\n').collect();
-    let old_keys: Vec<String> = old_lines
+) -> Option<Vec<u8>> {
+    let old_lines: Vec<&[u8]> = split_lines(left);
+    let new_lines: Vec<&[u8]> = split_lines(right);
+    let old_keys: Vec<Vec<u8>> = old_lines
         .iter()
         .map(|line| line_key(line, options))
         .collect();
-    let new_keys: Vec<String> = new_lines
+    let new_keys: Vec<Vec<u8>> = new_lines
         .iter()
         .map(|line| line_key(line, options))
         .collect();
@@ -561,31 +566,48 @@ fn unified_body(
     if hunks.is_empty() {
         return None;
     }
-    let mut text = format!("--- {}\n+++ {}\n", names.0, names.1);
+    let mut text = format!("--- {}\n+++ {}\n", names.0, names.1).into_bytes();
     for hunk in &hunks {
-        text.push_str(&render_hunk(hunk, &changes, &old_lines, &new_lines));
+        text.extend(render_hunk(hunk, &changes, &old_lines, &new_lines));
     }
     Some(text)
 }
 
+/// Splits raw bytes into lines that keep their `\n`, without assuming any text encoding.
+fn split_lines(bytes: &[u8]) -> Vec<&[u8]> {
+    bytes.split_inclusive(|byte| *byte == b'\n').collect()
+}
+
+/// ASCII whitespace as recognized by the C locale (`isspace`).
+fn is_space(byte: u8) -> bool {
+    matches!(byte, b' ' | b'\t' | b'\x0b' | b'\x0c' | b'\r' | b'\n')
+}
+
 /// Normalizes one line for comparison. The trailing newline is kept as a marker so that a
 /// missing final newline still counts as a difference.
-fn line_key(line: &str, options: &Options) -> String {
-    let mut text = line.strip_suffix('\n').unwrap_or(line);
+fn line_key(line: &[u8], options: &Options) -> Vec<u8> {
+    let mut text = line.strip_suffix(b"\n").unwrap_or(line);
     if options.strip_trailing_cr {
-        text = text.strip_suffix('\r').unwrap_or(text);
+        text = text.strip_suffix(b"\r").unwrap_or(text);
     }
     let mut key = if options.ignore_all_space {
-        text.chars().filter(|c| !c.is_whitespace()).collect()
+        text.iter()
+            .copied()
+            .filter(|byte| !is_space(*byte))
+            .collect()
     } else if options.ignore_space_change {
-        text.split_whitespace().collect::<Vec<_>>().join(" ")
+        text.split(|byte| is_space(*byte))
+            .filter(|word| !word.is_empty())
+            .collect::<Vec<_>>()
+            .join(&b' ')
     } else {
-        text.to_string()
+        text.to_vec()
     };
     if options.ignore_case {
-        key = key.to_lowercase();
+        // ASCII-only folding, as GNU diff does under the C locale: other bytes compare exactly.
+        key.make_ascii_lowercase();
     }
-    key.push(if line.ends_with('\n') { '\n' } else { '\0' });
+    key.push(if line.ends_with(b"\n") { b'\n' } else { 0 });
     key
 }
 
@@ -599,8 +621,8 @@ struct Change {
 
 fn collect_changes(
     ops: &[DiffOp],
-    old_lines: &[&str],
-    new_lines: &[&str],
+    old_lines: &[&[u8]],
+    new_lines: &[&[u8]],
     ignore_blank_lines: bool,
 ) -> Vec<Change> {
     let mut changes: Vec<Change> = Vec::new();
@@ -650,10 +672,10 @@ fn op_ranges(op: &DiffOp) -> Option<(Range<usize>, Range<usize>)> {
     }
 }
 
-fn is_blank_change(old: &[&str], new: &[&str]) -> bool {
+fn is_blank_change(old: &[&[u8]], new: &[&[u8]]) -> bool {
     old.iter()
         .chain(new.iter())
-        .all(|line| line.trim().is_empty())
+        .all(|line| line.iter().all(|byte| is_space(*byte)))
 }
 
 /// A hunk covers the changes in `changes` (index range) plus context lines on both sides.
@@ -719,14 +741,19 @@ fn hunk_for(changes: &[Change], span: Range<usize>, context: usize, old_len: usi
     }
 }
 
-fn render_hunk(hunk: &Hunk, changes: &[Change], old_lines: &[&str], new_lines: &[&str]) -> String {
-    let mut body = String::new();
+fn render_hunk(
+    hunk: &Hunk,
+    changes: &[Change],
+    old_lines: &[&[u8]],
+    new_lines: &[&[u8]],
+) -> Vec<u8> {
+    let mut body = Vec::new();
     let (mut old_count, mut new_count) = (0, 0);
     let mut position = hunk.old_start;
     for change in &changes[hunk.changes.clone()] {
         let unchanged = &old_lines[position..change.old.start];
         for line in unchanged {
-            push_line(&mut body, ' ', line);
+            push_line(&mut body, b' ', line);
         }
         old_count += unchanged.len();
         new_count += unchanged.len();
@@ -735,25 +762,28 @@ fn render_hunk(hunk: &Hunk, changes: &[Change], old_lines: &[&str], new_lines: &
             continue;
         }
         for line in &old_lines[change.old.clone()] {
-            push_line(&mut body, '-', line);
+            push_line(&mut body, b'-', line);
         }
         for line in &new_lines[change.new.clone()] {
-            push_line(&mut body, '+', line);
+            push_line(&mut body, b'+', line);
         }
         old_count += change.old.len();
         new_count += change.new.len();
     }
     let trailing = &old_lines[position..hunk.old_end];
     for line in trailing {
-        push_line(&mut body, ' ', line);
+        push_line(&mut body, b' ', line);
     }
     old_count += trailing.len();
     new_count += trailing.len();
-    format!(
-        "@@ -{} +{} @@\n{body}",
+    let mut text = format!(
+        "@@ -{} +{} @@\n",
         range_text(hunk.old_start, old_count),
         range_text(hunk.new_start, new_count)
     )
+    .into_bytes();
+    text.extend(body);
+    text
 }
 
 fn range_text(start: usize, count: usize) -> String {
@@ -764,11 +794,11 @@ fn range_text(start: usize, count: usize) -> String {
     }
 }
 
-fn push_line(text: &mut String, prefix: char, line: &str) {
+fn push_line(text: &mut Vec<u8>, prefix: u8, line: &[u8]) {
     text.push(prefix);
-    text.push_str(line);
-    if !line.ends_with('\n') {
-        text.push_str("\n\\ No newline at end of file\n");
+    text.extend_from_slice(line);
+    if !line.ends_with(b"\n") {
+        text.extend_from_slice(b"\n\\ No newline at end of file\n");
     }
 }
 

@@ -72,7 +72,7 @@ Directory traversal skips hidden entries and honors ignore rules supplied by the
 
 `read` accepts UTF-8 text and prints one-based line numbers. `--start` and `--end` are inclusive; `--limit` caps the number of displayed lines. A start beyond the end of a file produces no output. Lines are read incrementally and reading stops at the selected end or limit; a single long line can still consume substantial memory. Invalid UTF-8 beyond the selected range is not read or validated. Line terminators are normalized in output.
 
-`diff` compares two files (or `-` for stdin) and prints a unified diff. It supports `-u`, `-U N`, `--unified[=N]`, `-q`, `-s`, `-r` for directories, `-N`, `-w`, `-b`, `-B`, `-i`, `--strip-trailing-cr`, `-a`, and `--label`. Non-UTF-8 or NUL-containing files are reported as `Binary files A and B differ`. Context (`-c`) and side-by-side (`-y`) formats are rejected. Very large inputs can consume substantial memory.
+`diff` compares two files (or `-` for stdin) and prints a unified diff. It supports `-u`, `-U N`, `--unified[=N]`, `-q`, `-s`, `-r`, `-N`, `-w`, `-b`, `-B`, `-i`, `--strip-trailing-cr`, `-a`, and `--label`. Two directory operands compare their direct entries; `-r` also descends into common subdirectories. A file and a directory compare the file with the entry of the same name inside the directory. Non-UTF-8 or NUL-containing files are reported as `Binary files A and B differ` unless `-a`/`--text` is used, which compares and prints their original bytes. Case folding and whitespace handling use ASCII rules, as in the C locale. Context (`-c`) and side-by-side (`-y`) formats are rejected. Very large inputs can consume substantial memory.
 
 ### Additional commands
 

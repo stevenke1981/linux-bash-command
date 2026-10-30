@@ -439,3 +439,180 @@ fn diff_new_file_treats_absent_file_as_empty() {
     assert_eq!(code(&out), Some(1));
     assert!(text(&out).contains("+line\n"), "{}", text(&out));
 }
+
+fn contains_bytes(haystack: &[u8], needle: &[u8]) -> bool {
+    haystack
+        .windows(needle.len())
+        .any(|window| window == needle)
+}
+
+#[test]
+fn diff_text_mode_compares_non_utf8_bytes_and_prints_them_unchanged() {
+    let f = Fixture::new();
+    f.write("m1", b"x\xe9y\nsame\n");
+    f.write("m2", b"x\xe8y\nsame\n");
+    let out = f.run("diff", &["-a", "-u", "m1", "m2"]);
+    assert_eq!(
+        code(&out),
+        Some(1),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(out.stdout.starts_with(b"--- m1\n+++ m2\n@@ -1,2 +1,2 @@\n"));
+    assert!(
+        contains_bytes(&out.stdout, b"-x\xe9y\n"),
+        "{:?}",
+        out.stdout
+    );
+    assert!(
+        contains_bytes(&out.stdout, b"+x\xe8y\n"),
+        "{:?}",
+        out.stdout
+    );
+    let long = f.run("diff", &["--text", "-u", "m1", "m2"]);
+    assert_eq!(code(&long), Some(1));
+    assert_eq!(long.stdout, out.stdout);
+    assert_eq!(code(&f.run("diff", &["m1", "m1"])), Some(0));
+}
+
+#[test]
+fn diff_text_mode_still_applies_ignore_options_to_non_utf8_lines() {
+    let f = Fixture::new();
+    f.write("spaced", b"x\xe9  y\n");
+    f.write("single", b"x\xe9 y\n");
+    f.write("upper", b"X\xe9\n");
+    f.write("lower", b"x\xe9\n");
+    f.write("crlf", b"x\xe9\r\n");
+    f.write("lf", b"x\xe9\n");
+    f.write("blank-a", b"x\xe9\n\n");
+    f.write("blank-b", b"x\xe9\n");
+    assert_eq!(code(&f.run("diff", &["-a", "spaced", "single"])), Some(1));
+    assert_eq!(
+        code(&f.run("diff", &["-a", "-w", "spaced", "single"])),
+        Some(0)
+    );
+    assert_eq!(
+        code(&f.run("diff", &["-a", "-b", "spaced", "single"])),
+        Some(0)
+    );
+    assert_eq!(
+        code(&f.run("diff", &["-a", "-i", "upper", "lower"])),
+        Some(0)
+    );
+    assert_eq!(code(&f.run("diff", &["-a", "upper", "lower"])), Some(1));
+    f.write("upper-utf8", b"X\xc3\x89\n");
+    f.write("lower-utf8", b"x\xc3\xa9\n");
+    assert_eq!(
+        code(&f.run("diff", &["-a", "-i", "upper-utf8", "lower-utf8"])),
+        Some(1)
+    );
+    assert_eq!(
+        code(&f.run("diff", &["-a", "--strip-trailing-cr", "crlf", "lf"])),
+        Some(0)
+    );
+    assert_eq!(
+        code(&f.run("diff", &["-a", "-B", "blank-a", "blank-b"])),
+        Some(0)
+    );
+}
+
+#[test]
+fn diff_text_mode_preserves_raw_stdin_and_missing_final_newlines() {
+    let f = Fixture::new();
+    f.write("right", b"new\0\xe8");
+    let out = f.run_with_stdin("diff", &["-a", "-", "right"], b"old\0\xe9");
+    assert_eq!(code(&out), Some(1));
+    assert_eq!(
+        out.stdout,
+        b"--- -\n+++ right\n@@ -1 +1 @@\n-old\0\xe9\n\\ No newline at end of file\n+new\0\xe8\n\\ No newline at end of file\n"
+    );
+    let brief = f.run_with_stdin("diff", &["-aq", "-", "right"], b"old\0\xe9");
+    assert_eq!(code(&brief), Some(1));
+    assert_eq!(text(&brief), "Files - and right differ\n");
+    let binary = f.run_with_stdin("diff", &["-", "right"], b"old\0\xe9");
+    assert_eq!(code(&binary), Some(1));
+    assert_eq!(text(&binary), "Binary files - and right differ\n");
+}
+
+#[test]
+fn diff_directories_without_r_compare_direct_entries_only() {
+    let f = Fixture::new();
+    f.write("d1/f", b"a\n");
+    f.write("d2/f", b"b\n");
+    f.write("d1/same", b"x\n");
+    f.write("d2/same", b"x\n");
+    f.write("d1/only-left", b"l\n");
+    f.write("d2/only-right", b"r\n");
+    f.write("d1/sub/deep", b"old\n");
+    f.write("d2/sub/deep", b"new\n");
+    let out = f.run("diff", &["d1", "d2"]);
+    assert_eq!(
+        code(&out),
+        Some(1),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let body = text(&out);
+    assert!(
+        body.contains("diff d1/f d2/f\n--- d1/f\n+++ d2/f\n"),
+        "{body}"
+    );
+    assert!(body.contains("Only in d1: only-left\n"), "{body}");
+    assert!(body.contains("Only in d2: only-right\n"), "{body}");
+    assert!(
+        body.contains("Common subdirectories: d1/sub and d2/sub\n"),
+        "{body}"
+    );
+    assert!(!body.contains("deep"), "{body}");
+    assert!(!body.contains("same"), "{body}");
+    let brief = text(&f.run("diff", &["-q", "d1", "d2"]));
+    assert!(brief.contains("Files d1/f and d2/f differ\n"), "{brief}");
+    assert!(!brief.contains("diff d1/f"), "{brief}");
+    assert!(
+        brief.contains("Common subdirectories: d1/sub and d2/sub\n"),
+        "{brief}"
+    );
+}
+
+#[test]
+fn diff_directories_without_r_exit_zero_when_direct_files_match() {
+    let f = Fixture::new();
+    f.write("d1/same", b"x\n");
+    f.write("d2/same", b"x\n");
+    f.write("d1/sub/deep", b"old\n");
+    f.write("d2/sub/deep", b"new\n");
+    let out = f.run("diff", &["d1", "d2"]);
+    assert_eq!(code(&out), Some(0), "{}", text(&out));
+    assert_eq!(text(&out), "Common subdirectories: d1/sub and d2/sub\n");
+    assert_eq!(
+        text(&f.run("diff", &["-s", "d1", "d2"])),
+        "Files d1/same and d2/same are identical\nCommon subdirectories: d1/sub and d2/sub\n"
+    );
+}
+
+#[test]
+fn diff_file_and_directory_operands_compare_against_the_directory_entry() {
+    let f = Fixture::new();
+    f.write("note.txt", b"new\n");
+    f.write("dir/note.txt", b"old\n");
+    let file_first = f.run("diff", &["note.txt", "dir"]);
+    assert_eq!(code(&file_first), Some(1));
+    let body = text(&file_first);
+    assert!(
+        body.starts_with("--- note.txt\n+++ dir/note.txt\n"),
+        "{body}"
+    );
+    let dir_first = f.run("diff", &["dir", "note.txt"]);
+    assert_eq!(code(&dir_first), Some(1));
+    assert!(
+        text(&dir_first).starts_with("--- dir/note.txt\n+++ note.txt\n"),
+        "{}",
+        text(&dir_first)
+    );
+    assert_eq!(
+        text(&f.run("diff", &["-q", "note.txt", "dir"])),
+        "Files note.txt and dir/note.txt differ\n"
+    );
+    f.write("only.txt", b"x\n");
+    assert_eq!(code(&f.run("diff", &["only.txt", "dir"])), Some(2));
+}
