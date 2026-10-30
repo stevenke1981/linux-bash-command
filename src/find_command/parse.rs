@@ -55,6 +55,7 @@ pub struct Plan {
 }
 
 pub fn parse(args: &[String]) -> Result<Plan, String> {
+    let (options, args) = leading_options(args)?;
     let root_count = args
         .iter()
         .take_while(|arg| !starts_expression(arg))
@@ -66,7 +67,7 @@ pub fn parse(args: &[String]) -> Result<Plan, String> {
     let mut parser = Parser {
         args: &args[root_count..],
         pos: 0,
-        options: Options::default(),
+        options,
         batches: Vec::new(),
         has_action: false,
     };
@@ -77,6 +78,30 @@ pub fn parse(args: &[String]) -> Result<Plan, String> {
         expr,
         batches: parser.batches,
     })
+}
+
+/// Parses the GNU options that precede the starting points:
+/// `find [-H] [-L] [-P] [-D debugopts] [-Olevel] [path...] [expression]`.
+fn leading_options(args: &[String]) -> Result<(Options, &[String]), String> {
+    let mut options = Options::default();
+    let mut index = 0;
+    while let Some(arg) = args.get(index) {
+        match arg.as_str() {
+            "-H" => options.follow = Follow::RootsOnly,
+            "-L" => options.follow = Follow::Always,
+            "-P" => options.follow = Follow::Never,
+            "-D" => {
+                index += 1;
+                if args.get(index).is_none() {
+                    return Err("-D requires debug options".to_string());
+                }
+            }
+            level if level.starts_with("-O") && level[2..].bytes().all(|b| b.is_ascii_digit()) => {}
+            _ => break,
+        }
+        index += 1;
+    }
+    Ok((options, &args[index..]))
 }
 
 fn starts_expression(arg: &str) -> bool {

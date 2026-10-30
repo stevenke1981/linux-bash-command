@@ -280,6 +280,21 @@ fn find_rejects_invalid_expressions_with_status_two() {
     }
 }
 
+#[test]
+fn find_symlink_options_precede_starting_points() {
+    let f = Fixture::new();
+    fs::create_dir_all(f.0.join("lead")).unwrap();
+    fs::write(f.0.join("lead/a.rs"), "x").unwrap();
+    for option in ["-L", "-H", "-P"] {
+        let lines = f.find_lines(&[option, "lead", "-name", "*.rs"]);
+        assert_eq!(lines, vec!["lead/a.rs"], "option {option}");
+    }
+    assert_eq!(
+        f.find_lines(&["-L", "-O3", "lead", "-type", "f"]),
+        vec!["lead/a.rs"]
+    );
+}
+
 #[cfg(unix)]
 #[test]
 fn find_follow_detects_symlink_loops() {
