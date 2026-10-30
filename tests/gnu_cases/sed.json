@@ -1,0 +1,1927 @@
+{
+  "command": "sed",
+  "cases": [
+    {
+      "name": "cmd_print_quiet",
+      "args": [
+        "-n",
+        "p"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\n"
+    },
+    {
+      "name": "cmd_print_double",
+      "args": [
+        "p"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_delete",
+      "args": [
+        "d"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_delete_range",
+      "args": [
+        "2,4d"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\n"
+    },
+    {
+      "name": "cmd_D_restart",
+      "args": [
+        "$!N;P;D"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "cmd_D_no_newline",
+      "args": [
+        "D"
+      ],
+      "stdin": "x\ny\n"
+    },
+    {
+      "name": "cmd_n_skip",
+      "args": [
+        "n;d"
+      ],
+      "stdin": "a\nb\nc\nd\ne\n"
+    },
+    {
+      "name": "cmd_n_quiet",
+      "args": [
+        "-n",
+        "n;p"
+      ],
+      "stdin": "a\nb\nc\n"
+    },
+    {
+      "name": "cmd_N_join",
+      "args": [
+        "N;s/\\n/-/"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "cmd_N_quiet_last",
+      "args": [
+        "-n",
+        "$!N;p"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "cmd_N_no_next_prints",
+      "args": [
+        "N;N;s/\\n/+/g"
+      ],
+      "stdin": "1\n2\n3\n4\n"
+    },
+    {
+      "name": "cmd_P_first_line",
+      "args": [
+        "-n",
+        "N;P"
+      ],
+      "stdin": "a\nb\nc\nd\n"
+    },
+    {
+      "name": "cmd_P_no_newline",
+      "args": [
+        "-n",
+        "P"
+      ],
+      "stdin": "no newline"
+    },
+    {
+      "name": "cmd_hold_reverse",
+      "args": [
+        "1!G;h;$!d"
+      ],
+      "stdin": "a\nb\nc\n"
+    },
+    {
+      "name": "cmd_hold_append",
+      "args": [
+        "-n",
+        "H;${x;s/\\n/,/g;p}"
+      ],
+      "stdin": "a\nb\nc\n"
+    },
+    {
+      "name": "cmd_get_empty_hold",
+      "args": [
+        "g"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_G_double_space",
+      "args": [
+        "G"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_exchange",
+      "args": [
+        "x"
+      ],
+      "stdin": "a\nb\nc\n"
+    },
+    {
+      "name": "cmd_exchange_no_newline",
+      "args": [
+        "x"
+      ],
+      "stdin": "no-newline"
+    },
+    {
+      "name": "cmd_equals",
+      "args": [
+        "-n",
+        "$="
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\n"
+    },
+    {
+      "name": "cmd_equals_each",
+      "args": [
+        "="
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_list_default",
+      "args": [
+        "-n",
+        "l"
+      ],
+      "stdin": "tab\there\\back\u0001\n"
+    },
+    {
+      "name": "cmd_list_width",
+      "args": [
+        "-n",
+        "l 10"
+      ],
+      "stdin": "abcdefghijklmnopqrstuvwxyz\n"
+    },
+    {
+      "name": "cmd_list_width_zero",
+      "args": [
+        "-n",
+        "l 0"
+      ],
+      "stdin": "abcdefghijklmnopqrstuvwxyz\n"
+    },
+    {
+      "name": "cmd_list_option",
+      "args": [
+        "-n",
+        "-l",
+        "6",
+        "l"
+      ],
+      "stdin": "abcdefghijklmnop\n"
+    },
+    {
+      "name": "cmd_list_nonascii",
+      "args": [
+        "-n",
+        "l"
+      ],
+      "stdin": "café\n"
+    },
+    {
+      "name": "cmd_append_one_liner",
+      "args": [
+        "a hello"
+      ],
+      "stdin": "x\ny\n"
+    },
+    {
+      "name": "cmd_append_classic",
+      "args": [
+        "a\\\nfirst\\\nsecond"
+      ],
+      "stdin": "x\n"
+    },
+    {
+      "name": "cmd_append_last_line_nonl",
+      "args": [
+        "a tail"
+      ],
+      "stdin": "x"
+    },
+    {
+      "name": "cmd_insert_one_liner",
+      "args": [
+        "2i\\  indented"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_insert_classic",
+      "args": [
+        "1i\\\nTop"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_change_single",
+      "args": [
+        "2c\\changed"
+      ],
+      "stdin": "a\nb\nc\n"
+    },
+    {
+      "name": "cmd_change_range",
+      "args": [
+        "2,3c\\X"
+      ],
+      "stdin": "1\n2\n3\n4\n"
+    },
+    {
+      "name": "cmd_change_negated",
+      "args": [
+        "2!c\\Z"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "cmd_change_with_nl_end",
+      "args": [
+        "$c END"
+      ],
+      "stdin": "a\nb"
+    },
+    {
+      "name": "cmd_branch_loop",
+      "args": [
+        ":a;s/aa/a/;ta"
+      ],
+      "stdin": "aaaaa\n"
+    },
+    {
+      "name": "cmd_branch_end",
+      "args": [
+        "/skip/b;s/x/y/"
+      ],
+      "stdin": "x\nskip x\n"
+    },
+    {
+      "name": "cmd_branch_label_semicolon",
+      "args": [
+        ":top;s/^ //;t top"
+      ],
+      "stdin": "   x\n"
+    },
+    {
+      "name": "cmd_test_T",
+      "args": [
+        "s/a/A/;Tnone;s/b/B/;:none"
+      ],
+      "stdin": "a\nc\n"
+    },
+    {
+      "name": "cmd_test_reset_per_line",
+      "args": [
+        "s/a/A/;t;s/$/!/"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_block_nested",
+      "args": [
+        "/o/{/t/{s/t/T/}}"
+      ],
+      "stdin": "one\ntwo\nthree\n"
+    },
+    {
+      "name": "cmd_block_negated",
+      "args": [
+        "/1/!{s/./X/}"
+      ],
+      "stdin": "1\n2\n"
+    },
+    {
+      "name": "cmd_block_empty",
+      "args": [
+        "{}"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "cmd_quit",
+      "args": [
+        "2q"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "cmd_quit_code",
+      "args": [
+        "2q7"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "cmd_quit_silent",
+      "args": [
+        "2Q"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "cmd_quit_silent_code",
+      "args": [
+        "Q4"
+      ],
+      "stdin": "1\n2\n"
+    },
+    {
+      "name": "cmd_quit_with_append",
+      "args": [
+        "1{a X\nq}"
+      ],
+      "stdin": "1\n2\n"
+    },
+    {
+      "name": "cmd_read_file",
+      "args": [
+        "1r a.txt"
+      ],
+      "stdin": "x\ny\n",
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "cmd_read_missing",
+      "args": [
+        "r nosuchfile.txt"
+      ],
+      "stdin": "x\n"
+    },
+    {
+      "name": "cmd_read_line",
+      "args": [
+        "R b.txt"
+      ],
+      "stdin": "1\n2\n3\n",
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "cmd_write_file",
+      "args": [
+        "-n",
+        "/o/w out.txt"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\n",
+      "files": {
+        "f.txt": "one\ntwo\nthree\nfour\nfive\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "cmd_write_first_file",
+      "args": [
+        "-n",
+        "N;W out.txt"
+      ],
+      "stdin": "1\n2\n3\n4\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "cmd_write_stdout",
+      "args": [
+        "w /dev/stdout"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_write_stderr_only",
+      "args": [
+        "w /dev/stderr"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "cmd_filename",
+      "args": [
+        "F"
+      ],
+      "stdin": "x\n"
+    },
+    {
+      "name": "cmd_filename_file",
+      "args": [
+        "-n",
+        "1F"
+      ],
+      "stdin": "x\n",
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "cmd_translate",
+      "args": [
+        "y/abc/xyz/"
+      ],
+      "stdin": "aabbcc\n"
+    },
+    {
+      "name": "cmd_translate_escape",
+      "args": [
+        "y/\\n/,/;N;y/\\n/,/"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_zap",
+      "args": [
+        "z;s/^$/empty/"
+      ],
+      "stdin": "gone\n"
+    },
+    {
+      "name": "cmd_comment",
+      "args": [
+        "-n",
+        "# comment\np # trailing"
+      ],
+      "stdin": "c\n"
+    },
+    {
+      "name": "cmd_hash_n",
+      "args": [
+        "#n\n/b/p"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_semicolon_brace",
+      "args": [
+        "/a/{p;p};p"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "cmd_empty_script",
+      "args": [
+        ""
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "cmd_empty_regex_reuse",
+      "args": [
+        "-n",
+        "/o/{s//0/p}"
+      ],
+      "stdin": "foo\nbar\n"
+    },
+    {
+      "name": "cmd_empty_regex_no_prev",
+      "args": [
+        "//p"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "cmd_e_unsupported",
+      "args": [
+        "e echo hi"
+      ],
+      "stdin": "a\n",
+      "skip_reason": "e command is not supported by agentcmd"
+    },
+    {
+      "name": "cmd_e_flag_unsupported",
+      "args": [
+        "s/a/echo x/e"
+      ],
+      "stdin": "a\n",
+      "skip_reason": "e flag is not supported by agentcmd"
+    },
+    {
+      "name": "addr_line",
+      "args": [
+        "2p"
+      ],
+      "stdin": "a\nb\nc\n"
+    },
+    {
+      "name": "addr_line_quiet",
+      "args": [
+        "-n",
+        "2p"
+      ],
+      "stdin": "a\nb\nc\n"
+    },
+    {
+      "name": "addr_last",
+      "args": [
+        "$p"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "addr_last_quiet",
+      "args": [
+        "-n",
+        "$p"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "addr_regex",
+      "args": [
+        "-n",
+        "/b/p"
+      ],
+      "stdin": "a\nb\nc\nb\n"
+    },
+    {
+      "name": "addr_regex_escape_delim",
+      "args": [
+        "-n",
+        "\\,a/b,p"
+      ],
+      "stdin": "a/b\na\n"
+    },
+    {
+      "name": "addr_regex_I",
+      "args": [
+        "-n",
+        "/HELLO/Ip"
+      ],
+      "stdin": "hello\nbye\n"
+    },
+    {
+      "name": "addr_regex_M_flag",
+      "args": [
+        "N;/^two/Mp;d"
+      ],
+      "stdin": "one\ntwo\n"
+    },
+    {
+      "name": "addr_step",
+      "args": [
+        "-n",
+        "0~2p"
+      ],
+      "stdin": "1\n2\n3\n4\n5\n6\n"
+    },
+    {
+      "name": "addr_step_offset",
+      "args": [
+        "-n",
+        "1~3p"
+      ],
+      "stdin": "1\n2\n3\n4\n5\n6\n7\n"
+    },
+    {
+      "name": "addr_range_lines",
+      "args": [
+        "-n",
+        "2,4p"
+      ],
+      "stdin": "1\n2\n3\n4\n5\n"
+    },
+    {
+      "name": "addr_range_last",
+      "args": [
+        "2,$d"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "addr_range_regex",
+      "args": [
+        "-n",
+        "/start/,/end/p"
+      ],
+      "stdin": "a\nstart\nb\nend\nc\nstart\nd\n"
+    },
+    {
+      "name": "addr_range_mixed",
+      "args": [
+        "-n",
+        "/b/,3p"
+      ],
+      "stdin": "a\nb\nc\nd\n"
+    },
+    {
+      "name": "addr_range_backwards",
+      "args": [
+        "-n",
+        "3,1p"
+      ],
+      "stdin": "1\n2\n3\n4\n"
+    },
+    {
+      "name": "addr_range_plus",
+      "args": [
+        "-n",
+        "/2/,+2p"
+      ],
+      "stdin": "1\n2\n3\n4\n5\n"
+    },
+    {
+      "name": "addr_range_tilde",
+      "args": [
+        "-n",
+        "2,~4p"
+      ],
+      "stdin": "1\n2\n3\n4\n5\n6\n"
+    },
+    {
+      "name": "addr_range_tilde_on_multiple",
+      "args": [
+        "-n",
+        "4,~4p"
+      ],
+      "stdin": "1\n2\n3\n4\n5\n"
+    },
+    {
+      "name": "addr_zero_regex",
+      "args": [
+        "0,/x/s/x/y/"
+      ],
+      "stdin": "x\nx\nx\n"
+    },
+    {
+      "name": "addr_zero_regex_no_match",
+      "args": [
+        "0,/q/d"
+      ],
+      "stdin": "x\ny\n"
+    },
+    {
+      "name": "addr_negated",
+      "args": [
+        "2!d"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "addr_range_negated",
+      "args": [
+        "2,3!d"
+      ],
+      "stdin": "1\n2\n3\n4\n"
+    },
+    {
+      "name": "addr_range_restart",
+      "args": [
+        "-n",
+        "/a/,/b/p"
+      ],
+      "stdin": "a\nx\na\nb\n"
+    },
+    {
+      "name": "addr_range_regex_same_line",
+      "args": [
+        "-n",
+        "/x/,/x/p"
+      ],
+      "stdin": "x\ny\nx\nz\n"
+    },
+    {
+      "name": "addr_whitespace_before_bang",
+      "args": [
+        "-n",
+        "2 ! p"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "addr_regex_with_space_cmd",
+      "args": [
+        "/a/ s/a/b/"
+      ],
+      "stdin": "a\nc\n"
+    },
+    {
+      "name": "addr_nested_range_group",
+      "args": [
+        "-n",
+        "2,3{p}"
+      ],
+      "stdin": "1\n2\n3\n4\n"
+    },
+    {
+      "name": "s_basic",
+      "args": [
+        "s/hello/bye/"
+      ],
+      "stdin": "hello world\n"
+    },
+    {
+      "name": "s_global",
+      "args": [
+        "s/o/0/g"
+      ],
+      "stdin": "foo boo\n"
+    },
+    {
+      "name": "s_nth",
+      "args": [
+        "s/o/0/2"
+      ],
+      "stdin": "foo boo\n"
+    },
+    {
+      "name": "s_nth_global",
+      "args": [
+        "s/o/0/2g"
+      ],
+      "stdin": "ooooo\n"
+    },
+    {
+      "name": "s_print",
+      "args": [
+        "-n",
+        "s/a/A/p"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "s_icase",
+      "args": [
+        "s/HELLO/x/I"
+      ],
+      "stdin": "hello\n"
+    },
+    {
+      "name": "s_multiline",
+      "args": [
+        "N;s/^b/X/M"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "s_dot_matches_newline",
+      "args": [
+        "N;s/a.b/X/"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "s_ampersand",
+      "args": [
+        "s/[a-z]*/<&>/"
+      ],
+      "stdin": "abc def\n"
+    },
+    {
+      "name": "s_escaped_ampersand",
+      "args": [
+        "s/a/\\&/"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "s_groups",
+      "args": [
+        "s/\\(a\\)\\(b\\)/\\2\\1/"
+      ],
+      "stdin": "ab\n"
+    },
+    {
+      "name": "s_ere_groups",
+      "args": [
+        "-E",
+        "s/([a-z]+) ([a-z]+)/\\2 \\1/"
+      ],
+      "stdin": "hello world\n"
+    },
+    {
+      "name": "s_newline_replacement",
+      "args": [
+        "s/ /\\n/"
+      ],
+      "stdin": "a b\n"
+    },
+    {
+      "name": "s_tab_replacement",
+      "args": [
+        "s/x/\\t|/"
+      ],
+      "stdin": "x\n"
+    },
+    {
+      "name": "s_case_upper",
+      "args": [
+        "s/\\(.*\\)/\\U\\1/"
+      ],
+      "stdin": "shout\n"
+    },
+    {
+      "name": "s_case_lower_mixed",
+      "args": [
+        "s/.*/\\L&/"
+      ],
+      "stdin": "MiXeD\n"
+    },
+    {
+      "name": "s_case_first_upper",
+      "args": [
+        "s/\\w\\+/\\u&/g"
+      ],
+      "stdin": "hello big world\n"
+    },
+    {
+      "name": "s_case_end",
+      "args": [
+        "s/\\(a\\)\\(b\\)/\\U\\1\\E\\2/"
+      ],
+      "stdin": "ab\n"
+    },
+    {
+      "name": "s_custom_delim",
+      "args": [
+        "s|/usr/bin|/bin|"
+      ],
+      "stdin": "/usr/bin/env\n"
+    },
+    {
+      "name": "s_custom_delim_escape",
+      "args": [
+        "s,a\\,b,X,"
+      ],
+      "stdin": "a,b\n"
+    },
+    {
+      "name": "s_empty_matches_global",
+      "args": [
+        "s/x*/-/g"
+      ],
+      "stdin": "abc\n"
+    },
+    {
+      "name": "s_empty_after_match",
+      "args": [
+        "s/a*/x/g"
+      ],
+      "stdin": "baaac\n"
+    },
+    {
+      "name": "s_no_match",
+      "args": [
+        "s/zzz/y/"
+      ],
+      "stdin": "abc\n"
+    },
+    {
+      "name": "s_anchor_global",
+      "args": [
+        "s/^a/X/g"
+      ],
+      "stdin": "aaa\n"
+    },
+    {
+      "name": "s_word_boundary",
+      "args": [
+        "s/\\<the\\>/THE/g"
+      ],
+      "stdin": "the other the\n"
+    },
+    {
+      "name": "s_bre_plus_question",
+      "args": [
+        "s/a\\+b\\?/X/"
+      ],
+      "stdin": "caaab\n"
+    },
+    {
+      "name": "s_bre_interval",
+      "args": [
+        "s/a\\{2,3\\}/X/"
+      ],
+      "stdin": "aaaa\n"
+    },
+    {
+      "name": "s_bre_literal_specials",
+      "args": [
+        "s/a+b/X/;s/c\\.d/Y/"
+      ],
+      "stdin": "a+b c.d\n"
+    },
+    {
+      "name": "s_ere_alternation",
+      "args": [
+        "-E",
+        "s/cat|dog/pet/g"
+      ],
+      "stdin": "cat and dog\n"
+    },
+    {
+      "name": "s_ere_interval_open",
+      "args": [
+        "-E",
+        "s/a{,2}/X/"
+      ],
+      "stdin": "aaa\n"
+    },
+    {
+      "name": "s_hex_escape",
+      "args": [
+        "s/\\x41/B/g"
+      ],
+      "stdin": "AAA\n"
+    },
+    {
+      "name": "s_octal_escape",
+      "args": [
+        "s/\\o102/C/"
+      ],
+      "stdin": "B\n"
+    },
+    {
+      "name": "s_decimal_escape",
+      "args": [
+        "s/\\d67/D/"
+      ],
+      "stdin": "C\n"
+    },
+    {
+      "name": "s_write_flag",
+      "args": [
+        "s/a/X/w out.txt"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "s_write_flag_then_p",
+      "args": [
+        "-n",
+        "s/a/X/pw out.txt"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "s_flags_spaces",
+      "args": [
+        "s/a/b/ g"
+      ],
+      "stdin": "aa\n"
+    },
+    {
+      "name": "s_alternation_longest",
+      "args": [
+        "s/a\\|ab/X/"
+      ],
+      "stdin": "ab\n",
+      "skip_reason": "sed_alternation_longest: POSIX leftmost-longest alternation not implemented (regex crate is leftmost-first)"
+    },
+    {
+      "name": "s_backref_unsupported",
+      "args": [
+        "s/\\(a\\)\\1/X/"
+      ],
+      "stdin": "aa\n",
+      "skip_reason": "sed_backref: regex crate has no backreferences"
+    },
+    {
+      "name": "s_bad_flag",
+      "args": [
+        "s/a/b/k"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "s_zero_occurrence",
+      "args": [
+        "s/a/b/0"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "s_unterminated",
+      "args": [
+        "s/a/b"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "s_invalid_group_ref",
+      "args": [
+        "s/a/\\1/"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_quiet_long",
+      "args": [
+        "--quiet",
+        "p"
+      ],
+      "stdin": "x\n"
+    },
+    {
+      "name": "opt_silent_long",
+      "args": [
+        "--silent",
+        "p"
+      ],
+      "stdin": "x\n"
+    },
+    {
+      "name": "opt_expression_multi",
+      "args": [
+        "-e",
+        "s/a/b/",
+        "-e",
+        "s/b/c/"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_expression_long",
+      "args": [
+        "--expression=s/x/y/"
+      ],
+      "stdin": "x\n"
+    },
+    {
+      "name": "opt_file_script",
+      "args": [
+        "-f",
+        "script.sed",
+        "data.txt"
+      ],
+      "files": {
+        "script.sed": "s/one/1/\n/three/d\n",
+        "data.txt": "one\ntwo\nthree\nfour\nfive\n"
+      }
+    },
+    {
+      "name": "opt_file_stdin_script",
+      "args": [
+        "-f",
+        "-",
+        "data.txt"
+      ],
+      "stdin": "s/two/2/\n",
+      "files": {
+        "data.txt": "one\ntwo\nthree\nfour\nfive\n"
+      }
+    },
+    {
+      "name": "opt_file_missing",
+      "args": [
+        "-f",
+        "nosuch.sed"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_extended_short",
+      "args": [
+        "-E",
+        "s/(o+)/[\\1]/"
+      ],
+      "stdin": "foo\n"
+    },
+    {
+      "name": "opt_regexp_extended_long",
+      "args": [
+        "--regexp-extended",
+        "s/a|b/X/g"
+      ],
+      "stdin": "abc\n"
+    },
+    {
+      "name": "opt_r_short",
+      "args": [
+        "-r",
+        "s/(a)/<\\1>/"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_posix",
+      "args": [
+        "--posix",
+        "s/a/b/"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_null_data",
+      "args": [
+        "-z",
+        "s/^/X/"
+      ],
+      "stdin": "a\u0000b\u0000"
+    },
+    {
+      "name": "opt_null_data_join",
+      "args": [
+        "-z",
+        "N;s/\\x00/+/"
+      ],
+      "stdin": "a\u0000b\u0000"
+    },
+    {
+      "name": "opt_null_data_equals",
+      "args": [
+        "-z",
+        "-n",
+        "="
+      ],
+      "stdin": "a\u0000b\u0000"
+    },
+    {
+      "name": "opt_null_data_list",
+      "args": [
+        "-z",
+        "-n",
+        "l"
+      ],
+      "stdin": "a\nb\u0000"
+    },
+    {
+      "name": "opt_null_data_long",
+      "args": [
+        "--null-data",
+        "s/b/X/"
+      ],
+      "stdin": "a\u0000b\u0000"
+    },
+    {
+      "name": "opt_zero_terminated",
+      "args": [
+        "--zero-terminated",
+        "s/a/Q/"
+      ],
+      "stdin": "a\u0000"
+    },
+    {
+      "name": "opt_unbuffered",
+      "args": [
+        "-u",
+        "s/a/b/"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_line_length",
+      "args": [
+        "-n",
+        "-l",
+        "4",
+        "l"
+      ],
+      "stdin": "abcdefgh\n"
+    },
+    {
+      "name": "opt_line_length_long",
+      "args": [
+        "-n",
+        "--line-length=5",
+        "l"
+      ],
+      "stdin": "abcdefghij\n"
+    },
+    {
+      "name": "opt_separate",
+      "args": [
+        "-s",
+        "-n",
+        "$p",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "opt_separate_line_numbers",
+      "args": [
+        "-s",
+        "-n",
+        "1p",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "opt_no_separate_line_numbers",
+      "args": [
+        "-n",
+        "3p",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "opt_no_separate_last",
+      "args": [
+        "-n",
+        "$p",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "opt_file_operands",
+      "args": [
+        "s/^/>/",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "opt_dash_stdin_operand",
+      "args": [
+        "s/x/y/",
+        "-",
+        "a.txt"
+      ],
+      "stdin": "x\n",
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "opt_sandbox_ok",
+      "args": [
+        "--sandbox",
+        "s/a/b/"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_sandbox_write_rejected",
+      "args": [
+        "--sandbox",
+        "w out.txt"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_sandbox_read_rejected",
+      "args": [
+        "--sandbox",
+        "r a.txt"
+      ],
+      "stdin": "a\n",
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "opt_sandbox_exec_rejected",
+      "args": [
+        "--sandbox",
+        "e true"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_debug_unsupported",
+      "args": [
+        "--debug",
+        "p"
+      ],
+      "stdin": "a\n",
+      "skip_reason": "--debug output is not supported by agentcmd"
+    },
+    {
+      "name": "opt_help",
+      "args": [
+        "--help"
+      ],
+      "skip_reason": "GNU help text is not reproduced"
+    },
+    {
+      "name": "opt_version",
+      "args": [
+        "--version"
+      ],
+      "skip_reason": "version string differs by design"
+    },
+    {
+      "name": "opt_follow_symlinks",
+      "args": [
+        "--follow-symlinks",
+        "-i",
+        "s/a/Z/",
+        "link.txt"
+      ],
+      "files": {
+        "real.txt": "a\n",
+        "link.txt": {
+          "symlink": "real.txt"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "opt_unknown_long",
+      "args": [
+        "--nonexistent",
+        "p"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_unknown_short",
+      "args": [
+        "-k",
+        "p"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_no_script",
+      "args": [],
+      "stdin": "a\n"
+    },
+    {
+      "name": "opt_combined_short",
+      "args": [
+        "-ne",
+        "2p"
+      ],
+      "stdin": "1\n2\n3\n"
+    },
+    {
+      "name": "opt_permute",
+      "args": [
+        "p",
+        "-n",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "inplace_basic",
+      "args": [
+        "-i",
+        "s/one/1/",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "one\ntwo\nthree\nfour\nfive\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_suffix",
+      "args": [
+        "-i.bak",
+        "s/two/2/",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "one\ntwo\nthree\nfour\nfive\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_star_suffix",
+      "args": [
+        "-i",
+        "old_*",
+        "s/three/3/",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "one\ntwo\nthree\nfour\nfive\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_multi_files",
+      "args": [
+        "-i",
+        "s/a/X/",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_quit",
+      "args": [
+        "-i",
+        "2q",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "one\ntwo\nthree\nfour\nfive\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_quit_code",
+      "args": [
+        "-i",
+        "3q4",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "one\ntwo\nthree\nfour\nfive\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_delete_lines",
+      "args": [
+        "-i",
+        "1d;$d",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "one\ntwo\nthree\nfour\nfive\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_line_numbers_per_file",
+      "args": [
+        "-i",
+        "1s/^/>/",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_dollar_per_file",
+      "args": [
+        "-i",
+        "$s/$/!/",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_write_stdout",
+      "args": [
+        "-i",
+        "1w /dev/stdout",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "one\ntwo\nthree\nfour\nfive\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_equals_to_file",
+      "args": [
+        "-i",
+        "-n",
+        "$=",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": "one\ntwo\nthree\nfour\nfive\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_missing_file",
+      "args": [
+        "-i",
+        "s/a/b/",
+        "nosuch.txt",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_no_files",
+      "args": [
+        "-i",
+        "s/a/b/"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_long_suffix",
+      "args": [
+        "--in-place=.orig",
+        "s/a/Q/",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_append_text",
+      "args": [
+        "-i",
+        "$a END",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "inplace_readonly_mode_kept",
+      "args": [
+        "-i",
+        "s/x/y/",
+        "f.txt"
+      ],
+      "files": {
+        "f.txt": {
+          "text": "x\n",
+          "mode": "640"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "err_unknown_command",
+      "args": [
+        "k"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_unmatched_brace",
+      "args": [
+        "{p"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_unexpected_brace",
+      "args": [
+        "}"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_missing_label",
+      "args": [
+        "b nowhere"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_y_lengths",
+      "args": [
+        "y/ab/c/"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_extra_chars",
+      "args": [
+        "p x"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_zero_address",
+      "args": [
+        "0p"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_one_address_q",
+      "args": [
+        "1,2q"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_missing_file_continues",
+      "args": [
+        "p",
+        "nosuch.txt",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "err_missing_file_only",
+      "args": [
+        "p",
+        "nosuch.txt"
+      ]
+    },
+    {
+      "name": "err_missing_file_quit",
+      "args": [
+        "q",
+        "nosuch.txt",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "a\nb\n",
+        "b.txt": "c\nd\n"
+      }
+    },
+    {
+      "name": "err_bad_regex",
+      "args": [
+        "s/\\(/x/"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_text_missing",
+      "args": [
+        "a"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_missing_filename",
+      "args": [
+        "r"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_not_addressable_colon",
+      "args": [
+        "1:x"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_multiple_bang",
+      "args": [
+        "1!!p"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_comment_with_address",
+      "args": [
+        "1#x"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "err_bad_line_addr",
+      "args": [
+        "1,x"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "text_multiline_one_liner",
+      "args": [
+        "1a first\\\nsecond"
+      ],
+      "stdin": "x\n"
+    },
+    {
+      "name": "text_backslash_escapes",
+      "args": [
+        "a x\\ty"
+      ],
+      "stdin": "x\n"
+    },
+    {
+      "name": "text_leading_spaces_kept",
+      "args": [
+        "a\\   spaced"
+      ],
+      "stdin": "x\n"
+    },
+    {
+      "name": "missing_newline_on_last",
+      "args": [
+        "s/x/y/"
+      ],
+      "stdin": "x"
+    },
+    {
+      "name": "missing_newline_then_append",
+      "args": [
+        "$a tail"
+      ],
+      "stdin": "x"
+    },
+    {
+      "name": "missing_newline_then_print",
+      "args": [
+        "p"
+      ],
+      "stdin": "x"
+    },
+    {
+      "name": "missing_newline_two_lines",
+      "args": [
+        "N;P;D"
+      ],
+      "stdin": "a\nb"
+    },
+    {
+      "name": "line_numbers_across_empty_lines",
+      "args": [
+        "-n",
+        "/^$/="
+      ],
+      "stdin": "a\n\nb\n\n"
+    },
+    {
+      "name": "crlf_kept",
+      "args": [
+        "s/x$/y/"
+      ],
+      "stdin": "x\r\n"
+    },
+    {
+      "name": "last_line_no_newline_append_insert",
+      "args": [
+        "i\\\nTOP"
+      ],
+      "stdin": "a"
+    },
+    {
+      "name": "empty_input",
+      "args": [
+        "p"
+      ]
+    },
+    {
+      "name": "blank_only_lines",
+      "args": [
+        "s/^$/EMPTY/"
+      ],
+      "stdin": "\n\n"
+    },
+    {
+      "name": "append_then_delete",
+      "args": [
+        "1a after\n1d"
+      ],
+      "stdin": "1\n2\n"
+    },
+    {
+      "name": "insert_then_quit",
+      "args": [
+        "1i\\\nBEFORE\n1q"
+      ],
+      "stdin": "1\n2\n"
+    },
+    {
+      "name": "change_in_range_each_line",
+      "args": [
+        "/b/,/c/c\\CHANGED"
+      ],
+      "stdin": "a\nb\nx\nc\nd\n"
+    }
+  ]
+}
