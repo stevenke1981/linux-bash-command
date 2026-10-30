@@ -76,6 +76,7 @@ pub fn ls(args: &[String]) -> i32 {
         printed: false,
         failed: false,
         trouble: false,
+        ancestors: Vec::new(),
     };
     let stdout = io::stdout();
     let mut out = BufWriter::with_capacity(64 * 1024, stdout.lock());
@@ -121,6 +122,8 @@ struct Listing {
     failed: bool,
     /// A command-line operand could not be used: exit status 2 (serious trouble).
     trouble: bool,
+    /// Canonical directories being listed (for loop detection under -L).
+    ancestors: Vec<PathBuf>,
 }
 
 impl Listing {
@@ -178,6 +181,35 @@ impl Listing {
 
     /// `top` is true for a directory named on the command line.
     fn list_directory(
+        &mut self,
+        directory: &Path,
+        out: &mut dyn Write,
+        top: bool,
+    ) -> io::Result<()> {
+        // Under -L a symbolic link can lead back to a directory being listed: skip it, as GNU does.
+        let real = match self.options.deref {
+            Deref::All => fs::canonicalize(directory).ok(),
+            _ => None,
+        };
+        if let Some(real) = &real {
+            if self.ancestors.contains(real) {
+                eprintln!(
+                    "ls: not listing already-listed directory '{}'",
+                    display_path(directory)
+                );
+                self.failed = true;
+                return Ok(());
+            }
+            self.ancestors.push(real.clone());
+        }
+        let result = self.list_directory_contents(directory, out, top);
+        if real.is_some() {
+            self.ancestors.pop();
+        }
+        result
+    }
+
+    fn list_directory_contents(
         &mut self,
         directory: &Path,
         out: &mut dyn Write,

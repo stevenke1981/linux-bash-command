@@ -378,6 +378,22 @@ fn ls_dereference_shows_the_target_of_a_link_operand() {
 
 #[cfg(unix)]
 #[test]
+fn ls_recursive_dereference_stops_at_symlink_loops() {
+    let sb = Sandbox::new();
+    sb.write("sub/f", b"f");
+    sb.symlink("..", "sub/up").unwrap();
+    let out = run_in(sb.path(), "ls", &["-RL", "sub"], b"");
+    assert_eq!(code(&out), Some(1));
+    assert!(
+        err_text(&out).contains("not listing already-listed directory"),
+        "{}",
+        err_text(&out)
+    );
+    assert!(text(&out).contains("sub/up:\nsub\n"), "{}", text(&out));
+}
+
+#[cfg(unix)]
+#[test]
 fn ls_block_counts_scale_with_block_size_and_suffix() {
     let sb = Sandbox::new();
     sb.mkdir("d");
