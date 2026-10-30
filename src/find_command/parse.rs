@@ -442,10 +442,7 @@ fn parse_size(text: &str) -> Result<Test, String> {
         ("G", 1024 * 1024 * 1024),
     ];
     let (cmp, digits) = split_sign(text);
-    let (number, unit_bytes) = UNITS
-        .iter()
-        .find_map(|(suffix, bytes)| digits.strip_suffix(suffix).map(|number| (number, *bytes)))
-        .unwrap_or((digits, 512));
+    let (number, unit_bytes) = crate::common::size::split_suffix(digits, &UNITS, 512);
     let units = number
         .parse::<i64>()
         .map_err(|_| format!("invalid -size value '{text}'"))?;

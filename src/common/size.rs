@@ -1,3 +1,14 @@
+/// Split a supported size suffix while preserving each command's unit conventions.
+pub fn split_suffix<'a>(text: &'a str, units: &[(&str, u64)], default: u64) -> (&'a str, u64) {
+    units
+        .iter()
+        .find_map(|(suffix, multiplier)| {
+            text.strip_suffix(suffix)
+                .map(|digits| (digits, *multiplier))
+        })
+        .unwrap_or((text, default))
+}
+
 /// Formats like GNU `ls -h`: plain bytes below 1024, otherwise one decimal below 10
 /// and a rounded-up integer above, using K, M, G, T, P, E. Values are rounded up.
 pub fn human_size(bytes: u64) -> String {
@@ -61,5 +72,14 @@ mod tests {
     fn formats_sizes() {
         assert_eq!(super::human_size(1025), "1.1K");
         assert_eq!(super::human(1500, 1000), "1.5k");
+    }
+
+    #[test]
+    fn splits_supported_suffixes_without_changing_unknown_values() {
+        let units = [("KB", 1000), ("K", 1024), ("b", 512)];
+        assert_eq!(super::split_suffix("5KB", &units, 1), ("5", 1000));
+        assert_eq!(super::split_suffix("5K", &units, 1), ("5", 1024));
+        assert_eq!(super::split_suffix("5x", &units, 1), ("5x", 1));
+        assert_eq!(super::split_suffix("5", &units, 512), ("5", 512));
     }
 }

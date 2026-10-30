@@ -523,12 +523,18 @@ fn parse_num<T: std::str::FromStr>(name: &str, value: &str) -> Result<T, String>
 
 /// Parses a byte count such as `500`, `64K`, `2M` or `1G` (powers of 1024).
 fn parse_size(value: &str) -> Result<u64, String> {
-    let (digits, multiplier) = match value.chars().last() {
-        Some('k' | 'K') => (&value[..value.len() - 1], 1u64 << 10),
-        Some('m' | 'M') => (&value[..value.len() - 1], 1u64 << 20),
-        Some('g' | 'G') => (&value[..value.len() - 1], 1u64 << 30),
-        _ => (value, 1),
-    };
+    let (digits, multiplier) = crate::common::size::split_suffix(
+        value,
+        &[
+            ("k", 1 << 10),
+            ("K", 1 << 10),
+            ("m", 1 << 20),
+            ("M", 1 << 20),
+            ("g", 1 << 30),
+            ("G", 1 << 30),
+        ],
+        1,
+    );
     digits
         .parse::<u64>()
         .ok()
