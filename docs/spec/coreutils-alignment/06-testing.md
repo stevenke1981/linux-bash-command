@@ -46,7 +46,51 @@ pub struct Sandbox { /* 暫存目錄、寫檔、建 symlink（無權限時回 No
 - 差分失敗訊息須印出雙方 stdout（以 `{:?}` 位元組）與 exit code。
 - `skip_reason` 非空之案例不執行但須保留（記錄已知差異）；每個 skip 須於 [07-phases.md](07-phases.md) 之「已知差異」表列出。
 
-CI（ubuntu-latest）須安裝：`sudo apt-get install -y gawk tree xxd dos2unix patch bsdextrautils`（`coreutils findutils grep sed diffutils tar gzip debianutils` 已內建）。
+CI（`ubuntu-24.04`）須安裝：`sudo apt-get install -y gawk tree xxd dos2unix patch bsdextrautils`（`coreutils findutils grep sed diffutils tar gzip debianutils` 已內建）。
+
+### 2.1 差分器（`tests/gnu_diff.rs`）實作細節（v1.1 新增）
+
+**閘門**
+- 整個檔案 `#![cfg(target_os = "linux")]`；非 Linux 平台編譯為空。
+- 只有一個 `#[test] fn gnu_differential()`。`AGENTCMD_GNU_DIFF` 未設或非 `1` → `eprintln!("gnu_diff: skipped (set AGENTCMD_GNU_DIFF=1)")` 後直接通過，使一般 `cargo test` 不受影響。
+- 設為 `1` 時，所需 GNU 程式缺少 → **失敗**（不可默默略過），訊息列出缺少之程式與 apt 套件名。
+- `AGENTCMD_GNU_DIFF_FILTER`：可選，`sort` 只跑該指令；`sort/numeric_*` 以 glob 篩案例名。
+
+**兩邊如何執行**
+- 本專案側：一律 `env!("CARGO_BIN_EXE_agentcmd")`，參數為 `[command, args...]`（multi-call）。理由：`env!` 須編譯期字面值，無法依 JSON 動態取各指令 bin；multi-call 可涵蓋全部（含 `[`、`egrep`）。
+- GNU 側：`gnu` 欄第一個元素於 `/usr/bin`、`/bin` 依序找絕對路徑（**不得**用 PATH 搜尋，以免找到 `target/` 內本專案之同名程式）；`gnu` 省略時預設 `[command]`。
+- 兩側環境相同：`env_clear()` 後只設 `PATH=/usr/bin:/bin`、`LC_ALL=C`、`TZ=UTC`、`COLUMNS=80`、`HOME=<該側 sandbox>`，再加案例 `env` 欄。故 `xargs`／`env`／`find -exec` 等於兩側都會呼叫 `/usr/bin` 之子程式，不影響比對。
+- 兩側各自一個新 sandbox（`std::env::temp_dir()` 下唯一目錄，案例結束刪除），cwd 為該 sandbox。
+- 每側逾時 10 秒（`案例 timeout_ms` 可覆寫）；逾時 kill 並判該案例失敗。
+
+**案例欄位（全部）**
+
+| 欄位 | 型別 | 預設 | 說明 |
+|---|---|---|---|
+| `name` | string | 必填 | 檔內唯一 |
+| `args` | string[] | `[]` | 不經 shell |
+| `stdin` | string | `""` | UTF-8 文字 |
+| `stdin_hex` | string | — | 二進位 stdin（與 `stdin` 互斥）；以手寫 hex 解碼，不加依賴 |
+| `files` | object | `{}` | 路徑 → 內容。值為字串＝文字檔；或物件：`{"hex":"00ff"}`、`{"dir":true}`、`{"symlink":"target"}`、`{"text":"..","mtime":1700000000,"mode":"644"}`（`mode` 只在 Unix 套用；`mtime` 以 `File::set_modified` 設定，須在 `ls -l`／`stat`／`find -newer` 等案例使用以保證決定性） |
+| `env` | object | `{}` | 額外環境變數 |
+| `gnu` | string[] | `[command]` | 對照程式與前置參數，如 `["gawk","--posix"]` |
+| `compare` | string[] | `["stdout","exit"]` | 可加 `files`、`stderr_empty`、`stdout_sorted`（逐行排序後比，供 `du`、`find` 無序輸出） |
+| `timeout_ms` | number | 10000 | — |
+| `skip_reason` | string\|null | null | 非 null 則不執行，但計入報告 |
+
+**比對**
+- `stdout`：位元組完全相同。
+- `exit`：exit code 相同（以訊號終止者以 `128+signal` 比）。
+- `files`：執行後遞迴列出 sandbox（相對路徑、型別、檔案內容位元組、symlink 目標）兩側須相同；不比 mtime 與權限，除非加 `files_mode`。
+- stderr 不比內容（訊息措辭由 CLI 測試鎖定）。
+
+**輸出**
+- 跑完**全部**案例後才判定；失敗時一次列出每個失敗案例：`<command>/<name>`、args、雙方 exit、雙方 stdout（`{:?}`，過長截至 2 KiB）與第一個差異位元組位置。
+- 結尾摘要：`gnu_diff: N passed, M failed, K skipped`。
+
+**本機沒有 Linux／GNU 時**
+- 可用 WSL Ubuntu 24.04，或 `docker run --rm -v "$PWD":/w -w /w ubuntu:24.04`（容器內安裝 rustup 與 §2 套件）執行。
+- 都不可行時：照寫案例，並於階段報告註明「GNU 差分未在本機執行，待 CI」。**不得**憑記憶捏造 GNU 輸出寫成 golden，也不得因無法執行而把案例標 skip。
 
 ## 3. 每指令最低測試要求（驗收用）
 
@@ -81,4 +125,5 @@ CI（ubuntu-latest）須安裝：`sudo apt-get install -y gawk tree xxd dos2unix
 
 | 版本 | 日期 | 內容 | 影響範圍 |
 |---|---|---|---|
+| v1.1 | 2026-10-30 | 新增 §2.1 差分器實作細節；CI 固定 ubuntu-24.04 | tests/gnu_diff.rs, CI |
 | v1.0 | 2026-10-30 | 初始建立 | — |

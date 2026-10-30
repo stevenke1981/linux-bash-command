@@ -36,6 +36,7 @@
 | [05-existing-gaps.md](05-existing-gaps.md) | 既有 17 指令之對齊修正 |
 | [06-testing.md](06-testing.md) | 測試策略：單元、CLI、GNU 差分測試、覆蓋率、CI |
 | [07-phases.md](07-phases.md) | 實作分階段、每階段交付物與驗收標準 |
+| [codex-prompts.md](codex-prompts.md) | 交給 Codex 之逐階段 prompts |
 
 ## 4. 規範用語
 
