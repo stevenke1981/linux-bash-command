@@ -58,6 +58,36 @@ fn binary(name: &str) -> &'static str {
     }
 }
 
+#[test]
+fn text_commands_expand_unique_long_options() {
+    let fixture = Fixture::new();
+    let cat = fixture.run("cat", &["--number-nonb"], b"one\n\ntwo\n");
+    assert_eq!(cat.status.code(), Some(0));
+    assert_eq!(cat.stdout, b"     1\tone\n\n     2\ttwo\n");
+    let head = fixture.run("head", &["--lin=1"], b"one\ntwo\n");
+    assert_eq!(head.status.code(), Some(0));
+    assert_eq!(head.stdout, b"one\n");
+    let ambiguous = fixture.run("cat", &["--number-n"], b"");
+    assert_eq!(ambiguous.status.code(), Some(0));
+    let ambiguous = fixture.run("cat", &["--show-"], b"");
+    assert_eq!(ambiguous.status.code(), Some(1));
+}
+
+#[test]
+fn cat_stops_parsing_options_after_an_operand_in_posix_mode() {
+    let fixture = Fixture::new();
+    fixture.write("input", b"first\n");
+    fixture.write("-n", b"second\n");
+    let output = Command::new(binary("cat"))
+        .current_dir(&fixture.0)
+        .env("POSIXLY_CORRECT", "1")
+        .args(["input", "-n"])
+        .output()
+        .unwrap();
+    assert_eq!(output.status.code(), Some(0));
+    assert_eq!(output.stdout, b"first\nsecond\n");
+}
+
 /// Kills the child on drop so a failing assertion never leaks a process or a file handle.
 struct KillOnDrop(Child);
 
@@ -314,6 +344,6 @@ fn less_raw_flags_pass_file_through_when_piped() {
     );
     assert_eq!(
         f.run("less", &["-z", "file.txt"], b"").status.code(),
-        Some(2)
+        Some(1)
     );
 }

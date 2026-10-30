@@ -1,0 +1,191 @@
+{
+  "command": "printenv",
+  "cases": [
+    {
+      "name": "name",
+      "args": [
+        "VALUE"
+      ],
+      "stdin": "",
+      "files": {},
+      "env": {
+        "VALUE": "hello"
+      }
+    },
+    {
+      "name": "null",
+      "args": [
+        "-0",
+        "VALUE"
+      ],
+      "stdin": "",
+      "files": {},
+      "env": {
+        "VALUE": "hello"
+      }
+    },
+    {
+      "name": "null_long",
+      "args": [
+        "--null",
+        "VALUE"
+      ],
+      "stdin": "",
+      "files": {},
+      "env": {
+        "VALUE": "hello"
+      }
+    },
+    {
+      "name": "missing",
+      "args": [
+        "AGENTCMD_MISSING_ENV_X"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "mixture",
+      "args": [
+        "VALUE",
+        "AGENTCMD_MISSING_ENV_X"
+      ],
+      "stdin": "",
+      "files": {},
+      "env": {
+        "VALUE": "x"
+      }
+    },
+    {
+      "name": "duplicate",
+      "args": [
+        "VALUE",
+        "VALUE"
+      ],
+      "stdin": "",
+      "files": {},
+      "env": {
+        "VALUE": "x"
+      }
+    },
+    {
+      "name": "empty",
+      "args": [
+        "VALUE"
+      ],
+      "stdin": "",
+      "files": {},
+      "env": {
+        "VALUE": ""
+      }
+    },
+    {
+      "name": "newline",
+      "args": [
+        "VALUE"
+      ],
+      "stdin": "",
+      "files": {},
+      "env": {
+        "VALUE": "a\nb"
+      }
+    },
+    {
+      "name": "equals",
+      "args": [
+        "A=B"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "empty_name",
+      "args": [
+        ""
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "several",
+      "args": [
+        "A",
+        "B"
+      ],
+      "stdin": "",
+      "files": {},
+      "env": {
+        "A": "x",
+        "B": "y"
+      }
+    },
+    {
+      "name": "permutation",
+      "args": [
+        "VALUE",
+        "-0"
+      ],
+      "stdin": "",
+      "files": {},
+      "env": {
+        "VALUE": "x"
+      },
+      "skip_reason": "02-conventions default permutation applies to printenv; GNU stops at first variable"
+    },
+    {
+      "name": "terminator",
+      "args": [
+        "--",
+        "--bad-option"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bad-option"
+      ],
+      "stdin": "",
+      "files": {},
+      "skip_reason": "02-conventions requires usage status 1; GNU printenv returns 2"
+    },
+    {
+      "name": "unknown_before_help",
+      "args": ["--unknown", "--help"],
+      "skip_reason": "02-conventions requires usage status 1; GNU printenv returns 2"
+    },
+    {
+      "name": "invalid_value_before_help",
+      "args": ["--null=bad", "--help"],
+      "skip_reason": "02-conventions requires usage status 1; GNU printenv returns 2"
+    },
+    {
+      "name": "help_before_unknown",
+      "args": ["--help", "--unknown"],
+      "compare": ["exit"]
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

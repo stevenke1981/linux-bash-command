@@ -1,0 +1,180 @@
+{
+  "command": "tac",
+  "cases": [
+    {
+      "name": "empty",
+      "args": [],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "terminated",
+      "args": [],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "partial",
+      "args": [],
+      "stdin": "a\nb",
+      "files": {}
+    },
+    {
+      "name": "before",
+      "args": [
+        "--before"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "separator",
+      "args": [
+        "--separator=::"
+      ],
+      "stdin": "a::b::",
+      "files": {}
+    },
+    {
+      "name": "regex",
+      "args": [
+        "--regex",
+        "-s",
+        "[0-9][0-9]*"
+      ],
+      "stdin": "a1b22c",
+      "files": {}
+    },
+    {
+      "name": "regex_before",
+      "args": [
+        "-rb",
+        "-s",
+        "[0-9]"
+      ],
+      "stdin": "a1b2",
+      "files": {}
+    },
+    {
+      "name": "nul",
+      "args": [
+        "-s",
+        ""
+      ],
+      "stdin": "a\u0000b\u0000",
+      "files": {}
+    },
+    {
+      "name": "blank",
+      "args": [],
+      "stdin": "a\n\nb\n",
+      "files": {}
+    },
+    {
+      "name": "single",
+      "args": [],
+      "stdin": "abc",
+      "files": {}
+    },
+    {
+      "name": "files",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\n",
+        "b": "c\nd"
+      }
+    },
+    {
+      "name": "before_file",
+      "args": [
+        "-b",
+        "a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\n"
+      }
+    },
+    {
+      "name": "stdin_dash",
+      "args": [
+        "-"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "missing",
+      "args": [
+        "absent"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "invalid",
+      "args": [
+        "-r",
+        "-s",
+        "["
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "regex_file",
+      "args": [
+        "-r",
+        "-s",
+        "[0-9][0-9]*",
+        "data"
+      ],
+      "files": {
+        "data": "a1b22c"
+      }
+    },
+    {
+      "name": "regex_invalid_byte",
+      "args": [
+        "-r",
+        "-s",
+        "."
+      ],
+      "stdin_hex": "61ff62"
+    }
+  ]
+}

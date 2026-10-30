@@ -255,15 +255,15 @@ fn find_ls_prints_mode_and_path() {
 }
 
 #[test]
-fn find_missing_root_reports_and_exits_two() {
+fn find_missing_root_reports_and_exits_one() {
     let f = Fixture::new();
     let out = f.run("find", &["missing_dir_for_test", "-name", "*"]);
-    assert_eq!(out.status.code(), Some(2));
+    assert_eq!(out.status.code(), Some(1));
     assert!(text(&out.stderr).contains("missing_dir_for_test"));
 }
 
 #[test]
-fn find_rejects_invalid_expressions_with_status_two() {
+fn find_rejects_invalid_expressions_with_status_one() {
     let f = Fixture::new();
     for args in [
         vec![".", "-bogus"],
@@ -276,7 +276,7 @@ fn find_rejects_invalid_expressions_with_status_two() {
         vec![".", "-size", "3Q"],
     ] {
         let out = f.run("find", &args);
-        assert_eq!(out.status.code(), Some(2), "args {args:?}");
+        assert_eq!(out.status.code(), Some(1), "args {args:?}");
     }
 }
 
@@ -390,9 +390,9 @@ fn ps_json_lists_selected_process() {
 #[test]
 fn ps_rejects_long_format_and_unknown_fields() {
     let f = Fixture::new();
-    assert_eq!(f.run("ps", &["-l"]).status.code(), Some(2));
-    assert_eq!(f.run("ps", &["-o", "nosuchfield"]).status.code(), Some(2));
-    assert_eq!(f.run("ps", &["--sort=bogus"]).status.code(), Some(2));
+    assert_eq!(f.run("ps", &["-l"]).status.code(), Some(1));
+    assert_eq!(f.run("ps", &["-o", "nosuchfield"]).status.code(), Some(1));
+    assert_eq!(f.run("ps", &["--sort=bogus"]).status.code(), Some(1));
 }
 
 #[test]
@@ -475,9 +475,9 @@ fn df_type_filters_and_rejections() {
     let none = f.run("df", &["-t", "no_such_fs_type", "."]);
     assert_eq!(none.status.code(), Some(0));
     assert_eq!(lines(&none.stdout).len(), 1, "header only");
-    assert_eq!(f.run("df", &["-i"]).status.code(), Some(2));
-    assert_eq!(f.run("df", &["-B", "Q"]).status.code(), Some(2));
-    assert_eq!(f.run("df", &["--bogus"]).status.code(), Some(2));
+    assert_eq!(f.run("df", &["-i"]).status.code(), Some(1));
+    assert_eq!(f.run("df", &["-B", "Q"]).status.code(), Some(1));
+    assert_eq!(f.run("df", &["--bogus"]).status.code(), Some(1));
 }
 
 #[test]
@@ -485,5 +485,5 @@ fn df_without_arguments_and_path_outside_tree() {
     let f = Fixture::new();
     assert_eq!(f.run("df", &[]).status.code(), Some(0));
     let missing = f.run("df", &["does-not-exist-for-compat-test"]);
-    assert_eq!(missing.status.code(), Some(2));
+    assert_eq!(missing.status.code(), Some(1));
 }

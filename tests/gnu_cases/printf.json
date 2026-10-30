@@ -1,0 +1,344 @@
+{
+  "command": "printf",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "strings",
+      "args": [
+        "%s:%s\\n",
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "integers",
+      "args": [
+        "%d %i %u %o %x %X\\n",
+        "-12",
+        "010",
+        "42",
+        "8",
+        "255",
+        "255"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "quoted_numbers",
+      "args": [
+        "%d %d",
+        "'A",
+        "\"z"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "integer_flags",
+      "args": [
+        "%+08d|% 6d|%-6d|%#06x|%#.0o",
+        "12",
+        "2",
+        "3",
+        "255",
+        "0"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "precision",
+      "args": [
+        "%.4d|%.0d|%.3s|%8.2f",
+        "12",
+        "0",
+        "abcdef",
+        "1.25"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "stars",
+      "args": [
+        "%*.*f|%*s",
+        "8",
+        "3",
+        "1.25",
+        "-4",
+        "x"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "float_types",
+      "args": [
+        "%.2f %.2F %.2e %.2E %.3g %.3G %a %A",
+        "1.25",
+        "1.25",
+        "12",
+        "12",
+        "1200",
+        "0.0012",
+        "1.5",
+        "2.5"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "alternate",
+      "args": [
+        "%#.3g|%#.0f|%#.0e|%#.0a",
+        "1",
+        "2",
+        "3",
+        "1"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "escapes",
+      "args": [
+        "\\101\\x42\\u03bb\\U0001f600\\n"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "escape_controls",
+      "args": [
+        "\\a\\b\\e\\f\\r\\t\\v\\\\"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "b_escape",
+      "args": [
+        "%bEND",
+        "a\\0101\\n\\cend"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "shell_quote",
+      "args": [
+        "%q|%q|%q",
+        "a b",
+        "a'b",
+        "a\nb"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "char",
+      "args": [
+        "%c%c",
+        "X",
+        "Y"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "percent",
+      "args": [
+        "%% %s",
+        "x"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "missing",
+      "args": [
+        "%d|%s|%c"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "partial_numeric",
+      "args": [
+        "%d",
+        "12junk"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "numeric_invalid",
+      "args": [
+        "%f",
+        "invalid"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "overflow",
+      "args": [
+        "%d",
+        "9223372036854775808"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "unsigned_negative",
+      "args": [
+        "%u",
+        "-1"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "unknown_conversion",
+      "args": [
+        "%Q",
+        "x"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "missing_format",
+      "args": [],
+      "stdin": ""
+    },
+    {
+      "name": "unknown_option",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "double_dash",
+      "args": [
+        "--",
+        "%s",
+        "-x"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "ucn_ascii_spec",
+      "args": [
+        "\\u0043"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "hex_float_input",
+      "args": [
+        "%f %a",
+        "0x1.8p0",
+        "0x1.4p1"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "hex_ties_even",
+      "args": [
+        "%.0a",
+        "1.5"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "quote_dollar",
+      "args": [
+        "%q",
+        "a'b$c"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "quote_mixed",
+      "args": [
+        "%q",
+        "a'b\"c"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "quote_backslash",
+      "args": [
+        "%q",
+        "a'b\\c"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "quote_unicode",
+      "args": [
+        "%q",
+        "é"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "hex_gnu_leading_nibble",
+      "args": [
+        "%a|%A|%#.0a",
+        "1.5",
+        "2.5",
+        "1"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "hex_precision_carry",
+      "args": [
+        "%.0a|%.1a|%.2a",
+        "1.99",
+        "1.99609375",
+        "1.125"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "hex_zeros_fraction_subnormal",
+      "args": [
+        "%a|%a|%a|%a",
+        "0",
+        "-0",
+        "0.5",
+        "0x0.0000000000001p-1022"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "hex_ties_to_even_nibble",
+      "args": [
+        "%.0a|%.0a",
+        "1.0625",
+        "1.1875"
+      ],
+      "stdin": ""
+    }
+  ]
+}

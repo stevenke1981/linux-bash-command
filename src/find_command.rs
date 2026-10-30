@@ -52,7 +52,7 @@ Actions:
 
 Operators: ( ) ! -not -a -and -o -or , (precedence as in GNU find).
 Exit status: 0 on success, 1 when some entries below a starting point could not be read
-or an action failed, 2 on invalid usage or a starting point that does not exist.
+or an action failed, invalid usage, or a starting point that does not exist.
 ";
 
 pub fn find(args: &[String]) -> i32 {
@@ -63,8 +63,8 @@ pub fn find(args: &[String]) -> i32 {
     match parse::parse(args) {
         Ok(plan) => walk::run(plan),
         Err(error) => {
-            eprintln!("find: {error}\nTry 'find --help' for usage.");
-            2
+            eprintln!("find: {error}\nTry 'find --help' for more information.");
+            1
         }
     }
 }
@@ -76,12 +76,12 @@ mod tests {
     #[test]
     fn rejects_unknown_predicates_with_usage_status() {
         let args = ["-bogus".to_string()];
-        assert_eq!(find(&args), 2);
+        assert_eq!(find(&args), 1);
     }
 
     #[test]
     fn rejects_unbalanced_parentheses() {
         let args = ["(".to_string(), "-name".to_string(), "x".to_string()];
-        assert_eq!(find(&args), 2);
+        assert_eq!(find(&args), 1);
     }
 }

@@ -1,3 +1,5 @@
+use crate::common::error::io_text as io_message;
+use crate::common::io::{is_closed_pipe, report_failure, report_open};
 use std::collections::VecDeque;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Read, Seek, SeekFrom, Write};
@@ -79,6 +81,26 @@ fn parse_cat(args: &[String]) -> Result<Option<(CatOptions, Vec<String>)>, Strin
     let mut paths = Vec::new();
     let mut options_open = true;
     for arg in args {
+        let expanded;
+        let arg = if options_open && arg.starts_with("--") && arg != "--" {
+            expanded = crate::common::args::expand_long(
+                arg,
+                &[
+                    "number",
+                    "number-nonblank",
+                    "squeeze-blank",
+                    "show-ends",
+                    "show-tabs",
+                    "show-nonprinting",
+                    "show-all",
+                    "unbuffered",
+                    "help",
+                ],
+            )?;
+            &expanded
+        } else {
+            arg
+        };
         if options_open && arg == "--" {
             options_open = false;
         } else if options_open && (arg == "-h" || arg == "--help") {
@@ -92,6 +114,9 @@ fn parse_cat(args: &[String]) -> Result<Option<(CatOptions, Vec<String>)>, Strin
             }
         } else {
             paths.push(arg.clone());
+            if std::env::var_os("POSIXLY_CORRECT").is_some() {
+                options_open = false;
+            }
         }
     }
     Ok(Some((options, paths)))
@@ -265,6 +290,7 @@ struct Count {
 
 #[derive(Clone, Copy)]
 struct LineOptions {
+    delimiter: u8,
     unit: Unit,
     count: Count,
     headers: HeaderMode,
@@ -277,6 +303,7 @@ struct LineOptions {
 impl LineOptions {
     fn new() -> Self {
         Self {
+            delimiter: b'\n',
             unit: Unit::Lines,
             count: Count {
                 sign: Sign::Unsigned,
@@ -313,6 +340,7 @@ impl LineOptions {
                 'c' => return self.take_value("--bytes", rest, next),
                 's' if is_tail => return self.take_value("--sleep-interval", rest, next),
                 'q' => self.headers = HeaderMode::Never,
+                'z' => self.delimiter = 0,
                 'v' => self.headers = HeaderMode::Always,
                 'f' if is_tail => self.follow = Follow::Descriptor,
                 'F' if is_tail => {
@@ -347,6 +375,7 @@ impl LineOptions {
             };
         }
         match (name, inline) {
+            ("--zero-terminated", None) => self.delimiter = 0,
             ("--quiet" | "--silent", None) => self.headers = HeaderMode::Never,
             ("--verbose", None) => self.headers = HeaderMode::Always,
             ("--follow", None | Some("descriptor")) if is_tail => {
@@ -415,7 +444,19 @@ fn parse_count(text: &str) -> Option<Count> {
         Some(b'-') => (Sign::Minus, &text[1..]),
         _ => (Sign::Unsigned, text),
     };
-    let (digits, multiplier) = split_size_suffix(unsigned);
+    let (digits, multiplier) = crate::common::size::split_suffix(
+        unsigned,
+        &[
+            ("b", 512),
+            ("k", 1 << 10),
+            ("K", 1 << 10),
+            ("m", 1 << 20),
+            ("M", 1 << 20),
+            ("g", 1 << 30),
+            ("G", 1 << 30),
+        ],
+        1,
+    );
     if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
         return None;
     }
@@ -424,18 +465,6 @@ fn parse_count(text: &str) -> Option<Count> {
         sign,
         value: number.saturating_mul(multiplier),
     })
-}
-
-fn split_size_suffix(text: &str) -> (&str, u64) {
-    let multiplier = match text.as_bytes().last() {
-        Some(b'b') => 512,
-        Some(b'k' | b'K') => 1 << 10,
-        Some(b'm' | b'M') => 1 << 20,
-        Some(b'g' | b'G') => 1 << 30,
-        _ => return (text, 1),
-    };
-    // The suffix is ASCII, so slicing one byte off is on a character boundary.
-    (&text[..text.len() - 1], multiplier)
 }
 
 fn parse_seconds(text: &str) -> Option<Duration> {
@@ -453,7 +482,25 @@ fn parse_text_args(
     let mut options_open = true;
     let mut index = 0;
     while index < args.len() {
-        let arg = args[index].as_str();
+        let expanded;
+        let mut long_options = vec![
+            "lines",
+            "bytes",
+            "quiet",
+            "silent",
+            "verbose",
+            "zero-terminated",
+            "help",
+        ];
+        if is_tail {
+            long_options.extend(["sleep-interval", "pid", "follow", "retry"]);
+        }
+        let arg = if options_open && args[index].starts_with("--") && args[index] != "--" {
+            expanded = crate::common::args::expand_long(&args[index], &long_options)?;
+            expanded.as_str()
+        } else {
+            args[index].as_str()
+        };
         let next = args.get(index + 1);
         let mut consumed = false;
         if options_open && arg == "--" {
@@ -467,6 +514,9 @@ fn parse_text_args(
             consumed = options.apply_short(arg, next, is_tail)?;
         } else {
             paths.push(arg.to_string());
+            if std::env::var_os("POSIXLY_CORRECT").is_some() {
+                options_open = false;
+            }
         }
         index += if consumed { 2 } else { 1 };
     }
@@ -574,19 +624,26 @@ fn head_one(
 ) -> io::Result<()> {
     let value = options.count.value;
     match (options.unit, options.count.sign) {
-        (Unit::Lines, Sign::Minus) => head_all_but_last_lines(input, as_usize(value), output),
-        (Unit::Lines, _) => head_first_lines(input, value, output),
+        (Unit::Lines, Sign::Minus) => {
+            head_all_but_last_lines(input, as_usize(value), options.delimiter, output)
+        }
+        (Unit::Lines, _) => head_first_lines(input, value, options.delimiter, output),
         (Unit::Bytes, Sign::Minus) => head_all_but_last_bytes(input, as_usize(value), output),
         (Unit::Bytes, _) => io::copy(&mut (&mut *input).take(value), output).map(|_| ()),
     }
 }
 
-fn head_first_lines(input: &mut dyn BufRead, count: u64, output: &mut dyn Write) -> io::Result<()> {
+fn head_first_lines(
+    input: &mut dyn BufRead,
+    count: u64,
+    delimiter: u8,
+    output: &mut dyn Write,
+) -> io::Result<()> {
     let mut line = Vec::new();
     let mut remaining = count;
     while remaining > 0 {
         line.clear();
-        if input.read_until(b'\n', &mut line)? == 0 {
+        if input.read_until(delimiter, &mut line)? == 0 {
             break;
         }
         output.write_all(&line)?;
@@ -599,13 +656,14 @@ fn head_first_lines(input: &mut dyn BufRead, count: u64, output: &mut dyn Write)
 fn head_all_but_last_lines(
     input: &mut dyn BufRead,
     keep: usize,
+    delimiter: u8,
     output: &mut dyn Write,
 ) -> io::Result<()> {
     let mut pending = VecDeque::new();
     let mut line = Vec::new();
     loop {
         line.clear();
-        if input.read_until(b'\n', &mut line)? == 0 {
+        if input.read_until(delimiter, &mut line)? == 0 {
             return Ok(());
         }
         pending.push_back(std::mem::take(&mut line));
@@ -704,20 +762,25 @@ fn tail_initial(
 ) -> io::Result<()> {
     let value = options.count.value;
     match (options.unit, options.count.sign) {
-        (Unit::Lines, Sign::Plus) => tail_from_line(input, value, output),
-        (Unit::Lines, _) => tail_last_lines(input, as_usize(value), output),
+        (Unit::Lines, Sign::Plus) => tail_from_line(input, value, options.delimiter, output),
+        (Unit::Lines, _) => tail_last_lines(input, as_usize(value), options.delimiter, output),
         (Unit::Bytes, Sign::Plus) => tail_from_byte(input, value, output),
         (Unit::Bytes, _) => tail_last_bytes(input, as_usize(value), output),
     }
 }
 
 /// `-n +N`: output starting at 1-based line N (`+0` behaves like `+1`).
-fn tail_from_line(input: &mut dyn BufRead, start: u64, output: &mut dyn Write) -> io::Result<()> {
+fn tail_from_line(
+    input: &mut dyn BufRead,
+    start: u64,
+    delimiter: u8,
+    output: &mut dyn Write,
+) -> io::Result<()> {
     let mut line = Vec::new();
     let mut to_skip = start.saturating_sub(1);
     while to_skip > 0 {
         line.clear();
-        if input.read_until(b'\n', &mut line)? == 0 {
+        if input.read_until(delimiter, &mut line)? == 0 {
             return Ok(());
         }
         to_skip -= 1;
@@ -732,12 +795,17 @@ fn tail_from_byte(input: &mut dyn BufRead, start: u64, output: &mut dyn Write) -
     io::copy(input, output).map(|_| ())
 }
 
-fn tail_last_lines(input: &mut dyn BufRead, keep: usize, output: &mut dyn Write) -> io::Result<()> {
+fn tail_last_lines(
+    input: &mut dyn BufRead,
+    keep: usize,
+    delimiter: u8,
+    output: &mut dyn Write,
+) -> io::Result<()> {
     let mut lines: VecDeque<Vec<u8>> = VecDeque::with_capacity(keep.min(1024));
     let mut line = Vec::new();
     loop {
         line.clear();
-        if input.read_until(b'\n', &mut line)? == 0 {
+        if input.read_until(delimiter, &mut line)? == 0 {
             break;
         }
         lines.push_back(std::mem::take(&mut line));
@@ -935,33 +1003,77 @@ fn status(had_error: bool) -> i32 {
     }
 }
 
-/// A closed reader is not a failure of the command; it exits quietly like a SIGPIPE'd tool.
-fn is_closed_pipe(error: &io::Error) -> bool {
-    error.kind() == io::ErrorKind::BrokenPipe
-}
-
-/// Drops the Windows/Rust " (os error N)" suffix for friendlier messages.
-fn io_message(error: &io::Error) -> String {
-    let text = error.to_string();
-    match text.find(" (os error") {
-        Some(index) => text[..index].to_string(),
-        None => text,
-    }
-}
-
-fn report_open(command: &str, path: &str, error: &io::Error) {
-    eprintln!(
-        "{command}: cannot open '{path}' for reading: {}",
-        io_message(error)
-    );
-}
-
-fn report_failure(command: &str, path: &str, error: &io::Error) {
-    eprintln!("{command}: '{path}': {}", io_message(error));
-}
-
 const CAT_HELP: &str = "Usage: cat [OPTION]... [FILE]...\n\nConcatenate FILE(s) to standard output. With no FILE, or when FILE is -, read standard input.\n\nOptions:\n  -A, --show-all          Same as -vET\n  -b, --number-nonblank   Number non-empty output lines (overrides -n)\n  -e                      Same as -vE\n  -E, --show-ends         Show $ at the end of each line\n  -n, --number            Number all output lines (format: %6d TAB)\n  -s, --squeeze-blank     Suppress repeated empty output lines\n  -t                      Same as -vT\n  -T, --show-tabs         Show TAB characters as ^I\n  -u                      Accepted and ignored\n  -v, --show-nonprinting  Show control characters with ^ and M- notation\n  -h, --help              Show this help\n\nExit status: 0 on success, 1 if an input could not be read.\n";
 
-const HEAD_HELP: &str = "Usage: head [OPTION]... [FILE]...\n\nPrint the first 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[-]N      Print the first N lines; with -N, all but the last N lines\n  -c, --bytes=[-]N      Print the first N bytes; with -N, all but the last N bytes\n  -N                    Same as -n N (for example -5)\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024). +N is the same as N.\nExit status: 0 on success, 1 if an input could not be read.\n";
+const HEAD_HELP: &str = "Usage: head [OPTION]... [FILE]...\n\nPrint the first 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[-]N      Print the first N lines; with -N, all but the last N lines\n  -c, --bytes=[-]N      Print the first N bytes; with -N, all but the last N bytes\n  -N                    Same as -n N (for example -5)\n  -z, --zero-terminated  Records end with NUL instead of newline\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024). +N is the same as N.\nExit status: 0 on success, 1 if an input could not be read.\n";
 
-const TAIL_HELP: &str = "Usage: tail [OPTION]... [FILE]...\n\nPrint the last 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[+]N      Print the last N lines; with +N, start at line N\n  -c, --bytes=[+]N      Print the last N bytes; with +N, start at byte N\n  -N                    Same as -n N (for example -5)\n  -f, --follow[=name|descriptor]\n                        Print appended data as the file grows\n  -F                    Same as --follow=name --retry\n      --retry           Keep trying to open a file that is missing (with -F)\n  -s, --sleep-interval=S\n                        Poll interval in seconds while following (default 0.5)\n      --pid=PID         With -f, stop following when process PID exits\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024).\nFollowing stdin is not supported and ends at end of input, like GNU tail.\nReplacement detection with -F uses file identity on Unix only.\nExit status: 0 on success, 1 if an input could not be read.\n";
+const TAIL_HELP: &str = "Usage: tail [OPTION]... [FILE]...\n\nPrint the last 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[+]N      Print the last N lines; with +N, start at line N\n  -c, --bytes=[+]N      Print the last N bytes; with +N, start at byte N\n  -N                    Same as -n N (for example -5)\n  -f, --follow[=name|descriptor]\n                        Print appended data as the file grows\n  -F                    Same as --follow=name --retry\n      --retry           Keep trying to open a file that is missing (with -F)\n  -s, --sleep-interval=S\n                        Poll interval in seconds while following (default 0.5)\n      --pid=PID         With -f, stop following when process PID exits\n  -z, --zero-terminated  Records end with NUL instead of newline\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024).\nFollowing stdin is not supported and ends at end of input, like GNU tail.\nReplacement detection with -F uses file identity on Unix only.\nExit status: 0 on success, 1 if an input could not be read.\n";
+
+#[cfg(test)]
+mod phase1_tests {
+    use super::*;
+    fn render(tail: bool, args: &[&str], data: &[u8]) -> Vec<u8> {
+        let args: Vec<String> = args.iter().map(|s| (*s).into()).collect();
+        let (options, _) = parse_text_args(&args, "", tail).unwrap().unwrap();
+        let mut input = io::Cursor::new(data);
+        let mut output = Vec::new();
+        if tail {
+            tail_initial(&mut input, &options, &mut output).unwrap();
+        } else {
+            head_one(&mut input, &options, &mut output).unwrap();
+        }
+        output
+    }
+    #[test]
+    fn head_nul_first() {
+        assert_eq!(render(false, &["-zn1"], b"a\0b\0"), b"a\0");
+    }
+    #[test]
+    fn head_nul_partial() {
+        assert_eq!(render(false, &["-zn2"], b"a\0b"), b"a\0b");
+    }
+    #[test]
+    fn head_nul_hold() {
+        assert_eq!(render(false, &["-z", "-n-1"], b"a\0b\0"), b"a\0");
+    }
+    #[test]
+    fn head_nul_zero() {
+        assert!(render(false, &["-zn0"], b"a\0").is_empty());
+    }
+    #[test]
+    fn head_nul_newline() {
+        assert_eq!(
+            render(false, &["--zero-terminated", "-n1"], b"a\nb\0c\0"),
+            b"a\nb\0"
+        );
+    }
+    #[test]
+    fn tail_nul_last() {
+        assert_eq!(render(true, &["-zn1"], b"a\0b\0"), b"b\0");
+    }
+    #[test]
+    fn tail_nul_partial() {
+        assert_eq!(render(true, &["-zn1"], b"a\0b"), b"b");
+    }
+    #[test]
+    fn tail_nul_from() {
+        assert_eq!(render(true, &["-z", "-n+2"], b"a\0b\0"), b"b\0");
+    }
+    #[test]
+    fn tail_nul_zero() {
+        assert!(render(true, &["-zn0"], b"a\0").is_empty());
+    }
+    #[test]
+    fn tail_nul_newline() {
+        assert_eq!(
+            render(true, &["--zero-terminated", "-n1"], b"a\0b\nc\0"),
+            b"b\nc\0"
+        );
+    }
+    #[test]
+    fn cat_u_is_plain() {
+        let mut options = CatOptions::default();
+        apply_cat_short('u', &mut options).unwrap();
+        assert!(options.is_plain());
+    }
+}

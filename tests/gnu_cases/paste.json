@@ -1,0 +1,393 @@
+{
+  "command": "paste",
+  "cases": [
+    {
+      "name": "stdin",
+      "args": [],
+      "stdin": "a\nb\n",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "serial",
+      "args": [
+        "--serial"
+      ],
+      "stdin": "a\nb\nc",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "two_files",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\n",
+        "b": "1\n2\n"
+      },
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unequal",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\n",
+        "b": "1\n"
+      },
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "serial_files",
+      "args": [
+        "-s",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\n",
+        "b": "1\n2\n"
+      },
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "cycle",
+      "args": [
+        "--delimiters=,;",
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\n",
+        "b": "b\n",
+        "c": "c\n",
+        "d": "d\n"
+      },
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "serial_cycle",
+      "args": [
+        "-sd,;"
+      ],
+      "stdin": "a\nb\nc\nd\n",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty_delim",
+      "args": [
+        "-sd",
+        ""
+      ],
+      "stdin": "a\nb\n",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "nul_delim",
+      "args": [
+        "-sd",
+        "\\0"
+      ],
+      "stdin": "a\nb\n",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "newline_delim",
+      "args": [
+        "-sd",
+        "\\n"
+      ],
+      "stdin": "a\nb\n",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "slash_delim",
+      "args": [
+        "-sd",
+        "\\\\"
+      ],
+      "stdin": "a\nb\n",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "zero",
+      "args": [
+        "--zero-terminated",
+        "-s"
+      ],
+      "stdin": "a\u0000b\u0000",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "repeated_stdin",
+      "args": [
+        "-",
+        "-"
+      ],
+      "stdin": "a\nb\nc\nd\ne\n",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "serial_empty",
+      "args": [
+        "-s"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bad_option",
+      "args": [
+        "--oops"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "partial",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a",
+        "b": "b"
+      },
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "three_stdin",
+      "args": [
+        "-d,;",
+        "-",
+        "-",
+        "-"
+      ],
+      "stdin": "1\n2\n3\n4\n",
+      "files": {},
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "gnu": [
+        "paste"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "help_as_delimiter_value",
+      "args": [
+        "-d",
+        "--help",
+        "-s"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "help_before_bad",
+      "args": [
+        "--help",
+        "--unknown"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "bad_before_help",
+      "args": [
+        "--unknown",
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

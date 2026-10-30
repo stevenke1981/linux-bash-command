@@ -1,0 +1,222 @@
+{
+  "command": "seq",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "one",
+      "args": [
+        "3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "two",
+      "args": [
+        "2",
+        "4"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "three",
+      "args": [
+        "1",
+        "2",
+        "6"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "descending",
+      "args": [
+        "3",
+        "-1",
+        "1"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "negative",
+      "args": [
+        "-3",
+        "-1"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "terminator",
+      "args": [
+        "--",
+        "-3",
+        "-1"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "fraction",
+      "args": [
+        "0.1",
+        "0.1",
+        "0.3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "precision",
+      "args": [
+        "1.00",
+        "0.50",
+        "2.00"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "separator",
+      "args": [
+        "--separator=,",
+        "3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "width",
+      "args": [
+        "--equal-width",
+        "-2",
+        "1",
+        "12"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "format",
+      "args": [
+        "--format=%04.1f",
+        "1",
+        "0.5",
+        "2"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "scientific",
+      "args": [
+        "1e0",
+        "1e0",
+        "3e0"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "empty",
+      "args": [
+        "3",
+        "1"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "zero_step",
+      "args": [
+        "1",
+        "0",
+        "3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "bad",
+      "args": [
+        "bad"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "too_many",
+      "args": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "short_flags",
+      "args": [
+        "-w",
+        "-s,",
+        "2",
+        "4"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "format_error",
+      "args": [
+        "-f",
+        "%d",
+        "3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "width_format",
+      "args": [
+        "-w",
+        "-f",
+        "%f",
+        "3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "infinite",
+      "args": [
+        "1",
+        "inf"
+      ],
+      "stdin": "",
+      "stdout_prefix_len": 32,
+      "compare": [
+        "stdout"
+      ]
+    },
+    {
+      "name": "last_precision_spec",
+      "args": [
+        "1",
+        "1",
+        "3.0"
+      ],
+      "stdin": "",
+      "skip_reason": "Spec requires decimal places from all operands including LAST; GNU derives precision from FIRST and INCREMENT. Covered by CLI golden."
+    }
+  ]
+}

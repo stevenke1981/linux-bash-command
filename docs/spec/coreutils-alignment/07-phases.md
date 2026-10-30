@@ -75,7 +75,14 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | sed | pattern 內 backreference 不支援 | `regex` crate 限制 | `sed_backref`（skip） |
 | awk | 不支援 pipe／`system()` | 需 shell | — |
 | diff | 預設 unified → P4 改 normal | 對齊 GNU | — |
-| （Codex 補充） | | | |
+| sort | P1 全部讀入記憶體，`-S`/`-T` 尚不觸發外部合併 | 本階段明確允許延至 P3；保留 ignored 測試 | `sort::tests::external_merge_memory_limit`（ignore） |
+| test / [ | `<`、`>` 字串比較依本規格支援；GNU test 9.4 回傳 2 | 規格優先；CLI golden 驗證 | `test/less`, `test/greater`, `[/less`, `[/greater`（skip） |
+| seq | 小數位數取所有運算元最大值；GNU 不從 LAST 推導精度 | 03 明定規則優先；CLI golden 驗證 | `seq/last_precision_spec`（skip） |
+| printenv | NAME 後的選項仍置換解析；GNU 9.4 遇 NAME 即停止 | 02 預設置換，例外未列 printenv | `printenv/permutation`（skip） |
+| wc | `-m` 計 UTF-8 字元，無效位元組各 1；`-L` 計顯示欄位 | 03 明定規則優先；GNU C locale 的非 ASCII 計數不同 | `wc/utf8_spec`（skip） |
+| printenv | 選項錯誤回傳 1；GNU 9.4 回傳 2 | 02 一般用法錯誤碼優先；CLI 驗證先報錯再處理 help | `printenv/unknown`, `printenv/unknown_before_help`, `printenv/invalid_value_before_help`（skip） |
+| grep / egrep / fgrep | 無效 `-d ACTION` 回傳 2；GNU 9.4 回傳 1 | 02 grep 用法錯誤碼優先；CLI golden 驗證 | `grep/bad_directory`, `egrep/bad_directory`, `fgrep/bad_directory`（skip） |
+| grep / egrep / fgrep | `-L` 依是否列出檔案決定狀態；GNU 依是否有選取行決定 | AGENTS 要求保留非 05 P1 範圍的既有行為；保留既有測試並加 alias golden | 三者的 `long_files_without_match`（skip） |
 
 ## 回報格式（每階段完成時，Codex 輸出）
 
@@ -95,3 +102,7 @@ Phase N 完成報告
 | 版本 | 日期 | 內容 | 影響範圍 |
 |---|---|---|---|
 | v1.0 | 2026-10-30 | 初始建立 | — |
+
+## Phase 1 整合備註
+
+開始時 HEAD 的 Phase 0 僅有部分共用模組與 registry；工作樹補入 P1 必需的 args/error/io/escape/process、GNU 測試器及 CI 設定，並繼續調整既有指令的狀態碼、訊息與部分參數解析。Phase 0 仍有未完成的對齊項目；Linux GNU 差分與覆蓋率尚待驗證，Phase 0 和 Phase 1 均不可視為已驗收。

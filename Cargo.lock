@@ -9,6 +9,7 @@ dependencies = [
  "crossterm",
  "grep-cli",
  "ignore",
+ "libc",
  "regex",
  "reqwest",
  "serde_json",

@@ -6,8 +6,9 @@ use std::io::{self, Read, Write};
 use std::ops::Range;
 use std::path::{Path, PathBuf};
 
+use crate::common::error::io_text;
 use crate::display_path;
-use crate::fs_commands::{io_text, is_color_option};
+use crate::fs_commands::is_color_option;
 
 const DEFAULT_CONTEXT: usize = 3;
 

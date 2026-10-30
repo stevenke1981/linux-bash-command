@@ -1,0 +1,144 @@
+{
+  "command": "unexpand",
+  "cases": [
+    {
+      "name": "empty",
+      "args": [],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "        x        y\n",
+      "files": {}
+    },
+    {
+      "name": "all",
+      "args": [
+        "--all"
+      ],
+      "stdin": "a       b\n",
+      "files": {}
+    },
+    {
+      "name": "first",
+      "args": [
+        "-a",
+        "--first-only"
+      ],
+      "stdin": "        x       y\n",
+      "files": {}
+    },
+    {
+      "name": "size",
+      "args": [
+        "--tabs=4"
+      ],
+      "stdin": "a   b\n",
+      "files": {}
+    },
+    {
+      "name": "list",
+      "args": [
+        "-t2,5"
+      ],
+      "stdin": "     x\n",
+      "files": {}
+    },
+    {
+      "name": "absolute",
+      "args": [
+        "-t3,/4"
+      ],
+      "stdin": "            x\n",
+      "files": {}
+    },
+    {
+      "name": "relative",
+      "args": [
+        "-t3,+4"
+      ],
+      "stdin": "           x\n",
+      "files": {}
+    },
+    {
+      "name": "mixed",
+      "args": [],
+      "stdin": " \t  x\n",
+      "files": {}
+    },
+    {
+      "name": "partial",
+      "args": [],
+      "stdin": "        ",
+      "files": {}
+    },
+    {
+      "name": "files",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "        x\n",
+        "b": "        y\n"
+      }
+    },
+    {
+      "name": "stdin_dash",
+      "args": [
+        "-"
+      ],
+      "stdin": "        x\n",
+      "files": {}
+    },
+    {
+      "name": "missing",
+      "args": [
+        "absent"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "invalid",
+      "args": [
+        "-t0"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

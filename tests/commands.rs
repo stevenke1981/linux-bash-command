@@ -147,7 +147,7 @@ fn filesystem_tools_list_find_and_resolve_directories() {
     assert!(String::from_utf8(found.stdout)
         .unwrap()
         .contains("nested.rs"));
-    assert_eq!(f.run("find", &["missing"], b"").status.code(), Some(2));
+    assert_eq!(f.run("find", &["missing"], b"").status.code(), Some(1));
     let out = f.run("pwd", &[], b"");
     assert_eq!(out.status.code(), Some(0));
     assert_eq!(
@@ -175,7 +175,7 @@ fn process_and_disk_commands_return_structured_information() {
     let records: serde_json::Value = serde_json::from_slice(&processes.stdout).unwrap();
     assert!(!records.as_array().unwrap().is_empty());
     assert!(records[0]["pid"].is_number());
-    assert_eq!(f.run("ps", &["-p", "bad"], b"").status.code(), Some(2));
+    assert_eq!(f.run("ps", &["-p", "bad"], b"").status.code(), Some(1));
     let disk = f.run("df", &["-h", "."], b"");
     assert_eq!(
         disk.status.code(),

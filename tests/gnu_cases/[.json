@@ -1,0 +1,736 @@
+{
+  "command": "[",
+  "cases": [
+    {
+      "name": "empty",
+      "args": [
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "nonempty",
+      "args": [
+        "x",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "empty_string",
+      "args": [
+        "",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "negation",
+      "args": [
+        "!",
+        "x",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "unary_n",
+      "args": [
+        "-n",
+        "x",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "unary_z",
+      "args": [
+        "-z",
+        "",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "equal",
+      "args": [
+        "a",
+        "=",
+        "a",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "equal_alias",
+      "args": [
+        "a",
+        "==",
+        "a",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "unequal",
+      "args": [
+        "a",
+        "!=",
+        "b",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "less",
+      "args": [
+        "a",
+        "<",
+        "b",
+        "]"
+      ],
+      "stdin": "",
+      "skip_reason": "Specification explicitly requires string < and >; GNU test does not implement these binary operators. Covered by CLI golden tests."
+    },
+    {
+      "name": "greater",
+      "args": [
+        "b",
+        ">",
+        "a",
+        "]"
+      ],
+      "stdin": "",
+      "skip_reason": "Specification explicitly requires string < and >; GNU test does not implement these binary operators. Covered by CLI golden tests."
+    },
+    {
+      "name": "numeric_eq",
+      "args": [
+        " +2 ",
+        "-eq",
+        "02",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "numeric_ne",
+      "args": [
+        "1",
+        "-ne",
+        "2",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "numeric_lt",
+      "args": [
+        "1",
+        "-lt",
+        "2",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "numeric_le",
+      "args": [
+        "2",
+        "-le",
+        "2",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "numeric_gt",
+      "args": [
+        "2",
+        "-gt",
+        "1",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "numeric_ge",
+      "args": [
+        "2",
+        "-ge",
+        "2",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "invalid_integer",
+      "args": [
+        "x",
+        "-eq",
+        "1",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "and",
+      "args": [
+        "x",
+        "-a",
+        "y",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "or",
+      "args": [
+        "",
+        "-o",
+        "x",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "parens",
+      "args": [
+        "!",
+        "(",
+        "",
+        "-o",
+        "",
+        ")",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "precedence",
+      "args": [
+        "",
+        "-a",
+        "a",
+        "-o",
+        "b",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "special_three",
+      "args": [
+        "!",
+        "=",
+        "!",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "missing_argument",
+      "args": [
+        "-n",
+        "x",
+        "y",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "file_e",
+      "args": [
+        "-e",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_f",
+      "args": [
+        "-f",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_d",
+      "args": [
+        "-d",
+        "directory",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_s",
+      "args": [
+        "-s",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_r",
+      "args": [
+        "-r",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_w",
+      "args": [
+        "-w",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_x",
+      "args": [
+        "-x",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_O",
+      "args": [
+        "-O",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_G",
+      "args": [
+        "-G",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_g",
+      "args": [
+        "-g",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_u",
+      "args": [
+        "-u",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_k",
+      "args": [
+        "-k",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_h",
+      "args": [
+        "-h",
+        "link",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_L",
+      "args": [
+        "-L",
+        "link",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_b",
+      "args": [
+        "-b",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_c",
+      "args": [
+        "-c",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_p",
+      "args": [
+        "-p",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_S",
+      "args": [
+        "-S",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "file_N",
+      "args": [
+        "-N",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "directory": {
+          "dir": true
+        },
+        "link": {
+          "symlink": "data"
+        }
+      }
+    },
+    {
+      "name": "files_nt",
+      "args": [
+        "data",
+        "-nt",
+        "other",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": {
+          "text": "a",
+          "mtime": 1700000001
+        },
+        "other": {
+          "text": "a",
+          "mtime": 1700000000
+        }
+      }
+    },
+    {
+      "name": "files_ot",
+      "args": [
+        "data",
+        "-ot",
+        "other",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": {
+          "text": "a",
+          "mtime": 1700000001
+        },
+        "other": {
+          "text": "a",
+          "mtime": 1700000000
+        }
+      }
+    },
+    {
+      "name": "files_ef",
+      "args": [
+        "data",
+        "-ef",
+        "other",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": {
+          "text": "a",
+          "mtime": 1700000001
+        },
+        "other": {
+          "text": "a",
+          "mtime": 1700000000
+        }
+      }
+    },
+    {
+      "name": "terminal_fd",
+      "args": [
+        "-t",
+        "1",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "-e",
+        "missing",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_bracket",
+      "args": [
+        "x"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "big_integer",
+      "args": [
+        "10000000000000000000000000000000000000000000000",
+        "-gt",
+        "9999999999999999999999999999999999999999999999",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "character_device",
+      "args": [
+        "-c",
+        "/dev/null",
+        "]"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "same_file",
+      "args": [
+        "data",
+        "-ef",
+        "data",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "a"
+      }
+    },
+    {
+      "name": "same_directory",
+      "args": [
+        "directory",
+        "-ef",
+        "directory",
+        "]"
+      ],
+      "stdin": "",
+      "files": {
+        "directory": {
+          "dir": true
+        }
+      }
+    }
+  ]
+}

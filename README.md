@@ -56,7 +56,28 @@ env read --start 20 --limit 30 src/main.rs
 diff --context 3 old.txt new.txt
 ```
 
-Use `--` before positional arguments that begin with a dash. Arguments must be valid UTF-8. Commands write result data to standard output and errors to standard error. Search returns **0** for matches, **1** for none and **2** for errors; diff returns **0** for equal files, **1** for differences and **2** for errors. `cat`, `cd`, `head`, and `tail` return **1** for errors; most other commands currently return **0** for success and **2** for errors; `curl -f` returns **22** for HTTP error responses. Search can emit partial results before reporting an error, so always check the exit status.
+Use `--` before positional arguments that begin with a dash. Arguments must be valid UTF-8. Commands write result data to standard output and errors to standard error. Search returns **0** for matches, **1** for none and **2** for errors; diff returns **0** for equal files, **1** for differences and **2** for errors. `cat`, `cd`, `df`, `find`, `head`, `less`, `ps`, `pwd`, and `tail` return **1** for errors; `ls` returns **1** for minor errors and **2** for serious errors; the new Phase 1 utilities normally return **1** for errors (`sort`, `test`, `[` and grep use **2** for usage errors); `list` and `read` return **2** for errors; `curl -f` returns **22** for HTTP error responses. Search can emit partial results before reporting an error, so always check the exit status.
+
+### Phase 1 text pipelines
+
+The multi-call registry includes 46 names: the original 17 and these 29 Phase 1 names:
+
+`wc sort uniq cut tr tee echo printf true false test [ seq tac nl paste comm fold expand unexpand yes basename dirname xargs env printenv sleep egrep fgrep`.
+
+Each has a standalone executable, except `[`, which is a copy or symlink of `test` in packages. `egrep` and `fgrep` select extended and fixed-string grep. `head -z` and `tail -z` process NUL-delimited records; `cat -u` is accepted. Grep additionally supports NUL records and filenames, byte offsets, initial tabs, stdin labels, exclude files, and directory/device actions. Use each command's `--help` for the supported options.
+
+Examples:
+
+```sh
+agentcmd seq 1 5
+agentcmd cut -d, -f2 data.csv
+agentcmd sort -t, -k2,2n data.csv
+agentcmd env -i PATH=/usr/bin:/bin printenv PATH
+```
+
+Phase 1 data processing uses byte order and ASCII classes in the C locale. `wc -m` explicitly counts UTF-8 characters, including one character per invalid byte. `seq` uses exact decimal steps unless scientific notation or a custom format requires floating point. `printf`, `seq`, and `sort -g` use `f64`. `sort` currently sorts in memory; external merge is scheduled for Phase 3. Broken output pipes exit silently with status 0. The full specification and documented exceptions are in [coreutils alignment](docs/spec/coreutils-alignment/README.md) and its [known differences](docs/spec/coreutils-alignment/07-phases.md).
+
+On Windows, `echo`, `tee`, `sort`, and `sleep` can conflict with PowerShell commands, while `expand` and `sort` also conflict with System32 executables. Use `agentcmd <name>` or an explicit executable path to select this implementation.
 
 ### Search
 

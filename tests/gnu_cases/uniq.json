@@ -1,0 +1,223 @@
+{
+  "command": "uniq",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "basic",
+      "args": [],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "count",
+      "args": [
+        "--count"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "repeated",
+      "args": [
+        "--repeated"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "all_short",
+      "args": [
+        "-D"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "all",
+      "args": [
+        "--all-repeated"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "all_none",
+      "args": [
+        "--all-repeated=none"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "all_prepend",
+      "args": [
+        "--all-repeated=prepend"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "all_separate",
+      "args": [
+        "--all-repeated=separate"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "unique",
+      "args": [
+        "--unique"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "ignore",
+      "args": [
+        "--ignore-case"
+      ],
+      "stdin": "a\nA\nb\n"
+    },
+    {
+      "name": "fields",
+      "args": [
+        "--skip-fields=1"
+      ],
+      "stdin": "a x\nb x\nc y\n"
+    },
+    {
+      "name": "chars",
+      "args": [
+        "--skip-chars=1"
+      ],
+      "stdin": "ax\nbx\ncy\n"
+    },
+    {
+      "name": "width",
+      "args": [
+        "--check-chars=1"
+      ],
+      "stdin": "ax\nay\nbz\n"
+    },
+    {
+      "name": "legacy_fields",
+      "args": [
+        "-1"
+      ],
+      "stdin": "a x\nb x\n"
+    },
+    {
+      "name": "legacy_chars",
+      "args": [
+        "+1"
+      ],
+      "stdin": "ax\nbx\n"
+    },
+    {
+      "name": "nul",
+      "args": [
+        "--zero-terminated"
+      ],
+      "stdin": "a\u0000a\u0000b\u0000"
+    },
+    {
+      "name": "group",
+      "args": [
+        "--group"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "group_prepend",
+      "args": [
+        "--group=prepend"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "group_append",
+      "args": [
+        "--group=append"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "group_both",
+      "args": [
+        "--group=both"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "short_flags",
+      "args": [
+        "-cif1",
+        "-s1",
+        "-w2"
+      ],
+      "stdin": "x Ab\ny ab\n"
+    },
+    {
+      "name": "conflict",
+      "args": [
+        "-Dc"
+      ],
+      "stdin": "a\na\nb\nc\nc\n"
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "partial",
+      "args": [],
+      "stdin": "a\na"
+    },
+    {
+      "name": "files",
+      "args": [
+        "input",
+        "output"
+      ],
+      "stdin": "",
+      "files": {
+        "input": "a\na\nb\nc\nc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "missing"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "too_many",
+      "args": [
+        "a",
+        "b",
+        "c"
+      ],
+      "stdin": ""
+    }
+  ]
+}

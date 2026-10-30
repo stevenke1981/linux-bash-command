@@ -1,0 +1,163 @@
+{
+  "command": "fold",
+  "cases": [
+    {
+      "name": "empty",
+      "args": [],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "hard",
+      "args": [
+        "-w3"
+      ],
+      "stdin": "abcdefg\n",
+      "files": {}
+    },
+    {
+      "name": "spaces",
+      "args": [
+        "--spaces",
+        "--width=5"
+      ],
+      "stdin": "aa bb cc dd\n",
+      "files": {}
+    },
+    {
+      "name": "bytes",
+      "args": [
+        "--bytes",
+        "-w2"
+      ],
+      "stdin": "a\tb\n",
+      "files": {}
+    },
+    {
+      "name": "tab",
+      "args": [
+        "-w8"
+      ],
+      "stdin": "a\tb\n",
+      "files": {}
+    },
+    {
+      "name": "backspace",
+      "args": [
+        "-w3"
+      ],
+      "stdin": "abc\bd\n",
+      "files": {}
+    },
+    {
+      "name": "carriage",
+      "args": [
+        "-w3"
+      ],
+      "stdin": "ab\rabcde\n",
+      "files": {}
+    },
+    {
+      "name": "old",
+      "args": [
+        "-4"
+      ],
+      "stdin": "abcdef\n",
+      "files": {}
+    },
+    {
+      "name": "partial",
+      "args": [
+        "-w2"
+      ],
+      "stdin": "abc",
+      "files": {}
+    },
+    {
+      "name": "raw",
+      "args": [
+        "-w1"
+      ],
+      "stdin": "\u77c7\n",
+      "files": {}
+    },
+    {
+      "name": "files",
+      "args": [
+        "-w2",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc\n",
+        "b": "def\n"
+      }
+    },
+    {
+      "name": "stdin_dash",
+      "args": [
+        "-w2",
+        "-"
+      ],
+      "stdin": "abc\n",
+      "files": {}
+    },
+    {
+      "name": "missing",
+      "args": [
+        "absent"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "invalid",
+      "args": [
+        "-w0"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "dash_filename",
+      "args": [
+        "--",
+        "-4"
+      ],
+      "files": {
+        "-4": "abcd\n"
+      }
+    }
+  ]
+}

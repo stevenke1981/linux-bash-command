@@ -1,0 +1,58 @@
+{
+  "command": "ls",
+  "cases": [
+    {
+      "name": "empty",
+      "args": [
+        "-1",
+        "dir"
+      ],
+      "files": {
+        "dir": {
+          "dir": true
+        }
+      }
+    },
+    {
+      "name": "sorted",
+      "args": [
+        "-1",
+        "dir"
+      ],
+      "files": {
+        "dir/b": "b",
+        "dir/a": "a"
+      }
+    },
+    {
+      "name": "hidden",
+      "args": [
+        "-1",
+        "-a",
+        "dir"
+      ],
+      "files": {
+        "dir/.hidden": "h",
+        "dir/a": "a"
+      }
+    },
+    {
+      "name": "directory_operand",
+      "args": [
+        "-d",
+        "dir"
+      ],
+      "files": {
+        "dir": {
+          "dir": true
+        }
+      }
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ]
+    }
+  ]
+}

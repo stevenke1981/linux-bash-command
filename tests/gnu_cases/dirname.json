@@ -1,0 +1,214 @@
+{
+  "command": "dirname",
+  "cases": [
+    {
+      "name": "dirname_00",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_01",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_02",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_03",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_04",
+      "args": [
+        "a/b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_05",
+      "args": [
+        "/"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_06",
+      "args": [
+        "///"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_07",
+      "args": [
+        ""
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_08",
+      "args": [
+        "a/b///"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_09",
+      "args": [
+        "leaf"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_10",
+      "args": [
+        "a/b/c"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_11",
+      "args": [
+        "a",
+        "b/c"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_12",
+      "args": [
+        "--zero",
+        "a/b",
+        "c/d"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_13",
+      "args": [
+        "/a"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirname_14",
+      "args": [
+        "a//b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "dirname",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

@@ -1,0 +1,584 @@
+{
+  "command": "grep",
+  "cases": [
+    {
+      "name": "zero",
+      "args": [
+        "-z",
+        "a"
+      ],
+      "stdin": "a\u0000b\u0000",
+      "files": {}
+    },
+    {
+      "name": "zero_long",
+      "args": [
+        "--null-data",
+        "a"
+      ],
+      "stdin": "a\nb\u0000c\u0000",
+      "files": {}
+    },
+    {
+      "name": "null_name",
+      "args": [
+        "--null",
+        "-H",
+        "a",
+        "one"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "a\n"
+      }
+    },
+    {
+      "name": "offset",
+      "args": [
+        "--byte-offset",
+        "a"
+      ],
+      "stdin": "b\na\naaa\n",
+      "files": {}
+    },
+    {
+      "name": "offset_only",
+      "args": [
+        "-bo",
+        "a"
+      ],
+      "stdin": "xxaaa\n",
+      "files": {}
+    },
+    {
+      "name": "tab",
+      "args": [
+        "--initial-tab",
+        "-n",
+        "a",
+        "one"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "b\na\n"
+      }
+    },
+    {
+      "name": "stdin_tab",
+      "args": [
+        "-nT",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "label",
+      "args": [
+        "--label=label",
+        "-H",
+        "a"
+      ],
+      "stdin": "a\n",
+      "files": {}
+    },
+    {
+      "name": "buffered",
+      "args": [
+        "--line-buffered",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "binary",
+      "args": [
+        "--binary",
+        "a"
+      ],
+      "stdin": "a\n",
+      "files": {}
+    },
+    {
+      "name": "case",
+      "args": [
+        "-i",
+        "--no-ignore-case",
+        "A"
+      ],
+      "stdin": "a\nA\n",
+      "files": {}
+    },
+    {
+      "name": "y",
+      "args": [
+        "-y",
+        "A"
+      ],
+      "stdin": "a\nA\n",
+      "files": {}
+    },
+    {
+      "name": "exclude_file",
+      "args": [
+        "-r",
+        "--exclude-from=exclude",
+        "a",
+        "dir"
+      ],
+      "stdin": "",
+      "files": {
+        "exclude": "skip*\n",
+        "dir/keep": "a\n",
+        "dir/skipme": "a\n"
+      }
+    },
+    {
+      "name": "directories_skip",
+      "args": [
+        "--directories=skip",
+        "a",
+        "dir"
+      ],
+      "stdin": "",
+      "files": {
+        "dir": {
+          "dir": true
+        }
+      }
+    },
+    {
+      "name": "directories_recurse",
+      "args": [
+        "-drecurse",
+        "a",
+        "dir"
+      ],
+      "stdin": "",
+      "files": {
+        "dir/file": "a\n"
+      }
+    },
+    {
+      "name": "devices",
+      "args": [
+        "--devices=skip",
+        "a",
+        "one"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "a\n"
+      }
+    },
+    {
+      "name": "devices_short",
+      "args": [
+        "-Dread",
+        "a"
+      ],
+      "stdin": "a\n",
+      "files": {}
+    },
+    {
+      "name": "null_short",
+      "args": [
+        "-ZHn",
+        "a",
+        "one"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "a\n"
+      }
+    },
+    {
+      "name": "zero_short",
+      "args": [
+        "-z",
+        "a"
+      ],
+      "stdin": "a\u0000b\u0000",
+      "files": {}
+    },
+    {
+      "name": "tab_offset",
+      "args": [
+        "-bT",
+        "a",
+        "one"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "a\nb\n"
+      }
+    },
+    {
+      "name": "offset_context",
+      "args": [
+        "-nb",
+        "-A1",
+        "a"
+      ],
+      "stdin": "b\na\nc\n",
+      "files": {}
+    },
+    {
+      "name": "bad_directory",
+      "args": [
+        "-dbad",
+        "a"
+      ],
+      "stdin": "",
+      "files": {},
+      "skip_reason": "02-conventions requires grep usage status 2; GNU returns 1 for invalid --directories"
+    },
+    {
+      "name": "bad_device",
+      "args": [
+        "-Dbad",
+        "a"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "long_basic-regexp",
+      "args": [
+        "--basic-regexp",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_extended-regexp",
+      "args": [
+        "--extended-regexp",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_fixed-strings",
+      "args": [
+        "--fixed-strings",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_perl-regexp",
+      "args": [
+        "--perl-regexp",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_ignore-case",
+      "args": [
+        "--ignore-case",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_word-regexp",
+      "args": [
+        "--word-regexp",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_line-regexp",
+      "args": [
+        "--line-regexp",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_invert-match",
+      "args": [
+        "--invert-match",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_count",
+      "args": [
+        "--count",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_only-matching",
+      "args": [
+        "--only-matching",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_quiet",
+      "args": [
+        "--quiet",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_silent",
+      "args": [
+        "--silent",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_no-messages",
+      "args": [
+        "--no-messages",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_line-number",
+      "args": [
+        "--line-number",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_with-filename",
+      "args": [
+        "--with-filename",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_no-filename",
+      "args": [
+        "--no-filename",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_text",
+      "args": [
+        "--text",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_binary",
+      "args": [
+        "--binary",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_line-buffered",
+      "args": [
+        "--line-buffered",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_regexp",
+      "args": [
+        "--regexp=a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_max-count",
+      "args": [
+        "--max-count=1",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_after-context",
+      "args": [
+        "--after-context=1",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_before-context",
+      "args": [
+        "--before-context=1",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_context",
+      "args": [
+        "--context=1",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_color",
+      "args": [
+        "--color=never",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_binary-files",
+      "args": [
+        "--binary-files=text",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "long_file",
+      "args": [
+        "--file=patterns"
+      ],
+      "stdin": "a\nb\n",
+      "files": {
+        "patterns": "a\n"
+      }
+    },
+    {
+      "name": "long_include",
+      "args": [
+        "--recursive",
+        "--include=one",
+        "a",
+        "dir"
+      ],
+      "stdin": "a\nb\n",
+      "files": {
+        "dir/one": "a\n",
+        "dir/two": "a\n"
+      }
+    },
+    {
+      "name": "long_exclude",
+      "args": [
+        "--dereference-recursive",
+        "--exclude=two",
+        "a",
+        "dir"
+      ],
+      "stdin": "a\nb\n",
+      "files": {
+        "dir/one": "a\n",
+        "dir/two": "a\n"
+      }
+    },
+    {
+      "name": "long_exclude_dir",
+      "args": [
+        "--recursive",
+        "--exclude-dir=skip",
+        "a",
+        "dir"
+      ],
+      "stdin": "a\nb\n",
+      "files": {
+        "dir/keep/one": "a\n",
+        "dir/skip/two": "a\n"
+      }
+    },
+    {
+      "name": "long_files_with_matches",
+      "args": [
+        "--files-with-matches",
+        "a",
+        "one"
+      ],
+      "stdin": "a\nb\n",
+      "files": {
+        "one": "a\n"
+      }
+    },
+    {
+      "name": "long_files_without_match",
+      "args": [
+        "--files-without-match",
+        "a",
+        "one"
+      ],
+      "stdin": "a\nb\n",
+      "files": {
+        "one": "b\n"
+      },
+      "skip_reason": "AGENTS preserves existing grep -L status based on listed files; GNU status follows selected lines"
+    },
+    {
+      "name": "abbreviation",
+      "args": [
+        "--byte-off",
+        "a"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

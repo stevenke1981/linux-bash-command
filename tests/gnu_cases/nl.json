@@ -1,0 +1,169 @@
+{
+  "command": "nl",
+  "cases": [
+    {
+      "name": "empty",
+      "args": [],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "a\n\nb\n",
+      "files": {}
+    },
+    {
+      "name": "all",
+      "args": [
+        "--body-numbering=a"
+      ],
+      "stdin": "a\n\nb\n",
+      "files": {}
+    },
+    {
+      "name": "none",
+      "args": [
+        "-bn"
+      ],
+      "stdin": "abc\n",
+      "files": {}
+    },
+    {
+      "name": "pattern",
+      "args": [
+        "-bp^a"
+      ],
+      "stdin": "abc\nb\n",
+      "files": {}
+    },
+    {
+      "name": "sections",
+      "args": [
+        "--header-numbering=a",
+        "--footer-numbering=a"
+      ],
+      "stdin": "\\:\\:\\:\nh\n\\:\\:\nb\n\\:\nf\n",
+      "files": {}
+    },
+    {
+      "name": "delimiter",
+      "args": [
+        "--section-delimiter=XY",
+        "-ha"
+      ],
+      "stdin": "XYXYXY\nh\nXYXY\nb\n",
+      "files": {}
+    },
+    {
+      "name": "increment",
+      "args": [
+        "--line-increment=2",
+        "--starting-line-number=-2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "files": {}
+    },
+    {
+      "name": "blanks",
+      "args": [
+        "-ba",
+        "--join-blank-lines=2"
+      ],
+      "stdin": "\n\n\n\n",
+      "files": {}
+    },
+    {
+      "name": "left",
+      "args": [
+        "--number-format=ln",
+        "--number-width=3",
+        "--number-separator=:"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "zero",
+      "args": [
+        "-nrz",
+        "-w3"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "no_reset",
+      "args": [
+        "--no-renumber"
+      ],
+      "stdin": "a\n\\:\\:\nb\n",
+      "files": {}
+    },
+    {
+      "name": "files",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\n",
+        "b": "b\n"
+      }
+    },
+    {
+      "name": "missing",
+      "args": [
+        "absent"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "invalid",
+      "args": [
+        "-w0"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "pattern_invalid_byte",
+      "args": [
+        "-bp."
+      ],
+      "stdin_hex": "ff0a"
+    }
+  ]
+}

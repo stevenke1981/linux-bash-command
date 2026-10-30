@@ -29,7 +29,7 @@ Not supported: -i (inode usage), because the OS interface does not report inode 
 Available space and percentages can differ from GNU df because each OS reports
 capacity differently. The Filesystem column shows the device name on Unix and the
 drive letter on Windows.
-Exit status: 0 on success, 2 on invalid arguments or unavailable paths.
+Exit status: 0 on success, 1 on invalid arguments or unavailable paths.
 ";
 
 /// File system types treated as remote by `-l`.
@@ -81,8 +81,8 @@ pub fn run(args: &[String]) -> i32 {
             return 0;
         }
         Err(error) => {
-            eprintln!("df: {error}\nTry 'df --help' for usage.");
-            return 2;
+            eprintln!("df: {error}\nTry 'df --help' for more information.");
+            return 1;
         }
     };
 
@@ -90,7 +90,7 @@ pub fn run(args: &[String]) -> i32 {
     let mounted = disks.list();
     if mounted.is_empty() {
         eprintln!("df: the operating system reported no mounted filesystems");
-        return 2;
+        return 1;
     }
 
     let (selected, had_error) = select(mounted, &options.paths);
@@ -101,9 +101,9 @@ pub fn run(args: &[String]) -> i32 {
     selected.sort_by(|left, right| left.mount_point().cmp(right.mount_point()));
 
     let rows: Vec<Vec<String>> = selected.iter().map(|disk| row(disk, &options)).collect();
-    print_table(&headers(&options), &rows, &options);
-    if had_error {
-        2
+    let output_status = print_table(&headers(&options), &rows, &options);
+    if had_error || output_status != 0 {
+        1
     } else {
         0
     }
@@ -449,7 +449,7 @@ fn print_table(headers: &[String], rows: &[Vec<String>], options: &Options) -> i
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
             eprintln!("df: cannot write output: {error}");
-            2
+            1
         }
     }
 }

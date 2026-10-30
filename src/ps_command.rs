@@ -35,7 +35,7 @@ Output:
 Notes: TIME and TTY are shown as '?' because the OS statistics are not available here.
 START and STIME are shown in UTC. %CPU is measured over about 200 ms when requested.
 The process name and command come from the operating system.
-Exit status: 0 on success, 1 when a filter selected no processes, 2 on invalid options.
+Exit status: 0 on success; 1 when no processes match or on invalid options.
 ";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -323,8 +323,8 @@ pub fn run(args: &[String]) -> i32 {
             return 0;
         }
         Err(error) => {
-            eprintln!("ps: {error}\nTry 'ps --help' for usage.");
-            return 2;
+            eprintln!("ps: {error}\nTry 'ps --help' for more information.");
+            return 1;
         }
     };
     let mut rows = collect_rows(&options);
@@ -671,7 +671,7 @@ fn print_json(rows: &[Row]) -> i32 {
         Ok(text) => text,
         Err(error) => {
             eprintln!("ps: cannot write JSON output: {error}");
-            return 2;
+            return 1;
         }
     };
     text.push('\n');
@@ -689,7 +689,7 @@ fn write_stdout(text: &str) -> i32 {
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
             eprintln!("ps: cannot write output: {error}");
-            2
+            1
         }
     }
 }

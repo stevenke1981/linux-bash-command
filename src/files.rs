@@ -36,12 +36,12 @@ pub fn list(args: &[String]) -> i32 {
             };
             max_depth = value;
         } else if !positional_only && arg.starts_with('-') {
-            eprintln!("list: unknown option: {arg}\nTry 'list --help' for usage.");
+            eprintln!("list: unknown option: {arg}\nTry 'list --help' for more information.");
             return 2;
         } else if root.is_none() {
             root = Some(PathBuf::from(arg));
         } else {
-            eprintln!("list: expected at most one path\nTry 'list --help' for usage.");
+            eprintln!("list: expected at most one path\nTry 'list --help' for more information.");
             return 2;
         }
         index += 1;
@@ -224,19 +224,21 @@ pub fn read(args: &[String]) -> i32 {
                 _ => unreachable!(),
             }
         } else if !positional_only && arg.starts_with('-') {
-            eprintln!("read: unknown option: {arg}\nTry 'read --help' for usage.");
+            eprintln!("read: unknown option: {arg}\nTry 'read --help' for more information.");
             return 2;
         } else if path.is_none() {
             path = Some(PathBuf::from(arg));
         } else {
-            eprintln!("read: expected exactly one file path\nTry 'read --help' for usage.");
+            eprintln!(
+                "read: expected exactly one file path\nTry 'read --help' for more information."
+            );
             return 2;
         }
         index += 1;
     }
 
     let Some(path) = path else {
-        eprintln!("read: missing file path\nTry 'read --help' for usage.");
+        eprintln!("read: missing file path\nTry 'read --help' for more information.");
         return 2;
     };
     if let Some(end) = end {

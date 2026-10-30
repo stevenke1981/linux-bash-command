@@ -1,0 +1,26 @@
+pub mod echo;
+pub mod pathname;
+pub mod sleep;
+pub mod truefalse;
+pub mod yes;
+
+pub mod comm;
+pub mod cut;
+pub mod egrep;
+pub mod env;
+pub mod expand;
+pub mod fgrep;
+pub mod fold;
+pub mod nl;
+pub mod paste;
+pub mod printenv;
+pub mod printf;
+pub mod seq;
+pub mod sort;
+pub mod tac;
+pub mod tee;
+pub mod test;
+pub mod tr;
+pub mod uniq;
+pub mod wc;
+pub mod xargs;

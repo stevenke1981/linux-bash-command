@@ -186,7 +186,7 @@ fn write_plain(contents: &[u8], numbered: bool) -> i32 {
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
             eprintln!("less: cannot write output: {error}");
-            2
+            1
         }
     }
 }
@@ -210,7 +210,7 @@ fn show_pager(contents: &[u8], options: &LessOptions) -> i32 {
     }
     if let Err(error) = page(&lines, options) {
         eprintln!("less: pager failed: {error}");
-        return 2;
+        return 1;
     }
     0
 }
@@ -291,8 +291,8 @@ pub fn run(args: &[String]) -> i32 {
         Ok(Some(parsed)) => parsed,
         Ok(None) => return 0,
         Err(error) => {
-            eprintln!("less: {error}\nUse 'less --help' for usage.");
-            return 2;
+            eprintln!("less: {error}\nTry 'less --help' for more information.");
+            return 1;
         }
     };
 
@@ -300,7 +300,7 @@ pub fn run(args: &[String]) -> i32 {
         let mut contents = Vec::new();
         if let Err(error) = io::stdin().read_to_end(&mut contents) {
             eprintln!("less: cannot read standard input: {error}");
-            return 2;
+            return 1;
         }
         contents
     } else {
@@ -308,7 +308,7 @@ pub fn run(args: &[String]) -> i32 {
             Ok(contents) => contents,
             Err(error) => {
                 eprintln!("less: cannot read input: {error}");
-                return 2;
+                return 1;
             }
         }
     };

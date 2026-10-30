@@ -1,5 +1,7 @@
 //! Expression tree for find, plus evaluation of the tests against one entry.
 
+pub use crate::common::meta::{kind_char, permission_bits};
+
 use super::glob::Glob;
 use super::printf::Piece;
 use crate::display_path;
@@ -185,65 +187,6 @@ pub fn test_matches(test: &Test, entry: &Entry) -> bool {
         } => time_ns(entry.meta, *clock).is_some_and(|time| time > *reference_ns),
         Test::Perm(check) => perm_matches(entry.meta, *check),
         Test::Access(access) => access_ok(entry, *access),
-    }
-}
-
-/// The single-letter type used by `-type` and `%y`.
-pub fn kind_char(meta: &Metadata) -> char {
-    let kind = meta.file_type();
-    if kind.is_symlink() {
-        'l'
-    } else if kind.is_dir() {
-        'd'
-    } else if kind.is_file() {
-        'f'
-    } else {
-        other_kind_char(meta)
-    }
-}
-
-#[cfg(unix)]
-fn other_kind_char(meta: &Metadata) -> char {
-    use std::os::unix::fs::FileTypeExt;
-    let kind = meta.file_type();
-    if kind.is_block_device() {
-        'b'
-    } else if kind.is_char_device() {
-        'c'
-    } else if kind.is_fifo() {
-        'p'
-    } else if kind.is_socket() {
-        's'
-    } else {
-        'U'
-    }
-}
-
-#[cfg(not(unix))]
-fn other_kind_char(_meta: &Metadata) -> char {
-    'U'
-}
-
-/// Permission bits. On Unix these are the real mode bits. Windows has no mode bits, so
-/// they are approximated: 0444 for read-only entries, 0755 for directories, else 0644.
-pub fn permission_bits(meta: &Metadata) -> u32 {
-    permission_bits_impl(meta)
-}
-
-#[cfg(unix)]
-fn permission_bits_impl(meta: &Metadata) -> u32 {
-    use std::os::unix::fs::PermissionsExt;
-    meta.permissions().mode() & 0o7777
-}
-
-#[cfg(not(unix))]
-fn permission_bits_impl(meta: &Metadata) -> u32 {
-    if meta.permissions().readonly() {
-        0o444
-    } else if meta.is_dir() {
-        0o755
-    } else {
-        0o644
     }
 }
 

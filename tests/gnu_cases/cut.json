@@ -1,0 +1,467 @@
+{
+  "command": "cut",
+  "cases": [
+    {
+      "name": "bytes",
+      "args": [
+        "-b",
+        "2-4"
+      ],
+      "stdin": "abcdef\n123456\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "characters",
+      "args": [
+        "--characters=2,4"
+      ],
+      "stdin": "abcde\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_bytes",
+      "args": [
+        "--bytes=-2,5-"
+      ],
+      "stdin": "abcdef\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "merge",
+      "args": [
+        "-b",
+        "5-7,1-3,3-6"
+      ],
+      "stdin": "abcdefghi\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "complement",
+      "args": [
+        "-b",
+        "2-3",
+        "--complement"
+      ],
+      "stdin": "abcde\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "byte_output_delimiter",
+      "args": [
+        "-b",
+        "1,3,5",
+        "--output-delimiter=:"
+      ],
+      "stdin": "abcde\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "fields",
+      "args": [
+        "-f2"
+      ],
+      "stdin": "a\tb\tc\nplain\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "custom_fields",
+      "args": [
+        "--fields=1,3",
+        "--delimiter=:"
+      ],
+      "stdin": "a:b:c\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "only_delimited",
+      "args": [
+        "-sf2",
+        "-d:"
+      ],
+      "stdin": "plain\na:b\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_only",
+      "args": [
+        "--only-delimited",
+        "-f1"
+      ],
+      "stdin": "plain\na\tb\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "fields_output_delimiter",
+      "args": [
+        "-f1,3",
+        "-d:",
+        "--output-delimiter=--"
+      ],
+      "stdin": "a:b:c\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty_output_delim",
+      "args": [
+        "-f1,3",
+        "-d:",
+        "--output-delimiter="
+      ],
+      "stdin": "a:b:c\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "zero",
+      "args": [
+        "--zero-terminated",
+        "-b2"
+      ],
+      "stdin": "abc\u0000def\u0000",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "n_ignored",
+      "args": [
+        "-nb1"
+      ],
+      "stdin": "abc\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multiple_files",
+      "args": [
+        "-b1",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc\n",
+        "b": "xyz\n"
+      },
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "-b1",
+        "missing"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bad_option",
+      "args": [
+        "--oops"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bad_range",
+      "args": [
+        "-b3-1"
+      ],
+      "stdin": "abc\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "two_lists",
+      "args": [
+        "-b1",
+        "-c2"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multibyte_delim",
+      "args": [
+        "-f1",
+        "-dxx"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "partial",
+      "args": [
+        "-b2-"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "nul_input_delim",
+      "args": [
+        "-f2",
+        "-d",
+        ""
+      ],
+      "stdin": "a\u0000b\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty_fields",
+      "args": [
+        "-f2-",
+        "-d:"
+      ],
+      "stdin": "a::c:\n",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty",
+      "args": [
+        "-b1"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "gnu": [
+        "cut"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "help_as_delimiter_value",
+      "args": [
+        "-d",
+        "--help",
+        "-f1"
+      ],
+      "stdin": "x\n"
+    },
+    {
+      "name": "help_before_bad",
+      "args": [
+        "--help",
+        "--unknown"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "bad_before_help",
+      "args": [
+        "--unknown",
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

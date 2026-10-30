@@ -1,0 +1,213 @@
+{
+  "command": "sleep",
+  "cases": [
+    {
+      "name": "sleep_00",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_01",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_02",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_03",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_04",
+      "args": [
+        "-1"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_05",
+      "args": [
+        "bad"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_06",
+      "args": [
+        "0"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_07",
+      "args": [
+        "0s"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_08",
+      "args": [
+        "0m"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_09",
+      "args": [
+        "0h"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_10",
+      "args": [
+        "0d"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_11",
+      "args": [
+        "0",
+        "0s"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_12",
+      "args": [
+        "0.0001"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_13",
+      "args": [
+        "1x"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sleep_14",
+      "args": [
+        "--",
+        "0"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "sleep",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

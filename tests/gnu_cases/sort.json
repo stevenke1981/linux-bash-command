@@ -1,0 +1,554 @@
+{
+  "command": "sort",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "basic",
+      "args": [],
+      "stdin": "b\na\nc\na\n"
+    },
+    {
+      "name": "reverse",
+      "args": [
+        "--reverse"
+      ],
+      "stdin": "b\na\nc\na\n"
+    },
+    {
+      "name": "blanks",
+      "args": [
+        "--ignore-leading-blanks"
+      ],
+      "stdin": "  z\na\n b\n"
+    },
+    {
+      "name": "dictionary",
+      "args": [
+        "--dictionary-order"
+      ],
+      "stdin": "a!2\na1\na-0\n"
+    },
+    {
+      "name": "fold",
+      "args": [
+        "--ignore-case"
+      ],
+      "stdin": "b\nA\na\nB\n"
+    },
+    {
+      "name": "numeric",
+      "args": [
+        "--numeric-sort"
+      ],
+      "stdin": "10\n2\n-1\n+5\n0.5\n"
+    },
+    {
+      "name": "general",
+      "args": [
+        "--general-numeric-sort"
+      ],
+      "stdin": "nan\n2e3\n-Inf\ninf\n0.5\n"
+    },
+    {
+      "name": "human",
+      "args": [
+        "--human-numeric-sort"
+      ],
+      "stdin": "1M\n900K\n2\n-1G\n"
+    },
+    {
+      "name": "month",
+      "args": [
+        "--month-sort"
+      ],
+      "stdin": "DEC\njan\nFeb\nunknown\n"
+    },
+    {
+      "name": "nonprinting",
+      "args": [
+        "--ignore-nonprinting"
+      ],
+      "stdin": "a\u0001z\nab\n"
+    },
+    {
+      "name": "version_sort",
+      "args": [
+        "--version-sort"
+      ],
+      "stdin": "a1.tar.gz\na1.1\na2\na10\na1~rc\n"
+    },
+    {
+      "name": "stable",
+      "args": [
+        "--stable",
+        "-k1,1"
+      ],
+      "stdin": "x z\nx a\na b\n"
+    },
+    {
+      "name": "unique",
+      "args": [
+        "--unique",
+        "-k1,1"
+      ],
+      "stdin": "x z\nx a\na b\n"
+    },
+    {
+      "name": "key_separator",
+      "args": [
+        "--field-separator=,",
+        "--key=2,2nr"
+      ],
+      "stdin": "a,2\nb,10\nc,1\n"
+    },
+    {
+      "name": "key_character",
+      "args": [
+        "-k1.2,1.3"
+      ],
+      "stdin": "x20\na10\nb02\n"
+    },
+    {
+      "name": "key_local",
+      "args": [
+        "-r",
+        "-k2,2n"
+      ],
+      "stdin": "a 3\nb 1\nc 2\n"
+    },
+    {
+      "name": "key_multiple",
+      "args": [
+        "-k1,1f",
+        "-k2,2n"
+      ],
+      "stdin": "b 1\na 10\nA 2\n"
+    },
+    {
+      "name": "check",
+      "args": [
+        "--check"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "disorder",
+      "args": [
+        "-c"
+      ],
+      "stdin": "b\na\n"
+    },
+    {
+      "name": "quiet_check",
+      "args": [
+        "-C"
+      ],
+      "stdin": "b\na\n"
+    },
+    {
+      "name": "check_quiet",
+      "args": [
+        "--check=quiet"
+      ],
+      "stdin": "b\na\n"
+    },
+    {
+      "name": "check_silent",
+      "args": [
+        "--check=silent"
+      ],
+      "stdin": "b\na\n"
+    },
+    {
+      "name": "check_diagnose",
+      "args": [
+        "--check=diagnose-first"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "zero",
+      "args": [
+        "--zero-terminated"
+      ],
+      "stdin": "b\u0000a\u0000"
+    },
+    {
+      "name": "buffers",
+      "args": [
+        "--buffer-size=1K",
+        "--temporary-directory=.",
+        "--parallel=2",
+        "--batch-size=2"
+      ],
+      "stdin": "b\na\nc\na\n"
+    },
+    {
+      "name": "sort_word",
+      "args": [
+        "--sort=numeric"
+      ],
+      "stdin": "10\n2\n"
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "invalid_key",
+      "args": [
+        "-k0"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "incompatible",
+      "args": [
+        "-ng"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "raw_short",
+      "args": [
+        "-bdfi",
+        "-r"
+      ],
+      "stdin": "b\na\n"
+    },
+    {
+      "name": "sort_general-numeric",
+      "args": [
+        "--sort=general-numeric"
+      ],
+      "stdin": "b\na\nc\na\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "sort_human-numeric",
+      "args": [
+        "--sort=human-numeric"
+      ],
+      "stdin": "b\na\nc\na\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "sort_month",
+      "args": [
+        "--sort=month"
+      ],
+      "stdin": "b\na\nc\na\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "sort_random",
+      "args": [
+        "--sort=random"
+      ],
+      "stdin": "b\na\nc\na\n",
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "sort_version",
+      "args": [
+        "--sort=version"
+      ],
+      "stdin": "b\na\nc\na\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "random",
+      "args": [
+        "--random-sort",
+        "--random-source=seed"
+      ],
+      "stdin": "b\na\nc\na\n",
+      "files": {
+        "seed": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "short_random",
+      "args": [
+        "-R"
+      ],
+      "stdin": "b\na\nc\na\n",
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "output",
+      "args": [
+        "--output=data",
+        "data"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "b\na\nc\na\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "merge",
+      "args": [
+        "--merge",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nc\n",
+        "b": "b\nd\n"
+      }
+    },
+    {
+      "name": "files0",
+      "args": [
+        "--files0-from=names"
+      ],
+      "stdin": "",
+      "files": {
+        "names": "a\u0000b\u0000",
+        "a": "z\n",
+        "b": "x\n"
+      }
+    },
+    {
+      "name": "files",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "z\n",
+        "b": "x\n"
+      }
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "missing"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "check_bundle_stable",
+      "args": [
+        "-cs"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "files0_empty",
+      "args": [
+        "--files0-from=names"
+      ],
+      "stdin": "",
+      "files": {
+        "names": ""
+      }
+    },
+    {
+      "name": "key_modifier_b",
+      "args": [
+        "-k2b,2"
+      ],
+      "stdin": "a  x\nb   a\n"
+    },
+    {
+      "name": "key_modifier_d",
+      "args": [
+        "-k2d,2"
+      ],
+      "stdin": "a a!2\nb a1\n"
+    },
+    {
+      "name": "key_modifier_f",
+      "args": [
+        "-k2f,2"
+      ],
+      "stdin": "a b\nb A\n"
+    },
+    {
+      "name": "key_modifier_g",
+      "args": [
+        "-k2g,2"
+      ],
+      "stdin": "a 2e2\nb 1e3\n"
+    },
+    {
+      "name": "key_modifier_i",
+      "args": [
+        "-k2i,2"
+      ],
+      "stdin": "a b\nb a\u0001\n"
+    },
+    {
+      "name": "key_modifier_M",
+      "args": [
+        "-k2M,2"
+      ],
+      "stdin": "a DEC\nb JAN\n"
+    },
+    {
+      "name": "key_modifier_h",
+      "args": [
+        "-k2h,2"
+      ],
+      "stdin": "a 1M\nb 100K\n"
+    },
+    {
+      "name": "key_modifier_n",
+      "args": [
+        "-k2n,2"
+      ],
+      "stdin": "a 10\nb 2\n"
+    },
+    {
+      "name": "key_modifier_R",
+      "args": [
+        "-k2R,2"
+      ],
+      "stdin": "a x\nb y\nc x\n",
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "key_modifier_r",
+      "args": [
+        "-k2r,2"
+      ],
+      "stdin": "a a\nb b\n"
+    },
+    {
+      "name": "key_modifier_V",
+      "args": [
+        "-k2V,2"
+      ],
+      "stdin": "a x10\nb x2\n"
+    },
+    {
+      "name": "general_stable_signed_zero",
+      "args": [
+        "-sg"
+      ],
+      "stdin": "0\n-0\n+0\n"
+    },
+    {
+      "name": "general_unique_signed_zero",
+      "args": [
+        "-ug"
+      ],
+      "stdin": "0\n-0\n+0\n"
+    },
+    {
+      "name": "general_nonnumeric_nan_numbers",
+      "args": [
+        "-g"
+      ],
+      "stdin": "nan\nzebra\n1\n"
+    },
+    {
+      "name": "general_stable_categories",
+      "args": [
+        "-sg"
+      ],
+      "stdin": "nan\nzebra\n1\nnan\napple\n+nan\n-inf\n"
+    },
+    {
+      "name": "general_unique_categories",
+      "args": [
+        "-ug"
+      ],
+      "stdin": "zebra\napple\nnan\n+nan\n1\n1.0\n"
+    },
+    {
+      "name": "general_ascii_whitespace_prefix",
+      "args": [
+        "-sg"
+      ],
+      "stdin": "25\n\u000b\t 2.5e1suffix\n1\n"
+    },
+    {
+      "name": "general_reverse_categories",
+      "args": [
+        "-sgr"
+      ],
+      "stdin": "nan\nzebra\n1\n0\n-0\n"
+    },
+    {
+      "name": "files0_empty_ignores_stdin",
+      "args": [
+        "--files0-from=names"
+      ],
+      "stdin": "b\na\n",
+      "files": {
+        "names": ""
+      }
+    },
+    {
+      "name": "general_signed_nan_stable",
+      "args": [
+        "-sg"
+      ],
+      "stdin": "nan\n-nan\n+nan\n"
+    },
+    {
+      "name": "general_signed_nan_unique",
+      "args": [
+        "-ug"
+      ],
+      "stdin": "nan\n-nan\n+nan\n"
+    }
+  ]
+}

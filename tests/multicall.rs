@@ -7,7 +7,7 @@ fn list_dispatch_help_and_errors() {
     let list = Command::new(bin).arg("--list").output().unwrap();
     assert!(list.status.success());
     let names = String::from_utf8(list.stdout).unwrap();
-    assert_eq!(names.lines().count(), 17);
+    assert_eq!(names.lines().count(), agentcmd::registry::UTILITIES.len());
     assert_eq!(
         names.lines().collect::<Vec<_>>(),
         agentcmd::registry::UTILITIES

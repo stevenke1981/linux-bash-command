@@ -76,6 +76,27 @@ fn code(output: &Output) -> Option<i32> {
     output.status.code()
 }
 
+#[test]
+fn ls_supports_long_prefix_and_posix_operand_order() {
+    let fixture = Fixture::new();
+    fixture.write("visible", b"");
+    fixture.write(".hidden", b"");
+    let abbreviated = fixture.run("ls", &["--almost-a"]);
+    let full = fixture.run("ls", &["--almost-all"]);
+    assert_eq!(abbreviated.status.code(), Some(0));
+    assert_eq!(abbreviated.stdout, full.stdout);
+
+    fixture.write("-r", b"");
+    let output = Command::new(env!("CARGO_BIN_EXE_ls"))
+        .current_dir(&fixture.0)
+        .env("POSIXLY_CORRECT", "1")
+        .args(["visible", "-r"])
+        .output()
+        .unwrap();
+    assert_eq!(output.status.code(), Some(0));
+    assert_eq!(text(&output), "-r\nvisible\n");
+}
+
 /// Finds the long-format line whose final field is `name` and returns its whitespace-separated fields.
 fn long_fields<'a>(listing: &'a str, name: &str) -> Vec<&'a str> {
     listing
@@ -264,8 +285,8 @@ fn pwd_physical_and_logical_exit_zero_and_reject_extra_arguments() {
     assert_eq!(code(&f.run("pwd", &["-L"])), Some(0));
     assert_eq!(code(&f.run("pwd", &["-LP"])), Some(0));
     assert_eq!(code(&f.run("pwd", &["--physical"])), Some(0));
-    assert_eq!(code(&f.run("pwd", &["-X"])), Some(2));
-    assert_eq!(code(&f.run("pwd", &["extra"])), Some(2));
+    assert_eq!(code(&f.run("pwd", &["-X"])), Some(1));
+    assert_eq!(code(&f.run("pwd", &["extra"])), Some(1));
 }
 
 #[test]

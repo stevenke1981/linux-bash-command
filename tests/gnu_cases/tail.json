@@ -1,0 +1,139 @@
+{
+  "command": "tail",
+  "cases": [
+    {
+      "name": "zero",
+      "args": [
+        "-z",
+        "-n1"
+      ],
+      "stdin": "a\u0000b\u0000c\u0000",
+      "files": {}
+    },
+    {
+      "name": "zero_long",
+      "args": [
+        "--zero-terminated",
+        "-n2"
+      ],
+      "stdin": "a\u0000b\u0000c\u0000",
+      "files": {}
+    },
+    {
+      "name": "zero_partial",
+      "args": [
+        "-zn1"
+      ],
+      "stdin": "a\u0000b",
+      "files": {}
+    },
+    {
+      "name": "zero_empty",
+      "args": [
+        "-z"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "zero_blank",
+      "args": [
+        "-zn2"
+      ],
+      "stdin": "a\u0000\u0000\u0000",
+      "files": {}
+    },
+    {
+      "name": "zero_bytes",
+      "args": [
+        "-zc3"
+      ],
+      "stdin": "a\u0000bc\u0000",
+      "files": {}
+    },
+    {
+      "name": "zero_from",
+      "args": [
+        "-z",
+        "-n+2"
+      ],
+      "stdin": "a\u0000b\u0000c\u0000",
+      "files": {}
+    },
+    {
+      "name": "zero_from_partial",
+      "args": [
+        "-z",
+        "-n+2"
+      ],
+      "stdin": "a\u0000b",
+      "files": {}
+    },
+    {
+      "name": "zero_none",
+      "args": [
+        "-zn0"
+      ],
+      "stdin": "a\u0000b\u0000",
+      "files": {}
+    },
+    {
+      "name": "zero_plus_zero",
+      "args": [
+        "-z",
+        "-n+0"
+      ],
+      "stdin": "a\u0000b\u0000",
+      "files": {}
+    },
+    {
+      "name": "file",
+      "args": [
+        "-zn1",
+        "one"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "a\u0000b\u0000"
+      }
+    },
+    {
+      "name": "multi",
+      "args": [
+        "-zqn1",
+        "one",
+        "two"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "a\u0000b\u0000",
+        "two": "c\u0000d\u0000"
+      }
+    },
+    {
+      "name": "newline_data",
+      "args": [
+        "-zn1"
+      ],
+      "stdin": "a\u0000b\nc\u0000",
+      "files": {}
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bad-option"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "missing",
+      "args": [
+        "-z",
+        "missing"
+      ],
+      "stdin": "",
+      "files": {}
+    }
+  ]
+}

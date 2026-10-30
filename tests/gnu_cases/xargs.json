@@ -1,0 +1,373 @@
+{
+  "command": "xargs",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "a b\nc\n",
+      "files": {}
+    },
+    {
+      "name": "null",
+      "args": [
+        "--null",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "a b\u0000c\u0000",
+      "files": {}
+    },
+    {
+      "name": "delimiter",
+      "args": [
+        "--delimiter=,",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "a,b c,",
+      "files": {}
+    },
+    {
+      "name": "number",
+      "args": [
+        "--max-args=2",
+        "/usr/bin/printf",
+        "<%s>\\n"
+      ],
+      "stdin": "a b c d e",
+      "files": {}
+    },
+    {
+      "name": "quotes",
+      "args": [
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "\"a b\" 'c d' e\\ f",
+      "files": {}
+    },
+    {
+      "name": "replace",
+      "args": [
+        "--replace={}",
+        "/usr/bin/printf",
+        "<%s>",
+        "{}"
+      ],
+      "stdin": "a b\nc\n",
+      "files": {}
+    },
+    {
+      "name": "replace_short",
+      "args": [
+        "-I{}",
+        "/usr/bin/printf",
+        "<%s>",
+        "pre{}post"
+      ],
+      "stdin": "a b\nc d\n",
+      "files": {}
+    },
+    {
+      "name": "replace_optional",
+      "args": [
+        "-i",
+        "/usr/bin/printf",
+        "<%s>",
+        "{}"
+      ],
+      "stdin": "a b\nc d\n",
+      "files": {}
+    },
+    {
+      "name": "lines",
+      "args": [
+        "--max-lines=1",
+        "/usr/bin/printf",
+        "<%s>\\n"
+      ],
+      "stdin": "a b\nc d\n",
+      "files": {}
+    },
+    {
+      "name": "lines_short",
+      "args": [
+        "-L2",
+        "/usr/bin/printf",
+        "<%s>\\n"
+      ],
+      "stdin": "a\nb\nc\n",
+      "files": {}
+    },
+    {
+      "name": "lines_optional",
+      "args": [
+        "-l",
+        "/usr/bin/printf",
+        "<%s>\\n"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "eof",
+      "args": [
+        "--eof=STOP",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "a STOP b",
+      "files": {}
+    },
+    {
+      "name": "eof_short",
+      "args": [
+        "-ESTOP",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "a STOP b",
+      "files": {}
+    },
+    {
+      "name": "eof_optional",
+      "args": [
+        "-eSTOP",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "a STOP b",
+      "files": {}
+    },
+    {
+      "name": "file",
+      "args": [
+        "--arg-file=items",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "",
+      "files": {
+        "items": "a b\nc"
+      }
+    },
+    {
+      "name": "no_run",
+      "args": [
+        "--no-run-if-empty",
+        "/usr/bin/printf",
+        "hello"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "parallel",
+      "args": [
+        "--max-procs=2",
+        "-n1",
+        "/usr/bin/printf",
+        "%s\\n"
+      ],
+      "stdin": "a b c",
+      "files": {},
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "size",
+      "args": [
+        "--max-chars=80",
+        "-n1",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "a b",
+      "files": {}
+    },
+    {
+      "name": "exit",
+      "args": [
+        "--exit",
+        "-n1",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "a b",
+      "files": {}
+    },
+    {
+      "name": "verbose",
+      "args": [
+        "--verbose",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "a",
+      "files": {}
+    },
+    {
+      "name": "slot",
+      "args": [
+        "--process-slot-var=SLOT",
+        "-n1",
+        "/usr/bin/printenv",
+        "SLOT"
+      ],
+      "stdin": "a b",
+      "files": {}
+    },
+    {
+      "name": "limits",
+      "args": [
+        "--show-limits",
+        "-r"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "failure",
+      "args": [
+        "/usr/bin/sh",
+        "-c",
+        "exit 4"
+      ],
+      "stdin": "a",
+      "files": {}
+    },
+    {
+      "name": "abort",
+      "args": [
+        "/usr/bin/sh",
+        "-c",
+        "exit 255"
+      ],
+      "stdin": "a",
+      "files": {}
+    },
+    {
+      "name": "missing",
+      "args": [
+        "AGENTCMD_MISSING_PROGRAM_X"
+      ],
+      "stdin": "a",
+      "files": {}
+    },
+    {
+      "name": "unclosed",
+      "args": [],
+      "stdin": "'oops",
+      "files": {}
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bad-option"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "quoted_backslashes",
+      "args": [
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "'a\\b' \"c\\d\""
+    },
+    {
+      "name": "null_invalid_utf8",
+      "args": [
+        "-0",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin_hex": "ff006100"
+    },
+    {
+      "name": "eof_disabled",
+      "args": [
+        "-e",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "a _ b"
+    },
+    {
+      "name": "delimiter_escape",
+      "args": [
+        "-d\\n",
+        "/usr/bin/printf",
+        "<%s>"
+      ],
+      "stdin": "a b\nc\n"
+    },
+    {
+      "name": "parallel_auto",
+      "args": [
+        "-P0",
+        "-n1",
+        "/usr/bin/printf",
+        "%s\\n"
+      ],
+      "stdin": "a b c",
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "command_argument_help",
+      "args": [
+        "/usr/bin/printf",
+        "%s",
+        "--help"
+      ]
+    },
+    {
+      "name": "logical_blank_lines",
+      "args": [
+        "-L2",
+        "/usr/bin/printf",
+        "%s,",
+        "END"
+      ],
+      "stdin": "a\n\n\nb\nc\n"
+    },
+    {
+      "name": "logical_continuation",
+      "args": [
+        "-L1",
+        "/usr/bin/printf",
+        "%s,",
+        "END"
+      ],
+      "stdin": "a \nb\nc\n"
+    }
+  ]
+}

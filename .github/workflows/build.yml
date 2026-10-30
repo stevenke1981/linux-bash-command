@@ -25,14 +25,37 @@ jobs:
         shell: bash
         run: |
           mkdir -p artifacts
-          for name in search diff list read rg ls pwd cd cat less head tail grep find ps df curl; do
+          if [[ "$RUNNER_OS" == Windows ]]; then cp target/release/agentcmd.exe artifacts/; else cp target/release/agentcmd artifacts/; fi
+          while IFS= read -r name; do
+            [[ "$name" == "[" ]] && continue
             if [[ "$RUNNER_OS" == Windows ]]; then
               cp "target/release/$name.exe" artifacts/
             else
               cp "target/release/$name" artifacts/
             fi
-          done
+          done < <(target/release/agentcmd --list)
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            cp artifacts/test.exe "artifacts/[.exe"
+          else
+            ln -s test "artifacts/["
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: agent-commands-${{ runner.os }}-${{ runner.arch }}
           path: artifacts/
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --locked -- -D warnings
+  gnu-diff:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: sudo apt-get update && sudo apt-get install -y gawk tree xxd dos2unix patch bsdextrautils
+      - run: AGENTCMD_GNU_DIFF=1 cargo test --locked --test gnu_diff

@@ -1,0 +1,160 @@
+{
+  "command": "expand",
+  "cases": [
+    {
+      "name": "empty",
+      "args": [],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "a\tb\n",
+      "files": {}
+    },
+    {
+      "name": "initial",
+      "args": [
+        "--initial"
+      ],
+      "stdin": "\ta\tb\n",
+      "files": {}
+    },
+    {
+      "name": "size",
+      "args": [
+        "--tabs=4"
+      ],
+      "stdin": "a\tb\n",
+      "files": {}
+    },
+    {
+      "name": "list",
+      "args": [
+        "-t2,5"
+      ],
+      "stdin": "\t\t\tX\n",
+      "files": {}
+    },
+    {
+      "name": "absolute",
+      "args": [
+        "-t3,/4"
+      ],
+      "stdin": "\t\t\tx\n",
+      "files": {}
+    },
+    {
+      "name": "relative",
+      "args": [
+        "-t3,+4"
+      ],
+      "stdin": "\t\t\tx\n",
+      "files": {}
+    },
+    {
+      "name": "old",
+      "args": [
+        "-4"
+      ],
+      "stdin": "\ta\n",
+      "files": {}
+    },
+    {
+      "name": "backspace",
+      "args": [],
+      "stdin": "abc\b\tX\n",
+      "files": {}
+    },
+    {
+      "name": "partial",
+      "args": [],
+      "stdin": "\t",
+      "files": {}
+    },
+    {
+      "name": "files",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\tX\n",
+        "b": "b\tY\n"
+      }
+    },
+    {
+      "name": "stdin_dash",
+      "args": [
+        "-"
+      ],
+      "stdin": "\tx\n",
+      "files": {}
+    },
+    {
+      "name": "missing",
+      "args": [
+        "absent"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "invalid",
+      "args": [
+        "-t0"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "initial_backspace_ends_prefix",
+      "args": [
+        "-i"
+      ],
+      "stdin": "\b\tX\n"
+    },
+    {
+      "name": "dash_filename",
+      "args": [
+        "--",
+        "-4"
+      ],
+      "files": {
+        "-4": "\tX\n"
+      }
+    }
+  ]
+}

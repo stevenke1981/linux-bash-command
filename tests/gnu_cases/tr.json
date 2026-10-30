@@ -1,0 +1,663 @@
+{
+  "command": "tr",
+  "cases": [
+    {
+      "name": "translate",
+      "args": [
+        "a-z",
+        "A-Z"
+      ],
+      "stdin": "abc XYZ\n",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "padding",
+      "args": [
+        "abc",
+        "xy"
+      ],
+      "stdin": "abc cab\n",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "truncate",
+      "args": [
+        "--truncate-set1",
+        "abc",
+        "x"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "delete",
+      "args": [
+        "--delete",
+        "a-z"
+      ],
+      "stdin": "abc123\n",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "squeeze",
+      "args": [
+        "--squeeze-repeats",
+        " "
+      ],
+      "stdin": "a   b  c\n",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "translate_squeeze",
+      "args": [
+        "-s",
+        "ab",
+        "x"
+      ],
+      "stdin": "aabbb cba",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "delete_squeeze",
+      "args": [
+        "-ds",
+        "0-9",
+        " "
+      ],
+      "stdin": "1  2a  3",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "complement",
+      "args": [
+        "--complement",
+        "a-z",
+        "_"
+      ],
+      "stdin": "aB1\n",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "complement_C",
+      "args": [
+        "-Cd",
+        "a-z"
+      ],
+      "stdin": "aB1\n",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "paired_classes",
+      "args": [
+        "[:upper:]",
+        "[:lower:]"
+      ],
+      "stdin": "ABC xyz\n",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "digit_class",
+      "args": [
+        "-d",
+        "[:digit:]"
+      ],
+      "stdin": "a1b2c3",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "space_class",
+      "args": [
+        "-s",
+        "[:space:]"
+      ],
+      "stdin": "a\t\t\n\n\u000b\u000b b",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "alnum_class",
+      "args": [
+        "-cd",
+        "[:alnum:]"
+      ],
+      "stdin": "aB1!\n",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "alpha_class",
+      "args": [
+        "-d",
+        "[:alpha:]"
+      ],
+      "stdin": "aB123",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "blank_class",
+      "args": [
+        "-d",
+        "[:blank:]"
+      ],
+      "stdin": "a \t\nb",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "cntrl_class",
+      "args": [
+        "-d",
+        "[:cntrl:]"
+      ],
+      "stdin": "a\t\nb",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "graph_class",
+      "args": [
+        "-cd",
+        "[:graph:]"
+      ],
+      "stdin": " a!\tb",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "print_class",
+      "args": [
+        "-cd",
+        "[:print:]"
+      ],
+      "stdin": " a!\tb",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "punct_class",
+      "args": [
+        "-d",
+        "[:punct:]"
+      ],
+      "stdin": "a!?.b",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "xdigit_class",
+      "args": [
+        "-d",
+        "[:xdigit:]"
+      ],
+      "stdin": "0afGZ",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "equivalence",
+      "args": [
+        "[=a=]",
+        "x"
+      ],
+      "stdin": "aba",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "repeat_fixed",
+      "args": [
+        "abc",
+        "[x*2]y"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "repeat_octal",
+      "args": [
+        "a-j",
+        "[x*010]yz"
+      ],
+      "stdin": "abcdefghij",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "repeat_fill",
+      "args": [
+        "abc",
+        "[x*]"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "octal_escapes",
+      "args": [
+        "\\141\\142",
+        "xy"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "control_escapes",
+      "args": [
+        "-d",
+        "\\a\\b\\f\\n\\r\\t\\v\\\\"
+      ],
+      "stdin": "a\u0007\b\f\n\r\t\u000b\\b",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty_truncate",
+      "args": [
+        "-t",
+        "abc",
+        ""
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "reverse_range",
+      "args": [
+        "z-a",
+        "x"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "a"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "extra",
+      "args": [
+        "a",
+        "b",
+        "c"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bad_class",
+      "args": [
+        "-d",
+        "[:unknown:]"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "misaligned",
+      "args": [
+        "a[:upper:]",
+        "[:lower:]"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bad_option",
+      "args": [
+        "--oops"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "binary",
+      "args": [
+        "-d",
+        "\\000"
+      ],
+      "files": {},
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "00ff610062"
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "gnu": [
+        "tr"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "repeat_first_fixed",
+      "args": [
+        "-d",
+        "[x*2]"
+      ],
+      "stdin": "xyz"
+    },
+    {
+      "name": "repeat_first_fill_error",
+      "args": [
+        "-d",
+        "[x*]"
+      ]
+    },
+    {
+      "name": "same_case_classes",
+      "args": [
+        "[:upper:]",
+        "[:upper:]"
+      ],
+      "stdin": "ABC xyz\n"
+    },
+    {
+      "name": "short_class_padding_error",
+      "args": [
+        "-c",
+        "[:upper:]",
+        "[:lower:]"
+      ],
+      "stdin": "ABC xyz\n"
+    },
+    {
+      "name": "help_before_bad",
+      "args": [
+        "--help",
+        "--unknown"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "bad_before_help",
+      "args": [
+        "--unknown",
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

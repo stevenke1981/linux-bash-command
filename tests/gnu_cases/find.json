@@ -1,0 +1,68 @@
+{
+  "command": "find",
+  "cases": [
+    {
+      "name": "single_root",
+      "args": [
+        "root",
+        "-maxdepth",
+        "0"
+      ],
+      "files": {
+        "root": {
+          "dir": true
+        }
+      }
+    },
+    {
+      "name": "name",
+      "args": [
+        "root",
+        "-name",
+        "*.rs"
+      ],
+      "files": {
+        "root/a.rs": "fn main() {}\n",
+        "root/b.txt": "x\n"
+      }
+    },
+    {
+      "name": "type_file",
+      "args": [
+        "root",
+        "-type",
+        "f"
+      ],
+      "files": {
+        "root/a": "a",
+        "root/sub/b": "b"
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "maxdepth",
+      "args": [
+        "root",
+        "-maxdepth",
+        "1"
+      ],
+      "files": {
+        "root/a": "a",
+        "root/sub/b": "b"
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ]
+    }
+  ]
+}

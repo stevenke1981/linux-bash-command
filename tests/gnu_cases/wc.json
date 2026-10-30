@@ -1,0 +1,574 @@
+{
+  "command": "wc",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "one two\nthree\n",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "flag_c",
+      "args": [
+        "-c"
+      ],
+      "stdin": "a\tb c\nlast",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "flag_bytes",
+      "args": [
+        "--bytes"
+      ],
+      "stdin": "a\tb c\nlast",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "flag_m",
+      "args": [
+        "-m"
+      ],
+      "stdin": "a\tb c\nlast",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "flag_chars",
+      "args": [
+        "--chars"
+      ],
+      "stdin": "a\tb c\nlast",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "flag_l",
+      "args": [
+        "-l"
+      ],
+      "stdin": "a\tb c\nlast",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "flag_lines",
+      "args": [
+        "--lines"
+      ],
+      "stdin": "a\tb c\nlast",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "flag_w",
+      "args": [
+        "-w"
+      ],
+      "stdin": "a\tb c\nlast",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "flag_words",
+      "args": [
+        "--words"
+      ],
+      "stdin": "a\tb c\nlast",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "flag_L",
+      "args": [
+        "-L"
+      ],
+      "stdin": "a\tb c\nlast",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "flag_max-line-length",
+      "args": [
+        "--max-line-length"
+      ],
+      "stdin": "a\tb c\nlast",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multi",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a b\n",
+        "b": "c\n"
+      },
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multi_bytes",
+      "args": [
+        "-c",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "1234567890",
+        "b": "12"
+      },
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "partial",
+      "args": [],
+      "stdin": "last",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bad_option",
+      "args": [
+        "--oops"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "controls",
+      "args": [
+        "-lwcL"
+      ],
+      "stdin": "a\rb\u000bword\fc\n",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "total_auto",
+      "args": [
+        "--total=auto",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\n",
+        "b": "b c\n"
+      },
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "total_always",
+      "args": [
+        "--total=always",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\n",
+        "b": "b c\n"
+      },
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "total_only",
+      "args": [
+        "--total=only",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\n",
+        "b": "b c\n"
+      },
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "total_never",
+      "args": [
+        "--total=never",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\n",
+        "b": "b c\n"
+      },
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "files0",
+      "args": [
+        "--files0-from=names",
+        "-l"
+      ],
+      "stdin": "",
+      "files": {
+        "names": "a\u0000b\u0000",
+        "a": "a\n",
+        "b": "b\n\n"
+      },
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "files0_stdin",
+      "args": [
+        "--files0-from=-",
+        "-c"
+      ],
+      "stdin": "a\u0000",
+      "files": {
+        "a": "abc"
+      },
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "only_single",
+      "args": [
+        "--total=only",
+        "-c",
+        "a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc"
+      },
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdin_twice",
+      "args": [
+        "-l",
+        "-",
+        "-"
+      ],
+      "stdin": "a\nb\n",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bad_total",
+      "args": [
+        "--total=bad"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "gnu": [
+        "wc"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "files0_empty_name",
+      "args": [
+        "--files0-from=names"
+      ],
+      "files": {
+        "names": "\u0000"
+      }
+    },
+    {
+      "name": "files0_empty_name_continue",
+      "args": [
+        "--files0-from=names",
+        "-c"
+      ],
+      "files": {
+        "names": "a\u0000\u0000b\u0000",
+        "a": "x",
+        "b": "y"
+      }
+    },
+    {
+      "name": "files0_stdin_dash",
+      "args": [
+        "--files0-from=-",
+        "-c"
+      ],
+      "stdin": "-\u0000a\u0000",
+      "files": {
+        "a": "abc"
+      }
+    },
+    {
+      "name": "files0_missing_list",
+      "args": [
+        "--files0-from=missing"
+      ]
+    },
+    {
+      "name": "files0_extra_operand",
+      "args": [
+        "--files0-from=names",
+        "extra"
+      ],
+      "files": {
+        "names": ""
+      }
+    },
+    {
+      "name": "help_before_bad",
+      "args": [
+        "--help",
+        "--unknown"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "bad_before_help",
+      "args": [
+        "--unknown",
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "utf8_spec",
+      "args": [
+        "-mL"
+      ],
+      "stdin_hex": "c3a9ff0a",
+      "skip_reason": "03-wc explicitly counts UTF-8 characters and each invalid byte; GNU C locale counts bytes for -m and ignores nonprinting bytes for -L. CLI golden covers spec."
+    }
+  ]
+}

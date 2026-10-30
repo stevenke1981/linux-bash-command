@@ -1,0 +1,214 @@
+{
+  "command": "yes",
+  "cases": [
+    {
+      "name": "yes_00",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "yes_01",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "yes_02",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "yes_03",
+      "args": [
+        "-x"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "yes_04",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout"
+      ],
+      "skip_reason": null,
+      "stdout_prefix_len": 64
+    },
+    {
+      "name": "yes_05",
+      "args": [
+        "a"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout"
+      ],
+      "skip_reason": null,
+      "stdout_prefix_len": 64
+    },
+    {
+      "name": "yes_06",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout"
+      ],
+      "skip_reason": null,
+      "stdout_prefix_len": 64
+    },
+    {
+      "name": "yes_07",
+      "args": [
+        ""
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout"
+      ],
+      "skip_reason": null,
+      "stdout_prefix_len": 64
+    },
+    {
+      "name": "yes_08",
+      "args": [
+        "--",
+        "-n"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout"
+      ],
+      "skip_reason": null,
+      "stdout_prefix_len": 64
+    },
+    {
+      "name": "yes_09",
+      "args": [
+        "--",
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout"
+      ],
+      "skip_reason": null,
+      "stdout_prefix_len": 64
+    },
+    {
+      "name": "yes_10",
+      "args": [
+        "one two"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout"
+      ],
+      "skip_reason": null,
+      "stdout_prefix_len": 64
+    },
+    {
+      "name": "yes_11",
+      "args": [
+        "λ"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout"
+      ],
+      "skip_reason": null,
+      "stdout_prefix_len": 64
+    },
+    {
+      "name": "yes_12",
+      "args": [
+        "a\tb"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout"
+      ],
+      "skip_reason": null,
+      "stdout_prefix_len": 64
+    },
+    {
+      "name": "yes_13",
+      "args": [
+        "a\nb"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout"
+      ],
+      "skip_reason": null,
+      "stdout_prefix_len": 64
+    },
+    {
+      "name": "yes_14",
+      "args": [
+        "-"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "yes",
+      "compare": [
+        "stdout"
+      ],
+      "skip_reason": null,
+      "stdout_prefix_len": 64
+    }
+  ]
+}

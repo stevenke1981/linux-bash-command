@@ -1,0 +1,288 @@
+{
+  "command": "comm",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "basic",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "no_first",
+      "args": [
+        "-1",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "no_second",
+      "args": [
+        "-2",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "no_common",
+      "args": [
+        "-3",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "common_only",
+      "args": [
+        "-12",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "second_only",
+      "args": [
+        "-13",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "first_only",
+      "args": [
+        "-23",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "none",
+      "args": [
+        "-123",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "delimiter",
+      "args": [
+        "--output-delimiter=::",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "empty_delimiter",
+      "args": [
+        "--output-delimiter=",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "total",
+      "args": [
+        "--total",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "no_columns_total",
+      "args": [
+        "-123",
+        "--total",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "strict",
+      "args": [
+        "--check-order",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "no_check",
+      "args": [
+        "--nocheck-order",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nd\n",
+        "b": "b\nc\nd\n"
+      }
+    },
+    {
+      "name": "stdin",
+      "args": [
+        "-",
+        "b"
+      ],
+      "stdin": "a\nb\n",
+      "files": {
+        "b": "b\nc\n"
+      }
+    },
+    {
+      "name": "zero",
+      "args": [
+        "--zero-terminated",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\u0000b\u0000",
+        "b": "b\u0000c\u0000"
+      }
+    },
+    {
+      "name": "disorder",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "b\na\n",
+        "b": "c\n"
+      }
+    },
+    {
+      "name": "strict_disorder",
+      "args": [
+        "--check-order",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "b\na\n",
+        "b": "c\n"
+      }
+    },
+    {
+      "name": "identical_disorder",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "b\na\n",
+        "b": "b\na\n"
+      }
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing",
+        "missing2"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "arity",
+      "args": [],
+      "stdin": ""
+    }
+  ]
+}

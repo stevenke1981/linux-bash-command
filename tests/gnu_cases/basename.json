@@ -1,0 +1,228 @@
+{
+  "command": "basename",
+  "cases": [
+    {
+      "name": "basename_00",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_01",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_02",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_03",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_04",
+      "args": [
+        "a/b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_05",
+      "args": [
+        "/"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_06",
+      "args": [
+        "///"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_07",
+      "args": [
+        ""
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_08",
+      "args": [
+        "a/b///"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_09",
+      "args": [
+        "a.rs",
+        ".rs"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_10",
+      "args": [
+        "a",
+        "a"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_11",
+      "args": [
+        "-a",
+        "a/b",
+        "c/d"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_12",
+      "args": [
+        "--multiple",
+        "a/b",
+        "c"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_13",
+      "args": [
+        "--suffix=.txt",
+        "a.txt",
+        "b.txt"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "basename_14",
+      "args": [
+        "--zero",
+        "a/b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": "basename",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help_as_suffix",
+      "args": [
+        "-s",
+        "--help",
+        "file--help"
+      ]
+    }
+  ]
+}

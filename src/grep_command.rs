@@ -1,3 +1,4 @@
+use crate::common::error::io_text as io_message;
 use crate::common::regex::bre_to_regex;
 use regex::bytes::{Regex as ByteRegex, RegexBuilder as ByteRegexBuilder};
 use regex::Regex as NameRegex;
@@ -7,12 +8,16 @@ use std::fs::{self, DirEntry, File};
 use std::io::{self, BufRead, BufReader, BufWriter, Cursor, Read, Write};
 use std::path::{Path, PathBuf};
 
-const USAGE: &str = "Usage: grep [OPTIONS] PATTERN [FILE...]\n\nSearch lines in files or standard input (GNU grep compatible subset).\n\nPattern syntax:\n  -G, --basic-regexp        PATTERN is a basic regular expression (default)\n  -E, --extended-regexp     PATTERN is an extended regular expression\n  -F, --fixed-strings       PATTERN is a literal string\n  -P, --perl-regexp         PATTERN is a Perl-style regular expression (no lookaround)\n  -e, --regexp=PATTERN      Use PATTERN (repeatable; newlines separate patterns)\n  -f, --file=FILE           Read patterns from FILE, one per line\n  -i, --ignore-case         Ignore case distinctions (also -y)\n  -w, --word-regexp         Match whole words only\n  -x, --line-regexp         Match whole lines only\n  -v, --invert-match        Select non-matching lines\n\nOutput control:\n  -c, --count               Print a count of selected lines per file\n  -l, --files-with-matches  Print only the names of files with matches\n  -L, --files-without-match Print only the names of files without matches\n  -o, --only-matching       Print only the matched parts, one per line\n  -q, --quiet, --silent     Suppress output; exit 0 on the first match\n  -s, --no-messages         Suppress error messages about files\n  -m, --max-count=NUM       Stop after NUM selected lines per file\n  -n, --line-number         Prefix lines with their line number\n  -H, --with-filename       Always print the file name\n  -h, --no-filename         Never print the file name\n  -A, --after-context=NUM   Print NUM lines of trailing context\n  -B, --before-context=NUM  Print NUM lines of leading context\n  -C, --context=NUM        Print NUM lines of context (also -NUM)\n      --line-buffered      Flush output after each line\n      --color[=WHEN]        Accepted for compatibility; output is never colored\n\nFile selection:\n  -r, --recursive           Recurse into directories (symlinks are not followed)\n  -R, --dereference-recursive  Recurse into directories, following symlinks\n      --include=GLOB        Search only files whose base name matches GLOB\n      --exclude=GLOB        Skip files whose base name matches GLOB\n      --exclude-dir=GLOB    Skip directories whose base name matches GLOB\n  -a, --text               Treat binary files as text\n  -I                        Ignore binary files\n      --binary-files=TYPE   TYPE is binary, text or without-match\n  -U, --binary              Accepted; no effect on this platform\n      --                    End option parsing\n      --help                Show this help\n\nGlobs support *, ?, [...] and {a,b}. Binary matches print 'Binary file NAME matches'.\nExit status: 0 when any line is selected (with -L, when a file is listed), 1 when none are,\n2 on error. With -q, a match gives 0 even if an error occurred.\n";
+const USAGE: &str = "Usage: grep [OPTIONS] PATTERN [FILE...]\n\nSearch lines in files or standard input (GNU grep compatible subset).\n\nPattern syntax:\n  -G, --basic-regexp        PATTERN is a basic regular expression (default)\n  -E, --extended-regexp     PATTERN is an extended regular expression\n  -F, --fixed-strings       PATTERN is a literal string\n  -P, --perl-regexp         PATTERN is a Perl-style regular expression (no lookaround)\n  -e, --regexp=PATTERN      Use PATTERN (repeatable; newlines separate patterns)\n  -f, --file=FILE           Read patterns from FILE, one per line\n  -i, --ignore-case         Ignore case distinctions (also -y)\n  -w, --word-regexp         Match whole words only\n  -x, --line-regexp         Match whole lines only\n  -v, --invert-match        Select non-matching lines\n\nOutput control:\n  -c, --count               Print a count of selected lines per file\n  -l, --files-with-matches  Print only the names of files with matches\n  -L, --files-without-match Print only the names of files without matches\n  -o, --only-matching       Print only the matched parts, one per line\n  -q, --quiet, --silent     Suppress output; exit 0 on the first match\n  -s, --no-messages         Suppress error messages about files\n  -m, --max-count=NUM       Stop after NUM selected lines per file\n  -n, --line-number         Prefix lines with their line number\n  -H, --with-filename       Always print the file name\n  -h, --no-filename         Never print the file name\n  -A, --after-context=NUM   Print NUM lines of trailing context\n  -B, --before-context=NUM  Print NUM lines of leading context\n  -C, --context=NUM        Print NUM lines of context (also -NUM)\n  -z, --null-data          Records are NUL terminated\n  -Z, --null               End file names with NUL\n  -b, --byte-offset        Prefix records with their byte offsets\n  -T, --initial-tab        Align prefixes and insert a tab\n      --label=LABEL        Display LABEL for stdin\n      --no-ignore-case     Match case sensitively\n      --line-buffered      Flush output after each line\n      --color[=WHEN]        Accepted for compatibility; output is never colored\n\nFile selection:\n  -r, --recursive           Recurse into directories (symlinks are not followed)\n  -R, --dereference-recursive  Recurse into directories, following symlinks\n      --include=GLOB        Search only files whose base name matches GLOB\n      --exclude=GLOB        Skip files whose base name matches GLOB\n      --exclude-dir=GLOB    Skip directories whose base name matches GLOB\n      --exclude-from=FILE   Read exclusion globs from FILE\n  -d, --directories=ACTION  read, skip, or recurse\n  -D, --devices=ACTION      read or skip\n  -a, --text               Treat binary files as text\n  -I                        Ignore binary files\n      --binary-files=TYPE   TYPE is binary, text or without-match\n  -U, --binary              Accepted; no effect on this platform\n      --                    End option parsing\n      --help                Show this help\n      --version             Show version\n\nGlobs support *, ?, [...] and {a,b}. Binary matches print 'Binary file NAME matches'.\nExit status: 0 when any line is selected (with -L, when a file is listed), 1 when none are,\n2 on error. With -q, a match gives 0 even if an error occurred.\n";
 
 const BINARY_PROBE_BYTES: u64 = 8192;
 const STDIN_LABEL: &str = "(standard input)";
 const STDOUT_LABEL: &str = "(standard output)";
-const VALUE_OPTIONS: [&str; 10] = [
+const VALUE_OPTIONS: [&str; 14] = [
+    "label",
+    "exclude-from",
+    "devices",
+    "directories",
     "regexp",
     "file",
     "max-count",
@@ -76,6 +81,13 @@ struct Filter {
 
 #[derive(Default)]
 struct Options {
+    zero_data: bool,
+    null_name: bool,
+    byte_offset: bool,
+    initial_tab: bool,
+    label: Option<String>,
+    skip_directories: bool,
+    skip_devices: bool,
     patterns: Vec<String>,
     files: Vec<String>,
     syntax: Syntax,
@@ -117,7 +129,15 @@ impl Options {
 }
 
 pub fn run(args: &[String]) -> i32 {
-    let Some(options) = (match parse(args) {
+    run_with_matcher_conflicts(args, false)
+}
+
+pub fn run_alias(args: &[String]) -> i32 {
+    run_with_matcher_conflicts(args, true)
+}
+
+fn run_with_matcher_conflicts(args: &[String], reject_matcher_conflicts: bool) -> i32 {
+    let Some(options) = (match parse(args, reject_matcher_conflicts) {
         Ok(options) => options,
         Err(error) => {
             eprintln!("grep: {error}");
@@ -150,14 +170,25 @@ struct Parser {
     context: Option<u64>,
     before: Option<u64>,
     after: Option<u64>,
+    reject_matcher_conflicts: bool,
+    explicit_syntax: Option<Syntax>,
 }
 
-fn parse(args: &[String]) -> Result<Option<Options>, String> {
-    let mut parser = Parser::default();
+fn parse(args: &[String], reject_matcher_conflicts: bool) -> Result<Option<Options>, String> {
+    let mut parser = Parser {
+        reject_matcher_conflicts,
+        ..Parser::default()
+    };
     let mut index = 0;
     let mut options_open = true;
     while index < args.len() {
-        let arg = args[index].as_str();
+        let expanded;
+        let arg = if options_open && args[index].starts_with("--") && args[index] != "--" {
+            expanded = expand_long(&args[index])?;
+            expanded.as_str()
+        } else {
+            args[index].as_str()
+        };
         index += 1;
         if !options_open {
             parser.positional.push(arg.to_string());
@@ -166,15 +197,87 @@ fn parse(args: &[String]) -> Result<Option<Options>, String> {
         } else if arg == "--help" {
             print!("{USAGE}");
             return Ok(None);
+        } else if arg == "--version" {
+            println!("grep (agentcmd) {}", env!("CARGO_PKG_VERSION"));
+            return Ok(None);
         } else if let Some(long) = arg.strip_prefix("--") {
             parser.long_option(long, args, &mut index)?;
         } else if arg.len() > 1 && arg.starts_with('-') {
             parser.short_options(&arg[1..], args, &mut index)?;
         } else {
             parser.positional.push(arg.to_string());
+            if std::env::var_os("POSIXLY_CORRECT").is_some() {
+                options_open = false;
+            }
         }
     }
     parser.finish().map(Some)
+}
+
+fn expand_long(arg: &str) -> Result<String, String> {
+    const FLAGS: &[&str] = &[
+        "ignore-case",
+        "no-ignore-case",
+        "invert-match",
+        "word-regexp",
+        "line-regexp",
+        "only-matching",
+        "quiet",
+        "silent",
+        "no-messages",
+        "count",
+        "files-with-matches",
+        "files-without-match",
+        "line-number",
+        "with-filename",
+        "no-filename",
+        "fixed-strings",
+        "basic-regexp",
+        "extended-regexp",
+        "perl-regexp",
+        "recursive",
+        "dereference-recursive",
+        "text",
+        "binary",
+        "line-buffered",
+        "null-data",
+        "null",
+        "byte-offset",
+        "initial-tab",
+        "color",
+        "colour",
+        "help",
+        "version",
+    ];
+    let (name, value) = arg[2..]
+        .split_once('=')
+        .map_or((&arg[2..], None), |(n, v)| (n, Some(v)));
+    let matches = VALUE_OPTIONS
+        .iter()
+        .chain(FLAGS.iter())
+        .copied()
+        .filter(|option| option.starts_with(name))
+        .collect::<Vec<_>>();
+    let full = if matches.contains(&name) {
+        name
+    } else if matches.len() == 1 {
+        matches[0]
+    } else if matches.is_empty() {
+        return Err(format!("unrecognized option '--{name}'"));
+    } else {
+        return Err(format!(
+            "option '--{name}' is ambiguous; possibilities: {}",
+            matches
+                .iter()
+                .map(|s| format!("'--{s}'"))
+                .collect::<Vec<_>>()
+                .join(" ")
+        ));
+    };
+    Ok(match value {
+        Some(value) => format!("--{full}={value}"),
+        None => format!("--{full}"),
+    })
 }
 
 impl Parser {
@@ -286,6 +389,40 @@ impl Parser {
 
     fn set_value(&mut self, name: &str, value: String) -> Result<(), String> {
         match name {
+            "label" => self.options.label = Some(value),
+            "exclude-from" => {
+                let mut input = crate::common::io::input(&value)
+                    .map_err(|e| format!("{value}: {}", io_message(&e)))?;
+                let mut line = String::new();
+                while input.read_line(&mut line).map_err(|e| io_message(&e))? != 0 {
+                    let pattern = line.strip_suffix('\n').unwrap_or(&line);
+                    self.options.filters.push(Filter {
+                        include: false,
+                        glob: glob_to_regex(pattern)?,
+                    });
+                    line.clear();
+                }
+            }
+            "directories" => match value.as_str() {
+                "read" => {
+                    self.options.recurse = Recurse::Off;
+                    self.options.skip_directories = false;
+                }
+                "skip" => {
+                    self.options.recurse = Recurse::Off;
+                    self.options.skip_directories = true;
+                }
+                "recurse" => {
+                    self.options.recurse = Recurse::Command;
+                    self.options.skip_directories = false;
+                }
+                _ => return Err(format!("invalid argument '{value}' for '--directories'")),
+            },
+            "devices" => match value.as_str() {
+                "read" => self.options.skip_devices = false,
+                "skip" => self.options.skip_devices = true,
+                _ => return Err(format!("invalid argument '{value}' for '--devices'")),
+            },
             "regexp" => self.add_pattern(&value),
             "file" => self.add_pattern_file(&value)?,
             "max-count" => self.options.max_count = Some(number(&value)?),
@@ -309,6 +446,10 @@ impl Parser {
     fn set_flag(&mut self, name: &str) -> Result<(), String> {
         let o = &mut self.options;
         match name {
+            "null-data" => o.zero_data = true,
+            "null" => o.null_name = true,
+            "byte-offset" => o.byte_offset = true,
+            "initial-tab" => o.initial_tab = true,
             "ignore-case" => o.ignore_case = true,
             "no-ignore-case" => o.ignore_case = false,
             "invert-match" => o.invert = true,
@@ -323,12 +464,31 @@ impl Parser {
             "line-number" => o.line_number = true,
             "with-filename" => o.with_filename = Some(true),
             "no-filename" => o.with_filename = Some(false),
-            "fixed-strings" => o.syntax = Syntax::Fixed,
-            "basic-regexp" => o.syntax = Syntax::Basic,
-            "extended-regexp" => o.syntax = Syntax::Extended,
-            "perl-regexp" => o.syntax = Syntax::Perl,
-            "recursive" => o.recurse = Recurse::Command,
-            "dereference-recursive" => o.recurse = Recurse::All,
+            "fixed-strings" | "basic-regexp" | "extended-regexp" | "perl-regexp" => {
+                let syntax = match name {
+                    "fixed-strings" => Syntax::Fixed,
+                    "basic-regexp" => Syntax::Basic,
+                    "extended-regexp" => Syntax::Extended,
+                    _ => Syntax::Perl,
+                };
+                if self.reject_matcher_conflicts
+                    && self
+                        .explicit_syntax
+                        .is_some_and(|previous| previous != syntax)
+                {
+                    return Err("conflicting matchers specified".into());
+                }
+                self.explicit_syntax = Some(syntax);
+                o.syntax = syntax;
+            }
+            "recursive" => {
+                o.recurse = Recurse::Command;
+                o.skip_directories = false;
+            }
+            "dereference-recursive" => {
+                o.recurse = Recurse::All;
+                o.skip_directories = false;
+            }
             "text" => o.binary = BinaryMode::Text,
             "binary" => {}
             "line-buffered" => o.line_buffered = true,
@@ -340,6 +500,8 @@ impl Parser {
 
 fn short_value_name(flag: char) -> Option<&'static str> {
     match flag {
+        'D' => Some("devices"),
+        'd' => Some("directories"),
         'e' => Some("regexp"),
         'f' => Some("file"),
         'm' => Some("max-count"),
@@ -352,6 +514,10 @@ fn short_value_name(flag: char) -> Option<&'static str> {
 
 fn short_flag_name(flag: char) -> Result<&'static str, String> {
     match flag {
+        'z' => Ok("null-data"),
+        'Z' => Ok("null"),
+        'b' => Ok("byte-offset"),
+        'T' => Ok("initial-tab"),
         'i' | 'y' => Ok("ignore-case"),
         'v' => Ok("invert-match"),
         'w' => Ok("word-regexp"),
@@ -443,6 +609,7 @@ fn build_regex(options: &Options) -> Result<ByteRegex, String> {
     };
     ByteRegexBuilder::new(&wrapped)
         .case_insensitive(options.ignore_case)
+        .dot_matches_new_line(options.zero_data)
         .build()
         .map_err(|error| match options.syntax {
             Syntax::Perl => format!(
@@ -553,10 +720,11 @@ fn spans(regex: &ByteRegex, line: &[u8]) -> Vec<(usize, usize)> {
 
 #[derive(Default)]
 struct ScanState {
+    offset: u64,
     lineno: u64,
     selected: u64,
     last_printed: Option<u64>,
-    before: VecDeque<(u64, Vec<u8>)>,
+    before: VecDeque<(u64, u64, Vec<u8>)>,
     after_left: usize,
     limit_reached: bool,
 }
@@ -567,6 +735,8 @@ enum EntryKind {
 }
 
 struct Grep<'a, W: Write> {
+    prefix_width: usize,
+    broken_pipe: bool,
     opts: &'a Options,
     regex: &'a ByteRegex,
     mode: Mode,
@@ -583,6 +753,8 @@ struct Grep<'a, W: Write> {
 impl<'a, W: Write> Grep<'a, W> {
     fn new(opts: &'a Options, regex: &'a ByteRegex, out: W, show_names: bool) -> Self {
         Self {
+            prefix_width: 19,
+            broken_pipe: false,
             opts,
             regex,
             mode: opts.mode(),
@@ -620,6 +792,9 @@ impl<'a, W: Write> Grep<'a, W> {
     }
 
     fn exit_code(&self) -> i32 {
+        if self.broken_pipe {
+            return 0;
+        }
         if self.opts.quiet && self.any_selected {
             return 0;
         }
@@ -647,13 +822,19 @@ impl<'a, W: Write> Grep<'a, W> {
         let label = crate::display_path(path);
         match fs::metadata(path) {
             Ok(meta) if meta.is_dir() => {
+                if self.opts.skip_directories {
+                    return;
+                }
                 if self.opts.recurse == Recurse::Off {
                     self.report_message(&label, "Is a directory");
                 } else if !self.dir_excluded(path) {
                     self.walk(path, path);
                 }
             }
-            Ok(_) => {
+            Ok(meta) => {
+                if self.opts.skip_devices && !meta.is_file() {
+                    return;
+                }
                 if self.operand_allowed(path) {
                     self.search_file(path, &label);
                 }
@@ -759,13 +940,16 @@ impl<'a, W: Write> Grep<'a, W> {
 
     fn search_stdin(&mut self) {
         let stdin = io::stdin();
-        let result = self.search_reader(stdin.lock(), STDIN_LABEL);
+        self.prefix_width = 19;
+        let label = self.opts.label.as_deref().unwrap_or(STDIN_LABEL);
+        let result = self.search_reader(stdin.lock(), label);
         if let Err(error) = result {
             self.report(STDIN_LABEL, &error);
         }
     }
 
     fn search_file(&mut self, path: &Path, label: &str) {
+        self.prefix_width = fs::metadata(path).map_or(19, |m| m.len().to_string().len());
         let result = match File::open(path) {
             Ok(file) => self.search_reader(file, label),
             Err(error) => Err(error),
@@ -780,7 +964,7 @@ impl<'a, W: Write> Grep<'a, W> {
         (&mut source)
             .take(BINARY_PROBE_BYTES)
             .read_to_end(&mut probe)?;
-        let binary = probe.contains(&0);
+        let binary = !self.opts.zero_data && probe.contains(&0);
         if binary && self.opts.binary == BinaryMode::Skip {
             return self.finish(label, 0);
         }
@@ -796,12 +980,16 @@ impl<'a, W: Write> Grep<'a, W> {
             return Ok(0);
         }
         let mut line = Vec::new();
+        let delimiter = if self.opts.zero_data { 0 } else { b'\n' };
+        let mut position = 0;
         loop {
             line.clear();
-            if reader.read_until(b'\n', &mut line)? == 0 {
+            if reader.read_until(delimiter, &mut line)? == 0 {
                 break;
             }
-            if line.last() == Some(&b'\n') {
+            state.offset = position;
+            position += line.len() as u64;
+            if line.last() == Some(&delimiter) {
                 line.pop();
             }
             state.lineno += 1;
@@ -811,7 +999,14 @@ impl<'a, W: Write> Grep<'a, W> {
                     break;
                 }
                 state.after_left -= 1;
-                self.emit(label, state.lineno, b'-', &line, &mut state.last_printed)?;
+                self.emit(
+                    label,
+                    state.lineno,
+                    state.offset,
+                    b'-',
+                    &line,
+                    &mut state.last_printed,
+                )?;
                 continue;
             }
             if !self.is_selected(&line) {
@@ -861,13 +1056,22 @@ impl<'a, W: Write> Grep<'a, W> {
         }
         if state.after_left > 0 {
             state.after_left -= 1;
-            return self.emit(label, state.lineno, b'-', line, &mut state.last_printed);
+            return self.emit(
+                label,
+                state.lineno,
+                state.offset,
+                b'-',
+                line,
+                &mut state.last_printed,
+            );
         }
         if self.opts.before > 0 {
             if state.before.len() == self.opts.before {
                 state.before.pop_front();
             }
-            state.before.push_back((state.lineno, line.to_vec()));
+            state
+                .before
+                .push_back((state.lineno, state.offset, line.to_vec()));
         }
         Ok(())
     }
@@ -875,17 +1079,24 @@ impl<'a, W: Write> Grep<'a, W> {
     fn print_match(&mut self, label: &str, line: &[u8], state: &mut ScanState) -> io::Result<()> {
         if self.opts.only {
             for (start, end) in spans(self.regex, line) {
-                self.prefix(label, state.lineno, b':')?;
+                self.prefix(label, state.lineno, state.offset + start as u64, b':')?;
                 self.out.write_all(&line[start..end])?;
                 self.end_line()?;
             }
             return Ok(());
         }
-        let pending: Vec<(u64, Vec<u8>)> = state.before.drain(..).collect();
-        for (number, text) in pending {
-            self.emit(label, number, b'-', &text, &mut state.last_printed)?;
+        let pending: Vec<(u64, u64, Vec<u8>)> = state.before.drain(..).collect();
+        for (number, offset, text) in pending {
+            self.emit(label, number, offset, b'-', &text, &mut state.last_printed)?;
         }
-        self.emit(label, state.lineno, b':', line, &mut state.last_printed)?;
+        self.emit(
+            label,
+            state.lineno,
+            state.offset,
+            b':',
+            line,
+            &mut state.last_printed,
+        )?;
         state.after_left = self.opts.after;
         Ok(())
     }
@@ -898,6 +1109,7 @@ impl<'a, W: Write> Grep<'a, W> {
         &mut self,
         label: &str,
         number: u64,
+        offset: u64,
         sep: u8,
         text: &[u8],
         last: &mut Option<u64>,
@@ -911,7 +1123,7 @@ impl<'a, W: Write> Grep<'a, W> {
                 self.out.write_all(b"--\n")?;
             }
         }
-        self.prefix(label, number, sep)?;
+        self.prefix(label, number, offset, sep)?;
         self.out.write_all(text)?;
         self.end_line()?;
         *last = Some(number);
@@ -919,20 +1131,41 @@ impl<'a, W: Write> Grep<'a, W> {
         Ok(())
     }
 
-    fn prefix(&mut self, label: &str, number: u64, sep: u8) -> io::Result<()> {
+    fn prefix(&mut self, label: &str, number: u64, offset: u64, sep: u8) -> io::Result<()> {
         if self.show_names {
             write!(self.out, "{label}")?;
-            self.out.write_all(&[sep])?;
+            self.out
+                .write_all(&[if self.opts.null_name { 0 } else { sep }])?;
         }
         if self.opts.line_number {
-            write!(self.out, "{number}")?;
+            let width = if self.opts.initial_tab {
+                self.prefix_width
+            } else {
+                0
+            };
+            write!(self.out, "{number:>width$}")?;
             self.out.write_all(&[sep])?;
+        }
+        if self.opts.byte_offset {
+            let width = if self.opts.initial_tab {
+                self.prefix_width
+            } else {
+                0
+            };
+            write!(self.out, "{offset:>width$}")?;
+            self.out.write_all(&[sep])?;
+        }
+        if self.opts.initial_tab
+            && (self.show_names || self.opts.line_number || self.opts.byte_offset)
+        {
+            self.out.write_all(b"\t")?;
         }
         Ok(())
     }
 
     fn end_line(&mut self) -> io::Result<()> {
-        self.out.write_all(b"\n")?;
+        self.out
+            .write_all(if self.opts.zero_data { b"\0" } else { b"\n" })?;
         if self.opts.line_buffered {
             self.out.flush()?;
         }
@@ -944,13 +1177,21 @@ impl<'a, W: Write> Grep<'a, W> {
         match self.mode {
             Mode::Count => {
                 if self.show_names {
-                    write!(self.out, "{label}:")?;
+                    write!(self.out, "{label}")?;
+                    self.out
+                        .write_all(if self.opts.null_name { b"\0" } else { b":" })?;
                 }
                 writeln!(self.out, "{selected}")?;
             }
-            Mode::FilesWith if selected > 0 => writeln!(self.out, "{label}")?,
+            Mode::FilesWith if selected > 0 => {
+                write!(self.out, "{label}")?;
+                self.out
+                    .write_all(if self.opts.null_name { b"\0" } else { b"\n" })?;
+            }
             Mode::FilesWithout if selected == 0 => {
-                writeln!(self.out, "{label}")?;
+                write!(self.out, "{label}")?;
+                self.out
+                    .write_all(if self.opts.null_name { b"\0" } else { b"\n" })?;
                 self.any_listed = true;
             }
             Mode::Quiet if selected > 0 => self.halted = true,
@@ -962,7 +1203,7 @@ impl<'a, W: Write> Grep<'a, W> {
     fn report(&mut self, label: &str, error: &io::Error) {
         if error.kind() == io::ErrorKind::BrokenPipe {
             // The reader went away; stop quietly.
-            self.had_error = true;
+            self.broken_pipe = true;
             self.halted = true;
             return;
         }
@@ -1005,23 +1246,66 @@ fn show_names(options: &Options) -> bool {
     )
 }
 
-fn io_message(error: &io::Error) -> String {
-    match error.kind() {
-        io::ErrorKind::NotFound => "No such file or directory".into(),
-        io::ErrorKind::PermissionDenied => "Permission denied".into(),
-        _ => {
-            let text = error.to_string();
-            match text.find(" (os error") {
-                Some(index) => text[..index].to_string(),
-                None => text,
-            }
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn output(args: &[&str], data: &[u8]) -> Vec<u8> {
+        let args: Vec<String> = args.iter().map(|s| (*s).into()).collect();
+        let options = parse(&args, false).unwrap().unwrap();
+        let regex = build_regex(&options).unwrap();
+        let mut grep = Grep::new(
+            &options,
+            &regex,
+            Vec::new(),
+            options.with_filename == Some(true),
+        );
+        grep.search_reader(io::Cursor::new(data), "file").unwrap();
+        grep.out
+    }
+    #[test]
+    fn nul_records() {
+        assert_eq!(output(&["-zn", "a"], b"b\0a\0"), b"2:a\0");
+    }
+    #[test]
+    fn nul_dot() {
+        assert_eq!(output(&["-z", "a.b"], b"a\nb\0c\0"), b"a\nb\0");
+    }
+    #[test]
+    fn nul_names() {
+        assert_eq!(output(&["-ZHn", "a"], b"a\n"), b"file\x001:a\n");
+    }
+    #[test]
+    fn byte_offset() {
+        assert_eq!(output(&["-b", "a"], b"b\na\n"), b"2:a\n");
+    }
+    #[test]
+    fn match_offset() {
+        assert_eq!(output(&["-bo", "a"], b"baa\n"), b"1:a\n2:a\n");
+    }
+    #[test]
+    fn context_offsets() {
+        assert_eq!(output(&["-b", "-B1", "a"], b"b\na\n"), b"0-b\n2:a\n");
+    }
+    #[test]
+    fn reset_case() {
+        assert_eq!(output(&["-i", "--no-ignore-case", "A"], b"a\nA\n"), b"A\n");
+    }
+    #[test]
+    fn stdin_tab_width() {
+        assert_eq!(output(&["-nT", "a"], b"a\n"), b"                  1:\ta\n");
+    }
+    #[test]
+    fn alias_conflicting_matchers() {
+        for initial in ["-E", "-F"] {
+            for other in ["-G", "-P", if initial == "-E" { "-F" } else { "-E" }] {
+                let args = [initial.into(), other.into(), "a".into()];
+                assert!(parse(&args, true).is_err());
+                assert!(parse(&args, false).is_ok());
+            }
+            assert!(parse(&[initial.into(), initial.into(), "a".into()], true).is_ok());
+        }
+    }
 
     fn bre(pattern: &str) -> ByteRegex {
         let translated = bre_to_regex(pattern).unwrap();

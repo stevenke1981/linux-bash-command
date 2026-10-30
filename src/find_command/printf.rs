@@ -186,7 +186,7 @@ pub fn long_listing(entry: &Entry) -> String {
     let seconds = time_ns(meta, Clock::Modified).map_or(0, |ns| ns.div_euclid(NS_PER_SEC) as i64);
     format!(
         "{inode:>7} {blocks:>4} {mode} {links:>3} {owner:>8} {group:>8} {size:>8} {date} {path}",
-        mode = mode_string(meta),
+        mode = crate::common::meta::find_mode_string(meta),
         size = meta.len(),
         date = date_text(seconds),
         path = display_path(entry.path),
@@ -214,23 +214,6 @@ fn identity(meta: &Metadata) -> (u64, u64, u64, String, String) {
         "?".to_string(),
         "?".to_string(),
     )
-}
-
-fn mode_string(meta: &Metadata) -> String {
-    let kind = match kind_char(meta) {
-        'f' => '-',
-        other => other,
-    };
-    let bits = permission_bits(meta);
-    let mut text = String::with_capacity(10);
-    text.push(kind);
-    for shift in [6, 3, 0] {
-        let triple = (bits >> shift) & 0o7;
-        text.push(if triple & 0o4 != 0 { 'r' } else { '-' });
-        text.push(if triple & 0o2 != 0 { 'w' } else { '-' });
-        text.push(if triple & 0o1 != 0 { 'x' } else { '-' });
-    }
-    text
 }
 
 const MONTHS: [&str; 12] = [

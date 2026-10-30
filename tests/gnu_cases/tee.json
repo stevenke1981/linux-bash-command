@@ -1,0 +1,377 @@
+{
+  "command": "tee",
+  "cases": [
+    {
+      "name": "stdin",
+      "args": [],
+      "stdin": "a\nb\n",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "file",
+      "args": [
+        "out"
+      ],
+      "stdin": "a\nb\n",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multiple",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "test",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "append",
+      "args": [
+        "--append",
+        "out"
+      ],
+      "stdin": "new",
+      "files": {
+        "out": "old"
+      },
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "truncate",
+      "args": [
+        "out"
+      ],
+      "stdin": "new",
+      "files": {
+        "out": "old"
+      },
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ignore",
+      "args": [
+        "--ignore-interrupts",
+        "out"
+      ],
+      "stdin": "a",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "p",
+      "args": [
+        "-p",
+        "out"
+      ],
+      "stdin": "a",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "output_error_warn",
+      "args": [
+        "--output-error=warn",
+        "out"
+      ],
+      "stdin": "a",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "output_error_warn-nopipe",
+      "args": [
+        "--output-error=warn-nopipe",
+        "out"
+      ],
+      "stdin": "a",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "output_error_exit",
+      "args": [
+        "--output-error=exit",
+        "out"
+      ],
+      "stdin": "a",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "output_error_exit-nopipe",
+      "args": [
+        "--output-error=exit-nopipe",
+        "out"
+      ],
+      "stdin": "a",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "output_error_default",
+      "args": [
+        "--output-error",
+        "out"
+      ],
+      "stdin": "a",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing/out"
+      ],
+      "stdin": "a\nb\n",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "open_failure_continue",
+      "args": [
+        "missing/out",
+        "good"
+      ],
+      "stdin": "a",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bad_option",
+      "args": [
+        "--oops"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bad_mode",
+      "args": [
+        "--output-error=oops"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dash_is_filename",
+      "args": [
+        "-"
+      ],
+      "stdin": "a",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_binary",
+      "args": [
+        "out"
+      ],
+      "stdin": "abc\u0000xyz\n",
+      "files": {},
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "gnu": [
+        "tee"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "help_before_bad",
+      "args": [
+        "--help",
+        "--unknown"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "bad_before_help",
+      "args": [
+        "--unknown",
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

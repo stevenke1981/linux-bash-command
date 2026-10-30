@@ -1,0 +1,138 @@
+{
+  "command": "cat",
+  "cases": [
+    {
+      "name": "u",
+      "args": [
+        "-u"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "u_binary",
+      "args": [
+        "-u"
+      ],
+      "files": {},
+      "stdin_hex": "00ff00"
+    },
+    {
+      "name": "u_empty",
+      "args": [
+        "-u"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "u_number",
+      "args": [
+        "-un"
+      ],
+      "stdin": "a\nb\n",
+      "files": {}
+    },
+    {
+      "name": "u_nonblank",
+      "args": [
+        "-ub"
+      ],
+      "stdin": "a\n\nb\n",
+      "files": {}
+    },
+    {
+      "name": "u_ends",
+      "args": [
+        "-uE"
+      ],
+      "stdin": "a\nb",
+      "files": {}
+    },
+    {
+      "name": "u_tabs",
+      "args": [
+        "-uT"
+      ],
+      "stdin": "a\tb\n",
+      "files": {}
+    },
+    {
+      "name": "u_all",
+      "args": [
+        "-uA"
+      ],
+      "stdin": "a\t\n",
+      "files": {}
+    },
+    {
+      "name": "u_visible",
+      "args": [
+        "-uv"
+      ],
+      "stdin": "\r\n",
+      "files": {}
+    },
+    {
+      "name": "u_squeeze",
+      "args": [
+        "-us"
+      ],
+      "stdin": "\n\n\n",
+      "files": {}
+    },
+    {
+      "name": "u_file",
+      "args": [
+        "-u",
+        "one"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "a\nb"
+      }
+    },
+    {
+      "name": "u_multi",
+      "args": [
+        "-u",
+        "one",
+        "two"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "a",
+        "two": "b\n"
+      }
+    },
+    {
+      "name": "u_stdin_file",
+      "args": [
+        "-u",
+        "one",
+        "-"
+      ],
+      "stdin": "b",
+      "files": {
+        "one": "a"
+      }
+    },
+    {
+      "name": "u_missing",
+      "args": [
+        "-u",
+        "missing"
+      ],
+      "stdin": "",
+      "files": {}
+    },
+    {
+      "name": "u_repeat",
+      "args": [
+        "-uuu"
+      ],
+      "stdin": "a\n",
+      "files": {}
+    }
+  ]
+}
