@@ -1,5 +1,39 @@
 # agentcmd
 
+## Agent execution colors
+
+Set `AGENTCMD_AGENT` to identify an agent. In a terminal, each command prints a
+colored agent label and yellow `RUNNING` status to stderr, followed by green
+`DONE` (exit 0) or red `EXIT` (nonzero, including ordinary no-match results).
+Both standalone executables and `agentcmd <command>` support this display.
+Command stdout and exit codes stay unchanged; utility `--color` options retain
+their existing behavior.
+
+```bash
+AGENTCMD_AGENT=builder agentcmd ls
+AGENTCMD_AGENT=tester AGENTCMD_AGENT_COLOR=magenta agentcmd test -f README.md
+# Force ANSI colors when the calling agent captures stderr:
+AGENTCMD_AGENT=builder AGENTCMD_COLOR=always agentcmd echo hello
+```
+
+```powershell
+$env:AGENTCMD_AGENT = 'builder'
+$env:AGENTCMD_AGENT_COLOR = 'cyan'
+./target/debug/agentcmd.exe ls
+```
+
+`AGENTCMD_COLOR=auto` (default) requires an agent name and a terminal stderr;
+redirected stderr is quiet. `always` enables ANSI status even when captured
+(without a name the label is `agentcmd`); `never` disables it. `NO_COLOR` being
+set or `TERM=dumb` disables status even with `always`. Unknown color modes use
+auto. Agent names map consistently to a six-color palette; collisions are
+possible. Assign `AGENTCMD_AGENT_COLOR=blue|magenta|cyan|green|yellow|red` to
+choose distinct colors explicitly; unknown values use the name's palette color.
+Use an ANSI-capable terminal. Labels escape control characters and use the first
+80 characters of the agent name. Each status resets its color. A command killed
+or aborted before returning has no completion line; nested commands may each
+print their own labels. No agent identity is detected automatically.
+
 A collection of standalone Rust command-line tools for coding agents. Each command is a separate executable and implements a documented subset of familiar Linux-style tools. Most inspect local data; `curl` makes HTTP(S) requests and can write a response to a file. These tools are not complete replacements for ripgrep, GNU utilities, or curl.
 
 ## Build
@@ -97,7 +131,7 @@ Directory traversal skips hidden entries and honors ignore rules supplied by the
 
 ### Additional commands
 
-These commands accept the GNU, BSD, and ripgrep options that coding agents such as Claude Code typically use: bundled short flags (`-rn`, `-sSL`, `-lah`), attached values (`-A3`, `-m1`), and `--opt=value`. `--color[=WHEN]` is accepted where GNU accepts it, but output is never colored. On Windows, printed paths use `/` so they can be pasted back into Bash. Git for Windows aliases `ls` and `grep` to `ls -F --color=auto --show-control-chars` and `grep --color=auto`; both forms work. Unsupported options fail with exit status 2 and a message instead of producing different output.
+These commands accept the GNU, BSD, and ripgrep options that coding agents such as Claude Code typically use: bundled short flags (`-rn`, `-sSL`, `-lah`), attached values (`-A3`, `-m1`), and `--opt=value`. `--color[=WHEN]` is accepted where GNU accepts it, but command data output is never colored (optional execution labels on stderr are described above). On Windows, printed paths use `/` so they can be pasted back into Bash. Git for Windows aliases `ls` and `grep` to `ls -F --color=auto --show-control-chars` and `grep --color=auto`; both forms work. Unsupported options fail with exit status 2 and a message instead of producing different output.
 
 - `grep` defaults to GNU basic regular expressions (`a\|b`, `\(x\)`), with `-E`, `-F`, and `-P` (Rust regex; no lookaround or backreferences). It supports `-r`/`-R` with `--include`, `--exclude`, `--exclude-dir`; `-i -v -w -x -o -n -c -l -L -q -s -H -h -m`; `-A/-B/-C/-NUM` context; repeated `-e` and `-f FILE`; binary file detection with `-a` and `-I`.
 - `rg` shares the `search` engine and supports `-l`, `-c`, `--count-matches`, `-o`, `-q`, `-A/-B/-C`, `-t/-T`, `-g` (including `!` negation), `--iglob`, `-U`, `-w -x -v -S -s -i -F`, `-m`, `-M/--max-columns`, `-d`, `--max-filesize`, `-L`, `--sort/--sortr` (including with `--files`), `--column`, `-0`, `--hidden`, `-u/-uu/-uuu`, and `--no-ignore`. `-P` uses Rust regex syntax.

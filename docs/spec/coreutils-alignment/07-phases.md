@@ -68,6 +68,7 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | 指令 | 差異 | 原因 | 差分案例 |
 |---|---|---|---|
 | 全部 | BrokenPipe exit 0（GNU 被 SIGPIPE 終止） | 延續既有政策 | — |
+| 全部 | 可選彩色執行狀態列寫入 stderr，stdout 不變 | 2026-10-31 使用者要求；以 AGENTCMD_AGENT / AGENTCMD_COLOR 啟用 | `execution_status` CLI 測試 |
 | 全部 | 不展開 Windows glob | 見 README.md §2 | — |
 | expr | i128 溢位報錯（GNU bignum） | 不引入 bignum | `expr_bignum`（skip） |
 | printf seq sort -g | f64 精度（GNU long double） | Rust 無 f80 | 相關 skip 案例 |

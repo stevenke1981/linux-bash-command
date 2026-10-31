@@ -1,3 +1,5 @@
 fn main() {
-    std::process::exit(agentcmd::grep_command::run(&agentcmd::arguments("grep")));
+    std::process::exit(agentcmd::run_with_status("grep", || {
+        agentcmd::grep_command::run(&agentcmd::arguments("grep"))
+    }));
 }

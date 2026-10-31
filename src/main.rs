@@ -3,7 +3,7 @@ use std::path::Path;
 
 fn dispatch(name: &str, args: &[String]) -> i32 {
     match registry::find(name) {
-        Some(utility) => (utility.run)(args),
+        Some(utility) => agentcmd::run_with_status(utility.name, || (utility.run)(args)),
         None => {
             eprintln!("agentcmd: function/utility not found: {name}");
             1
@@ -65,7 +65,7 @@ fn main() {
             .filter(|u| basename.ends_with(u.name))
             .max_by_key(|u| u.name.len());
         match matched {
-            Some(utility) => (utility.run)(&args),
+            Some(utility) => agentcmd::run_with_status(utility.name, || (utility.run)(&args)),
             None => {
                 eprintln!("agentcmd: function/utility not found: {basename}");
                 1

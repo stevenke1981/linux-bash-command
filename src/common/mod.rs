@@ -1,6 +1,7 @@
 pub mod args;
 pub mod error;
 pub mod escape;
+pub mod execution;
 pub mod io;
 pub mod meta;
 pub mod path;

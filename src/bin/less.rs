@@ -1,3 +1,5 @@
 fn main() {
-    std::process::exit(agentcmd::less_command::run(&agentcmd::arguments("less")));
+    std::process::exit(agentcmd::run_with_status("less", || {
+        agentcmd::less_command::run(&agentcmd::arguments("less"))
+    }));
 }

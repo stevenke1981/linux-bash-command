@@ -14,6 +14,7 @@ pub mod registry;
 pub mod search;
 pub mod text_commands;
 
+pub use common::execution::run as run_with_status;
 pub use common::path::display_path;
 
 pub fn arguments(command: &str) -> Vec<String> {

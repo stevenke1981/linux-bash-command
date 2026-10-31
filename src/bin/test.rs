@@ -4,9 +4,14 @@ fn main() {
         .next()
         .and_then(|p| std::path::Path::new(&p).file_stem().map(|s| s == "["))
         .unwrap_or(false);
-    std::process::exit(if bracket {
-        agentcmd::commands::test::run_bracket(&args)
-    } else {
-        agentcmd::commands::test::run(&args)
-    });
+    std::process::exit(agentcmd::run_with_status(
+        if bracket { "[" } else { "test" },
+        || {
+            if bracket {
+                agentcmd::commands::test::run_bracket(&args)
+            } else {
+                agentcmd::commands::test::run(&args)
+            }
+        },
+    ));
 }

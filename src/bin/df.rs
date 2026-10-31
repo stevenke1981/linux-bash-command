@@ -1,3 +1,5 @@
 fn main() {
-    std::process::exit(agentcmd::df_command::run(&agentcmd::arguments("df")));
+    std::process::exit(agentcmd::run_with_status("df", || {
+        agentcmd::df_command::run(&agentcmd::arguments("df"))
+    }));
 }
