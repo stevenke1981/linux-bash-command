@@ -15,6 +15,7 @@ pub mod ls_style;
 pub mod ps_command;
 pub mod registry;
 pub mod search;
+pub mod search_color;
 pub mod text_commands;
 
 pub use common::execution::run as run_with_status;
