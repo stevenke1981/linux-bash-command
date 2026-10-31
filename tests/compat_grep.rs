@@ -67,16 +67,15 @@ fn text(output: &Output) -> String {
 fn color_options_are_accepted_without_color_output() {
     let f = Fixture::new();
     f.write("a.txt", b"alpha\nbeta\n");
-    for flag in [
-        "--color=auto",
-        "--color",
-        "--colour=never",
-        "--color=always",
-    ] {
+    // Piped output (not a terminal) stays plain for `auto` and the bare form.
+    for flag in ["--color=auto", "--color", "--colour=never"] {
         let out = f.grep(&[flag, "beta", "a.txt"]);
         assert_eq!(out.status.code(), Some(0), "{flag}");
         assert_eq!(text(&out), "beta\n", "{flag}");
     }
+    let out = f.grep(&["--color=always", "beta", "a.txt"]);
+    assert_eq!(out.status.code(), Some(0));
+    assert_eq!(text(&out), "\x1b[01;31m\x1b[Kbeta\x1b[m\x1b[K\n");
     let out = f.grep(&["--color=sometimes", "beta", "a.txt"]);
     assert_eq!(out.status.code(), Some(2));
 }

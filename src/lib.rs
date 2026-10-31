@@ -7,6 +7,7 @@ pub mod diff;
 pub mod files;
 pub mod find_command;
 pub mod fs_commands;
+mod grep_color;
 pub mod grep_command;
 pub mod less_command;
 pub mod ps_command;
