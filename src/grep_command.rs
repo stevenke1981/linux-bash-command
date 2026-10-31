@@ -1,5 +1,7 @@
+use crate::common::color::{self, When};
 use crate::common::error::io_text as io_message;
 use crate::common::regex::bre_to_regex;
+use crate::grep_color::{self, Palette};
 use regex::bytes::{Regex as ByteRegex, RegexBuilder as ByteRegexBuilder};
 use regex::Regex as NameRegex;
 use std::collections::{HashSet, VecDeque};
@@ -8,7 +10,7 @@ use std::fs::{self, DirEntry, File};
 use std::io::{self, BufRead, BufReader, BufWriter, Cursor, Read, Write};
 use std::path::{Path, PathBuf};
 
-const USAGE: &str = "Usage: grep [OPTIONS] PATTERN [FILE...]\n\nSearch lines in files or standard input (GNU grep compatible subset).\n\nPattern syntax:\n  -G, --basic-regexp        PATTERN is a basic regular expression (default)\n  -E, --extended-regexp     PATTERN is an extended regular expression\n  -F, --fixed-strings       PATTERN is a literal string\n  -P, --perl-regexp         PATTERN is a Perl-style regular expression (no lookaround)\n  -e, --regexp=PATTERN      Use PATTERN (repeatable; newlines separate patterns)\n  -f, --file=FILE           Read patterns from FILE, one per line\n  -i, --ignore-case         Ignore case distinctions (also -y)\n  -w, --word-regexp         Match whole words only\n  -x, --line-regexp         Match whole lines only\n  -v, --invert-match        Select non-matching lines\n\nOutput control:\n  -c, --count               Print a count of selected lines per file\n  -l, --files-with-matches  Print only the names of files with matches\n  -L, --files-without-match Print only the names of files without matches\n  -o, --only-matching       Print only the matched parts, one per line\n  -q, --quiet, --silent     Suppress output; exit 0 on the first match\n  -s, --no-messages         Suppress error messages about files\n  -m, --max-count=NUM       Stop after NUM selected lines per file\n  -n, --line-number         Prefix lines with their line number\n  -H, --with-filename       Always print the file name\n  -h, --no-filename         Never print the file name\n  -A, --after-context=NUM   Print NUM lines of trailing context\n  -B, --before-context=NUM  Print NUM lines of leading context\n  -C, --context=NUM        Print NUM lines of context (also -NUM)\n  -z, --null-data          Records are NUL terminated\n  -Z, --null               End file names with NUL\n  -b, --byte-offset        Prefix records with their byte offsets\n  -T, --initial-tab        Align prefixes and insert a tab\n      --label=LABEL        Display LABEL for stdin\n      --no-ignore-case     Match case sensitively\n      --line-buffered      Flush output after each line\n      --color[=WHEN]        Accepted for compatibility; output is never colored\n\nFile selection:\n  -r, --recursive           Recurse into directories (symlinks are not followed)\n  -R, --dereference-recursive  Recurse into directories, following symlinks\n      --include=GLOB        Search only files whose base name matches GLOB\n      --exclude=GLOB        Skip files whose base name matches GLOB\n      --exclude-dir=GLOB    Skip directories whose base name matches GLOB\n      --exclude-from=FILE   Read exclusion globs from FILE\n  -d, --directories=ACTION  read, skip, or recurse\n  -D, --devices=ACTION      read or skip\n  -a, --text               Treat binary files as text\n  -I                        Ignore binary files\n      --binary-files=TYPE   TYPE is binary, text or without-match\n  -U, --binary              Accepted; no effect on this platform\n      --                    End option parsing\n      --help                Show this help\n      --version             Show version\n\nGlobs support *, ?, [...] and {a,b}. Binary matches print 'Binary file NAME matches'.\nExit status: 0 when any line is selected (with -L, when a file is listed), 1 when none are,\n2 on error. With -q, a match gives 0 even if an error occurred.\n";
+const USAGE: &str = "Usage: grep [OPTIONS] PATTERN [FILE...]\n\nSearch lines in files or standard input (GNU grep compatible subset).\n\nPattern syntax:\n  -G, --basic-regexp        PATTERN is a basic regular expression (default)\n  -E, --extended-regexp     PATTERN is an extended regular expression\n  -F, --fixed-strings       PATTERN is a literal string\n  -P, --perl-regexp         PATTERN is a Perl-style regular expression (no lookaround)\n  -e, --regexp=PATTERN      Use PATTERN (repeatable; newlines separate patterns)\n  -f, --file=FILE           Read patterns from FILE, one per line\n  -i, --ignore-case         Ignore case distinctions (also -y)\n  -w, --word-regexp         Match whole words only\n  -x, --line-regexp         Match whole lines only\n  -v, --invert-match        Select non-matching lines\n\nOutput control:\n  -c, --count               Print a count of selected lines per file\n  -l, --files-with-matches  Print only the names of files with matches\n  -L, --files-without-match Print only the names of files without matches\n  -o, --only-matching       Print only the matched parts, one per line\n  -q, --quiet, --silent     Suppress output; exit 0 on the first match\n  -s, --no-messages         Suppress error messages about files\n  -m, --max-count=NUM       Stop after NUM selected lines per file\n  -n, --line-number         Prefix lines with their line number\n  -H, --with-filename       Always print the file name\n  -h, --no-filename         Never print the file name\n  -A, --after-context=NUM   Print NUM lines of trailing context\n  -B, --before-context=NUM  Print NUM lines of leading context\n  -C, --context=NUM        Print NUM lines of context (also -NUM)\n  -z, --null-data          Records are NUL terminated\n  -Z, --null               End file names with NUL\n  -b, --byte-offset        Prefix records with their byte offsets\n  -T, --initial-tab        Align prefixes and insert a tab\n      --label=LABEL        Display LABEL for stdin\n      --no-ignore-case     Match case sensitively\n      --line-buffered      Flush output after each line\n      --color[=WHEN]        Highlight matches, names and numbers: always, auto or never\n\nFile selection:\n  -r, --recursive           Recurse into directories (symlinks are not followed)\n  -R, --dereference-recursive  Recurse into directories, following symlinks\n      --include=GLOB        Search only files whose base name matches GLOB\n      --exclude=GLOB        Skip files whose base name matches GLOB\n      --exclude-dir=GLOB    Skip directories whose base name matches GLOB\n      --exclude-from=FILE   Read exclusion globs from FILE\n  -d, --directories=ACTION  read, skip, or recurse\n  -D, --devices=ACTION      read or skip\n  -a, --text               Treat binary files as text\n  -I                        Ignore binary files\n      --binary-files=TYPE   TYPE is binary, text or without-match\n  -U, --binary              Accepted; no effect on this platform\n      --                    End option parsing\n      --help                Show this help\n      --version             Show version\n\nGlobs support *, ?, [...] and {a,b}. Binary matches print 'Binary file NAME matches'.\nExit status: 0 when any line is selected (with -L, when a file is listed), 1 when none are,\n2 on error. With -q, a match gives 0 even if an error occurred.\n";
 
 const BINARY_PROBE_BYTES: u64 = 8192;
 const STDIN_LABEL: &str = "(standard input)";
@@ -110,6 +112,8 @@ struct Options {
     binary: BinaryMode,
     filters: Vec<Filter>,
     exclude_dirs: Vec<NameRegex>,
+    /// The explicit `--color[=WHEN]` value; `None` defers to the environment.
+    color: Option<When>,
 }
 
 impl Options {
@@ -156,6 +160,10 @@ fn run_with_matcher_conflicts(args: &[String], reject_matcher_conflicts: bool) -
     let names = show_names(&options);
     let stdout = io::stdout();
     let mut grep = Grep::new(&options, &regex, BufWriter::new(stdout.lock()), names);
+    // `-q` prints nothing, so there is nothing to color.
+    if grep.mode != Mode::Quiet && color::enabled(options.color) {
+        grep.palette = Some(Palette::from_env());
+    }
     grep.search_all();
     grep.exit_code()
 }
@@ -307,7 +315,8 @@ impl Parser {
             None => (text, None),
         };
         if matches!(name, "color" | "colour") {
-            return check_color(inline);
+            self.options.color = Some(color::parse_when(inline, When::Auto)?);
+            return Ok(());
         }
         if VALUE_OPTIONS.contains(&name) {
             let value = match inline {
@@ -551,16 +560,6 @@ fn take_next(args: &[String], index: &mut usize, name: &str) -> Result<String, S
     Ok(value.clone())
 }
 
-fn check_color(value: Option<&str>) -> Result<(), String> {
-    match value {
-        None
-        | Some("always" | "yes" | "force" | "never" | "no" | "none" | "auto" | "tty" | "if-tty") => {
-            Ok(())
-        }
-        Some(other) => Err(format!("invalid argument '{other}' for '--color'")),
-    }
-}
-
 fn binary_mode(value: &str) -> Result<BinaryMode, String> {
     match value {
         "binary" => Ok(BinaryMode::Match),
@@ -748,6 +747,8 @@ struct Grep<'a, W: Write> {
     had_error: bool,
     halted: bool,
     visited: HashSet<PathBuf>,
+    /// Colors in effect for this run; `None` writes plain text.
+    palette: Option<Palette>,
 }
 
 impl<'a, W: Write> Grep<'a, W> {
@@ -766,7 +767,34 @@ impl<'a, W: Write> Grep<'a, W> {
             had_error: false,
             halted: false,
             visited: HashSet::new(),
+            palette: None,
         }
+    }
+
+    /// Writes `text` in the color chosen from the palette by `pick`.
+    fn paint(&mut self, pick: fn(&Palette) -> &str, text: &[u8]) -> io::Result<()> {
+        let sgr = self.palette.as_ref().map_or("", pick);
+        grep_color::write_painted(&mut self.out, sgr, text)
+    }
+
+    /// Writes a selected or context line body. Selected lines highlight matches
+    /// (`ms`); context lines are written as-is apart from the `cx` color.
+    fn write_body(&mut self, text: &[u8], selected: bool) -> io::Result<()> {
+        let Some(palette) = self.palette.as_ref() else {
+            return self.out.write_all(text);
+        };
+        if !selected {
+            return grep_color::write_painted(&mut self.out, &palette.context_line, text);
+        }
+        let line_sgr = palette.selected_line.as_str();
+        let match_sgr = palette.matched.as_str();
+        let mut position = 0;
+        for (start, end) in spans(self.regex, text) {
+            grep_color::write_painted(&mut self.out, line_sgr, &text[position..start])?;
+            grep_color::write_painted(&mut self.out, match_sgr, &text[start..end])?;
+            position = end;
+        }
+        grep_color::write_painted(&mut self.out, line_sgr, &text[position..])
     }
 
     fn search_all(&mut self) {
@@ -1080,7 +1108,7 @@ impl<'a, W: Write> Grep<'a, W> {
         if self.opts.only {
             for (start, end) in spans(self.regex, line) {
                 self.prefix(label, state.lineno, state.offset + start as u64, b':')?;
-                self.out.write_all(&line[start..end])?;
+                self.paint(|p| &p.matched, &line[start..end])?;
                 self.end_line()?;
             }
             return Ok(());
@@ -1120,11 +1148,12 @@ impl<'a, W: Write> Grep<'a, W> {
                 Some(previous) => number > *previous + 1,
             };
             if gap {
-                self.out.write_all(b"--\n")?;
+                self.paint(|p| &p.separator, b"--")?;
+                self.out.write_all(b"\n")?;
             }
         }
         self.prefix(label, number, offset, sep)?;
-        self.out.write_all(text)?;
+        self.write_body(text, sep == b':')?;
         self.end_line()?;
         *last = Some(number);
         self.group_printed = true;
@@ -1133,9 +1162,8 @@ impl<'a, W: Write> Grep<'a, W> {
 
     fn prefix(&mut self, label: &str, number: u64, offset: u64, sep: u8) -> io::Result<()> {
         if self.show_names {
-            write!(self.out, "{label}")?;
-            self.out
-                .write_all(&[if self.opts.null_name { 0 } else { sep }])?;
+            self.paint(|p| &p.file, label.as_bytes())?;
+            self.write_separator(sep, self.opts.null_name)?;
         }
         if self.opts.line_number {
             let width = if self.opts.initial_tab {
@@ -1143,8 +1171,9 @@ impl<'a, W: Write> Grep<'a, W> {
             } else {
                 0
             };
-            write!(self.out, "{number:>width$}")?;
-            self.out.write_all(&[sep])?;
+            let number = format!("{number:>width$}");
+            self.paint(|p| &p.line, number.as_bytes())?;
+            self.write_separator(sep, false)?;
         }
         if self.opts.byte_offset {
             let width = if self.opts.initial_tab {
@@ -1152,8 +1181,9 @@ impl<'a, W: Write> Grep<'a, W> {
             } else {
                 0
             };
-            write!(self.out, "{offset:>width$}")?;
-            self.out.write_all(&[sep])?;
+            let offset = format!("{offset:>width$}");
+            self.paint(|p| &p.byte, offset.as_bytes())?;
+            self.write_separator(sep, false)?;
         }
         if self.opts.initial_tab
             && (self.show_names || self.opts.line_number || self.opts.byte_offset)
@@ -1161,6 +1191,15 @@ impl<'a, W: Write> Grep<'a, W> {
             self.out.write_all(b"\t")?;
         }
         Ok(())
+    }
+
+    /// Writes a field separator. With `-Z` a file name ends in an uncolored NUL.
+    fn write_separator(&mut self, sep: u8, nul: bool) -> io::Result<()> {
+        if nul {
+            self.out.write_all(&[0])
+        } else {
+            self.paint(|p| &p.separator, &[sep])
+        }
     }
 
     fn end_line(&mut self) -> io::Result<()> {
@@ -1177,19 +1216,18 @@ impl<'a, W: Write> Grep<'a, W> {
         match self.mode {
             Mode::Count => {
                 if self.show_names {
-                    write!(self.out, "{label}")?;
-                    self.out
-                        .write_all(if self.opts.null_name { b"\0" } else { b":" })?;
+                    self.paint(|p| &p.file, label.as_bytes())?;
+                    self.write_separator(b':', self.opts.null_name)?;
                 }
                 writeln!(self.out, "{selected}")?;
             }
             Mode::FilesWith if selected > 0 => {
-                write!(self.out, "{label}")?;
+                self.paint(|p| &p.file, label.as_bytes())?;
                 self.out
                     .write_all(if self.opts.null_name { b"\0" } else { b"\n" })?;
             }
             Mode::FilesWithout if selected == 0 => {
-                write!(self.out, "{label}")?;
+                self.paint(|p| &p.file, label.as_bytes())?;
                 self.out
                     .write_all(if self.opts.null_name { b"\0" } else { b"\n" })?;
                 self.any_listed = true;
