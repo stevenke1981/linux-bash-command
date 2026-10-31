@@ -93,17 +93,31 @@ impl Drop for Sandbox {
     }
 }
 
+/// Tests copy executables into sandboxes while other test threads fork. A child
+/// forked during the copy briefly inherits the write descriptor, so Linux may
+/// report ETXTBSY until that child execs; retry for a bounded time.
+fn spawn_retrying_busy(cmd: &mut Command) -> std::process::Child {
+    const ATTEMPTS: u32 = 50;
+    for _ in 1..ATTEMPTS {
+        match cmd.spawn() {
+            Err(e) if e.kind() == std::io::ErrorKind::ExecutableFileBusy => {
+                std::thread::sleep(std::time::Duration::from_millis(20));
+            }
+            result => return result.unwrap(),
+        }
+    }
+    cmd.spawn().unwrap()
+}
+
 pub fn execute(mut cmd: Command, stdin: &[u8]) -> Output {
     cmd.env("LC_ALL", "C")
         .env("TZ", "UTC")
         .env("COLUMNS", "80")
         .env_remove("POSIXLY_CORRECT");
-    let mut child = cmd
-        .stdin(Stdio::piped())
+    cmd.stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .unwrap();
+        .stderr(Stdio::piped());
+    let mut child = spawn_retrying_busy(&mut cmd);
     let mut pipe = child.stdin.take().unwrap();
     let bytes = stdin.to_vec();
     let writer = std::thread::spawn(move || {

@@ -571,7 +571,10 @@
       ],
       "stdin": "",
       "files": {
-        "data": "abc",
+        "data": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
         "directory": {
           "dir": true
         },

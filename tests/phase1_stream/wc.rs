@@ -298,7 +298,8 @@ fn wc_files0_stdin_dash_is_invalid_and_still_counts_toward_total() {
     assert_eq!(out.stdout, b"3 a\n3 total\n");
 }
 
-#[cfg(unix)]
+// macOS APFS rejects non-UTF-8 file names with EILSEQ.
+#[cfg(all(unix, not(target_os = "macos")))]
 #[test]
 fn wc_files0_preserves_non_utf8_name_for_open() {
     use std::os::unix::ffi::OsStringExt;
