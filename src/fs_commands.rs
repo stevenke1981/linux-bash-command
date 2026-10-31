@@ -1,3 +1,4 @@
+use crate::common::color::{self, When};
 use crate::common::error::io_text;
 use crate::common::meta::{is_executable, mode_string};
 use crate::common::size::human_size;
@@ -9,6 +10,7 @@ use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::display_path;
+use crate::ls_style::{self, Layout, Style};
 
 const SECONDS_PER_DAY: i64 = 86_400;
 
@@ -172,6 +174,10 @@ struct LsOptions {
     group_dirs_first: bool,
     sort: SortKey,
     time_style: TimeStyle,
+    /// `--color` as given; `None` means the environment decides.
+    color: Option<When>,
+    layout: Layout,
+    style: Style,
 }
 
 struct Entry {
@@ -192,7 +198,7 @@ enum Argument {
     Directory(PathBuf),
 }
 
-const LS_USAGE: &str = "Usage: ls [OPTION]... [PATH]...\nList directory entries, one per line. Times are shown in UTC.\n\nOptions:\n  -a, --all                Include dot-prefixed names, then . and ..\n  -A, --almost-all         Include dot-prefixed names, without . and ..\n  -f                       Same as -a -U\n  -l, -n, -o, -g           Long format: mode, link count, owner '-', group '-', size, time, name\n  -h, --human-readable     With -l, print sizes such as 512, 4.0K, 12M\n  -F, --classify           Append / to directories, @ to symlinks, * to executables\n  -p                       Append / to directories\n  -d, --directory          List directories themselves, not their contents\n  -R, --recursive          List subdirectories recursively\n  -t                       Sort by modification time, newest first\n  -S                       Sort by size, largest first\n  -v                       Sort names in natural order (file2 before file10)\n  -U                       Do not sort; use directory order\n  -r, --reverse            Reverse the sort order\n      --group-directories-first\n                           List directories before files\n      --full-time          With -l, show seconds and +0000\n      --time-style=STYLE   full-iso (seconds), or long-iso, iso, locale (minutes)\n  -x, -C, -1, -G           Accepted; output is always one entry per line\n      --color[=WHEN]       Accepted; output is never colored\n      --show-control-chars Accepted and ignored\n  -i and -s are not supported and exit 2\n\nExit status: 0 on success, 1 on minor errors, 2 on serious errors.\n";
+const LS_USAGE: &str = "Usage: ls [OPTION]... [PATH]...\nList directory entries. Times are shown in UTC.\n\nOptions:\n  -a, --all                Include dot-prefixed names, then . and ..\n  -A, --almost-all         Include dot-prefixed names, without . and ..\n  -f                       Same as -a -U\n  -l, -n, -o, -g           Long format: mode, link count, owner '-', group '-', size, time, name\n  -h, --human-readable     With -l, print sizes such as 512, 4.0K, 12M\n  -F, --classify           Append / to directories, @ to symlinks, * to executables\n  -p                       Append / to directories\n  -d, --directory          List directories themselves, not their contents\n  -R, --recursive          List subdirectories recursively\n  -t                       Sort by modification time, newest first\n  -S                       Sort by size, largest first\n  -v                       Sort names in natural order (file2 before file10)\n  -U                       Do not sort; use directory order\n  -r, --reverse            Reverse the sort order\n      --group-directories-first\n                           List directories before files\n      --full-time          With -l, show seconds and +0000\n      --time-style=STYLE   full-iso (seconds), or long-iso, iso, locale (minutes)\n  -C                       List entries in columns (default on a terminal)\n  -x                       List entries across rows instead of down columns\n  -1                       List one entry per line (default when piped)\n  -G                       Accepted and ignored\n      --color[=WHEN]       Color names by type, using LS_COLORS: always (bare form),\n                           auto (terminal only), or never\n      --show-control-chars Accepted and ignored\n  -i and -s are not supported and exit 2\n\nExit status: 0 on success, 1 on minor errors, 2 on serious errors.\n";
 
 pub fn ls(args: &[String]) -> i32 {
     let (options, paths) = match parse_ls(args) {
@@ -270,6 +276,7 @@ fn parse_ls(args: &[String]) -> Result<(LsOptions, Vec<PathBuf>), i32> {
     if paths.is_empty() {
         paths.push(PathBuf::from("."));
     }
+    options.style = Style::new(color::enabled(options.color));
     Ok((options, paths))
 }
 
@@ -297,7 +304,10 @@ fn parse_ls_short(flags: &str, options: &mut LsOptions) -> Result<(), i32> {
             'S' => options.sort = SortKey::Size,
             'U' => options.sort = SortKey::Unsorted,
             'v' => options.sort = SortKey::Natural,
-            'x' | 'C' | '1' | 'G' => {}
+            'C' => options.layout = Layout::Columns,
+            'x' => options.layout = Layout::Across,
+            '1' => options.layout = Layout::OneLine,
+            'G' => {}
             'i' | 's' => {
                 eprintln!("ls: -{flag} is not supported");
                 return Err(2);
@@ -312,7 +322,11 @@ fn parse_ls_short(flags: &str, options: &mut LsOptions) -> Result<(), i32> {
 }
 
 fn parse_ls_long(name: &str, arg: &str, options: &mut LsOptions) -> Result<(), i32> {
-    if is_color_option(arg) || name == "show-control-chars" {
+    if let Some(value) = color::color_arg(arg) {
+        options.color = Some(ls_style::parse_color(value)?);
+        return Ok(());
+    }
+    if name == "show-control-chars" {
         return Ok(());
     }
     match name {
@@ -506,7 +520,11 @@ impl Listing {
         let lines = if self.options.long {
             long_lines(entries, &self.options)
         } else {
-            short_lines(entries, &self.options)
+            let cells: Vec<String> = entries
+                .iter()
+                .map(|entry| entry_text(entry, &self.options))
+                .collect();
+            ls_style::arrange(cells, self.options.layout)
         };
         for line in lines {
             writeln!(out, "{line}")?;
@@ -536,11 +554,12 @@ fn dot_entries(directory: &Path) -> Vec<Entry> {
         .collect()
 }
 
-fn short_lines(entries: &[Entry], options: &LsOptions) -> Vec<String> {
-    entries
-        .iter()
-        .map(|entry| format!("{}{}", entry.name, indicator(entry, options)))
-        .collect()
+/// Colored name followed by its classify mark; the mark stays outside the color.
+fn entry_text(entry: &Entry, options: &LsOptions) -> String {
+    let name = options
+        .style
+        .name(&entry.name, &entry.path, &entry.metadata);
+    format!("{name}{}", indicator(entry, options))
 }
 
 fn long_lines(entries: &[Entry], options: &LsOptions) -> Vec<String> {
@@ -573,7 +592,7 @@ fn long_lines(entries: &[Entry], options: &LsOptions) -> Vec<String> {
 
 /// Name plus classify mark, followed by ` -> target` for symlinks in long format.
 fn long_name(entry: &Entry, options: &LsOptions) -> String {
-    let mut text = format!("{}{}", entry.name, indicator(entry, options));
+    let mut text = entry_text(entry, options);
     if entry.metadata.file_type().is_symlink() {
         if let Ok(target) = fs::read_link(&entry.path) {
             text.push_str(" -> ");
