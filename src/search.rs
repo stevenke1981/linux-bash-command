@@ -2,6 +2,8 @@
 //!
 //! `search` keeps its historical output and error behavior; `rg` accepts ripgrep's flags.
 
+use crate::common::color::{self, When};
+use crate::search_color::{self, Painter, Part, Styles};
 use ignore::overrides::{Override, OverrideBuilder};
 use ignore::WalkBuilder;
 use regex::bytes::{Regex, RegexBuilder};
@@ -134,6 +136,13 @@ struct Config {
     types_not: Vec<String>,
     glob_case_insensitive: bool,
     no_messages: bool,
+    /// `--color WHEN` as given; `None` defers to the environment and the terminal.
+    color_when: Option<When>,
+    styles: Styles,
+    /// True when `--heading` or `--no-heading` was given explicitly.
+    heading_set: bool,
+    /// True when `-n` or `-N` was given explicitly.
+    line_number_set: bool,
 }
 
 impl Config {
@@ -239,8 +248,8 @@ Output:
       --column                 Show the column of the first match
   -H, --with-filename          Show file names
   -I, --no-filename            Hide file names
-      --heading                Group matches under the file name
-      --no-heading             Print the file name before each line (default)
+      --heading                Group matches under the file name (default on a terminal)
+      --no-heading             Print the file name before each line (default when piped)
   -0, --null                   Terminate file names with NUL
   -A, --after-context N        Show N lines after each match
   -B, --before-context N       Show N lines before each match
@@ -249,8 +258,10 @@ Output:
   -M, --max-columns N          Replace lines longer than N bytes with a notice
       --max-columns-preview    Show a preview of long lines instead of a notice
   -m, --max-count N            Stop after N selected lines per file
-      --color WHEN             Accepted and ignored (output is never colored)
-      --colors SPEC           Accepted and ignored
+      --color WHEN             Color output: never, auto (default), always or ansi
+      --colors SPEC            Override a color: {path,line,column,match}:{fg,bg}:NAME,
+                               {type}:style:{bold,nobold,underline,intense}, {type}:none
+                               (repeatable; defaults: path=35, line=32, column=32, match=1;31)
 
 Files:
       --files                  List the files that would be searched
@@ -454,12 +465,24 @@ fn apply_flag(cfg: &mut Config, name: &str) -> Result<(), String> {
         "count-matches" => cfg.count_matches = true,
         "quiet" => cfg.quiet = true,
         "json" => cfg.json = true,
-        "line-number" => cfg.no_line_numbers = false,
-        "no-line-number" => cfg.no_line_numbers = true,
+        "line-number" => {
+            cfg.no_line_numbers = false;
+            cfg.line_number_set = true;
+        }
+        "no-line-number" => {
+            cfg.no_line_numbers = true;
+            cfg.line_number_set = true;
+        }
         "with-filename" => cfg.with_filename = Some(true),
         "no-filename" => cfg.with_filename = Some(false),
-        "heading" => cfg.heading = true,
-        "no-heading" => cfg.heading = false,
+        "heading" => {
+            cfg.heading = true;
+            cfg.heading_set = true;
+        }
+        "no-heading" => {
+            cfg.heading = false;
+            cfg.heading_set = true;
+        }
         "column" => cfg.column = true,
         "null" => cfg.null = true,
         "trim" => cfg.trim = true,
@@ -508,7 +531,8 @@ fn apply_value(cfg: &mut Config, name: &str, value: String) -> Result<(), String
         "threads" => {
             parse_num::<usize>(name, &value)?;
         }
-        "color" | "colors" | "colour" => {}
+        "color" | "colour" => cfg.color_when = Some(search_color::parse_when(&value)?),
+        "colors" => search_color::apply_spec(&mut cfg.styles, &value)?,
         "replace" | "encoding" => return Err(format!("--{name} is not supported")),
         _ => return Err(format!("unknown option: --{name}")),
     }
@@ -936,6 +960,7 @@ struct Searcher {
     cfg: Config,
     matcher: Matcher,
     show_name: bool,
+    painter: Painter,
     out: BufWriter<io::Stdout>,
     printed: bool,
     found: bool,
@@ -944,10 +969,12 @@ struct Searcher {
 
 impl Searcher {
     fn new(cfg: Config, matcher: Matcher, show_name: bool) -> Self {
+        let painter = Painter::new(cfg.color_when, cfg.styles);
         Self {
             cfg,
             matcher,
             show_name,
+            painter,
             out: BufWriter::new(io::stdout()),
             printed: false,
             found: false,
@@ -1192,30 +1219,32 @@ impl Searcher {
     }
 
     fn write_name(&mut self, label: &str) -> io::Result<()> {
-        self.out.write_all(label.as_bytes())?;
-        let terminator: &[u8] = if self.cfg.null { b"\0" } else { b"\n" };
-        self.out.write_all(terminator)
+        let mut out = Vec::new();
+        self.painter.paint(&mut out, Part::Path, label.as_bytes());
+        out.push(if self.cfg.null { 0 } else { b'\n' });
+        self.out.write_all(&out)
     }
 
     fn write_count(&mut self, label: &str, count: usize) -> io::Result<()> {
+        let mut out = Vec::new();
         if self.show_name {
-            self.out.write_all(label.as_bytes())?;
-            self.out
-                .write_all(if self.cfg.null { b"\0" } else { b":" })?;
+            self.painter.paint(&mut out, Part::Path, label.as_bytes());
+            out.push(if self.cfg.null { 0 } else { b':' });
         }
-        writeln!(self.out, "{count}")
+        out.extend_from_slice(format!("{count}\n").as_bytes());
+        self.out.write_all(&out)
     }
 
     fn write_binary(&mut self, label: &str, offset: usize) -> io::Result<()> {
-        let prefix = if self.show_name {
-            format!("{label}: ")
-        } else {
-            String::new()
-        };
-        writeln!(
-            self.out,
-            "{prefix}binary file matches (found \"\\0\" byte around offset {offset})"
-        )
+        let mut out = Vec::new();
+        if self.show_name {
+            self.painter.paint(&mut out, Part::Path, label.as_bytes());
+            out.extend_from_slice(b": ");
+        }
+        out.extend_from_slice(
+            format!("binary file matches (found \"\\0\" byte around offset {offset})\n").as_bytes(),
+        );
+        self.out.write_all(&out)
     }
 
     /// With `--heading`, prints the file name once above that file's matches.
@@ -1224,7 +1253,10 @@ impl Searcher {
             if self.printed {
                 writeln!(self.out)?;
             }
-            writeln!(self.out, "{label}")?;
+            let mut out = Vec::new();
+            self.painter.paint(&mut out, Part::Path, label.as_bytes());
+            out.push(b'\n');
+            self.out.write_all(&out)?;
         }
         Ok(())
     }
@@ -1232,16 +1264,41 @@ impl Searcher {
     fn prefix(&self, label: &str, line_no: usize, column: Option<usize>, sep: u8) -> Vec<u8> {
         let mut out = Vec::new();
         if self.show_name && !self.cfg.heading {
-            out.extend_from_slice(label.as_bytes());
+            self.painter.paint(&mut out, Part::Path, label.as_bytes());
             out.push(if self.cfg.null { 0 } else { sep });
         }
         if !self.cfg.no_line_numbers {
-            out.extend_from_slice(format!("{line_no}{}", sep as char).as_bytes());
+            self.painter
+                .paint(&mut out, Part::Line, line_no.to_string().as_bytes());
+            out.push(sep);
         }
         if let Some(column) = column {
-            out.extend_from_slice(format!("{column}{}", sep as char).as_bytes());
+            self.painter
+                .paint(&mut out, Part::Column, column.to_string().as_bytes());
+            out.push(sep);
         }
         out
+    }
+
+    /// True when `-M` replaces the line with a notice, which must not be highlighted.
+    fn is_notice(&self, line: &[u8]) -> bool {
+        let line = if self.cfg.trim {
+            trim_start(line)
+        } else {
+            line
+        };
+        !self.cfg.max_columns_preview && self.cfg.max_columns.is_some_and(|max| line.len() > max)
+    }
+
+    /// Appends `body` with every match wrapped in the match style.
+    fn push_highlighted(&self, out: &mut Vec<u8>, body: &[u8]) {
+        let mut last = 0;
+        for (start, end) in self.matcher.all(body) {
+            out.extend_from_slice(&body[last..start]);
+            self.painter.paint(out, Part::Match, &body[start..end]);
+            last = end;
+        }
+        out.extend_from_slice(&body[last..]);
     }
 
     fn display_body<'a>(&self, line: &'a [u8], is_match: bool) -> Cow<'a, [u8]> {
@@ -1291,7 +1348,11 @@ impl Searcher {
         };
         let body = self.display_body(line, is_match);
         let mut out = self.prefix(label, index + 1, column, if is_match { b':' } else { b'-' });
-        out.extend_from_slice(&body);
+        if is_match && self.painter.enabled() && !self.is_notice(line) {
+            self.push_highlighted(&mut out, &body);
+        } else {
+            out.extend_from_slice(&body);
+        }
         out.push(b'\n');
         self.out.write_all(&out)?;
         self.printed = true;
@@ -1330,17 +1391,24 @@ impl Searcher {
         Ok(())
     }
 
+    /// Writes one `-o` output line. `matched` is false for notices, which are not colored.
     fn write_match(
         &mut self,
         label: &str,
         line_no: usize,
         column: usize,
         bytes: &[u8],
+        matched: bool,
     ) -> io::Result<()> {
         let column = self.cfg.column.then_some(column);
         let mut out = self.prefix(label, line_no, column, b':');
-        out.extend_from_slice(bytes);
+        if matched {
+            self.painter.paint(&mut out, Part::Match, bytes);
+        } else {
+            out.extend_from_slice(bytes);
+        }
         out.push(b'\n');
+        self.printed = true;
         self.out.write_all(&out)
     }
 
@@ -1356,7 +1424,7 @@ impl Searcher {
                 let index = line_index(lines, start);
                 if selected[index] {
                     let column = start - lines[index].0 + 1;
-                    self.write_match(label, index + 1, column, &text[start..end])?;
+                    self.write_match(label, index + 1, column, &text[start..end], true)?;
                 }
             }
             return Ok(());
@@ -1367,11 +1435,11 @@ impl Searcher {
             if self.cfg.max_columns.is_some_and(|max| line.len() > max) {
                 let count = self.matcher.all(line).len();
                 let notice = format!("[Omitted long line with {count} matches]");
-                self.write_match(label, index + 1, 1, notice.as_bytes())?;
+                self.write_match(label, index + 1, 1, notice.as_bytes(), false)?;
                 continue;
             }
             for (start, end) in self.matcher.all(line) {
-                self.write_match(label, index + 1, start + 1, &line[start..end])?;
+                self.write_match(label, index + 1, start + 1, &line[start..end], true)?;
             }
         }
         Ok(())
@@ -1399,7 +1467,11 @@ impl Searcher {
     }
 }
 
-fn execute(cfg: Config) -> i32 {
+fn execute(mut cfg: Config) -> i32 {
+    // On a terminal, group by file unless the user chose a layout explicitly.
+    if !cfg.heading_set && !cfg.line_number_set && color::stdout_is_tty() {
+        cfg.heading = true;
+    }
     let name = cfg.name();
     if let Err(error) = build_walker(Path::new("."), &cfg) {
         eprintln!("{name}: {error}");
