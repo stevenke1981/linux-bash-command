@@ -1,3 +1,4 @@
+use crate::common::color;
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
 use std::io::{self, Write};
@@ -621,26 +622,33 @@ fn print_table(columns: &[Column], rows: &[Row], no_headers: bool) -> i32 {
     let mut out = String::new();
     let show_header = !no_headers && headers.iter().any(|header| !header.is_empty());
     if show_header {
-        push_line(&mut out, columns, &headers, &widths);
+        // The header row is bold on a terminal; body rows stay plain.
+        let header_sgr = if color::enabled(None) { BOLD } else { "" };
+        push_line(&mut out, columns, &headers, &widths, header_sgr);
     }
     for line in &cells {
-        push_line(&mut out, columns, line, &widths);
+        push_line(&mut out, columns, line, &widths, "");
     }
     write_stdout(&out)
 }
 
-fn push_line(out: &mut String, columns: &[Column], values: &[String], widths: &[usize]) {
+/// Bold header row on a terminal.
+const BOLD: &str = "1";
+
+/// Appends one row. Padding is computed from the plain text; only the text is wrapped in `sgr`.
+fn push_line(out: &mut String, columns: &[Column], values: &[String], widths: &[usize], sgr: &str) {
     let last = columns.len().saturating_sub(1);
     let mut pieces = Vec::with_capacity(columns.len());
     for (index, column) in columns.iter().enumerate() {
         let value = &values[index];
-        let width = widths[index];
+        let shown = color::paint(!sgr.is_empty(), sgr, value);
+        let pad = " ".repeat(widths[index].saturating_sub(value.chars().count()));
         let piece = if index == last && alignment(column.field) == Align::Left {
-            value.clone()
+            shown
         } else {
             match alignment(column.field) {
-                Align::Right => format!("{value:>width$}"),
-                Align::Left => format!("{value:<width$}"),
+                Align::Right => format!("{pad}{shown}"),
+                Align::Left => format!("{shown}{pad}"),
             }
         };
         pieces.push(piece);

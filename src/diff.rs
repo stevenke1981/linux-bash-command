@@ -6,9 +6,10 @@ use std::io::{self, Read, Write};
 use std::ops::Range;
 use std::path::{Path, PathBuf};
 
-use crate::common::error::io_text;
+use crate::common::color::{self, When};
+use crate::common::error::{io_text, usage};
+use crate::diff_color;
 use crate::display_path;
-use crate::fs_commands::is_color_option;
 
 const DEFAULT_CONTEXT: usize = 3;
 
@@ -30,7 +31,7 @@ const USAGE: &str = concat!(
     "  -a, --text                    Compare binary-looking files as text\n",
     "      --label LABEL             Use LABEL in headers instead of the file name (up to two)\n",
     "      --context N               Same as -U N\n",
-    "      --color[=WHEN]            Accepted; output is never colored\n",
+    "      --color[=WHEN]            Color hunks on a terminal: auto (bare --color), always, never\n",
     "  -h, --help                    Show this help\n",
     "\n",
     "Not supported: -c, -C, -y, -e (only unified output is available).\n",
@@ -52,14 +53,19 @@ struct Options {
     strip_trailing_cr: bool,
     text: bool,
     labels: Vec<String>,
+    /// The `--color[=WHEN]` value, if one was given.
+    color_when: Option<When>,
+    /// Whether this run colors its output, decided once in `run`.
+    colored: bool,
 }
 
 /// Compare two files or directories. Returns 0 when equal, 1 when different, and 2 on error.
 pub fn run(args: &[String]) -> i32 {
-    let (options, paths) = match parse_args(args) {
+    let (mut options, paths) = match parse_args(args) {
         Ok(parsed) => parsed,
         Err(code) => return code,
     };
+    options.colored = color::enabled(options.color_when);
     if paths.len() != 2 {
         eprintln!("diff: expected LEFT and RIGHT file paths\n{USAGE}");
         return 2;
@@ -149,7 +155,9 @@ fn parse_long_with_value(name: &str, arg: &str, options: &mut Options) -> Result
         options.context = parse_context(value)?;
     } else if let Some(label) = name.strip_prefix("label=") {
         push_label(options, label)?;
-    } else if !is_color_option(arg) {
+    } else if let Some(value) = color::color_arg(arg) {
+        options.color_when = Some(parse_when(value)?);
+    } else {
         eprintln!("diff: unknown option: {arg}\n{USAGE}");
         return Err(2);
     }
@@ -212,6 +220,10 @@ fn next_value<'a>(args: &'a [String], index: &mut usize, option: &str) -> Result
             Err(2)
         }
     }
+}
+
+fn parse_when(value: Option<&str>) -> Result<When, i32> {
+    color::parse_when(value, When::Auto).map_err(|message| usage("diff", message, 2))
 }
 
 fn parse_context(value: &str) -> Result<usize, i32> {
@@ -469,7 +481,10 @@ fn compare_tree_files(
         Ok((status, text)) => {
             if status != 0 && !options.brief {
                 let command = if options.recursive { "diff -r" } else { "diff" };
-                writeln!(out, "{command} {} {}", names.0, names.1)?;
+                let mut line = Vec::new();
+                let text = format!("{command} {} {}", names.0, names.1);
+                diff_color::header_line(&mut line, options.colored, &text);
+                out.write_all(&line)?;
             }
             out.write_all(&text)?;
             Ok(status)
@@ -567,9 +582,17 @@ fn unified_body(
     if hunks.is_empty() {
         return None;
     }
-    let mut text = format!("--- {}\n+++ {}\n", names.0, names.1).into_bytes();
+    let mut text = Vec::new();
+    diff_color::header_line(&mut text, options.colored, &format!("--- {}", names.0));
+    diff_color::header_line(&mut text, options.colored, &format!("+++ {}", names.1));
     for hunk in &hunks {
-        text.extend(render_hunk(hunk, &changes, &old_lines, &new_lines));
+        text.extend(render_hunk(
+            hunk,
+            &changes,
+            &old_lines,
+            &new_lines,
+            options.colored,
+        ));
     }
     Some(text)
 }
@@ -747,6 +770,7 @@ fn render_hunk(
     changes: &[Change],
     old_lines: &[&[u8]],
     new_lines: &[&[u8]],
+    colored: bool,
 ) -> Vec<u8> {
     let mut body = Vec::new();
     let (mut old_count, mut new_count) = (0, 0);
@@ -754,7 +778,7 @@ fn render_hunk(
     for change in &changes[hunk.changes.clone()] {
         let unchanged = &old_lines[position..change.old.start];
         for line in unchanged {
-            push_line(&mut body, b' ', line);
+            diff_color::body_line(&mut body, colored, b' ', line);
         }
         old_count += unchanged.len();
         new_count += unchanged.len();
@@ -763,26 +787,30 @@ fn render_hunk(
             continue;
         }
         for line in &old_lines[change.old.clone()] {
-            push_line(&mut body, b'-', line);
+            diff_color::body_line(&mut body, colored, b'-', line);
         }
         for line in &new_lines[change.new.clone()] {
-            push_line(&mut body, b'+', line);
+            diff_color::body_line(&mut body, colored, b'+', line);
         }
         old_count += change.old.len();
         new_count += change.new.len();
     }
     let trailing = &old_lines[position..hunk.old_end];
     for line in trailing {
-        push_line(&mut body, b' ', line);
+        diff_color::body_line(&mut body, colored, b' ', line);
     }
     old_count += trailing.len();
     new_count += trailing.len();
-    let mut text = format!(
-        "@@ -{} +{} @@\n",
-        range_text(hunk.old_start, old_count),
-        range_text(hunk.new_start, new_count)
-    )
-    .into_bytes();
+    let mut text = Vec::new();
+    diff_color::hunk_header(
+        &mut text,
+        colored,
+        &format!(
+            "@@ -{} +{} @@",
+            range_text(hunk.old_start, old_count),
+            range_text(hunk.new_start, new_count)
+        ),
+    );
     text.extend(body);
     text
 }
@@ -792,14 +820,6 @@ fn range_text(start: usize, count: usize) -> String {
         0 => format!("{start},0"),
         1 => format!("{}", start + 1),
         _ => format!("{},{count}", start + 1),
-    }
-}
-
-fn push_line(text: &mut Vec<u8>, prefix: u8, line: &[u8]) {
-    text.push(prefix);
-    text.extend_from_slice(line);
-    if !line.ends_with(b"\n") {
-        text.extend_from_slice(b"\n\\ No newline at end of file\n");
     }
 }
 
