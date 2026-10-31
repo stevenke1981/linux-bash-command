@@ -4,6 +4,7 @@ pub mod common;
 pub mod curl_command;
 pub mod df_command;
 pub mod diff;
+mod diff_color;
 pub mod files;
 pub mod find_command;
 pub mod fs_commands;

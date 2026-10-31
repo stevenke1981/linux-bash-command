@@ -1,3 +1,4 @@
+use crate::common::color;
 use crate::common::size::human;
 use std::io::{self, Write};
 use std::path::PathBuf;
@@ -422,27 +423,40 @@ fn print_table(headers: &[String], rows: &[Vec<String>], options: &Options) -> i
                 .fold(headers[index].chars().count(), usize::max)
         })
         .collect();
+    let colored = color::enabled(None);
+    let use_index = headers.iter().position(|header| header == "Use%");
     let mut out = String::new();
-    let mut push = |cells: &[String]| {
+    // Padding is computed from the plain text; only the text itself is wrapped in SGR.
+    let mut push = |cells: &[String], is_header: bool| {
         let line: Vec<String> = cells
             .iter()
             .enumerate()
             .map(|(index, cell)| {
-                if index == last {
-                    cell.clone()
-                } else if is_text_column(index, options) {
-                    format!("{cell:<width$}", width = widths[index])
+                let sgr = if is_header {
+                    BOLD
+                } else if Some(index) == use_index {
+                    usage_sgr(cell)
                 } else {
-                    format!("{cell:>width$}", width = widths[index])
+                    ""
+                };
+                let shown = color::paint(colored, sgr, cell);
+                if index == last {
+                    return shown;
+                }
+                let pad = " ".repeat(widths[index].saturating_sub(cell.chars().count()));
+                if is_text_column(index, options) {
+                    format!("{shown}{pad}")
+                } else {
+                    format!("{pad}{shown}")
                 }
             })
             .collect();
         out.push_str(line.join(" ").trim_end());
         out.push('\n');
     };
-    push(headers);
+    push(headers, true);
     for row in rows {
-        push(row);
+        push(row, false);
     }
     match io::stdout().lock().write_all(out.as_bytes()) {
         Ok(()) => 0,
@@ -451,6 +465,19 @@ fn print_table(headers: &[String], rows: &[Vec<String>], options: &Options) -> i
             eprintln!("df: cannot write output: {error}");
             1
         }
+    }
+}
+
+/// Bold table header.
+const BOLD: &str = "1";
+
+/// Color for a Use% cell: green below 70%, yellow below 90%, red from 90%.
+fn usage_sgr(cell: &str) -> &'static str {
+    match cell.trim_end_matches('%').parse::<u64>() {
+        Ok(percent) if percent >= 90 => "31",
+        Ok(percent) if percent >= 70 => "33",
+        Ok(_) => "32",
+        Err(_) => "",
     }
 }
 
