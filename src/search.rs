@@ -141,8 +141,6 @@ struct Config {
     styles: Styles,
     /// True when `--heading` or `--no-heading` was given explicitly.
     heading_set: bool,
-    /// True when `-n` or `-N` was given explicitly.
-    line_number_set: bool,
 }
 
 impl Config {
@@ -465,14 +463,8 @@ fn apply_flag(cfg: &mut Config, name: &str) -> Result<(), String> {
         "count-matches" => cfg.count_matches = true,
         "quiet" => cfg.quiet = true,
         "json" => cfg.json = true,
-        "line-number" => {
-            cfg.no_line_numbers = false;
-            cfg.line_number_set = true;
-        }
-        "no-line-number" => {
-            cfg.no_line_numbers = true;
-            cfg.line_number_set = true;
-        }
+        "line-number" => cfg.no_line_numbers = false,
+        "no-line-number" => cfg.no_line_numbers = true,
         "with-filename" => cfg.with_filename = Some(true),
         "no-filename" => cfg.with_filename = Some(false),
         "heading" => {
@@ -1468,8 +1460,8 @@ impl Searcher {
 }
 
 fn execute(mut cfg: Config) -> i32 {
-    // On a terminal, group by file unless the user chose a layout explicitly.
-    if !cfg.heading_set && !cfg.line_number_set && color::stdout_is_tty() {
+    // On a terminal, group by file (as ripgrep does) unless the user chose explicitly.
+    if !cfg.heading_set && color::stdout_is_tty() {
         cfg.heading = true;
     }
     let name = cfg.name();

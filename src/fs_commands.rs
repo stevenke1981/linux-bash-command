@@ -14,29 +14,6 @@ use crate::ls_style::{self, Layout, Style};
 
 const SECONDS_PER_DAY: i64 = 86_400;
 
-/// Accepts `--color`, `--colour` and their `=WHEN` forms. Output is never colored.
-pub(crate) fn is_color_option(arg: &str) -> bool {
-    let when = arg
-        .strip_prefix("--color")
-        .or_else(|| arg.strip_prefix("--colour"));
-    match when {
-        Some("") => true,
-        Some(value) => matches!(
-            value,
-            "=auto"
-                | "=always"
-                | "=never"
-                | "=yes"
-                | "=no"
-                | "=tty"
-                | "=force"
-                | "=none"
-                | "=if-tty"
-        ),
-        None => false,
-    }
-}
-
 pub fn pwd(args: &[String]) -> i32 {
     if args.iter().any(|arg| arg == "-h" || arg == "--help") {
         println!("Usage: pwd [-L | -P]\nPrint the current working directory.\n\nOptions:\n  -L, --logical   Print $PWD when it names the current directory (default)\n  -P, --physical  Print the directory with symbolic links resolved\n  -h, --help      Show this help\n\nExit status: 0 on success, 1 on error.");
