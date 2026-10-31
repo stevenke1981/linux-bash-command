@@ -1,5 +1,6 @@
 //! Optional execution labels on stderr; command data and exit codes are untouched.
 use std::io::{self, IsTerminal, Write};
+use std::time::Instant;
 
 pub fn run(name: &str, command: impl FnOnce() -> i32) -> i32 {
     let agent = std::env::var("AGENTCMD_AGENT").unwrap_or_default();
@@ -43,9 +44,11 @@ pub fn run(name: &str, command: impl FnOnce() -> i32) -> i32 {
     // Status display is best effort and must not change the command's exit code.
     let _ = writeln!(
         io::stderr(),
-        "\x1b[{color}m[{label}]\x1b[0m \x1b[33mRUNNING\x1b[0m {name}"
+        "\x1b[33m[RUNNING]\x1b[0m  {name:<12} | agent: \x1b[{color}m{label}\x1b[0m"
     );
+    let started = Instant::now();
     let status = command();
+    let elapsed = started.elapsed().as_secs_f64();
     let (state, state_color) = if status == 0 {
         ("DONE", 32)
     } else {
@@ -53,7 +56,7 @@ pub fn run(name: &str, command: impl FnOnce() -> i32) -> i32 {
     };
     let _ = writeln!(
         io::stderr(),
-        "\x1b[{color}m[{label}]\x1b[0m \x1b[{state_color}m{state}\x1b[0m {name} (exit {status})"
+        "\x1b[{state_color}m[{state:<7}]\x1b[0m  {name:<12} | agent: \x1b[{color}m{label}\x1b[0m | exit: {status} | time: {elapsed:.3}s"
     );
     status
 }

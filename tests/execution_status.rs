@@ -27,8 +27,11 @@ fn forced_status_preserves_data_and_exit_codes() {
         assert_eq!(out.stdout, b"hello\n");
         assert_eq!(out.status.code(), Some(0));
         let err = String::from_utf8(out.stderr).unwrap();
-        assert!(err.contains("[builder]\x1b[0m \x1b[33mRUNNING\x1b[0m echo"));
-        assert!(err.contains("\x1b[32mDONE\x1b[0m echo (exit 0)"));
+        assert!(err.starts_with("\x1b[33m[RUNNING]\x1b[0m  echo         | agent: "));
+        assert!(err.contains("\x1b[32m[DONE   ]\x1b[0m  echo         | agent: "));
+        assert!(err.contains("builder\x1b[0m | exit: 0 | time: "));
+        let elapsed = err.lines().last().unwrap().rsplit_once("time: ").unwrap().1;
+        assert!(elapsed.strip_suffix('s').unwrap().parse::<f64>().unwrap() >= 0.0);
     }
     let out = run(
         env!("CARGO_BIN_EXE_agentcmd"),
@@ -41,7 +44,7 @@ fn forced_status_preserves_data_and_exit_codes() {
     assert!(out.stdout.is_empty());
     assert!(String::from_utf8(out.stderr)
         .unwrap()
-        .contains("\x1b[31mEXIT\x1b[0m false (exit 1)"));
+        .contains("\x1b[31m[EXIT   ]\x1b[0m  false        | agent: "));
 }
 
 #[test]
@@ -72,16 +75,21 @@ fn agent_colors_are_stable_and_labels_escape_controls() {
     let first = run(bin, &["true"], Some("a"), "always", false);
     let repeat = run(bin, &["true"], Some("a"), "always", false);
     let other = run(bin, &["true"], Some("b"), "always", false);
-    assert_eq!(first.stderr, repeat.stderr);
-    assert_ne!(&first.stderr[..5], &other.stderr[..5]);
+    let first = String::from_utf8(first.stderr).unwrap();
+    let repeat = String::from_utf8(repeat.stderr).unwrap();
+    let other = String::from_utf8(other.stderr).unwrap();
+    assert_eq!(first.lines().next(), repeat.lines().next());
+    let first_color = first.split("agent: ").nth(1).unwrap();
+    let other_color = other.split("agent: ").nth(1).unwrap();
+    assert_ne!(&first_color[..5], &other_color[..5]);
     let escaped = run(bin, &["true"], Some("a\n\x1b[31m"), "always", false);
     let err = String::from_utf8(escaped.stderr).unwrap();
     assert_eq!(err.lines().count(), 2);
-    assert!(err.contains("[a\\n\\u{1b}[31m]"));
+    assert!(err.contains("a\\n\\u{1b}[31m\x1b[0m"));
     let default = run(bin, &["true"], None, "always", false);
     assert!(String::from_utf8(default.stderr)
         .unwrap()
-        .contains("[agentcmd]"));
+        .contains("agentcmd\x1b[0m"));
 }
 
 #[test]
@@ -93,7 +101,9 @@ fn explicit_palette_and_dumb_terminal() {
         .env_remove("NO_COLOR")
         .env_remove("TERM");
     let out = cmd.output().unwrap();
-    assert!(out.stderr.starts_with(b"\x1b[96m[tester]"));
+    assert!(String::from_utf8(out.stderr)
+        .unwrap()
+        .contains("agent: \x1b[96mtester\x1b[0m"));
     let out = cmd.env("TERM", "dumb").output().unwrap();
     assert!(out.stderr.is_empty());
 }

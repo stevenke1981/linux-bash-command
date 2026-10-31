@@ -1,6 +1,6 @@
 # agentcmd
 
-## Agent execution colors
+## Agent execution formatting and colors
 
 Set `AGENTCMD_AGENT` to identify an agent. In a terminal, each command prints a
 colored agent label and yellow `RUNNING` status to stderr, followed by green
@@ -8,6 +8,21 @@ colored agent label and yellow `RUNNING` status to stderr, followed by green
 Both standalone executables and `agentcmd <command>` support this display.
 Command stdout and exit codes stay unchanged; utility `--color` options retain
 their existing behavior.
+
+Status and command columns are aligned, with explicit agent, exit code and
+elapsed-time fields. For example (colors omitted here):
+
+```text
+[RUNNING]  sleep        | agent: builder
+[DONE   ]  sleep        | agent: builder | exit: 0 | time: 0.200s
+[RUNNING]  test         | agent: tester
+[EXIT   ]  test         | agent: tester | exit: 1 | time: 0.001s
+```
+
+The command column has a minimum width of 12 characters; long names are never
+truncated. Time measures the command call using a monotonic clock, in seconds
+to three decimal places (very fast commands may show `0.000s`). Agent names
+follow the fixed columns so long or non-ASCII labels do not shift those columns.
 
 ```bash
 AGENTCMD_AGENT=builder agentcmd ls
