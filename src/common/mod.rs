@@ -1,4 +1,5 @@
 pub mod args;
+pub mod color;
 pub mod error;
 pub mod escape;
 pub mod execution;
