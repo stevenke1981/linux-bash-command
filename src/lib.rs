@@ -11,6 +11,7 @@ pub mod fs_commands;
 mod grep_color;
 pub mod grep_command;
 pub mod less_command;
+pub mod ls_style;
 pub mod ps_command;
 pub mod registry;
 pub mod search;
