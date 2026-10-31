@@ -1,55 +1,37 @@
 # agentcmd
 
-## Agent execution formatting and colors
+## Colors and terminal formatting
 
-Set `AGENTCMD_AGENT` to identify an agent. In a terminal, each command prints a
-colored agent label and yellow `RUNNING` status to stderr, followed by green
-`DONE` (exit 0) or red `EXIT` (nonzero, including ordinary no-match results).
-Both standalone executables and `agentcmd <command>` support this display.
-Command stdout and exit codes stay unchanged; utility `--color` options retain
-their existing behavior.
+Each command colors and formats its own output, like GNU coreutils, GNU grep
+and ripgrep do. Nothing needs to wrap the command:
 
-Status and command columns are aligned, with explicit agent, exit code and
-elapsed-time fields. For example (colors omitted here):
+| Command | On a terminal |
+|---|---|
+| `ls` | Names colored by type (`LS_COLORS` honored, GNU defaults otherwise); entries laid out in columns |
+| `grep`, `egrep`, `fgrep` | Matches, file names, line numbers and separators colored (`GREP_COLORS` honored) |
+| `rg`, `search` | Matches, paths and line numbers colored (`--colors` honored); matches grouped under file headings with line numbers |
+| `diff` | Headers bold, hunks cyan, removed lines red, added lines green |
+| `df`, `ps` | Bold header row; `df` colors `Use%` green/yellow/red |
 
-```text
-[RUNNING]  sleep        | agent: builder
-[DONE   ]  sleep        | agent: builder | exit: 0 | time: 0.200s
-[RUNNING]  test         | agent: tester
-[EXIT   ]  test         | agent: tester | exit: 1 | time: 0.001s
-```
+Whether a command colors its output is decided in this order:
 
-The command column has a minimum width of 12 characters; long names are never
-truncated. Time measures the command call using a monotonic clock, in seconds
-to three decimal places (very fast commands may show `0.000s`). Agent names
-follow the fixed columns so long or non-ASCII labels do not shift those columns.
+1. The command's own `--color[=WHEN]` option (`always`, `never`, `auto`), where it has one.
+2. `AGENTCMD_COLOR=always|never|auto` in the environment.
+3. `auto`, or `never` when `NO_COLOR` is set.
+
+`auto` colors only when stdout is a terminal and `TERM` is not `dumb`. Piped
+or captured output, which is what coding agents read, stays plain and
+byte-for-byte unchanged, and so does the terminal-only layout (`ls` columns, `rg`
+headings). Column width comes from `COLUMNS`, then the terminal size, then 80.
+On Windows, console virtual-terminal processing is enabled automatically, and
+`auto` stays plain if the console cannot enable it.
 
 ```bash
-AGENTCMD_AGENT=builder agentcmd ls
-AGENTCMD_AGENT=tester AGENTCMD_AGENT_COLOR=magenta agentcmd test -f README.md
-# Force ANSI colors when the calling agent captures stderr:
-AGENTCMD_AGENT=builder AGENTCMD_COLOR=always agentcmd echo hello
+ls                                  # colored columns in a terminal
+ls --color=always | less -R         # keep colors through a pipe
+grep --color=never -n TODO src/*.rs
+AGENTCMD_COLOR=never rg fn src      # turn colors off for every command
 ```
-
-```powershell
-$env:AGENTCMD_AGENT = 'builder'
-$env:AGENTCMD_AGENT_COLOR = 'cyan'
-./target/debug/agentcmd.exe ls
-```
-
-`AGENTCMD_COLOR=auto` (default) requires an agent name and a terminal stderr;
-redirected stderr is quiet. `always` enables ANSI status even when captured
-(without a name the label is `agentcmd`); `never` disables it. `NO_COLOR` being
-set or `TERM=dumb` disables status even with `always`. Unknown color modes use
-auto. Agent names map consistently to a six-color palette; collisions are
-possible. Assign `AGENTCMD_AGENT_COLOR=blue|magenta|cyan|green|yellow|red` to
-choose distinct colors explicitly; unknown values use the name's palette color.
-Use an ANSI-capable terminal. On Windows, console virtual-terminal processing
-is enabled automatically; in `auto` mode a console that cannot enable it stays
-quiet instead of printing raw escape codes. Labels escape control characters and use the first
-80 characters of the agent name. Each status resets its color. A command killed
-or aborted before returning has no completion line; nested commands may each
-print their own labels. No agent identity is detected automatically.
 
 A collection of standalone Rust command-line tools for coding agents. Each command is a separate executable and implements a documented subset of familiar Linux-style tools. Most inspect local data; `curl` makes HTTP(S) requests and can write a response to a file. These tools are not complete replacements for ripgrep, GNU utilities, or curl.
 
@@ -148,7 +130,7 @@ Directory traversal skips hidden entries and honors ignore rules supplied by the
 
 ### Additional commands
 
-These commands accept the GNU, BSD, and ripgrep options that coding agents such as Claude Code typically use: bundled short flags (`-rn`, `-sSL`, `-lah`), attached values (`-A3`, `-m1`), and `--opt=value`. `--color[=WHEN]` is accepted where GNU accepts it, but command data output is never colored (optional execution labels on stderr are described above). On Windows, printed paths use `/` so they can be pasted back into Bash. Git for Windows aliases `ls` and `grep` to `ls -F --color=auto --show-control-chars` and `grep --color=auto`; both forms work. Unsupported options fail with exit status 2 and a message instead of producing different output.
+These commands accept the GNU, BSD, and ripgrep options that coding agents such as Claude Code typically use: bundled short flags (`-rn`, `-sSL`, `-lah`), attached values (`-A3`, `-m1`), and `--opt=value`. `--color[=WHEN]` works as described in [Colors and terminal formatting](#colors-and-terminal-formatting). On Windows, printed paths use `/` so they can be pasted back into Bash. Git for Windows aliases `ls` and `grep` to `ls -F --color=auto --show-control-chars` and `grep --color=auto`; both forms work. Unsupported options fail with exit status 2 and a message instead of producing different output.
 
 - `grep` defaults to GNU basic regular expressions (`a\|b`, `\(x\)`), with `-E`, `-F`, and `-P` (Rust regex; no lookaround or backreferences). It supports `-r`/`-R` with `--include`, `--exclude`, `--exclude-dir`; `-i -v -w -x -o -n -c -l -L -q -s -H -h -m`; `-A/-B/-C/-NUM` context; repeated `-e` and `-f FILE`; binary file detection with `-a` and `-I`.
 - `rg` shares the `search` engine and supports `-l`, `-c`, `--count-matches`, `-o`, `-q`, `-A/-B/-C`, `-t/-T`, `-g` (including `!` negation), `--iglob`, `-U`, `-w -x -v -S -s -i -F`, `-m`, `-M/--max-columns`, `-d`, `--max-filesize`, `-L`, `--sort/--sortr` (including with `--files`), `--column`, `-0`, `--hidden`, `-u/-uu/-uuu`, and `--no-ignore`. `-P` uses Rust regex syntax.

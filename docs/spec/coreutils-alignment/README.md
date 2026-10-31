@@ -19,7 +19,7 @@
 
 - 不移植 GNU 原始碼（GPL）。可參考 uutils（MIT）程式碼，若有實質移植須於檔頭註明來源並更新 `NOTICE.md`。
 - 不做 locale／翻譯：一律 C/POSIX locale 語意（位元組比較排序、ASCII 大小寫折疊），訊息為英文。
-- 命令資料輸出不加色（utility 的 `--color` 仍可接受但不上色）。依 2026-10-31 使用者需求，新增可選 stderr 執行狀態與 agent 身分配色；設定方式見專案 README。
+- 依 2026-10-31 使用者需求，`ls grep rg diff df ps` 於 stdout 為終端機時自行上色與排版（`--color[=WHEN]` 生效，`AGENTCMD_COLOR`／`NO_COLOR` 可覆寫）；管線或擷取輸出維持純文字、位元組不變。設定方式見專案 README。
 - 不支援 Windows 參數 glob 展開（microsoft/coreutils 用 `wild` crate）。理由：Claude Code 等 agent 在 Windows 透過 Git Bash 呼叫，MSYS 傳入之 `'*.rs'` 未必帶引號，展開會破壞 `find -name '*.rs'` 之語意。記為有意偏離。
 - 不出貨 microsoft/coreutils 亦捨棄之 POSIX 專屬指令：`chcon chgrp chown chroot dd dircolors dir vdir groups hostid id install logname mkfifo mknod more nice nohup pinky runcon shred stdbuf stty sync tty users who`。
 - 不整合 DOS 版 `find`／`sort`（microsoft/coreutils 之 `ntfind`、`ntsort`）。
