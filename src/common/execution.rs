@@ -10,7 +10,8 @@ pub fn run(name: &str, command: impl FnOnce() -> i32) -> i32 {
         "never" => false,
         _ => !agent.is_empty() && io::stderr().is_terminal(),
     } && std::env::var_os("NO_COLOR").is_none()
-        && std::env::var("TERM").as_deref() != Ok("dumb");
+        && std::env::var("TERM").as_deref() != Ok("dumb")
+        && windows_console_ready(mode == "always");
     if !enabled {
         return command();
     }
@@ -59,4 +60,16 @@ pub fn run(name: &str, command: impl FnOnce() -> i32) -> i32 {
         "\x1b[{state_color}m[{state:<7}]\x1b[0m  {name:<12} | agent: \x1b[{color}m{label}\x1b[0m | exit: {status} | time: {elapsed:.3}s"
     );
     status
+}
+
+/// Legacy Windows consoles print raw escape codes unless VT processing is on.
+/// Enabling it is attempted in every mode; `auto` stays silent when it fails.
+#[cfg(windows)]
+fn windows_console_ready(forced: bool) -> bool {
+    crossterm::ansi_support::supports_ansi() || forced
+}
+
+#[cfg(not(windows))]
+fn windows_console_ready(_forced: bool) -> bool {
+    true
 }

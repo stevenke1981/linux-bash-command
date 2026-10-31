@@ -44,7 +44,9 @@ set or `TERM=dumb` disables status even with `always`. Unknown color modes use
 auto. Agent names map consistently to a six-color palette; collisions are
 possible. Assign `AGENTCMD_AGENT_COLOR=blue|magenta|cyan|green|yellow|red` to
 choose distinct colors explicitly; unknown values use the name's palette color.
-Use an ANSI-capable terminal. Labels escape control characters and use the first
+Use an ANSI-capable terminal. On Windows, console virtual-terminal processing
+is enabled automatically; in `auto` mode a console that cannot enable it stays
+quiet instead of printing raw escape codes. Labels escape control characters and use the first
 80 characters of the agent name. Each status resets its color. A command killed
 or aborted before returning has no completion line; nested commands may each
 print their own labels. No agent identity is detected automatically.
