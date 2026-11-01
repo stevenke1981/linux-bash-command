@@ -1,0 +1,131 @@
+name: Release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to release (for example v0.1.0)"
+        required: true
+permissions:
+  contents: write
+env:
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+jobs:
+  package:
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows-x86_64
+          - os: ubuntu-22.04
+            name: linux-x86_64
+          - os: macos-latest
+            name: macos-aarch64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Check tag matches Cargo.toml version
+        shell: bash
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          if [[ "v$version" != "$TAG" ]]; then
+            echo "Tag $TAG does not match Cargo.toml version $version" >&2
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+      - run: cargo build --release --bins --locked
+      - name: Stage commands
+        shell: bash
+        run: |
+          stage="dist/${{ matrix.name }}"
+          mkdir -p "$stage"
+          ext=""
+          [[ "$RUNNER_OS" == Windows ]] && ext=".exe"
+          cp "target/release/agentcmd$ext" "$stage/"
+          while IFS= read -r name; do
+            [[ "$name" == "[" ]] && continue
+            cp "target/release/$name$ext" "$stage/"
+          done < <(target/release/agentcmd --list)
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            cp "$stage/test.exe" "$stage/[.exe"
+          else
+            ln -s test "$stage/["
+          fi
+          cp README.md LICENSE "$stage/"
+          mkdir -p "$stage/shell"
+          cp shell/* "$stage/shell/"
+          ls "$stage"
+      - name: Build Inno Setup installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $iscc = Get-Command iscc.exe -ErrorAction SilentlyContinue
+          if (-not $iscc) {
+            $default = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+            if (-not (Test-Path $default)) {
+              choco install innosetup -y --no-progress
+            }
+            $iscc = $default
+          } else {
+            $iscc = $iscc.Source
+          }
+          & $iscc "/DAppVersion=$env:VERSION" packaging\agent-commands.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Smoke-test installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $setup = "dist\Agent-Commands-$env:VERSION-Windows-Setup.exe"
+          $dir = Join-Path $env:RUNNER_TEMP 'agent-commands-install'
+          Start-Process -Wait -FilePath $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$dir"
+          & "$dir\agentcmd.exe" --list | Select-Object -First 3
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          'hi' | & "$dir\wc.exe" -l
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+      - name: Archive
+        shell: bash
+        run: |
+          cd dist
+          base="agent-commands-$VERSION-${{ matrix.name }}"
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            7z a -tzip "$base.zip" "./${{ matrix.name }}/*" > /dev/null
+          else
+            tar -czf "$base.tar.gz" -C "${{ matrix.name }}" .
+          fi
+          ls -la
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.name }}
+          path: |
+            dist/*.zip
+            dist/*.tar.gz
+            dist/*-Setup.exe
+          if-no-files-found: error
+  release:
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+          pattern: release-*
+          merge-multiple: true
+      - name: Checksums
+        run: |
+          cd assets
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$TAG" assets/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Agent Commands $TAG" \
+            --generate-notes \
+            --verify-tag

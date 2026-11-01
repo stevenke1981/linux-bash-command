@@ -1,15 +1,19 @@
-Agent Commands 0.1.0 - Windows x64
+Agent Commands - Windows x64
 
-This package installs 17 command-line tools and an Agent Commands Terminal shortcut.
+This package installs Linux-style command-line tools (ls, cat, grep, rg, find,
+head, tail, sort, wc, xargs, curl and more; run "agentcmd --list" for the full
+list), the agentcmd multi-call binary and an Agent Commands Terminal shortcut.
+
 Open the shortcut to start Command Prompt with the installed commands on PATH.
-The PATH change is limited to that terminal session; the installer does not alter
-system or user PATH settings.
+If you selected "Add the install directory to my user PATH" during setup, new
+terminals find the commands directly; otherwise the PATH change is limited to
+the shortcut's terminal session. Uninstalling removes the PATH entry.
 
-In PowerShell, add the installation directory to the current session PATH and use
-.exe names when a PowerShell alias conflicts, for example curl.exe or ls.exe.
-The standalone cd.exe cannot change its parent shell; use the native cd command or
-the optional shell\cd.ps1 integration described in README.md.
+In PowerShell, use .exe names when a PowerShell alias conflicts, for example
+curl.exe or ls.exe. The standalone cd.exe cannot change its parent shell; use
+the native cd command or the optional shell\cd.ps1 integration described in
+README.md.
 
-The tools implement documented subsets of common commands, not full replacements.
-Use --help with a command to see the available options. Uninstall using Installed
-Apps or the included uninstaller. Modified files can be retained by IronSetup.
+The tools implement documented subsets of common commands, not full
+replacements. Use --help with a command to see the available options.
+Uninstall using Installed Apps or the Start menu uninstaller.
