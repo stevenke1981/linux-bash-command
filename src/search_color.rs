@@ -148,12 +148,12 @@ pub fn apply_spec(styles: &mut Styles, spec: &str) -> Result<(), String> {
     let part = parts
         .first()
         .and_then(|name| Part::parse(name))
-        .ok_or_else(&invalid)?;
+        .ok_or_else(invalid)?;
     let style = &mut styles.0[part.index()];
     match parts.as_slice() {
         [_, "none"] => *style = Style::default(),
-        [_, "fg", color] => style.fg = Some(color_index(color).ok_or_else(&invalid)?),
-        [_, "bg", color] => style.bg = Some(color_index(color).ok_or_else(&invalid)?),
+        [_, "fg", color] => style.fg = Some(color_index(color).ok_or_else(invalid)?),
+        [_, "bg", color] => style.bg = Some(color_index(color).ok_or_else(invalid)?),
         [_, "style", attr] => match *attr {
             "bold" => style.bold = true,
             "nobold" => style.bold = false,

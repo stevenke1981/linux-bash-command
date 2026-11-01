@@ -74,7 +74,12 @@ fn piped_default_output_has_no_escapes_and_one_name_per_line() {
     assert!(out.status.success());
     let text = stdout(&out);
     assert!(!text.contains('\x1b'), "unexpected escape in {text:?}");
-    assert_eq!(text, "dir\nplain.txt\ntool\n");
+    let expected = if cfg!(unix) {
+        "dir\nplain.txt\ntool\n"
+    } else {
+        "dir\nplain.txt\n"
+    };
+    assert_eq!(text, expected);
 }
 
 #[test]
