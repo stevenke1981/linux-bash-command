@@ -128,10 +128,10 @@
 | unix2dos | extra | P4 | unix2dos.rs | dos2unix | — |
 | chmod | extra | P4 | chmod/mod.rs | coreutils（Unix） | — |
 | awk | extra | P5 | awk/ | gawk `--posix` | — |
-| tar | extra | P5 | tar.rs | GNU tar（`-t` 列表） | SYS（bsdtar） |
+| tar | extra | P5 | tar.rs + tar/ | GNU tar（`-t` 列表） | SYS（bsdtar） |
 | gzip | extra | P5 | gzip.rs | gzip（解壓結果） | — |
-| gunzip | extra | P5 | gzip.rs | gzip | — |
-| zcat | extra | P5 | gzip.rs | gzip | — |
+| gunzip | extra | P5 | gunzip.rs (gzip/) | gzip | — |
+| zcat | extra | P5 | zcat.rs (gzip/) | gzip | — |
 | patch | extra | P5 | patch/ | GNU patch（結果檔案） | — |
 | xxd | extra | P5 | xxd.rs | xxd | — |
 | file | extra | P5 | file.rs | —（自訂 golden） | — |

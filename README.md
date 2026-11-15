@@ -93,7 +93,7 @@ Use `--` before positional arguments that begin with a dash. Arguments must be v
 
 ### Phase 1 text pipelines
 
-The multi-call registry includes 107 names: the original 17, these 29 Phase 1 names, 32 Phase 2 names, 13 Phase 3 names, and 16 Phase 4 names:
+The multi-call registry includes 115 names: the original 17, these 29 Phase 1 names, 32 Phase 2 names, 13 Phase 3 names, 16 Phase 4 names, and 8 Phase 5 names:
 
 `wc sort uniq cut tr tee echo printf true false test [ seq tac nl paste comm fold expand unexpand yes basename dirname xargs env printenv sleep egrep fgrep`.
 
@@ -176,3 +176,19 @@ Automated CLI tests use temporary directories and cover common success and error
 **Diff format change:** `diff` now defaults to GNU normal format. Use `diff -u` for unified output; `-c`/`-C` select context and `-y`/`-W` select side-by-side output.
 
 On Windows, `tree`, `whoami`, `timeout` and `kill` conflict with system executables or PowerShell commands. Use `agentcmd NAME` or the executable's full path to select this implementation. Unix permission bits map to the Windows read-only attribute for chmod; signal delivery terminates the selected process, while timeout uses a Job Object for its owned process tree.
+
+
+### Programs, archives and binary inspection
+
+Phase 5 adds `awk tar gzip gunzip zcat patch xxd file`. AWK supports records,
+arrays, functions, arithmetic, regular expressions, and file redirection;
+command pipes and `system()` are deliberately unsupported. Function-call
+nesting is limited to 1024; regex compilation has explicit resource budgets.
+Use each command's help and the specification for the supported subset.
+
+Gzip handles concatenated members and validates trailers. Tar supports plain
+and gzip archives and rejects extraction through symlinks or parent components.
+Patch applies unified and Git text patches with atomic file installation. Xxd
+dumps and reverses bytes; file identifies a documented signature/text subset.
+Windows also supplies a `tar.exe`; select this implementation with `agentcmd tar`
+or its explicit executable path.

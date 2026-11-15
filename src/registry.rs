@@ -27,6 +27,7 @@ macro_rules! utilities {
 utilities! {
     "[" => crate::commands::test::run_bracket, "Evaluate a bracketed expression", Ms, None;
     "arch" => crate::commands::sysinfo_cmds::run_arch, "Report arch system information", Ms, None;
+    "awk" => crate::commands::awk::run, "Process records with AWK programs", Extra, None;
     "b2sum" => crate::commands::hashsum::run_b2sum, "Compute b2sum checksums", Ms, None;
     "base32" => crate::commands::basenc::run_base32, "Encode and decode base32 streams", Ms, None;
     "base64" => crate::commands::basenc::run_base64, "Encode and decode base64 streams", Ms, None;
@@ -57,11 +58,14 @@ utilities! {
     "factor" => crate::commands::factor::run, "Factor unsigned integers", Ms, None;
     "false" => crate::commands::truefalse::run_false, "Exit unsuccessfully", Ms, None;
     "fgrep" => crate::commands::fgrep::run, "Search fixed strings", Extra, None;
+    "file" => crate::commands::file::run, "Inspect file signatures", Extra, None;
     "find" => crate::find_command::find, "Find files", Existing, Some("Windows");
     "fmt" => crate::commands::fmt::run, "Reflow text paragraphs", Ms, None;
     "fold" => crate::commands::fold::run, "Wrap input lines", Ms, None;
     "free" => crate::commands::free::run, "Run free", Extra, None;
     "grep" => crate::grep_command::run, "Search text", Existing, None;
+    "gunzip" => crate::commands::gunzip::run, "Decompress gzip streams", Extra, None;
+    "gzip" => crate::commands::gzip::run, "Compress or decompress gzip streams", Extra, None;
     "head" => crate::text_commands::head, "Print first lines", Existing, None;
     "hostname" => crate::commands::sysinfo_cmds::run_hostname, "Report hostname system information", Ms, Some("Windows System32");
     "join" => crate::commands::join::run, "Join records on matching fields", Ms, None;
@@ -80,6 +84,7 @@ utilities! {
     "numfmt" => crate::commands::numfmt::run, "Convert numeric units", Ms, None;
     "od" => crate::commands::od::run, "Dump input bytes in selected formats", Ms, None;
     "paste" => crate::commands::paste::run, "Merge lines", Ms, None;
+    "patch" => crate::commands::patch::run, "Apply unified and Git text patches", Extra, None;
     "pathchk" => crate::commands::pathchk::run, "Validate pathnames", Ms, None;
     "pgrep" => crate::commands::pgrep::run_pgrep, "Run pgrep", Extra, None;
     "pkill" => crate::commands::pkill::run, "Run pkill", Extra, None;
@@ -112,6 +117,7 @@ utilities! {
     "sum" => crate::commands::cksum::run_sum, "Compute sum checksums", Ms, None;
     "tac" => crate::commands::tac::run, "Concatenate files in reverse", Ms, None;
     "tail" => crate::text_commands::tail, "Print last lines", Existing, None;
+    "tar" => crate::commands::tar::run, "Create and extract tar archives", Extra, Some("Windows System32 bsdtar");
     "tee" => crate::commands::tee::run, "Copy input to files and stdout", Ms, Some("PowerShell");
     "test" => crate::commands::test::run, "Evaluate an expression", Ms, None;
     "timeout" => crate::commands::timeout::run, "Run timeout", Extra, Some("Windows System32");
@@ -131,7 +137,9 @@ utilities! {
     "which" => crate::commands::which::run, "Run which", Extra, None;
     "whoami" => crate::commands::whoami::run, "Run whoami", Extra, Some("Windows System32");
     "xargs" => crate::commands::xargs::run, "Build and execute command lines", Ms, None;
+    "xxd" => crate::commands::xxd::run, "Dump and restore hexadecimal bytes", Extra, None;
     "yes" => crate::commands::yes::run, "Repeatedly display text", Ms, None;
+    "zcat" => crate::commands::zcat::run, "Decompress gzip streams to stdout", Extra, None;
 }
 
 pub fn find(name: &str) -> Option<&'static Utility> {
@@ -149,6 +157,7 @@ mod tests {
         let expected = [
             "[",
             "arch",
+            "awk",
             "b2sum",
             "base32",
             "base64",
@@ -179,11 +188,14 @@ mod tests {
             "factor",
             "false",
             "fgrep",
+            "file",
             "find",
             "fmt",
             "fold",
             "free",
             "grep",
+            "gunzip",
+            "gzip",
             "head",
             "hostname",
             "join",
@@ -202,6 +214,7 @@ mod tests {
             "numfmt",
             "od",
             "paste",
+            "patch",
             "pathchk",
             "pgrep",
             "pkill",
@@ -234,6 +247,7 @@ mod tests {
             "sum",
             "tac",
             "tail",
+            "tar",
             "tee",
             "test",
             "timeout",
@@ -253,7 +267,9 @@ mod tests {
             "which",
             "whoami",
             "xargs",
+            "xxd",
             "yes",
+            "zcat",
         ];
         assert_eq!(
             UTILITIES.iter().map(|u| u.name).collect::<Vec<_>>(),

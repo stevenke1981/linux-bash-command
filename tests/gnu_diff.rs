@@ -1,4 +1,6 @@
 #![cfg(target_os = "linux")]
+#[path = "gnu_diff/archive.rs"]
+mod archive;
 mod common;
 use common::Sandbox;
 use serde_json::Value;
@@ -277,6 +279,12 @@ fn gnu_differential() {
                 | "dos2unix"
                 | "unix2dos"
                 | "chmod"
+                | "gzip"
+                | "gunzip"
+                | "zcat"
+                | "tar"
+                | "patch"
+                | "xxd"
                 | "diff"
         ) {
             10
@@ -339,6 +347,13 @@ fn gnu_differential() {
                 .map(|v| v.iter().map(|s| s.as_str().unwrap()).collect())
                 .unwrap_or_else(|| vec!["stdout", "exit"]);
             let mut reasons = Vec::new();
+            reasons.extend(archive::differences(
+                &compare,
+                &actual,
+                &oracle,
+                &left.path,
+                &right.path,
+            ));
             if actual.timed_out || oracle.timed_out {
                 reasons.push("timeout");
             }

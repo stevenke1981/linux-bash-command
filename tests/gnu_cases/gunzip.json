@@ -1,0 +1,522 @@
+{
+  "command": "gunzip",
+  "cases": [
+    {
+      "name": "stdin_decompress",
+      "args": [],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000",
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "stdout_concat",
+      "args": [
+        "-c"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b0000001f8b080000000000020a4bad28294ae4020049ac420f06000000",
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "file_default",
+      "args": [
+        "a.gz"
+      ],
+      "stdin": "",
+      "files": {
+        "a.gz": {
+          "hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+        }
+      },
+      "compare": [
+        "files",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "file_keep",
+      "args": [
+        "-k",
+        "a.gz"
+      ],
+      "stdin": "",
+      "files": {
+        "a.gz": {
+          "hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+        }
+      },
+      "compare": [
+        "files",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "file_suffix",
+      "args": [
+        "-S",
+        ".z",
+        "a.z"
+      ],
+      "stdin": "",
+      "files": {
+        "a.z": {
+          "hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+        }
+      },
+      "compare": [
+        "files",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "test_valid",
+      "args": [
+        "-t",
+        "a.gz"
+      ],
+      "stdin": "",
+      "files": {
+        "a.gz": {
+          "hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+        }
+      },
+      "compare": [
+        "files",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "list_valid",
+      "args": [
+        "-l",
+        "a.gz"
+      ],
+      "stdin": "",
+      "files": {
+        "a.gz": {
+          "hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+        }
+      },
+      "compare": [
+        "gzip_list",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "quiet",
+      "args": [
+        "-cq"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000",
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "force_stdout_plain",
+      "args": [
+        "-fc"
+      ],
+      "stdin": "plain text",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "overwrite_refusal",
+      "args": [
+        "a.gz"
+      ],
+      "stdin": "",
+      "files": {
+        "a.gz": {
+          "hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+        },
+        "a": "existing"
+      },
+      "compare": [
+        "files",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "gunzip"
+      ]
+    },
+    {
+      "name": "option_stdout",
+      "args": [
+        "--stdout"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_decompress",
+      "args": [
+        "--decompress",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_force",
+      "args": [
+        "--force",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_keep",
+      "args": [
+        "--keep",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_list",
+      "args": [
+        "--list"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "gzip_list",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_no-name",
+      "args": [
+        "--no-name",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_name",
+      "args": [
+        "--name",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_quiet",
+      "args": [
+        "--quiet",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_recursive",
+      "args": [
+        "--recursive",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_test",
+      "args": [
+        "--test"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_verbose",
+      "args": [
+        "--verbose",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_fast",
+      "args": [
+        "--fast",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_best",
+      "args": [
+        "--best",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_suffix",
+      "args": [
+        "--suffix=.z",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "padding_1",
+      "args": [
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4b4c4a0600c24124350300000000"
+    },
+    {
+      "name": "padding_8",
+      "args": [
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4b4c4a0600c2412435030000000000000000000000"
+    },
+    {
+      "name": "padding_20",
+      "args": [
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4b4c4a0600c2412435030000000000000000000000000000000000000000000000"
+    },
+    {
+      "name": "trailing_nonzero",
+      "args": [
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "gunzip"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4b4c4a0600c24124350300000067617262616765"
+    }
+  ]
+}

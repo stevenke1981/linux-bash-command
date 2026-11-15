@@ -26,6 +26,7 @@ jobs:
           bash tests/shell_cd.bash "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/target/release"
           python3 tests/less_pty.py "$GITHUB_WORKSPACE/target/release/less" "$GITHUB_WORKSPACE/README.md"
           python3 tests/fsops_pty.py "$GITHUB_WORKSPACE/target/release"
+          python3 tests/gzip_pty.py "$GITHUB_WORKSPACE/target/release/gzip"
       - name: Collect commands
         shell: bash
         run: |

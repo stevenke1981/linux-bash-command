@@ -155,3 +155,20 @@ prefix (U+2502 followed by two U+00A0 spaces and one ordinary space) to the
 ordinary three-space prefix explicitly required by 04. The operand line,
 branch glyphs, filenames, other whitespace, reports, and byte order remain
 exact. ASCII/flat fixtures continue using plain byte comparisons.
+
+
+### Semantic gzip and tar comparison
+
+Phase 5 adds `gzip_stdout`, `gzip_files`, `gzip_list`, `tar_stdout`, and
+`tar_files` comparison modes. Gzip payloads are decoded and validated by the
+absolute GNU `/usr/bin/gzip -dc` oracle, including CRC and concatenated members.
+`gzip_list` compares both size columns and ignores filename, timestamp, and
+compression ratio formatting. Compressed bytes need not match across encoders.
+
+Tar comparisons read member records without extracting them. They compare
+member order, normalized `./` components, raw path bytes, entry type, link
+target, permission mode, and payload. Owner IDs, timestamps, archive padding,
+and extension-header encodings are excluded. Absolute and parent paths remain
+distinct; symlink targets are literal. A malformed archive fails normalization,
+even when both outputs are malformed. File comparisons retain the full sandbox
+inventory, replacing only encoded archive payloads with their semantic records.

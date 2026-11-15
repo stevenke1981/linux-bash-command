@@ -8,6 +8,14 @@ static NEXT: AtomicU64 = AtomicU64::new(0);
 
 pub fn binary(util: &str) -> &'static str {
     match util {
+        "awk" => env!("CARGO_BIN_EXE_awk"),
+        "patch" => env!("CARGO_BIN_EXE_patch"),
+        "file" => env!("CARGO_BIN_EXE_file"),
+        "xxd" => env!("CARGO_BIN_EXE_xxd"),
+        "gzip" => env!("CARGO_BIN_EXE_gzip"),
+        "gunzip" => env!("CARGO_BIN_EXE_gunzip"),
+        "zcat" => env!("CARGO_BIN_EXE_zcat"),
+        "tar" => env!("CARGO_BIN_EXE_tar"),
         "od" => env!("CARGO_BIN_EXE_od"),
         "split" => env!("CARGO_BIN_EXE_split"),
         "csplit" => env!("CARGO_BIN_EXE_csplit"),

@@ -69,3 +69,13 @@ pub mod which;
 pub mod cmp;
 pub mod dos2unix;
 pub mod unix2dos;
+
+pub mod file;
+pub mod gunzip;
+pub mod gzip;
+pub mod tar;
+pub mod xxd;
+pub mod zcat;
+
+pub mod awk;
+pub mod patch;

@@ -209,5 +209,174 @@
     },
     "stdout": "",
     "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "^Usage: file",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "^file \\(agentcmd\\)",
+    "exit": 0
+  },
+  {
+    "command": "xxd",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "^Usage: xxd",
+    "exit": 0
+  },
+  {
+    "command": "xxd",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "^xxd \\(agentcmd\\)",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--brief",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "empty\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--mime",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f: inode/x-empty; charset=binary\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--mime-type",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f: inode/x-empty\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--mime-encoding",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f: binary\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--dereference",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f: empty\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--no-dereference",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f: empty\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--print0",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f: empty\u0000",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--files-from",
+      "list"
+    ],
+    "files": {
+      "list": "f\n",
+      "f": ""
+    },
+    "stdout": "f: empty\n",
+    "exit": 0
+  },
+  {
+    "command": "awk",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "^Usage: awk",
+    "exit": 0
+  },
+  {
+    "command": "awk",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "^awk \\(agentcmd\\)",
+    "exit": 0
+  },
+  {
+    "command": "patch",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "^Usage: patch",
+    "exit": 0
+  },
+  {
+    "command": "patch",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "^patch \\(agentcmd\\)",
+    "exit": 0
   }
 ]
