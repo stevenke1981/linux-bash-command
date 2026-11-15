@@ -24,6 +24,7 @@ jobs:
         run: |
           bash tests/shell_cd.bash "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/target/release"
           python3 tests/less_pty.py "$GITHUB_WORKSPACE/target/release/less" "$GITHUB_WORKSPACE/README.md"
+          python3 tests/fsops_pty.py "$GITHUB_WORKSPACE/target/release"
       - name: Collect commands
         shell: bash
         run: |
@@ -31,6 +32,7 @@ jobs:
           if [[ "$RUNNER_OS" == Windows ]]; then cp target/release/agentcmd.exe artifacts/; else cp target/release/agentcmd artifacts/; fi
           while IFS= read -r name; do
             [[ "$name" == "[" ]] && continue
+            [[ "$RUNNER_OS" == Windows && "$name" == link ]] && continue
             if [[ "$RUNNER_OS" == Windows ]]; then
               cp "target/release/$name.exe" artifacts/
             else
@@ -62,6 +64,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: sudo apt-get update && sudo apt-get install -y gawk tree xxd dos2unix patch bsdextrautils
       - run: AGENTCMD_GNU_DIFF=1 cargo test --locked --test gnu_diff -- --nocapture
+      - run: AGENTCMD_GNU_DIFF=1 cargo test --locked --test phase2_metadata --test phase2_hashes
   coverage:
     runs-on: ubuntu-24.04
     steps:

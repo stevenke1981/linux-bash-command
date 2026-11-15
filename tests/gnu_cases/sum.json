@@ -1,0 +1,258 @@
+{
+  "command": "sum",
+  "cases": [
+    {
+      "name": "stdin",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "file",
+      "args": [
+        "data"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc"
+      },
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multiple",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc",
+        "b": ""
+      },
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bsd",
+      "args": [
+        "-r"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bsd_file",
+      "args": [
+        "-r",
+        "data"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc"
+      },
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sysv",
+      "args": [
+        "-s"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sysv_long",
+      "args": [
+        "--sysv"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sysv_file",
+      "args": [
+        "--sysv",
+        "data"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc"
+      },
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "option_after_operand",
+      "args": [
+        "data",
+        "-s"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc"
+      },
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multiple_missing",
+      "args": [
+        "data",
+        "missing"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc"
+      },
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--no-such-option"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "sum"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}
+

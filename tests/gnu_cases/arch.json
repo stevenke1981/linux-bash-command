@@ -1,0 +1,282 @@
+{
+  "command": "arch",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "end_of_options",
+      "args": [
+        "--"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "one_operand",
+      "args": [
+        "extra"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "two_operands",
+      "args": [
+        "one",
+        "two"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dash_operand",
+      "args": [
+        "-"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown_h",
+      "args": [
+        "-h"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown_a",
+      "args": [
+        "-a"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown_q",
+      "args": [
+        "-q"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown_x",
+      "args": [
+        "-x"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown_option",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown_machine",
+      "args": [
+        "--machine"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown_architecture",
+      "args": [
+        "--architecture"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown_verbose",
+      "args": [
+        "--verbose"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown_no_options",
+      "args": [
+        "--no-options"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "two_unknown_options",
+      "args": [
+        "-q",
+        "-x"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "arch"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_help",
+      "args": [
+        "--help"
+      ],
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_version",
+      "args": [
+        "--version"
+      ],
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

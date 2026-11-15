@@ -1,0 +1,298 @@
+{
+  "command": "hostname",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "end_of_options",
+      "args": [
+        "--"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "short",
+      "args": [
+        "-s"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_short",
+      "args": [
+        "--short"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "short_prefix",
+      "args": [
+        "--sho"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "repeated_short",
+      "args": [
+        "-s",
+        "-s"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "repeated_long_short",
+      "args": [
+        "--short",
+        "--short"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "short_after_delimiter",
+      "args": [
+        "--",
+        "-s"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": "Specification rejects hostname-setting operands; test this with safe CLI goldens rather than invoke the GNU system setter."
+    },
+    {
+      "name": "one_set_operand",
+      "args": [
+        "example.invalid"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": "Specification rejects hostname-setting operands; test this with safe CLI goldens rather than invoke the GNU system setter."
+    },
+    {
+      "name": "two_set_operands",
+      "args": [
+        "one",
+        "two"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": "Specification rejects hostname-setting operands; test this with safe CLI goldens rather than invoke the GNU system setter."
+    },
+    {
+      "name": "short_then_operand",
+      "args": [
+        "-s",
+        "example.invalid"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": "Specification rejects hostname-setting operands; test this with safe CLI goldens rather than invoke the GNU system setter."
+    },
+    {
+      "name": "operand_then_short",
+      "args": [
+        "example.invalid",
+        "-s"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": "Specification rejects hostname-setting operands; test this with safe CLI goldens rather than invoke the GNU system setter."
+    },
+    {
+      "name": "unknown_short_option",
+      "args": [
+        "-z"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown_long_option",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "short_option_after_operand",
+      "args": [
+        "example.invalid",
+        "--short"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "hostname"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": "Specification rejects hostname-setting operands; test this with safe CLI goldens rather than invoke the GNU system setter."
+    },
+    {
+      "name": "audit_fqdn",
+      "args": [
+        "--fqdn"
+      ],
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_help",
+      "args": [
+        "--help"
+      ],
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_version",
+      "args": [
+        "--version"
+      ],
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

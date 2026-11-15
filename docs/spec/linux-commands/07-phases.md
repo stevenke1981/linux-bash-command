@@ -88,6 +88,13 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | grep / egrep / fgrep | 無效 `-d ACTION` 回傳 2；GNU 9.4 回傳 1 | 02 grep 用法錯誤碼優先；CLI golden 驗證 | `grep/bad_directory`, `egrep/bad_directory`, `fgrep/bad_directory`（skip） |
 | grep / egrep / fgrep | `-L` 依是否列出檔案決定狀態；GNU 依是否有選取行決定 | AGENTS 要求保留非 05 P1 範圍的既有行為；保留既有測試並加 alias golden | 三者的 `long_files_without_match`（skip） |
 
+| hostname | Hostname-setting operands are rejected with exit 1; GNU setter cases are not invoked | Explicit specification rejects system mutation; safe CLI goldens exercise all operand forms | `phase2_system` hostname cases |
+| rm | Every filesystem root remains protected even with `--no-preserve-root` | The unconditional root-refusal rule takes precedence over the override option | Pure `fsops::rm` tests; no CLI root invocation |
+| cp / mv | `--update=none-fail` is implemented although Ubuntu 24.04 coreutils 9.4 does not offer it | Explicit specification wins | `phase2_fs` absent/existing destination and flag-order goldens |
+| date / touch | Calendar representation is limited to years -9999 through 9999 | Allowlisted jiff representation | `common::datetime` range checks |
+| nproc | `--all` ignores both OpenMP variables; otherwise OMP_NUM_THREADS supplies the count and OMP_THREAD_LIMIT caps it | Resolve the parenthetical ambiguity by GNU behavior | GNU cases and `sysinfo_cmds` units |
+| stat -f (Windows) | Linux filesystem magic and inode capacity are unavailable, shown as `?` / `-`; native type, serial and blocks are reported | Native Windows APIs cannot express Linux-only fields | Windows CLI metadata tests |
+
 ## 回報格式（每階段完成時，Codex 輸出）
 
 ```

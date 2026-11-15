@@ -2,8 +2,8 @@ mod common;
 use std::collections::BTreeSet;
 
 #[test]
-fn every_phase1_help_option_has_a_case() {
-    let names = "wc sort uniq cut tr tee echo printf true false test [ seq tac nl paste comm fold expand unexpand yes basename dirname xargs env printenv sleep egrep fgrep";
+fn every_implemented_phase_help_option_has_a_case() {
+    let names = "wc sort uniq cut tr tee echo printf true false test [ seq tac nl paste comm fold expand unexpand yes basename dirname xargs env printenv sleep egrep fgrep mkdir rm rmdir cp mv touch ln link unlink realpath readlink stat du mktemp date md5sum sha1sum sha224sum sha256sum sha384sum sha512sum b2sum cksum sum base64 base32 basenc truncate nproc hostname arch uptime ls find df";
     let pattern = regex::Regex::new(r"--[a-z][a-z0-9-]*").unwrap();
     let cli_cases: serde_json::Value =
         serde_json::from_str(include_str!("cli_option_cases.json")).unwrap();
@@ -23,8 +23,10 @@ fn every_phase1_help_option_has_a_case() {
         let options: BTreeSet<_> = pattern.find_iter(&text).map(|m| m.as_str()).collect();
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join(format!("tests/gnu_cases/{name}.json"));
-        let data: serde_json::Value =
-            serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+        let data: serde_json::Value = serde_json::from_slice(
+            &std::fs::read(path).unwrap_or_else(|_| b"{\"cases\":[]}".to_vec()),
+        )
+        .unwrap();
         let args: Vec<_> = data["cases"]
             .as_array()
             .unwrap()
@@ -90,11 +92,15 @@ fn cli_option_cases_verify_documented_gnu_differences() {
             Some(case["exit"].as_i64().unwrap() as i32),
             "{name}: {output:?}"
         );
-        assert_eq!(
-            output.stdout,
-            case["stdout"].as_str().unwrap().as_bytes(),
-            "{name}"
-        );
+        if let Some(expected) = case["stdout"].as_str() {
+            assert_eq!(output.stdout, expected.as_bytes(), "{name}");
+        } else {
+            let pattern = regex::Regex::new(case["stdout_regex"].as_str().unwrap()).unwrap();
+            assert!(
+                pattern.is_match(std::str::from_utf8(&output.stdout).unwrap()),
+                "{name}: {output:?}"
+            );
+        }
         assert!(output.stderr.is_empty(), "{name}: {output:?}");
     }
 }

@@ -1,0 +1,770 @@
+{
+  "command": "du",
+  "cases": [
+    {
+      "name": "bytes",
+      "args": [
+        "-b",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "apparent_blocks",
+      "args": [
+        "--apparent-size",
+        "-B",
+        "2",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "human",
+      "args": [
+        "-b",
+        "-h",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "si",
+      "args": [
+        "-b",
+        "--si",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "all_directory",
+      "args": [
+        "-ab",
+        "dir"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "summarize",
+      "args": [
+        "-sb",
+        "dir"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "depth",
+      "args": [
+        "-ab",
+        "-d",
+        "0",
+        "dir"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "total",
+      "args": [
+        "-bc",
+        "file",
+        "other"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "null",
+      "args": [
+        "-b0",
+        "file",
+        "other"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "threshold",
+      "args": [
+        "-b",
+        "-t",
+        "4",
+        "file",
+        "other"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "negative_threshold",
+      "args": [
+        "-b",
+        "--threshold=-3",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "exclude",
+      "args": [
+        "-ab",
+        "--exclude=*.tmp",
+        "dir"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "exclude_file",
+      "args": [
+        "-ab",
+        "-X",
+        "exclude.txt",
+        "dir"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "time",
+      "args": [
+        "-b",
+        "--time",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "time_style",
+      "args": [
+        "-b",
+        "--time=mtime",
+        "--time-style=+%Y",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "full_iso",
+      "args": [
+        "-b",
+        "--time=modification",
+        "--time-style=full-iso",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "long_iso",
+      "args": [
+        "-b",
+        "--time-style=long-iso",
+        "--time",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "separate_dirs",
+      "args": [
+        "-bS",
+        "dir"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "one_filesystem",
+      "args": [
+        "-bx",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "kibibytes",
+      "args": [
+        "--apparent-size",
+        "-k",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "mebibytes",
+      "args": [
+        "--apparent-size",
+        "-m",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "count_links",
+      "args": [
+        "-bl",
+        "file",
+        "other"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad"
+      }
+    },
+    {
+      "name": "follow_args",
+      "args": [
+        "-bD",
+        "link"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "follow_args_h",
+      "args": [
+        "-bH",
+        "link"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "follow_all",
+      "args": [
+        "-bL",
+        "link"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "follow_never",
+      "args": [
+        "-bP",
+        "link"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "other": "12",
+        "dir/leaf": "hello",
+        "exclude.txt": "*.tmp\n",
+        "dir/drop.tmp": "bad",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ],
+      "files": {}
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bogus"
+      ],
+      "files": {}
+    },
+    {
+      "name": "p2_long_help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_null",
+      "args": [
+        "--null",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_all",
+      "args": [
+        "--all",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_block-size",
+      "args": [
+        "--block-size",
+        "2",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_bytes",
+      "args": [
+        "--bytes",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_total",
+      "args": [
+        "--total",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_dereference-args",
+      "args": [
+        "--dereference-args",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_max-depth",
+      "args": [
+        "--max-depth",
+        "0",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_human-readable",
+      "args": [
+        "--human-readable",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_dereference",
+      "args": [
+        "--dereference",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_count-links",
+      "args": [
+        "--count-links",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_no-dereference",
+      "args": [
+        "--no-dereference",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_separate-dirs",
+      "args": [
+        "--separate-dirs",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_summarize",
+      "args": [
+        "--summarize",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_exclude-from",
+      "args": [
+        "--exclude-from",
+        "patterns",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "p2_long_one-file-system",
+      "args": [
+        "--one-file-system",
+        "--apparent-size",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "patterns": "*.tmp\n"
+      }
+    },
+    {
+      "name": "review_duplicate_file",
+      "args": [
+        "-bc",
+        "dir/file",
+        "dir/file"
+      ],
+      "stdin": "",
+      "files": {
+        "dir/file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "review_stdin_excludes",
+      "args": [
+        "-ab",
+        "-X",
+        "-",
+        "dir"
+      ],
+      "stdin": "skip\n",
+      "files": {
+        "dir/keep": "abc",
+        "dir/skip": "abcd"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "review_separate_symlink_dir",
+      "args": [
+        "-bLS",
+        "dir"
+      ],
+      "stdin": "",
+      "files": {
+        "outside/file": "abcdefgh",
+        "dir/link": {
+          "symlink": "../outside"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

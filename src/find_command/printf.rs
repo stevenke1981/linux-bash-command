@@ -1,6 +1,8 @@
 //! `-printf` format parsing and rendering, and the simple `-ls` long listing.
 
-use super::expr::{file_name_text, kind_char, permission_bits, time_ns, Clock, Entry, NS_PER_SEC};
+use super::expr::{
+    file_name_text, kind_char, permission_bits_at, time_ns, Clock, Entry, NS_PER_SEC,
+};
 use crate::display_path;
 use std::fs::Metadata;
 use std::path::Path;
@@ -139,7 +141,9 @@ pub fn render(pieces: &[Piece], entry: &Entry) -> String {
             Piece::Size => out.push_str(&entry.meta.len().to_string()),
             Piece::Depth => out.push_str(&entry.depth.to_string()),
             Piece::Kind => out.push(kind_char(entry.meta)),
-            Piece::Mode => out.push_str(&format!("{:o}", permission_bits(entry.meta))),
+            Piece::Mode => {
+                out.push_str(&format!("{:o}", permission_bits_at(entry.path, entry.meta)))
+            }
             Piece::ModifiedSeconds => {
                 out.push_str(&seconds_with_fraction(time_ns(entry.meta, Clock::Modified)))
             }
@@ -182,37 +186,26 @@ fn seconds_with_fraction(time: Option<i128>) -> String {
 /// they are `?`.
 pub fn long_listing(entry: &Entry) -> String {
     let meta = entry.meta;
-    let (inode, blocks, links, owner, group) = identity(meta);
+    let (inode, blocks, links, owner, group) = identity(entry.path, meta);
     let seconds = time_ns(meta, Clock::Modified).map_or(0, |ns| ns.div_euclid(NS_PER_SEC) as i64);
     format!(
         "{inode:>7} {blocks:>4} {mode} {links:>3} {owner:>8} {group:>8} {size:>8} {date} {path}",
-        mode = crate::common::meta::find_mode_string(meta),
+        mode = crate::common::meta::find_mode_string(entry.path, meta),
         size = meta.len(),
         date = date_text(seconds),
         path = display_path(entry.path),
     )
 }
 
-#[cfg(unix)]
-fn identity(meta: &Metadata) -> (u64, u64, u64, String, String) {
-    use std::os::unix::fs::MetadataExt;
+fn identity(path: &Path, meta: &Metadata) -> (u64, u64, u64, String, String) {
+    let identity = crate::common::meta::file_identity(path, meta);
+    let (uid, gid) = crate::common::meta::owner_ids(meta);
     (
-        meta.ino(),
-        meta.blocks().div_ceil(2),
-        meta.nlink(),
-        meta.uid().to_string(),
-        meta.gid().to_string(),
-    )
-}
-
-#[cfg(not(unix))]
-fn identity(meta: &Metadata) -> (u64, u64, u64, String, String) {
-    (
-        0,
-        meta.len().div_ceil(1024),
-        1,
-        "?".to_string(),
-        "?".to_string(),
+        identity.inode,
+        crate::common::meta::allocated_bytes(meta).div_ceil(1024),
+        identity.nlink,
+        crate::common::meta::user_name(uid).unwrap_or_else(|| uid.to_string()),
+        crate::common::meta::group_name(gid).unwrap_or_else(|| gid.to_string()),
     )
 }
 

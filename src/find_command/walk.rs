@@ -49,6 +49,8 @@ struct Walker<'a> {
     status: i32,
     stop: bool,
     pruned: bool,
+    files: &'a [super::output::OutputFile],
+    root_device: u64,
 }
 
 /// Status for a starting point that does not exist.
@@ -59,10 +61,13 @@ pub fn run(plan: Plan) -> i32 {
     let mut walker = Walker::new(&plan);
     let mut missing_root = false;
     for root in &plan.roots {
-        if let Err(error) = metadata(root, follow_roots) {
-            walker.report(root, &error);
-            missing_root = true;
-            continue;
+        match metadata(root, follow_roots) {
+            Ok(meta) => walker.root_device = crate::common::meta::file_identity(root, &meta).dev,
+            Err(error) => {
+                walker.report(root, &error);
+                missing_root = true;
+                continue;
+            }
         }
         walker.visit(root, root, 0, follow_roots);
     }
@@ -107,6 +112,8 @@ impl<'a> Walker<'a> {
             status: 0,
             stop: false,
             pruned: false,
+            files: &plan.files,
+            root_device: 0,
         }
     }
 
@@ -117,6 +124,10 @@ impl<'a> Walker<'a> {
         let meta = match metadata(path, follow) {
             Ok(meta) => meta,
             Err(error) => {
+                if depth > 0 && self.options.ignore_race && error.kind() == io::ErrorKind::NotFound
+                {
+                    return;
+                }
                 self.report(path, &error);
                 return;
             }
@@ -141,7 +152,12 @@ impl<'a> Walker<'a> {
 
         let depth_first = self.options.depth_first;
         let pruned = !depth_first && self.evaluate(path, root, depth, &meta);
-        if is_dir && depth < self.options.max_depth && !pruned {
+        if is_dir
+            && depth < self.options.max_depth
+            && !pruned
+            && (!self.options.one_fs
+                || crate::common::meta::file_identity(path, &meta).dev == self.root_device)
+        {
             self.visit_children(path, root, depth);
         }
         if depth_first {
@@ -225,8 +241,51 @@ impl<'a> Walker<'a> {
                 true
             }
             Action::Delete => self.delete(entry),
-            Action::Exec { argv, in_dir } => self.run_now(argv, *in_dir, entry),
+            Action::Exec {
+                argv,
+                in_dir,
+                prompt,
+            } => {
+                if *prompt {
+                    self.flush_output();
+                    eprint!(
+                        "< {} ... {} > ? ",
+                        argv.first().map(String::as_str).unwrap_or(""),
+                        display_path(entry.path)
+                    );
+                    let _ = io::stderr().flush();
+                    let mut response = String::new();
+                    if !io::stdin()
+                        .read_line(&mut response)
+                        .is_ok_and(|_| response.trim_start().starts_with(['y', 'Y']))
+                    {
+                        return false;
+                    }
+                }
+                self.run_now(argv, *in_dir, entry)
+            }
             Action::Batch(index) => self.queue(*index, entry),
+            Action::File { index, action } => {
+                let text = match action.as_ref() {
+                    Action::Print => format!("{}\n", display_path(entry.path)),
+                    Action::Print0 => format!("{}\0", display_path(entry.path)),
+                    Action::Printf(pieces) => printf::render(pieces, entry),
+                    Action::Ls => format!("{}\n", printf::long_listing(entry)),
+                    _ => unreachable!(),
+                };
+                match self.files[*index].write(text.as_bytes()) {
+                    Ok(()) => true,
+                    Err(error) if error.kind() == io::ErrorKind::BrokenPipe => {
+                        self.stop = true;
+                        false
+                    }
+                    Err(error) => {
+                        eprintln!("find: write error: {}", message(&error));
+                        self.status = 1;
+                        false
+                    }
+                }
+            }
         }
     }
 

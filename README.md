@@ -93,7 +93,7 @@ Use `--` before positional arguments that begin with a dash. Arguments must be v
 
 ### Phase 1 text pipelines
 
-The multi-call registry includes 46 names: the original 17 and these 29 Phase 1 names:
+The multi-call registry includes 78 names: the original 17, these 29 Phase 1 names, and 32 Phase 2 names:
 
 `wc sort uniq cut tr tee echo printf true false test [ seq tac nl paste comm fold expand unexpand yes basename dirname xargs env printenv sleep egrep fgrep`.
 
@@ -111,6 +111,24 @@ agentcmd env -i PATH=/usr/bin:/bin printenv PATH
 Phase 1 data processing uses byte order and ASCII classes in the C locale. `wc -m` explicitly counts UTF-8 characters, including one character per invalid byte. `seq` uses exact decimal steps unless scientific notation or a custom format requires floating point. `printf`, `seq`, and `sort -g` use `f64`. `sort` currently sorts in memory; external merge is scheduled for Phase 3. Broken output pipes exit silently with status 0. The full specification and documented exceptions are in [Linux commands](docs/spec/linux-commands/README.md) and its [known differences](docs/spec/linux-commands/07-phases.md).
 
 On Windows, `echo`, `tee`, `sort`, and `sleep` can conflict with PowerShell commands, while `expand` and `sort` also conflict with System32 executables. Use `agentcmd <name>` or an explicit executable path to select this implementation.
+
+### Filesystem, checksums and system information
+
+Phase 2 adds `mkdir rm rmdir cp mv touch ln link unlink realpath readlink stat du
+mktemp date md5sum sha1sum sha224sum sha256sum sha384sum sha512sum b2sum cksum
+sum base64 base32 basenc truncate nproc hostname arch uptime`.
+
+Run `agentcmd <name> --help` for the supported options. Filesystem commands accept
+Unix paths on every platform. Windows permissions use 0644 for files and 0755 for
+directories or executable extensions, with write bits removed for read-only files.
+Creating symlinks on Windows requires Developer Mode or an elevated shell.
+`link.exe` is excluded from Windows packages because it conflicts with the MSVC
+linker; use `agentcmd link`. `hostname` and `uptime` also overlap Windows commands.
+
+Checksums and base encodings stream input. `date` uses bundled timezone data;
+Windows system information omits unavailable load-average and login-user fields.
+`hostname HOSTNAME` is deliberately rejected as an unprivileged operation.
+See the specification's known differences for platform details and date limits.
 
 ### Search
 
@@ -134,11 +152,11 @@ These commands accept the GNU, BSD, and ripgrep options that coding agents such 
 
 - `grep` defaults to GNU basic regular expressions (`a\|b`, `\(x\)`), with `-E`, `-F`, and `-P` (Rust regex; no lookaround or backreferences). It supports `-r`/`-R` with `--include`, `--exclude`, `--exclude-dir`; `-i -v -w -x -o -n -c -l -L -q -s -H -h -m`; `-A/-B/-C/-NUM` context; repeated `-e` and `-f FILE`; binary file detection with `-a` and `-I`.
 - `rg` shares the `search` engine and supports `-l`, `-c`, `--count-matches`, `-o`, `-q`, `-A/-B/-C`, `-t/-T`, `-g` (including `!` negation), `--iglob`, `-U`, `-w -x -v -S -s -i -F`, `-m`, `-M/--max-columns`, `-d`, `--max-filesize`, `-L`, `--sort/--sortr` (including with `--files`), `--column`, `-0`, `--hidden`, `-u/-uu/-uuu`, and `--no-ignore`. `-P` uses Rust regex syntax.
-- `ls` supports `-a -A -l -h -F -p -R -t -S -r -d -1 -x -U -v -G -o -g -n`, `--group-directories-first`, and `--time-style`. `-h` means human-readable sizes; use `--help` for help. `-l` prints a GNU-like line with mode, link count, size, and UTC modification time; owner and group are shown as `-`. `pwd` accepts `-L` and `-P`.
+- `ls` supports `-a -A -l -h -F -p -R -t -S -r -d -1 -x -U -v -G -o -g -n`, `--group-directories-first`, and `--time-style`. `-h` means human-readable sizes; use `--help` for help. `-l` prints a GNU-like line with mode, link count, size, and UTC modification time; owner and group use native identifiers and names where available. `pwd` accepts `-L` and `-P`.
 - `find` evaluates GNU-style expressions with `!`/`-not`, `-a`, `-o`, and parentheses. Tests include `-name`, `-iname`, `-path`, `-ipath`, `-regex` (Rust syntax), `-type`, `-empty`, `-size`, `-newer`, `-mtime`, and `-mmin`. Actions include `-print`, `-print0`, `-printf`, `-ls`, `-prune`, `-quit`, `-delete`, `-exec`, and `-execdir`. `-maxdepth`, `-mindepth`, `-depth`, and `-L` are also supported. Results are listed in pre-order with entries sorted by name.
 - `cat` supports `-n -b -s -E -T -v -A -e -t`. `head` and `tail` support `-n`, `-c`, `-NUM`, `-q`, and `-v`. `head -n -N` prints everything except the last N lines, and `tail -n +N` starts at line N. `tail -f`/`-F` follow files, with `--pid` and `-s`.
 - `less FILE` provides a basic interactive pager on a terminal; Space, Enter, b, g, G, and q navigate. `-N` adds line numbers, and common flags such as `-R -S -F -X` are accepted. Piped input or redirected output is copied without interactive paging.
-- `ps` lists processes in its compact default format and also accepts `aux`, `-ef`, `-W`, `-o FIELDS`, `-p`, `-u`, `-C`, `--sort`, `--no-headers`, and `--json`. `df` supports `-h -H -k -m -B -T -P -l -t -x`. TTY and CPU time are not available and are shown as `?`.
+- `ps` lists processes in its compact default format and also accepts `aux`, `-ef`, `-W`, `-o FIELDS`, `-p`, `-u`, `-C`, `--sort`, `--no-headers`, and `--json`. `df` supports `-h -H -k -m -B -T -P -l -t -x` and `--output`. TTY and CPU time are not available and are shown as `?`.
 - `curl URL` supports HTTP(S) with bundled flags (`-fsSL`), `-I -i -v -k -X -H -A -e -b -u`, `-d`/`--data-raw`/`--data-binary`/`--data-urlencode`/`--json`/`-G`, `-o`/`-O`/`--create-dirs`/`-D`, `-w` write-out variables, `-L`/`--max-redirs`, `-f`/`--fail-with-body` (exit 22), `-m`/`--connect-timeout`, `--retry`, and `-x` proxies. Multipart `-F` is rejected. Response header names are printed in lowercase, and `--compressed` does not decode responses. `-d` and custom methods may change server state, and `-o` writes the chosen local file.
 
 Use `--help` on each command for the implemented options. Standard input is selected by `-` for `cat`, `head`, `tail`, `grep`, `search`, and `rg`.

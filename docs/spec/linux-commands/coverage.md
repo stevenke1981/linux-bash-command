@@ -89,3 +89,19 @@ Windows 也執行過量測，但該環境未收錄 CLI 子程序的完整 profil
 - 06 §6 的 100 MB 效能煙霧測試、release 包裝與安裝：NOT_RUN；不屬於本階段閘門。
 
 新依賴只有白名單內的 `libc = "0.2"`（`cfg(unix)`）；既有 lockfile 中已包含該版本。
+
+
+## Accepted Phase 0 / Phase 1 measurement, 2026-11-15
+
+Source: `7fa2e6cbbdc0e1b44318a9f5d5d5067794a80456`, Ubuntu 24.04 CI,
+[cargo-llvm-cov artifact](https://github.com/stevenke1981/linux-bash-command/actions/runs/43677395391).
+This supersedes the earlier local-only status above. All six CI jobs passed,
+including Windows/Linux/macOS builds, GNU differential, lint and coverage.
+
+| Scope | Covered / lines | Coverage |
+|---|---:|---:|
+| common | 1,055 / 1,158 | 91.11% |
+| commands | 4,748 / 5,167 | 91.89% |
+
+Every measured module exceeds 80%; the lowest is common/meta at 80.85%.
+Phase 2 has its own subsequent measurement; the above is the immutable P0/P1 result.

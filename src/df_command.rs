@@ -5,6 +5,9 @@ use std::io::{self, Write};
 use std::path::PathBuf;
 use sysinfo::{Disk, Disks};
 
+#[path = "df_output.rs"]
+mod custom;
+
 const HELP: &str = "Usage: df [OPTION]... [FILE]...
 
 Show filesystem capacity for mounted disks reported by the operating system.
@@ -27,8 +30,9 @@ Other options:
   -x, --exclude-type=TYPE Exclude filesystems of TYPE (repeatable)
       --help              Show this help
       --version              Show version
+      --output[=FIELD_LIST]  Select comma-separated fields (all fields if omitted)
+      --total                Print a grand total
 
-Not supported: -i (inode usage), because the OS interface does not report inode counts.
 Available space and percentages can differ from GNU df because each OS reports
 capacity differently. The Filesystem column shows the device name on Unix and the
 drive letter on Windows.
@@ -69,6 +73,8 @@ struct Options {
     include_types: Vec<String>,
     exclude_types: Vec<String>,
     paths: Vec<PathBuf>,
+    output: Option<Vec<String>>,
+    total: bool,
 }
 
 enum Parsed {
@@ -101,15 +107,36 @@ pub fn run(args: &[String]) -> i32 {
         return 1;
     }
 
-    let (selected, had_error) = select(mounted, &options.paths);
-    let mut selected: Vec<&Disk> = selected
+    let custom_operands = options.output.is_some() && !options.paths.is_empty();
+    let (selected, had_error) = select(mounted, &options.paths, custom_operands);
+    let mut selected: Vec<_> = selected
         .into_iter()
-        .filter(|disk| keeps(disk, &options))
+        .filter(|(disk, _)| keeps(disk, &options))
         .collect();
-    selected.sort_by(|left, right| left.mount_point().cmp(right.mount_point()));
+    if !custom_operands {
+        selected.sort_by(|(left, _), (right, _)| left.mount_point().cmp(right.mount_point()));
+    }
 
-    let rows: Vec<Vec<String>> = selected.iter().map(|disk| row(disk, &options)).collect();
-    let output_status = print_table(&headers(&options), &rows, &options);
+    let mut rows: Vec<Vec<String>> = selected
+        .iter()
+        .map(|(disk, operand)| {
+            if options.output.is_some() {
+                custom::row(disk, &options, operand.as_deref())
+            } else {
+                row(disk, &options)
+            }
+        })
+        .collect();
+    if options.total {
+        let disks: Vec<_> = selected.iter().map(|(disk, _)| *disk).collect();
+        rows.push(custom::total(&disks, &options));
+    }
+    let headers = if let Some(fields) = &options.output {
+        custom::headers(fields, &options)
+    } else {
+        headers(&options)
+    };
+    let output_status = print_table(&headers, &rows, &options);
     if had_error || output_status != 0 {
         1
     } else {
@@ -127,6 +154,8 @@ fn parse(args: &[String]) -> Result<Parsed, String> {
         include_types: Vec::new(),
         exclude_types: Vec::new(),
         paths: Vec::new(),
+        output: None,
+        total: false,
     };
     let mut index = 0;
     let mut operands_only = false;
@@ -148,6 +177,8 @@ fn parse(args: &[String]) -> Result<Parsed, String> {
                     "exclude-type",
                     "help",
                     "version",
+                    "output",
+                    "total",
                 ],
             )?;
             expanded.as_str()
@@ -177,6 +208,9 @@ fn parse(args: &[String]) -> Result<Parsed, String> {
                 apply_flag(letter, &mut size, &mut options)?;
             }
         }
+    }
+    if options.output.is_some() && (options.portability || options.print_type) {
+        return Err("options --output and -P/-T are mutually exclusive".into());
     }
     options.size = size;
     Ok(Parsed::Run(options))
@@ -245,10 +279,12 @@ fn parse_long(
         Some((name, value)) => (name, Some(value)),
         None => (long, None),
     };
-    if inline.is_some() && !matches!(name, "block-size" | "type" | "exclude-type") {
+    if inline.is_some() && !matches!(name, "block-size" | "type" | "exclude-type" | "output") {
         return Err(format!("option '--{name}' doesn't allow an argument"));
     }
     match name {
+        "output" => options.output = Some(custom::parse_fields(inline)?),
+        "total" => options.total = true,
         "human-readable" => *size = Size::Human(1024),
         "si" => *size = Size::Human(1000),
         "print-type" => options.print_type = true,
@@ -313,11 +349,15 @@ fn parse_block_size(text: &str) -> Result<u64, String> {
 }
 
 /// Returns the mounts to report and whether a path could not be resolved.
-fn select<'a>(mounted: &'a [Disk], paths: &[PathBuf]) -> (Vec<&'a Disk>, bool) {
+fn select<'a>(
+    mounted: &'a [Disk],
+    paths: &[PathBuf],
+    per_operand: bool,
+) -> (Vec<(&'a Disk, Option<PathBuf>)>, bool) {
     if paths.is_empty() {
-        return (mounted.iter().collect(), false);
+        return (mounted.iter().map(|disk| (disk, None)).collect(), false);
     }
-    let mut selected: Vec<&Disk> = Vec::new();
+    let mut selected: Vec<(&Disk, Option<PathBuf>)> = Vec::new();
     let mut failed = false;
     for path in paths {
         let canonical = match std::fs::canonicalize(path) {
@@ -338,11 +378,12 @@ fn select<'a>(mounted: &'a [Disk], paths: &[PathBuf]) -> (Vec<&'a Disk>, bool) {
             .max_by_key(|disk| disk.mount_point().components().count());
         match disk {
             Some(disk)
-                if !selected
-                    .iter()
-                    .any(|item| item.mount_point() == disk.mount_point()) =>
+                if per_operand
+                    || !selected
+                        .iter()
+                        .any(|(item, _)| item.mount_point() == disk.mount_point()) =>
             {
-                selected.push(disk);
+                selected.push((disk, Some(path.clone())));
             }
             Some(_) => {}
             None => {

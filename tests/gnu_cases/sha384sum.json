@@ -1,0 +1,407 @@
+{
+  "command": "sha384sum",
+  "cases": [
+    {
+      "name": "stdin_empty",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdin_abc",
+      "args": [],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdin_nul",
+      "args": [],
+      "stdin": "a\u0000b\n",
+      "files": {},
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "file",
+      "args": [
+        "data"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc"
+      },
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multiple_files",
+      "args": [
+        "one",
+        "two"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "abc",
+        "two": ""
+      },
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "binary",
+      "args": [
+        "--binary"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "text",
+      "args": [
+        "--text"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bsd_tag",
+      "args": [
+        "--tag"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "zero",
+      "args": [
+        "--zero"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_gnu",
+      "args": [
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7  data\n"
+      },
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_bsd",
+      "args": [
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "SHA384 (data) = cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7\n"
+      },
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_quiet",
+      "args": [
+        "--quiet",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7  data\n"
+      },
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_status",
+      "args": [
+        "--status",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7  data\n"
+      },
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ignore_missing",
+      "args": [
+        "--ignore-missing",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7  absent\ncb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7  data\n"
+      },
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "mismatch",
+      "args": [
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000  data\n"
+      },
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "warn_malformed",
+      "args": [
+        "--warn",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7  data\nmalformed\n"
+      },
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "strict_malformed",
+      "args": [
+        "--strict",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7  data\nmalformed\n"
+      },
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "absent"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "sha384sum"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdin_self_check_rejected",
+      "args": [
+        "-c"
+      ],
+      "stdin": "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b  -\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_binary_rejected",
+      "args": [
+        "--binary",
+        "-c",
+        "list"
+      ],
+      "files": {
+        "list": "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7  data\n",
+        "data": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_text_rejected",
+      "args": [
+        "--text",
+        "-c",
+        "list"
+      ],
+      "files": {
+        "list": "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7  data\n",
+        "data": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

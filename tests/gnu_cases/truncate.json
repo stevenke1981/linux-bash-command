@@ -1,0 +1,333 @@
+{
+  "command": "truncate",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--not-an-option"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_operands",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "absolute",
+      "args": [
+        "-s",
+        "4",
+        "a"
+      ],
+      "files": {
+        "a": "abcdef"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "extend",
+      "args": [
+        "-s",
+        "8",
+        "a"
+      ],
+      "files": {
+        "a": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "create",
+      "args": [
+        "-s",
+        "2",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "no_create",
+      "args": [
+        "-c",
+        "-s",
+        "2",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "plus",
+      "args": [
+        "-s",
+        "+2",
+        "a"
+      ],
+      "files": {
+        "a": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "minus",
+      "args": [
+        "-s",
+        "-2",
+        "a"
+      ],
+      "files": {
+        "a": "abcdef"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "clamp_max",
+      "args": [
+        "-s",
+        "<2",
+        "a"
+      ],
+      "files": {
+        "a": "abcdef"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "clamp_min",
+      "args": [
+        "-s",
+        ">5",
+        "a"
+      ],
+      "files": {
+        "a": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "round_down",
+      "args": [
+        "-s",
+        "/4",
+        "a"
+      ],
+      "files": {
+        "a": "abcdef"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "round_up",
+      "args": [
+        "-s",
+        "%4",
+        "a"
+      ],
+      "files": {
+        "a": "abcdef"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "reference",
+      "args": [
+        "-r",
+        "ref",
+        "a"
+      ],
+      "files": {
+        "ref": "abcd",
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "missing_reference",
+      "args": [
+        "-r",
+        "missing",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "bad_size",
+      "args": [
+        "-s",
+        "oops",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "two_files",
+      "args": [
+        "-s",
+        "1",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "abc",
+        "b": "def"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "suffix",
+      "args": [
+        "-s",
+        "1K",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "long_io_blocks",
+      "args": [
+        "--io-blocks",
+        "--size=1",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x"
+      }
+    },
+    {
+      "name": "long_no_create",
+      "args": [
+        "--no-create",
+        "--size=1",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {}
+    },
+    {
+      "name": "long_reference",
+      "args": [
+        "--reference=ref",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "ref": "x"
+      }
+    },
+    {
+      "name": "long_size",
+      "args": [
+        "--size=2",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x"
+      }
+    }
+  ]
+}

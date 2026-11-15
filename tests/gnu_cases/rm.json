@@ -1,0 +1,386 @@
+{
+  "command": "rm",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--not-an-option"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_operands",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "one",
+      "args": [
+        "f"
+      ],
+      "files": {
+        "f": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "two",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "force_missing",
+      "args": [
+        "-f",
+        "missing"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "force_empty",
+      "args": [
+        "-f"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "directory_error",
+      "args": [
+        "a"
+      ],
+      "files": {
+        "a": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "empty_directory",
+      "args": [
+        "-d",
+        "a"
+      ],
+      "files": {
+        "a": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "recursive",
+      "args": [
+        "-r",
+        "a"
+      ],
+      "files": {
+        "a/f": "x",
+        "a/sub/g": "y"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "verbose",
+      "args": [
+        "-v",
+        "f"
+      ],
+      "files": {
+        "f": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "interactive_yes",
+      "args": [
+        "-i",
+        "f"
+      ],
+      "files": {
+        "f": "x"
+      },
+      "stdin": "y\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "interactive_no",
+      "args": [
+        "-i",
+        "f"
+      ],
+      "files": {
+        "f": "x"
+      },
+      "stdin": "n\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "interactive_never",
+      "args": [
+        "--interactive=never",
+        "f"
+      ],
+      "files": {
+        "f": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "recursive_force_missing",
+      "args": [
+        "-rf",
+        "missing"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "once_single",
+      "args": [
+        "-I",
+        "f"
+      ],
+      "files": {
+        "f": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "mixed_missing",
+      "args": [
+        "missing",
+        "f"
+      ],
+      "files": {
+        "f": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "long_force",
+      "args": [
+        "--force",
+        "missing"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {}
+    },
+    {
+      "name": "long_recursive",
+      "args": [
+        "--recursive",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a/f": "x"
+      }
+    },
+    {
+      "name": "long_verbose",
+      "args": [
+        "--verbose",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x"
+      }
+    },
+    {
+      "name": "one_filesystem",
+      "args": [
+        "--one-file-system",
+        "--recursive",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a/f": "x"
+      }
+    },
+    {
+      "name": "preserve_root_all",
+      "args": [
+        "--preserve-root=all",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x"
+      }
+    },
+    {
+      "name": "no_preserve_root",
+      "args": [
+        "--no-preserve-root",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x"
+      }
+    },
+    {
+      "name": "audit_dir",
+      "args": [
+        "--dir",
+        "empty"
+      ],
+      "files": {
+        "empty": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "review_no_symlink_traversal",
+      "args": [
+        "-r",
+        "link/"
+      ],
+      "files": {
+        "target/keep": "important",
+        "link": {
+          "symlink": "target"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

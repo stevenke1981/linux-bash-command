@@ -1,0 +1,353 @@
+{
+  "command": "date",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--not-an-option"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_operands",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "epoch",
+      "args": [
+        "-u",
+        "-d",
+        "@0",
+        "+%F %T %z"
+      ]
+    },
+    {
+      "name": "negative_epoch",
+      "args": [
+        "-u",
+        "-d",
+        "@-1",
+        "+%F %T"
+      ]
+    },
+    {
+      "name": "epoch_fraction",
+      "args": [
+        "-u",
+        "-d",
+        "@1.125",
+        "+%s.%N"
+      ]
+    },
+    {
+      "name": "iso_input",
+      "args": [
+        "-u",
+        "-d",
+        "2026-10-30 05:10:00",
+        "+%F %T"
+      ]
+    },
+    {
+      "name": "iso_offset",
+      "args": [
+        "-u",
+        "-d",
+        "2026-10-30T05:10:00+08:00",
+        "+%F %T"
+      ]
+    },
+    {
+      "name": "iso_z",
+      "args": [
+        "-u",
+        "-d",
+        "2026-10-30T05:10:00Z",
+        "+%F %T"
+      ]
+    },
+    {
+      "name": "rfc_input",
+      "args": [
+        "-u",
+        "-d",
+        "Fri, 30 Oct 2026 05:10:00 +0000",
+        "+%s"
+      ]
+    },
+    {
+      "name": "iso_date",
+      "args": [
+        "-u",
+        "-d",
+        "@0",
+        "--iso-8601"
+      ]
+    },
+    {
+      "name": "iso_seconds",
+      "args": [
+        "-u",
+        "-d",
+        "@0",
+        "-Iseconds"
+      ]
+    },
+    {
+      "name": "iso_nanos",
+      "args": [
+        "-u",
+        "-d",
+        "@1.25",
+        "-Ins"
+      ]
+    },
+    {
+      "name": "rfc_email",
+      "args": [
+        "-u",
+        "-d",
+        "@0",
+        "-R"
+      ]
+    },
+    {
+      "name": "rfc_seconds",
+      "args": [
+        "-u",
+        "-d",
+        "@0",
+        "--rfc-3339=seconds"
+      ]
+    },
+    {
+      "name": "rfc_nanos",
+      "args": [
+        "-u",
+        "-d",
+        "@1.25",
+        "--rfc-3339=ns"
+      ]
+    },
+    {
+      "name": "format_flags",
+      "args": [
+        "-u",
+        "-d",
+        "@0",
+        "+%-d %_H %^b"
+      ]
+    },
+    {
+      "name": "calendar",
+      "args": [
+        "-u",
+        "-d",
+        "2026-01-01 +3 days 2 hours ago",
+        "+%F %T"
+      ]
+    },
+    {
+      "name": "file",
+      "args": [
+        "-u",
+        "-f",
+        "dates",
+        "+%s"
+      ],
+      "files": {
+        "dates": "@0\n@1\n"
+      }
+    },
+    {
+      "name": "invalid",
+      "args": [
+        "-u",
+        "-d",
+        "not a date"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "reference",
+      "args": [
+        "-u",
+        "-r",
+        "ref",
+        "+%s"
+      ],
+      "files": {
+        "ref": {
+          "text": "x",
+          "mtime": 1700000000
+        }
+      }
+    },
+    {
+      "name": "month_rollover",
+      "args": [
+        "-u",
+        "-d",
+        "2025-01-31 +1 month",
+        "+%F"
+      ]
+    },
+    {
+      "name": "year_rollover",
+      "args": [
+        "-u",
+        "-d",
+        "2024-02-29 +1 year",
+        "+%F"
+      ]
+    },
+    {
+      "name": "negative_subnanosecond",
+      "args": [
+        "-u",
+        "-d",
+        "@-0.123456789123",
+        "+%s.%N"
+      ]
+    },
+    {
+      "name": "offset_space",
+      "args": [
+        "-u",
+        "-d",
+        "2026-10-30 05:10:00 +0800",
+        "+%F %T"
+      ]
+    },
+    {
+      "name": "long_date",
+      "args": [
+        "--utc",
+        "--date=@0",
+        "+%s"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "long_file",
+      "args": [
+        "--utc",
+        "--file=dates",
+        "+%s"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "files": {
+        "dates": "@0\n"
+      }
+    },
+    {
+      "name": "long_reference",
+      "args": [
+        "--utc",
+        "--reference=ref",
+        "+%s"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "files": {
+        "ref": {
+          "text": "x",
+          "mtime": 1700000000
+        }
+      }
+    },
+    {
+      "name": "long_rfc_email",
+      "args": [
+        "--utc",
+        "--date=@0",
+        "--rfc-email"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "long_universal",
+      "args": [
+        "--universal",
+        "--date=@0",
+        "+%s"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_iso_compact_offset",
+      "args": [
+        "-u",
+        "-d",
+        "2026-10-30T05:10:00+0800",
+        "+%F %T"
+      ]
+    },
+    {
+      "name": "p2_rfc_incorrect_weekday",
+      "args": [
+        "-u",
+        "-d",
+        "Thu, 30 Oct 2026 05:10:00 +0000",
+        "+%F %T"
+      ]
+    },
+    {
+      "name": "p2_composite_flags",
+      "args": [
+        "-u",
+        "-d",
+        "@0",
+        "+%^c|%30c|%030c|%-30c"
+      ]
+    },
+    {
+      "name": "p2_relative_months_cancel",
+      "args": [
+        "-u",
+        "-d",
+        "2025-01-31 +1 month -1 month",
+        "+%F"
+      ]
+    }
+  ]
+}

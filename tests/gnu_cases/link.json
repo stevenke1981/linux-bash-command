@@ -1,0 +1,227 @@
+{
+  "command": "link",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--not-an-option"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_operands",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "simple",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "missing_source",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "missing_second",
+      "args": [
+        "a"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "extra",
+      "args": [
+        "a",
+        "b",
+        "c"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "dest_exists",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "same",
+      "args": [
+        "a",
+        "a"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "target_dir",
+      "args": [
+        "a",
+        "d"
+      ],
+      "files": {
+        "a": "x",
+        "d": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "source_dir",
+      "args": [
+        "d",
+        "b"
+      ],
+      "files": {
+        "d": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "spaces",
+      "args": [
+        "a b",
+        "c d"
+      ],
+      "files": {
+        "a b": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "empty_file",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": ""
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "nested_target",
+      "args": [
+        "a",
+        "d/b"
+      ],
+      "files": {
+        "a": "x",
+        "d": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "dash_name",
+      "args": [
+        "--",
+        "-a",
+        "b"
+      ],
+      "files": {
+        "-a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    }
+  ]
+}

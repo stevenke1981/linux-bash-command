@@ -1,7 +1,6 @@
 //! Spawning the commands given to `-exec`, `-execdir` and batched `{} +`.
 
 use std::path::Path;
-use std::process::Command;
 
 /// Replaces every `{}` in each argument (including the program name) with `text`.
 pub fn substitute(argv: &[String], text: &str) -> Vec<String> {
@@ -14,11 +13,11 @@ pub fn run(argv: &[String], dir: Option<&Path>) -> Result<bool, String> {
     let Some((program, args)) = argv.split_first() else {
         return Err("missing command for -exec".to_string());
     };
-    let mut command = Command::new(program);
+    let environment: Vec<_> = std::env::vars_os().collect();
+    let mut command =
+        crate::common::process::command_in(std::ffi::OsStr::new(program), &environment, dir)
+            .map_err(|error| format!("'{program}': {}", super::walk::message(&error)))?;
     command.args(args);
-    if let Some(dir) = dir {
-        command.current_dir(dir);
-    }
     match command.status() {
         Ok(status) => Ok(status.success()),
         Err(error) => Err(format!("'{program}': {}", super::walk::message(&error))),

@@ -1,0 +1,495 @@
+{
+  "command": "ln",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--not-an-option"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_operands",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "hard",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "missing_source",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "exists",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "force",
+      "args": [
+        "-f",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "backup",
+      "args": [
+        "-b",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "suffix",
+      "args": [
+        "-S",
+        ".bak",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "symbolic",
+      "args": [
+        "-s",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "dangling",
+      "args": [
+        "-s",
+        "missing",
+        "b"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "target_dir",
+      "args": [
+        "-t",
+        "out",
+        "a"
+      ],
+      "files": {
+        "a": "x",
+        "out": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "multiple",
+      "args": [
+        "a",
+        "b",
+        "out"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y",
+        "out": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "interactive_no",
+      "args": [
+        "-i",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "stdin": "n\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "interactive_yes",
+      "args": [
+        "-i",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "stdin": "y\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "no_target",
+      "args": [
+        "-T",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "logical",
+      "args": [
+        "-L",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "physical",
+      "args": [
+        "-P",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "long_backup",
+      "args": [
+        "--backup=simple",
+        "a",
+        "b"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      }
+    },
+    {
+      "name": "long_force",
+      "args": [
+        "--force",
+        "a",
+        "b"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      }
+    },
+    {
+      "name": "long_interactive",
+      "args": [
+        "--interactive",
+        "a",
+        "b"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "stdin": "n\n"
+    },
+    {
+      "name": "long_logical",
+      "args": [
+        "--logical",
+        "a",
+        "b"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x"
+      }
+    },
+    {
+      "name": "long_no_deref",
+      "args": [
+        "--no-dereference",
+        "a",
+        "b"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x"
+      }
+    },
+    {
+      "name": "long_no_target_dir",
+      "args": [
+        "--no-target-directory",
+        "a",
+        "b"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x"
+      }
+    },
+    {
+      "name": "long_physical",
+      "args": [
+        "--physical",
+        "a",
+        "b"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x"
+      }
+    },
+    {
+      "name": "long_relative",
+      "args": [
+        "--relative",
+        "--symbolic",
+        "a",
+        "out/link"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x",
+        "out": {
+          "dir": true
+        }
+      }
+    },
+    {
+      "name": "long_target_dir",
+      "args": [
+        "--target-directory=out",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x",
+        "out": {
+          "dir": true
+        }
+      }
+    },
+    {
+      "name": "long_verbose",
+      "args": [
+        "--verbose",
+        "a",
+        "b"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x"
+      }
+    },
+    {
+      "name": "audit_backup",
+      "args": [
+        "--backup=simple",
+        "--suffix=.save",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "new",
+        "b": "old"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "review_backup_source_collision",
+      "args": [
+        "-b",
+        "x~",
+        "x"
+      ],
+      "files": {
+        "x": "old",
+        "x~": "source"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

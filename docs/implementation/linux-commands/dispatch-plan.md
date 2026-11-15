@@ -2,7 +2,7 @@
 
 Baseline: `617a90c73554ccb5a6c6eebc631e26c78948927a`.
 The maintainer authorized implementation, commits, push, PR, merge to main,
-release creation, and replacement of the local binaries. The specification is
+release builds, and replacement of the local binaries. The specification is
 in `docs/spec/linux-commands/`; its requirements and dependency order apply.
 
 | Task | Owner | Scope | Dependencies |
@@ -13,7 +13,11 @@ in `docs/spec/linux-commands/`; its requirements and dependency order apply.
 | Release inventory | Luna | Read-only packaging and installed-copy inventory | Baseline |
 | Integration, test runner, docs, CI | Coordinator | Isolated integration branch | Worker handoffs |
 | P1 acceptance | Coordinator and reviewer | Existing text pipelines | P0 accepted |
-| P2 filesystem and system tools | Assigned engineers | Command modules and tests | P0 and P1 accepted |
+| P2 filesystem and date | Terra xhigh | fsops, mktemp, truncate, date, datetime | P0 and P1 accepted |
+| P2 metadata and existing gaps | Sol xhigh | realpath, readlink, stat, du, ls/find/df | P0 and P1 accepted |
+| P2 system information | Luna | nproc, hostname, arch, uptime | P0 and P1 accepted |
+| P2 checksums, codecs and integration | Coordinator | 12 commands, registry, fixtures, CI | Worker handoffs |
+| P2 independent review | Astra / Terra / Sol | Filesystem/date / metadata / checksums and system | Frozen author snapshots |
 | P3 remaining aligned commands | Assigned engineers | Command modules, sort merge, tests | P2 accepted |
 | P4 extra commands A | Assigned engineers | Command modules and tests | P3 accepted |
 | P5 extra commands B | Assigned engineers | Command modules and tests | P4 accepted |

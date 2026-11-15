@@ -49,6 +49,7 @@ impl Fixture {
         };
         let mut child = Command::new(binary)
             .current_dir(&self.0)
+            .env("TZ", "UTC")
             .args(args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
@@ -240,9 +241,9 @@ fn ls_file_arguments_print_as_given_and_missing_paths_fail() {
     f.write("sub/file.txt", b"x");
     assert_eq!(text(&f.run("ls", &["sub/file.txt"])), "sub/file.txt\n");
     assert_eq!(code(&f.run("ls", &["missing"])), Some(2));
-    assert_eq!(code(&f.run("ls", &["-i"])), Some(2));
-    assert_eq!(code(&f.run("ls", &["-s"])), Some(2));
-    assert_eq!(code(&f.run("ls", &["--time-style=+%Y"])), Some(2));
+    assert_eq!(code(&f.run("ls", &["-i"])), Some(0));
+    assert_eq!(code(&f.run("ls", &["-s"])), Some(0));
+    assert_eq!(code(&f.run("ls", &["--time-style=+%Y"])), Some(0));
     assert_eq!(code(&f.run("ls", &["--color=sometimes"])), Some(2));
 }
 

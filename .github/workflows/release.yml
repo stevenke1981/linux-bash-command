@@ -49,6 +49,7 @@ jobs:
           cp "target/release/agentcmd$ext" "$stage/"
           while IFS= read -r name; do
             [[ "$name" == "[" ]] && continue
+            [[ "$RUNNER_OS" == Windows && "$name" == link ]] && continue
             cp "target/release/$name$ext" "$stage/"
           done < <(target/release/agentcmd --list)
           if [[ "$RUNNER_OS" == Windows ]]; then

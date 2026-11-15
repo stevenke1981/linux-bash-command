@@ -1,0 +1,552 @@
+{
+  "command": "cksum",
+  "cases": [
+    {
+      "name": "default_empty",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "default_abc",
+      "args": [],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "crc",
+      "args": [
+        "--algorithm=crc"
+      ],
+      "stdin": "123456789",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "crc32b",
+      "args": [
+        "--algorithm=crc32b"
+      ],
+      "stdin": "123456789",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bsd",
+      "args": [
+        "--algorithm=bsd"
+      ],
+      "stdin": "123456789",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sysv",
+      "args": [
+        "--algorithm=sysv"
+      ],
+      "stdin": "123456789",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "md5",
+      "args": [
+        "--algorithm=md5"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sha1",
+      "args": [
+        "--algorithm=sha1"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sha224",
+      "args": [
+        "--algorithm=sha224"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sha256",
+      "args": [
+        "--algorithm=sha256"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sha384",
+      "args": [
+        "--algorithm=sha384"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sha512",
+      "args": [
+        "--algorithm=sha512"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "blake2b",
+      "args": [
+        "--algorithm=blake2b"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "base64",
+      "args": [
+        "--algorithm=sha256",
+        "--base64"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "raw",
+      "args": [
+        "--algorithm=sha256",
+        "--raw"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "tag",
+      "args": [
+        "--algorithm=sha256",
+        "--tag"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "untagged",
+      "args": [
+        "--algorithm=sha256",
+        "--untagged"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "length",
+      "args": [
+        "--algorithm=blake2b",
+        "--length=256"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check",
+      "args": [
+        "--algorithm=sha256",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "SHA256 (data) = ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\n"
+      },
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_quiet",
+      "args": [
+        "--algorithm=sha256",
+        "--quiet",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "SHA256 (data) = ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\n"
+      },
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_status",
+      "args": [
+        "--algorithm=sha256",
+        "--status",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "SHA256 (data) = ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\n"
+      },
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_ignore_missing",
+      "args": [
+        "--algorithm=sha256",
+        "--ignore-missing",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "SHA256 (absent) = 00\nSHA256 (data) = ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\n"
+      },
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_warn_malformed",
+      "args": [
+        "--algorithm=sha256",
+        "--warn",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "SHA256 (data) = ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\nmalformed\n"
+      },
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_strict_malformed",
+      "args": [
+        "--algorithm=sha256",
+        "--strict",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "SHA256 (data) = ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad\nmalformed\n"
+      },
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "untagged_mode",
+      "args": [
+        "--algorithm=sha256",
+        "--untagged"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "zero",
+      "args": [
+        "--zero"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "absent"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_length",
+      "args": [
+        "--length=7"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cksum"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bsd_named_file",
+      "args": [
+        "-a",
+        "bsd",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "sysv_named_file",
+      "args": [
+        "-a",
+        "sysv",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

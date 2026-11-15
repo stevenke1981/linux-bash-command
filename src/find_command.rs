@@ -6,7 +6,8 @@
 
 mod exec;
 mod expr;
-mod glob;
+pub(crate) mod glob;
+mod output;
 mod parse;
 mod printf;
 mod walk;
@@ -22,7 +23,7 @@ Options (anywhere in the expression):
   -L, -follow                Follow symbolic links (loops are detected)
   -H                         Follow symbolic links only for starting points
   -P                         Never follow symbolic links (default)
-  -xdev, -mount, -noleaf     Accepted; mount boundaries are not enforced
+  -xdev, -mount, -noleaf     Stay on the starting file system (-noleaf is accepted)
 
 Tests:
   -name PAT, -iname PAT      Basename matches a wildcard (* ? [...] \\ escape)
@@ -37,6 +38,16 @@ Tests:
   -readable, -writable, -executable
                              Best-effort access checks
   -true, -false
+  -newerXY FILE/TIME          Compare a/c/m/B clocks; t references a date string
+  -user NAME, -group NAME     Match an owner name or numeric ID
+  -uid N, -gid N              Match numeric IDs with optional + or -
+  -nouser, -nogroup           Owner or group has no name
+  -links N, -inum N           Match link count or inode
+  -samefile FILE              Match the same device and inode
+  -lname PAT, -ilname PAT     Match symbolic-link targets
+  -xtype TYPE                Match the type with symbolic-link following reversed
+  -regextype TYPE             posix-basic, posix-extended, or emacs (ERE)
+  -ignore_readdir_race        Ignore files disappearing during traversal
 
 Actions:
   -print, -print0, -ls       Print the path (default action when none is given)
@@ -48,7 +59,10 @@ Actions:
   -exec CMD {} ;             Run CMD per entry; success means exit status 0
   -exec CMD {} +             Run CMD with batches of paths
   -execdir CMD {} ;          Like -exec, run in the entry's directory with ./NAME
-  -ok, -okdir                Rejected (interactive prompts are not supported)
+  -ok, -okdir CMD {} ;        Ask on stderr and execute after y/Y on stdin
+  -fprint FILE, -fprint0 FILE  Write paths to FILE
+  -fprintf FILE FORMAT        Write formatted output to FILE
+  -fls FILE                   Write long listings to FILE
   --help, --version          Show help or version information
 
 Operators: ( ) ! -not -a -and -o -or , (precedence as in GNU find).

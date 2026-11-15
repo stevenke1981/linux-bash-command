@@ -1,5 +1,92 @@
 [
-  {"command":"grep","args":["--files-without-match","needle","hay"],"files":{"hay":"no\n"},"stdout":"hay\n","exit":0},
-  {"command":"egrep","args":["--files-without-match","needle","hay"],"files":{"hay":"no\n"},"stdout":"hay\n","exit":0},
-  {"command":"fgrep","args":["--files-without-match","needle","hay"],"files":{"hay":"no\n"},"stdout":"hay\n","exit":0}
+  {
+    "command": "grep",
+    "args": [
+      "--files-without-match",
+      "needle",
+      "hay"
+    ],
+    "files": {
+      "hay": "no\n"
+    },
+    "stdout": "hay\n",
+    "exit": 0
+  },
+  {
+    "command": "egrep",
+    "args": [
+      "--files-without-match",
+      "needle",
+      "hay"
+    ],
+    "files": {
+      "hay": "no\n"
+    },
+    "stdout": "hay\n",
+    "exit": 0
+  },
+  {
+    "command": "fgrep",
+    "args": [
+      "--files-without-match",
+      "needle",
+      "hay"
+    ],
+    "files": {
+      "hay": "no\n"
+    },
+    "stdout": "hay\n",
+    "exit": 0
+  },
+  {
+    "command": "mktemp",
+    "args": [
+      "--directory",
+      "--tmpdir=.",
+      "dir.XXXXXXXXXX"
+    ],
+    "files": {},
+    "stdout_regex": "^./dir\\.[A-Za-z0-9]{10}\\n$",
+    "exit": 0
+  },
+  {
+    "command": "mktemp",
+    "args": [
+      "--dry-run",
+      "--suffix=.txt",
+      "--tmpdir=.",
+      "file.XXXXXXXXXX"
+    ],
+    "files": {},
+    "stdout_regex": "^./file\\.[A-Za-z0-9]{10}\\.txt\\n$",
+    "exit": 0
+  },
+  {
+    "command": "mktemp",
+    "args": [
+      "--quiet",
+      "bad"
+    ],
+    "files": {},
+    "stdout": "",
+    "exit": 1
+  },
+  {
+    "command": "mktemp",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "Usage: mktemp",
+    "exit": 0
+  },
+  {
+    "command": "mktemp",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "mktemp",
+    "exit": 0
+  }
 ]

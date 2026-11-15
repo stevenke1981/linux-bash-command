@@ -1,0 +1,298 @@
+{
+  "command": "base64",
+  "cases": [
+    {
+      "name": "encode",
+      "args": [],
+      "stdin": "foobar",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "encode_file",
+      "args": [
+        "data"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "foobar"
+      },
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "decode",
+      "args": [
+        "--decode"
+      ],
+      "stdin": "Zm9vYmFy\n",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "decode_short",
+      "args": [
+        "-d"
+      ],
+      "stdin": "Zm9vYmFy\n",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "decode_file",
+      "args": [
+        "-d",
+        "data"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "Zm9vYmFy\n"
+      },
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "wrap4",
+      "args": [
+        "--wrap=4"
+      ],
+      "stdin": "foobar",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "wrap0",
+      "args": [
+        "--wrap=0"
+      ],
+      "stdin": "foobar",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "wrap76",
+      "args": [
+        "--wrap=76"
+      ],
+      "stdin": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ignore_garbage",
+      "args": [
+        "--decode",
+        "--ignore-garbage"
+      ],
+      "stdin": "Z!m9vYmFy\n",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_padding",
+      "args": [
+        "--decode"
+      ],
+      "stdin": "Zm9v=",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "partial_invalid",
+      "args": [
+        "--decode"
+      ],
+      "stdin": "Zm9v!",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_wrap",
+      "args": [
+        "--wrap=-1"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multiple",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a",
+        "b": "b"
+      },
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--invalid"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "base64"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}
+

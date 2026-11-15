@@ -104,6 +104,16 @@ impl Style {
         color::paint(true, self.sgr_for(name, path, metadata), name)
     }
 
+    pub fn quoted_name(
+        &self,
+        name: &str,
+        shown: &str,
+        path: &Path,
+        metadata: &fs::Metadata,
+    ) -> String {
+        color::paint(self.on, self.sgr_for(name, path, metadata), shown)
+    }
+
     fn sgr_for(&self, name: &str, path: &Path, metadata: &fs::Metadata) -> &str {
         let file_type = metadata.file_type();
         if file_type.is_symlink() {

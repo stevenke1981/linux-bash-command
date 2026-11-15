@@ -15,330 +15,95 @@ pub enum Origin {
     Extra,
 }
 
-pub static UTILITIES: &[Utility] = &[
-    Utility {
-        name: "[",
-        run: crate::commands::test::run_bracket,
-        summary: "Evaluate a bracketed expression",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "basename",
-        run: crate::commands::pathname::run_basename,
-        summary: "Remove directory prefix",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "cat",
-        run: crate::text_commands::cat,
-        summary: "Concatenate files",
-        origin: Origin::Existing,
-        windows_conflict: Some("PowerShell"),
-    },
-    Utility {
-        name: "cd",
-        run: crate::cd_command::run,
-        summary: "Resolve a directory",
-        origin: Origin::Existing,
-        windows_conflict: Some("PowerShell"),
-    },
-    Utility {
-        name: "comm",
-        run: crate::commands::comm::run,
-        summary: "Compare sorted files",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "curl",
-        run: crate::curl_command::run,
-        summary: "Transfer data from URLs",
-        origin: Origin::Existing,
-        windows_conflict: Some("PowerShell 5.1"),
-    },
-    Utility {
-        name: "cut",
-        run: crate::commands::cut::run,
-        summary: "Select fields or bytes",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "df",
-        run: crate::df_command::run,
-        summary: "Report filesystem space",
-        origin: Origin::Existing,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "diff",
-        run: crate::diff::run,
-        summary: "Compare files",
-        origin: Origin::Existing,
-        windows_conflict: Some("PowerShell 5.1"),
-    },
-    Utility {
-        name: "dirname",
-        run: crate::commands::pathname::run_dirname,
-        summary: "Remove final path component",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "echo",
-        run: crate::commands::echo::run,
-        summary: "Display a line of text",
-        origin: Origin::Ms,
-        windows_conflict: Some("PowerShell"),
-    },
-    Utility {
-        name: "egrep",
-        run: crate::commands::egrep::run,
-        summary: "Search extended regular expressions",
-        origin: Origin::Extra,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "env",
-        run: crate::commands::env::run,
-        summary: "Run a command in a modified environment",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "expand",
-        run: crate::commands::expand::run_expand,
-        summary: "Convert expand to spaces",
-        origin: Origin::Ms,
-        windows_conflict: Some("Windows System32"),
-    },
-    Utility {
-        name: "false",
-        run: crate::commands::truefalse::run_false,
-        summary: "Exit unsuccessfully",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "fgrep",
-        run: crate::commands::fgrep::run,
-        summary: "Search fixed strings",
-        origin: Origin::Extra,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "find",
-        run: crate::find_command::find,
-        summary: "Find files",
-        origin: Origin::Existing,
-        windows_conflict: Some("Windows"),
-    },
-    Utility {
-        name: "fold",
-        run: crate::commands::fold::run,
-        summary: "Wrap input lines",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "grep",
-        run: crate::grep_command::run,
-        summary: "Search text",
-        origin: Origin::Existing,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "head",
-        run: crate::text_commands::head,
-        summary: "Print first lines",
-        origin: Origin::Existing,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "less",
-        run: crate::less_command::run,
-        summary: "Display files",
-        origin: Origin::Existing,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "list",
-        run: crate::files::list,
-        summary: "List files recursively",
-        origin: Origin::Existing,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "ls",
-        run: crate::fs_commands::ls,
-        summary: "List directory contents",
-        origin: Origin::Existing,
-        windows_conflict: Some("PowerShell"),
-    },
-    Utility {
-        name: "nl",
-        run: crate::commands::nl::run,
-        summary: "Number input lines",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "paste",
-        run: crate::commands::paste::run,
-        summary: "Merge lines",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "printenv",
-        run: crate::commands::printenv::run,
-        summary: "Print environment values",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "printf",
-        run: crate::commands::printf::run,
-        summary: "Format arguments",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "ps",
-        run: crate::ps_command::run,
-        summary: "List processes",
-        origin: Origin::Existing,
-        windows_conflict: Some("PowerShell"),
-    },
-    Utility {
-        name: "pwd",
-        run: crate::fs_commands::pwd,
-        summary: "Print working directory",
-        origin: Origin::Existing,
-        windows_conflict: Some("PowerShell"),
-    },
-    Utility {
-        name: "read",
-        run: crate::files::read,
-        summary: "Read numbered lines",
-        origin: Origin::Existing,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "rg",
-        run: crate::search::run_rg,
-        summary: "Search files recursively",
-        origin: Origin::Existing,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "search",
-        run: crate::search::run,
-        summary: "Search text in files",
-        origin: Origin::Existing,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "seq",
-        run: crate::commands::seq::run,
-        summary: "Print numeric sequences",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "sleep",
-        run: crate::commands::sleep::run,
-        summary: "Delay execution",
-        origin: Origin::Ms,
-        windows_conflict: Some("PowerShell"),
-    },
-    Utility {
-        name: "sort",
-        run: crate::commands::sort::run,
-        summary: "Sort records",
-        origin: Origin::Ms,
-        windows_conflict: Some("PowerShell, Windows System32"),
-    },
-    Utility {
-        name: "tac",
-        run: crate::commands::tac::run,
-        summary: "Concatenate files in reverse",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "tail",
-        run: crate::text_commands::tail,
-        summary: "Print last lines",
-        origin: Origin::Existing,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "tee",
-        run: crate::commands::tee::run,
-        summary: "Copy input to files and stdout",
-        origin: Origin::Ms,
-        windows_conflict: Some("PowerShell"),
-    },
-    Utility {
-        name: "test",
-        run: crate::commands::test::run,
-        summary: "Evaluate an expression",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "tr",
-        run: crate::commands::tr::run,
-        summary: "Translate or delete bytes",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "true",
-        run: crate::commands::truefalse::run_true,
-        summary: "Exit successfully",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "unexpand",
-        run: crate::commands::expand::run_unexpand,
-        summary: "Convert spaces to expand",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "uniq",
-        run: crate::commands::uniq::run,
-        summary: "Filter adjacent repeated records",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "wc",
-        run: crate::commands::wc::run,
-        summary: "Count input lines, words and bytes",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "xargs",
-        run: crate::commands::xargs::run,
-        summary: "Build and execute command lines",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-    Utility {
-        name: "yes",
-        run: crate::commands::yes::run,
-        summary: "Repeatedly display text",
-        origin: Origin::Ms,
-        windows_conflict: None,
-    },
-];
+macro_rules! utilities {
+    ($($name:literal => $run:path, $summary:literal, $origin:ident, $conflict:expr;)*) => {
+        pub static UTILITIES: &[Utility] = &[$(Utility {
+            name: $name, run: $run, summary: $summary,
+            origin: Origin::$origin, windows_conflict: $conflict,
+        }),*];
+    };
+}
+
+utilities! {
+    "[" => crate::commands::test::run_bracket, "Evaluate a bracketed expression", Ms, None;
+    "arch" => crate::commands::sysinfo_cmds::run_arch, "Report arch system information", Ms, None;
+    "b2sum" => crate::commands::hashsum::run_b2sum, "Compute b2sum checksums", Ms, None;
+    "base32" => crate::commands::basenc::run_base32, "Encode and decode base32 streams", Ms, None;
+    "base64" => crate::commands::basenc::run_base64, "Encode and decode base64 streams", Ms, None;
+    "basename" => crate::commands::pathname::run_basename, "Remove directory prefix", Ms, None;
+    "basenc" => crate::commands::basenc::run_basenc, "Encode and decode basenc streams", Ms, None;
+    "cat" => crate::text_commands::cat, "Concatenate files", Existing, Some("PowerShell");
+    "cd" => crate::cd_command::run, "Resolve a directory", Existing, Some("PowerShell");
+    "cksum" => crate::commands::cksum::run, "Compute cksum checksums", Ms, None;
+    "comm" => crate::commands::comm::run, "Compare sorted files", Ms, None;
+    "cp" => crate::commands::fsops::cp::run, "Cp filesystem entries", Ms, None;
+    "curl" => crate::curl_command::run, "Transfer data from URLs", Existing, Some("PowerShell 5.1");
+    "cut" => crate::commands::cut::run, "Select fields or bytes", Ms, None;
+    "date" => crate::commands::date::run, "Display or format dates", Ms, None;
+    "df" => crate::df_command::run, "Report filesystem space", Existing, None;
+    "diff" => crate::diff::run, "Compare files", Existing, Some("PowerShell 5.1");
+    "dirname" => crate::commands::pathname::run_dirname, "Remove final path component", Ms, None;
+    "du" => crate::commands::du::run, "Report disk usage", Ms, None;
+    "echo" => crate::commands::echo::run, "Display a line of text", Ms, Some("PowerShell");
+    "egrep" => crate::commands::egrep::run, "Search extended regular expressions", Extra, None;
+    "env" => crate::commands::env::run, "Run a command in a modified environment", Ms, None;
+    "expand" => crate::commands::expand::run_expand, "Convert expand to spaces", Ms, Some("Windows System32");
+    "false" => crate::commands::truefalse::run_false, "Exit unsuccessfully", Ms, None;
+    "fgrep" => crate::commands::fgrep::run, "Search fixed strings", Extra, None;
+    "find" => crate::find_command::find, "Find files", Existing, Some("Windows");
+    "fold" => crate::commands::fold::run, "Wrap input lines", Ms, None;
+    "grep" => crate::grep_command::run, "Search text", Existing, None;
+    "head" => crate::text_commands::head, "Print first lines", Existing, None;
+    "hostname" => crate::commands::sysinfo_cmds::run_hostname, "Report hostname system information", Ms, Some("Windows System32");
+    "less" => crate::less_command::run, "Display files", Existing, None;
+    "link" => crate::commands::fsops::link::run, "Link filesystem entries", Ms, Some("MSVC linker");
+    "list" => crate::files::list, "List files recursively", Existing, None;
+    "ln" => crate::commands::fsops::ln::run, "Ln filesystem entries", Ms, None;
+    "ls" => crate::fs_commands::ls, "List directory contents", Existing, Some("PowerShell");
+    "md5sum" => crate::commands::hashsum::run_md5sum, "Compute md5sum checksums", Ms, None;
+    "mkdir" => crate::commands::fsops::mkdir::run, "Mkdir filesystem entries", Ms, None;
+    "mktemp" => crate::commands::mktemp::run, "Create a temporary file or directory", Ms, None;
+    "mv" => crate::commands::fsops::mv::run, "Mv filesystem entries", Ms, None;
+    "nl" => crate::commands::nl::run, "Number input lines", Ms, None;
+    "nproc" => crate::commands::sysinfo_cmds::run_nproc, "Report nproc system information", Ms, None;
+    "paste" => crate::commands::paste::run, "Merge lines", Ms, None;
+    "printenv" => crate::commands::printenv::run, "Print environment values", Ms, None;
+    "printf" => crate::commands::printf::run, "Format arguments", Ms, None;
+    "ps" => crate::ps_command::run, "List processes", Existing, Some("PowerShell");
+    "pwd" => crate::fs_commands::pwd, "Print working directory", Existing, Some("PowerShell");
+    "read" => crate::files::read, "Read numbered lines", Existing, None;
+    "readlink" => crate::commands::pathname::run_readlink, "Display symbolic link targets", Ms, None;
+    "realpath" => crate::commands::pathname::run_realpath, "Resolve canonical paths", Ms, None;
+    "rg" => crate::search::run_rg, "Search files recursively", Existing, None;
+    "rm" => crate::commands::fsops::rm::run, "Rm filesystem entries", Ms, None;
+    "rmdir" => crate::commands::fsops::rmdir::run, "Rmdir filesystem entries", Ms, None;
+    "search" => crate::search::run, "Search text in files", Existing, None;
+    "seq" => crate::commands::seq::run, "Print numeric sequences", Ms, None;
+    "sha1sum" => crate::commands::hashsum::run_sha1sum, "Compute sha1sum checksums", Ms, None;
+    "sha224sum" => crate::commands::hashsum::run_sha224sum, "Compute sha224sum checksums", Ms, None;
+    "sha256sum" => crate::commands::hashsum::run_sha256sum, "Compute sha256sum checksums", Ms, None;
+    "sha384sum" => crate::commands::hashsum::run_sha384sum, "Compute sha384sum checksums", Ms, None;
+    "sha512sum" => crate::commands::hashsum::run_sha512sum, "Compute sha512sum checksums", Ms, None;
+    "sleep" => crate::commands::sleep::run, "Delay execution", Ms, Some("PowerShell");
+    "sort" => crate::commands::sort::run, "Sort records", Ms, Some("PowerShell, Windows System32");
+    "stat" => crate::commands::stat::run, "Report file status", Ms, None;
+    "sum" => crate::commands::cksum::run_sum, "Compute sum checksums", Ms, None;
+    "tac" => crate::commands::tac::run, "Concatenate files in reverse", Ms, None;
+    "tail" => crate::text_commands::tail, "Print last lines", Existing, None;
+    "tee" => crate::commands::tee::run, "Copy input to files and stdout", Ms, Some("PowerShell");
+    "test" => crate::commands::test::run, "Evaluate an expression", Ms, None;
+    "touch" => crate::commands::fsops::touch::run, "Touch filesystem entries", Ms, None;
+    "tr" => crate::commands::tr::run, "Translate or delete bytes", Ms, None;
+    "true" => crate::commands::truefalse::run_true, "Exit successfully", Ms, None;
+    "truncate" => crate::commands::truncate::run, "Resize files", Ms, None;
+    "unexpand" => crate::commands::expand::run_unexpand, "Convert spaces to expand", Ms, None;
+    "uniq" => crate::commands::uniq::run, "Filter adjacent repeated records", Ms, None;
+    "unlink" => crate::commands::fsops::unlink::run, "Unlink filesystem entries", Ms, None;
+    "uptime" => crate::commands::sysinfo_cmds::run_uptime, "Report uptime system information", Ms, Some("PowerShell");
+    "wc" => crate::commands::wc::run, "Count input lines, words and bytes", Ms, None;
+    "xargs" => crate::commands::xargs::run, "Build and execute command lines", Ms, None;
+    "yes" => crate::commands::yes::run, "Repeatedly display text", Ms, None;
+}
 
 pub fn find(name: &str) -> Option<&'static Utility> {
     UTILITIES
@@ -353,11 +118,84 @@ mod tests {
     #[test]
     fn registry_matches_existing_commands() {
         let expected = [
-            "[", "basename", "cat", "cd", "comm", "curl", "cut", "df", "diff", "dirname", "echo",
-            "egrep", "env", "expand", "false", "fgrep", "find", "fold", "grep", "head", "less",
-            "list", "ls", "nl", "paste", "printenv", "printf", "ps", "pwd", "read", "rg", "search",
-            "seq", "sleep", "sort", "tac", "tail", "tee", "test", "tr", "true", "unexpand", "uniq",
-            "wc", "xargs", "yes",
+            "[",
+            "arch",
+            "b2sum",
+            "base32",
+            "base64",
+            "basename",
+            "basenc",
+            "cat",
+            "cd",
+            "cksum",
+            "comm",
+            "cp",
+            "curl",
+            "cut",
+            "date",
+            "df",
+            "diff",
+            "dirname",
+            "du",
+            "echo",
+            "egrep",
+            "env",
+            "expand",
+            "false",
+            "fgrep",
+            "find",
+            "fold",
+            "grep",
+            "head",
+            "hostname",
+            "less",
+            "link",
+            "list",
+            "ln",
+            "ls",
+            "md5sum",
+            "mkdir",
+            "mktemp",
+            "mv",
+            "nl",
+            "nproc",
+            "paste",
+            "printenv",
+            "printf",
+            "ps",
+            "pwd",
+            "read",
+            "readlink",
+            "realpath",
+            "rg",
+            "rm",
+            "rmdir",
+            "search",
+            "seq",
+            "sha1sum",
+            "sha224sum",
+            "sha256sum",
+            "sha384sum",
+            "sha512sum",
+            "sleep",
+            "sort",
+            "stat",
+            "sum",
+            "tac",
+            "tail",
+            "tee",
+            "test",
+            "touch",
+            "tr",
+            "true",
+            "truncate",
+            "unexpand",
+            "uniq",
+            "unlink",
+            "uptime",
+            "wc",
+            "xargs",
+            "yes",
         ];
         assert_eq!(
             UTILITIES.iter().map(|u| u.name).collect::<Vec<_>>(),

@@ -1,0 +1,263 @@
+{
+  "command": "rmdir",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--not-an-option"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_operands",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "empty",
+      "args": [
+        "a"
+      ],
+      "files": {
+        "a": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "nonempty",
+      "args": [
+        "a"
+      ],
+      "files": {
+        "a/f": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "ignore_nonempty",
+      "args": [
+        "--ignore-fail-on-non-empty",
+        "a"
+      ],
+      "files": {
+        "a/f": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "parents",
+      "args": [
+        "-p",
+        "a/b"
+      ],
+      "files": {
+        "a/b": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "verbose",
+      "args": [
+        "-v",
+        "a"
+      ],
+      "files": {
+        "a": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "two_dirs",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "dir": true
+        },
+        "b": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "file",
+      "args": [
+        "f"
+      ],
+      "files": {
+        "f": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "mixed",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "parents_verbose",
+      "args": [
+        "-pv",
+        "a/b"
+      ],
+      "files": {
+        "a/b": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "deep",
+      "args": [
+        "-p",
+        "a/b/c"
+      ],
+      "files": {
+        "a/b/c": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "ignore_missing",
+      "args": [
+        "--ignore-fail-on-non-empty",
+        "missing"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "long_verbose",
+      "args": [
+        "--verbose",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": {
+          "dir": true
+        }
+      }
+    },
+    {
+      "name": "audit_parents",
+      "args": [
+        "--parents",
+        "a/b"
+      ],
+      "files": {
+        "a/b": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    }
+  ]
+}
