@@ -1,29 +1,11 @@
-# Phase 5 verification (in progress)
+# Phase 5 complete report
 
-Base: accepted Phase 4 6770af1; native Phase 5 acceptance remains pending.
-
-- New commands (8): awk tar gzip gunzip zcat patch xxd file; registry total 115.
-- Local validation: final Windows fmt, all-target Clippy, and full cargo test passed: 2,198 passed, 0 failed, 0 ignored. Targeted Phase 5 CLI suites passed (27 archive, 40 AWK after refresh, 22 patch, 30 xxd/file).
-- GNU reference: native Ubuntu 24.04 integration pending. AWK's local gawk matrix has 234 matching cases and one explicit syntax-status difference. Patch's unquoted Git space-name creation remains enabled for native determination; it is valid Git output under 04.
-- Independent Astra resolution audits passed for archive, patch, xxd/file and the original three AWK findings.
-- Coverage: native measurement pending; no aggregate result substitutes for the per-module 80% requirement.
-- Dependencies: allowlisted flate2 1.1.11 with rust_backend only; tar 0.4.46. No new C backend, GNU source or copied third-party implementation.
-- Incomplete/deferred: native gates and Phase 6 packaging/install are separate work.
-
-AWK performance evidence was measured on Windows 11 x64 against gawk 5.4.1, LC_ALL=C TZ=UTC, rustc 1.99.0 release. These development-binary timings precede the regex, formatting and assignment compatibility refresh; the measured record-reading/field/numeric-sum execution path was unchanged. The final release has separate performance evidence. Exact sums, status 0 and empty stderr were checked. At 100 MiB, ours 12.983/13.735 s versus GNU 3.472/3.484 s (mean 3.84x); at 1 GiB, ours 136.234 s versus GNU 40.589 s (3.36x). The optional 3x target is missed. The 1 GiB process peak working set was 4,030,464 bytes, confirmed after exit, demonstrating bounded record streaming. These are Windows measurements, not Ubuntu measurements.
-
-Resource limits: 1024 function-call nesting; separate 10 MiB regex validator/NFA compilation budgets; validator AST nesting 250; 128-entry dynamic regex cache. Programs exceeding supported compilation/call bounds fail cleanly with status 2. Required gawk extensions use default gawk; other reference cases use --posix.
-
-All filesystem mutations and process-control probes are confined to temporary sandboxes and owned children. Archive differential comparisons decode/validate gzip with GNU and compare tar member semantics without extracting oracle archives. Failed normalization always fails comparison, including when both outputs are malformed.
-
-
-First native candidate a758430 passed lint/coverage and the Linux/Windows ordinary suites, while Ubuntu GNU and the macOS raw-filename fixture exposed required follow-up repairs. Coverage has only awk/lexer below 80% (221/286, 77.27%); the remaining modules exceed 80%. Native captured xxd outputs determine the Ubuntu layout, superseding newer Git xxd layout observations.
-
-
-Native follow-up uses default gawk for the ten required length(array) fixtures, preserves ordinary POSIX-mode cases, and follows Ubuntu gawk formatting/assignment rules where the specification is silent. The two comma-interval forms have independent reference cases to resolve their precise native behavior. Mac raw-filename tests report EILSEQ filesystem limitations while preserving real Linux coverage.
-
-
-The repaired Windows candidate passes fmt, all-target Clippy and all 2,198 tests with zero failures/ignored. Updated file -0 framing and known unsupported -z diagnostics also match black-box file observations. Native revalidation and lexer coverage remain pending.
-
-
-Final interval refresh implements native empty-lower-bound repetition forms without changing the enabled GNU fixtures. All 2,198 Windows tests, fmt and all-target Clippy pass. A native-only inherited color test exposed a stdin BrokenPipe race; its helper now accepts a child that exits before reading usage-error input.
+- commits: `a758430` adds AWK, archives, patching and binary inspection; `027bfb3` aligns AWK, xxd and file with native behavior; `26ce71e` finalizes GNU interval forms and stable test input (final source `26ce71e42d9809b16aa7fab10aceaf460e3fcc64`).
+- New commands: awk tar gzip gunzip zcat patch xxd file; registry total 115.
+- Tests: Linux 2,240 passed; macOS 2,229 passed; Windows 2,198 passed. Each platform had zero failures and zero ignored tests. GNU differential: 3,185 passed, 0 failed, 41 documented skips. Additional gated metadata/hash/system tests passed (11 + 68 + 61).
+- clippy/fmt: `cargo fmt --check` and all-target Clippy with warnings denied passed. All six [CI jobs](https://github.com/stevenke1981/linux-bash-command/actions/runs/43709753271) passed on the exact source SHA, including Linux, Windows and macOS release builds and the coverage job.
+- Coverage: common 2,713/2,903 (93.46%); commands 27,368/30,212 (90.59%). All 172 measured common/command files exceed 80%; the minimum is `src/commands/split/stream.rs` at 80.10%. Full per-file results are in [coverage.md](../../spec/linux-commands/coverage.md), from the [exact-run coverage artifact](https://github.com/stevenke1981/linux-bash-command/actions/runs/43709753271/artifacts/14160126941).
+- Dependencies: allowlisted `flate2` 1.1.11 with the Rust backend and `tar` 0.4.46. No GNU source was copied.
+- Known differences recorded in `07-phases.md`: AWK syntax errors use specified exit 2 (GNU gawk uses 1); AWK recursion/regex compilation have documented resource limits and `rand()` sequences are implementation-defined; patch `-t` skips already-applied patches and accepts valid Git empty-file headers with unquoted space names that GNU patch rejects. `file` implements the documented signature subset and is excluded from GNU differential by the testing spec.
+- AWK performance evidence: a 1 GiB Windows development-binary run measured 136.234 s versus GNU gawk at 40.589 s (3.36× slower), with exact sum `536870910`, status 0, empty stderr, and 4,030,464-byte peak working set. This predates the compatibility refresh; the record-reading, field and numeric-sum path was unchanged. The final 0.2 benchmark is reported separately.
+- Phase 5 is accepted at this source SHA. Phase 6 packaging and installation remain separate.
