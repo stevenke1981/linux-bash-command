@@ -1,5 +1,9 @@
 # agentcmd
 
+A portable Rust toolkit with 115 Linux-style command names, standalone executables,
+and the `agentcmd` multi-call entry point for Windows, Linux and macOS. Commands
+implement the documented subsets in [Linux commands](docs/spec/linux-commands/README.md).
+
 ## Colors and terminal formatting
 
 Each command colors and formats its own output, like GNU coreutils, GNU grep
@@ -33,17 +37,15 @@ grep --color=never -n TODO src/*.rs
 AGENTCMD_COLOR=never rg fn src      # turn colors off for every command
 ```
 
-A collection of standalone Rust command-line tools for coding agents. Each command is a separate executable and implements a documented subset of familiar Linux-style tools. Most inspect local data; `curl` makes HTTP(S) requests and can write a response to a file. These tools are not complete replacements for ripgrep, GNU utilities, or curl.
-
 ## Build
 
-Prebuilt x86-64 packages for Windows and Linux are produced under `dist/` by the local packaging process; CI builds binaries for Windows, Linux, and macOS. Extract the package and add its extracted directory to your PATH. The macOS build has not been verified locally; the three-OS GitHub Actions workflow can build it on a macOS runner.
+Prebuilt x86-64 packages for Windows and Linux are produced under `dist/` by the local packaging process; CI builds binaries for Windows, Linux, and macOS. Extract the package and add its extracted directory to your PATH. The three-OS GitHub Actions workflow tests and builds each platform natively.
 
 To build from source, install Rust and run:
 
 ```sh
-cargo build --release --bins
-cargo test
+cargo build --release --bins --locked
+cargo test --locked
 ```
 
 The executables are in `target/release/`, with `.exe` extensions on Windows: `search`, `diff`, `list`, `read`, `rg`, `ls`, `pwd`, `cd`, `cat`, `less`, `head`, `tail`, `grep`, `find`, `ps`, `df`, and `curl`. Each executable accepts its arguments directly; for example, run `search --help`. The `agentcmd` multi-call binary also runs each command as `agentcmd <command> ...`; `agentcmd --list` lists available commands. Calling `agentcmd` without arguments now reports an error and exits 1. A copy named after a command dispatches to that command.
@@ -78,6 +80,19 @@ For an extracted package, source the `shell/cd.bash` or `shell/cd.ps1` file insi
 
 ## Commands
 
+| Category | Commands |
+|---|---|
+| Shell, environment and scripting | `[` `cd` `echo` `env` `false` `printenv` `printf` `pwd` `test` `true` `xargs` `yes` |
+| Search, inspection and agent tools | `cmp` `curl` `diff` `egrep` `fgrep` `find` `grep` `less` `list` `rg` `search` `tree` `which` |
+| Filesystem and paths | `basename` `chmod` `cp` `dirname` `link` `ln` `ls` `mkdir` `mktemp` `mv` `pathchk` `readlink` `realpath` `rm` `rmdir` `stat` `touch` `truncate` `unlink` |
+| Text viewing and reporting | `cat` `column` `comm` `fold` `head` `nl` `paste` `pr` `read` `rev` `sort` `tac` `tail` `tee` `unexpand` `uniq` `wc` |
+| Text transformation and records | `awk` `csplit` `cut` `expand` `file` `fmt` `join` `od` `patch` `ptx` `sed` `split` `tr` `tsort` `xxd` |
+| System information and processes | `arch` `date` `df` `du` `free` `hostname` `kill` `nproc` `pgrep` `pkill` `ps` `sleep` `timeout` `uname` `uptime` `whoami` |
+| Numbers and sequences | `expr` `factor` `numfmt` `seq` `shuf` |
+| Encoding, checksums and archives | `b2sum` `base32` `base64` `basenc` `cksum` `dos2unix` `gunzip` `gzip` `md5sum` `sha1sum` `sha224sum` `sha256sum` `sha384sum` `sha512sum` `sum` `tar` `unix2dos` `zcat` |
+
+### Examples
+
 ```sh
 search 'fn\s+main' src
 search -F -i 'todo' .
@@ -91,7 +106,7 @@ diff --context 3 old.txt new.txt
 
 Use `--` before positional arguments that begin with a dash. Arguments must be valid UTF-8. Commands write result data to standard output and errors to standard error. Search returns **0** for matches, **1** for none and **2** for errors; diff returns **0** for equal files, **1** for differences and **2** for errors. `cat`, `cd`, `df`, `find`, `head`, `less`, `ps`, `pwd`, and `tail` return **1** for errors; `ls` returns **1** for minor errors and **2** for serious errors; the new Phase 1 utilities normally return **1** for errors (`sort`, `test`, `[` and grep use **2** for usage errors); `list` and `read` return **2** for errors; `curl -f` returns **22** for HTTP error responses. Search can emit partial results before reporting an error, so always check the exit status.
 
-### Phase 1 text pipelines
+### Text pipelines
 
 The multi-call registry includes 115 names: the original 17, these 29 Phase 1 names, 32 Phase 2 names, 13 Phase 3 names, 16 Phase 4 names, and 8 Phase 5 names:
 
@@ -108,13 +123,13 @@ agentcmd sort -t, -k2,2n data.csv
 agentcmd env -i PATH=/usr/bin:/bin printenv PATH
 ```
 
-Phase 1 data processing uses byte order and ASCII classes in the C locale. `wc -m` explicitly counts UTF-8 characters, including one character per invalid byte. `seq` uses exact decimal steps unless scientific notation or a custom format requires floating point. `printf`, `seq`, and `sort -g` use `f64`. `sort` spills to a stable external merge when its 256 MiB memory budget (or `-S`) is exceeded; `-T` and `--batch-size` control its temporary storage and merge fan-in. Broken output pipes exit silently with status 0. The full specification and documented exceptions are in [Linux commands](docs/spec/linux-commands/README.md) and its [known differences](docs/spec/linux-commands/07-phases.md).
+Text processing uses byte order and ASCII classes in the C locale. `wc -m` explicitly counts UTF-8 characters, including one character per invalid byte. `seq` uses exact decimal steps unless scientific notation or a custom format requires floating point. `printf`, `seq`, and `sort -g` use `f64`. `sort` spills to a stable external merge when its 256 MiB memory budget (or `-S`) is exceeded; `-T` and `--batch-size` control its temporary storage and merge fan-in. Broken output pipes exit silently with status 0. The full specification and documented exceptions are in [Linux commands](docs/spec/linux-commands/README.md) and its [known differences](docs/spec/linux-commands/07-phases.md).
 
 On Windows, `echo`, `tee`, `sort`, and `sleep` can conflict with PowerShell commands, while `expand` and `sort` also conflict with System32 executables. Use `agentcmd <name>` or an explicit executable path to select this implementation.
 
 ### Filesystem, checksums and system information
 
-Phase 2 adds `mkdir rm rmdir cp mv touch ln link unlink realpath readlink stat du
+Filesystem and system commands include `mkdir rm rmdir cp mv touch ln link unlink realpath readlink stat du
 mktemp date md5sum sha1sum sha224sum sha256sum sha384sum sha512sum b2sum cksum
 sum base64 base32 basenc truncate nproc hostname arch uptime`.
 
@@ -161,10 +176,6 @@ These commands accept the GNU, BSD, and ripgrep options that coding agents such 
 
 Use `--help` on each command for the implemented options. Standard input is selected by `-` for `cat`, `head`, `tail`, `grep`, `search`, and `rg`.
 
-## Development
-
-Automated CLI tests use temporary directories and cover common success and error paths.
-
 ### Additional data and formatting commands
 
 `join od split csplit fmt pr shuf tsort numfmt factor expr pathchk ptx` are available through the registry and standalone executables. Duplicate join groups and permuted indexes spill to private temporary files. `factor` supports u128 values using certified prime factors; `expr` uses checked i128 arithmetic. See each command's help for options and the known-differences table for required GNU exceptions. Attribution for the MIT-licensed formatting components is in [NOTICE.md](NOTICE.md).
@@ -180,7 +191,7 @@ On Windows, `tree`, `whoami`, `timeout` and `kill` conflict with system executab
 
 ### Programs, archives and binary inspection
 
-Phase 5 adds `awk tar gzip gunzip zcat patch xxd file`. AWK supports records,
+Program, archive and inspection commands include `awk tar gzip gunzip zcat patch xxd file`. AWK supports records,
 arrays, functions, arithmetic, regular expressions, and file redirection;
 command pipes and `system()` are deliberately unsupported. Function-call
 nesting is limited to 1024; regex compilation has explicit resource budgets.
@@ -192,3 +203,50 @@ Patch applies unified and Git text patches with atomic file installation. Xxd
 dumps and reverses bytes; file identifies a documented signature/text subset.
 Windows also supplies a `tar.exe`; select this implementation with `agentcmd tar`
 or its explicit executable path.
+
+
+## Windows command-name conflicts
+
+Use `agentcmd <name>` or an explicit executable path to select these tools.
+
+| Windows environment | Commands from the spec | Notes |
+|---|---|---|
+| PowerShell aliases/cmdlets | cat, cd, curl, diff, ls, ps, pwd, sort, tee, echo, sleep, mkdir, rm, rmdir, cp, mv, date, uptime, kill | Spec marks `curl`/`diff` as PowerShell 5.1 conflicts. Use `.exe` names where PowerShell aliases take precedence. |
+| Windows utilities / cmd.exe builtins | find, sort, date, hostname, expand, tree, whoami, timeout, tar | Windows native commands or builtins; `tree.com` and `bsdtar` are called out explicitly. |
+| Visual Studio | link | `link.exe` is the MSVC linker; Windows packaging intentionally skips standalone `link`. |
+| Common POSIX-shell builtins | [, cd, echo, false, kill, printf, pwd, read, test, true | These names may resolve as shell builtins. Standalone `cd` cannot change the parent shell directory. |
+
+
+## Known differences from GNU
+
+The complete, case-linked list is maintained in the specification's
+[known differences](docs/spec/linux-commands/07-phases.md). Key contracts are:
+
+| Area | Behavior |
+|---|---|
+| Output pipes | A closed output pipe exits quietly with status 0. |
+| Terminals | ls, grep, rg, diff, df and ps can format/color terminal output automatically; captured output stays plain. |
+| Windows | Globs are not expanded. Permissions/ownership use the documented Windows mapping; POSIX signals use native process termination. |
+| Numeric limits | expr uses checked i128; printf, seq and general numeric sorting use f64; od long double uses f64. Date/calendar values are limited to years -9999 through 9999. |
+| Required semantics | UTF-8 counting/reversal, seq precision, printenv option permutation, test string comparisons and several error statuses follow the specification even where Ubuntu GNU differs. |
+| Existing behavior | ls owner/group placeholders, its colour alias and grep -L selection-status behavior are retained. |
+| Filesystem protection | Roots, symlink traversal and source/output/backup collisions follow the documented preservation policies. |
+| Older references | Required CRC32B, cp/mv update modes, information options and converter aliases may exceed the Ubuntu reference's interface. |
+| AWK | Command pipes/system() are unsupported; recursion and regex compilation have documented limits. Random sequences are implementation-defined. Required gawk extensions are supported independently of --posix reference restrictions. |
+| sed / patch / file | sed pattern backreferences are unsupported; patch accepts unified/Git text patches and uses the specified batch skip policy; file implements the listed signature/text subset. |
+
+Optional release performance comparisons are available with
+`cargo test --release --locked --test perf_smoke -- --ignored --nocapture`.
+They verify output digests and report timings against GNU tools; timing targets
+are observations rather than pass/fail thresholds.
+
+
+## Development
+
+Automated CLI tests use temporary directories and owned process fixtures.
+Run `cargo fmt --check`, `cargo clippy --all-targets --locked -- -D warnings`,
+and `cargo test --locked`. On Linux, run the enabled GNU reference suite with
+`AGENTCMD_GNU_DIFF=1 cargo test --locked --test gnu_diff`.
+
+Build a local Windows portable archive with [scripts/package.ps1](scripts/package.ps1);
+see [packaging instructions](packaging/README.md) for parameters and installer tooling.

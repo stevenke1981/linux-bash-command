@@ -2,11 +2,11 @@
 ;
 ; Build (from the repository root, after staging the release binaries in
 ; dist\windows-x86_64\):
-;   iscc /DAppVersion=0.1.0 packaging\agent-commands.iss
+;   iscc /DAppVersion=0.2.0 packaging\agent-commands.iss
 ; The installer is written to dist\Agent-Commands-<version>-Windows-Setup.exe.
 
 #ifndef AppVersion
-  #define AppVersion "0.0.0"
+  #define AppVersion "0.2.0"
 #endif
 
 [Setup]
@@ -42,6 +42,7 @@ Source: "dist\windows-x86_64\*.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "packaging\Agent Commands.cmd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
+Source: "NOTICE.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "packaging\QuickStart.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "shell\*"; DestDir: "{app}\shell"; Flags: ignoreversion
 

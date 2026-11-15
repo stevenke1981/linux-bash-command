@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing tag to release (for example v0.1.0)"
+        description: "Existing tag to release (for example v0.2.0)"
         required: true
 permissions:
   contents: write
@@ -57,7 +57,7 @@ jobs:
           else
             ln -s test "$stage/["
           fi
-          cp README.md LICENSE "$stage/"
+          cp README.md LICENSE NOTICE.md "$stage/"
           mkdir -p "$stage/shell"
           cp shell/* "$stage/shell/"
           ls "$stage"
@@ -83,7 +83,8 @@ jobs:
         run: |
           $setup = "dist\Agent-Commands-$env:VERSION-Windows-Setup.exe"
           $dir = Join-Path $env:RUNNER_TEMP 'agent-commands-install'
-          Start-Process -Wait -FilePath $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$dir"
+          $installer = Start-Process -Wait -PassThru -WindowStyle Hidden -FilePath $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$dir"
+          if ($installer.ExitCode -ne 0) { throw "Installer exited with code $($installer.ExitCode)" }
           & "$dir\agentcmd.exe" --list | Select-Object -First 3
           if ($LASTEXITCODE -ne 0) { exit 1 }
           'hi' | & "$dir\wc.exe" -l

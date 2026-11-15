@@ -1,6 +1,6 @@
 # Linux commands 規格
 
-狀態：待實作（交由 Codex）
+Status: implementation contains all 115 command names; native verification and release delivery are tracked in the phase reports.
 撰寫日期：2026-10-30
 參考來源（唯讀）：
 - microsoft/coreutils（Coreutils for Windows，preview，版本 2026.9.3）：https://github.com/microsoft/coreutils

@@ -27,10 +27,28 @@ jobs:
           python3 tests/less_pty.py "$GITHUB_WORKSPACE/target/release/less" "$GITHUB_WORKSPACE/README.md"
           python3 tests/fsops_pty.py "$GITHUB_WORKSPACE/target/release"
           python3 tests/gzip_pty.py "$GITHUB_WORKSPACE/target/release/gzip"
+      - name: Measure optional GNU pipeline performance
+        if: runner.os == 'Linux'
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gawk
+          cargo test --release --locked --test perf_smoke -- --ignored --nocapture 2>&1 | tee performance.log
+      - name: Preserve performance evidence
+        if: runner.os == 'Linux' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-command-performance
+          path: performance.log
+          if-no-files-found: ignore
       - name: Collect commands
         shell: bash
         run: |
           mkdir -p artifacts
+          cp README.md LICENSE NOTICE.md artifacts/
+          mkdir -p artifacts/shell
+          cp shell/* artifacts/shell/
           if [[ "$RUNNER_OS" == Windows ]]; then cp target/release/agentcmd.exe artifacts/; else cp target/release/agentcmd artifacts/; fi
           while IFS= read -r name; do
             [[ "$name" == "[" ]] && continue
