@@ -5,14 +5,60 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing tag to release (for example v0.2.0)"
+        description: "Commit, branch or tag to build (a matching version tag when publishing)"
         required: true
+        type: string
+      publish:
+        description: "Publish a GitHub release (requires a matching version tag)"
+        required: true
+        type: boolean
+        default: false
 permissions:
-  contents: write
+  contents: read
+
 env:
-  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+  SOURCE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.sha }}
+  RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+  PUBLISH: ${{ github.event_name == 'push' || inputs.publish }}
+
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.source.outputs.sha }}
+      version: ${{ steps.source.outputs.version }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ env.SOURCE_REF }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve source and version
+        id: source
+        shell: bash
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          if [[ -z "$version" ]]; then
+            echo "Could not read package version from Cargo.toml" >&2
+            exit 1
+          fi
+          if [[ "$PUBLISH" == true && "v$version" != "$RELEASE_TAG" ]]; then
+            echo "Tag $RELEASE_TAG does not match Cargo.toml version $version" >&2
+            exit 1
+          fi
+          if [[ "$PUBLISH" == true ]]; then
+            tag_sha=$(git rev-parse --verify "refs/tags/$RELEASE_TAG^{commit}")
+            if [[ "$tag_sha" != "$(git rev-parse HEAD)" ]]; then
+              echo "Publication tag does not identify the prepared source commit" >&2
+              exit 1
+            fi
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
   package:
+    needs: prepare
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
     strategy:
       fail-fast: true
       matrix:
@@ -25,19 +71,11 @@ jobs:
             name: macos-aarch64
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          ref: ${{ env.TAG }}
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Check tag matches Cargo.toml version
-        shell: bash
-        run: |
-          version=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
-          if [[ "v$version" != "$TAG" ]]; then
-            echo "Tag $TAG does not match Cargo.toml version $version" >&2
-            exit 1
-          fi
-          echo "VERSION=$version" >> "$GITHUB_ENV"
+          ref: ${{ needs.prepare.outputs.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
       - run: cargo build --release --bins --locked
       - name: Stage commands
         shell: bash
@@ -100,34 +138,51 @@ jobs:
             tar -czf "$base.tar.gz" -C "${{ matrix.name }}" .
           fi
           ls -la
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: release-${{ matrix.name }}
+          name: release-platform-${{ matrix.name }}
           path: |
             dist/*.zip
             dist/*.tar.gz
             dist/*-Setup.exe
           if-no-files-found: error
-  release:
+  bundle:
     needs: package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           path: assets
-          pattern: release-*
+          pattern: release-platform-*
           merge-multiple: true
       - name: Checksums
         run: |
           cd assets
           sha256sum * > SHA256SUMS.txt
           cat SHA256SUMS.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-assets
+          overwrite: true
+          path: assets/*
+          if-no-files-found: error
+  publish:
+    if: ${{ github.event_name == 'push' || inputs.publish }}
+    needs: bundle
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: release-assets
+          path: assets
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$TAG" assets/* \
+          gh release create "$RELEASE_TAG" assets/* \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Agent Commands $TAG" \
+            --title "Agent Commands $RELEASE_TAG" \
             --generate-notes \
             --verify-tag

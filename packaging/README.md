@@ -42,10 +42,17 @@ separate from the local staging script.
 ## Release workflow and legacy installers
 
 `.github/workflows/release.yml` builds registry-derived archives for Windows,
-Linux and macOS, an Inno Setup installer, and `SHA256SUMS.txt`. It publishes a
-GitHub release only when a matching version tag is pushed or the workflow is
-explicitly dispatched; local packaging does neither. Linux and macOS archives
-include the `[` alias and Windows archives omit `link.exe`.
+Linux and macOS, an Inno Setup installer, and `SHA256SUMS.txt`. To build without
+publishing, manually run the workflow with `tag` set to a commit, branch or tag
+and leave `publish` unchecked (its default). Download the combined
+`release-assets` artifact from the run. The workflow resolves the supplied ref
+once and builds all platforms from that commit.
+
+Pushing a version tag continues to publish a GitHub release. A manual run
+publishes only when `publish` is explicitly checked; in either publication mode,
+the tag must equal `v` followed by the package version in `Cargo.toml`. Local
+packaging does not publish. Linux and macOS archives include the `[` alias and
+Windows archives omit `link.exe`.
 
 `windows.iss` and `linux.iss` are legacy IronSetup scripts. For the Linux
 script, prepare `packaging/payload/` with `agentcmd`, every binary listed by

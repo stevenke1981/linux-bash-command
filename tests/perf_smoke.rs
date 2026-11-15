@@ -75,7 +75,8 @@ const CASES: &[Case] = &[
     Case {
         name: "sha256sum",
         reference: "sha256sum",
-        args: &["input"],
+        // GNU's default mode differs on Windows; select the same marker on both sides.
+        args: &["--binary", "input"],
         stdin: false,
         target: 3.0,
     },
@@ -99,15 +100,25 @@ fn oracle(name: &str) -> Oracle {
         ]
         .map(PathBuf::from),
     );
+    let mut rejected = Vec::new();
     for directory in candidates {
-        for suffix in ["", ".exe"] {
-            let path = directory.join(format!("{name}{suffix}"));
-            if let Some(version) = version(&path).filter(|text| text.contains("GNU")) {
-                return Oracle { path, version };
+        for executable in [name.to_owned(), format!("gnu{name}")] {
+            for suffix in ["", ".exe"] {
+                let path = directory.join(format!("{executable}{suffix}"));
+                if !path.is_file() {
+                    continue;
+                }
+                match version(&path) {
+                    Some(version) if version.contains("GNU") => return Oracle { path, version },
+                    Some(version) => rejected.push(format!("{}: {version}", path.display())),
+                    None => rejected.push(format!("{}: --version failed", path.display())),
+                }
             }
         }
     }
-    panic!("missing GNU reference {name}; install GNU tools or set AGENTCMD_GNU_BIN");
+    panic!(
+        "missing GNU reference {name}; install GNU tools or set AGENTCMD_GNU_BIN; rejected candidates: {rejected:?}"
+    );
 }
 
 fn version(path: &Path) -> Option<String> {

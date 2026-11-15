@@ -172,3 +172,15 @@ and extension-header encodings are excluded. Absolute and parent paths remain
 distinct; symlink targets are literal. A malformed archive fails normalization,
 even when both outputs are malformed. File comparisons retain the full sandbox
 inventory, replacing only encoded archive payloads with their semantic records.
+
+
+### GNU performance references on current Ubuntu
+
+The latest Ubuntu runner can select uutils for standard command names. The
+performance job installs `gnu-coreutils` alongside gawk and discovers GNU's
+`gnu`-prefixed executables when bare names are not GNU. It verifies version
+banners and records exact paths; the Ubuntu 24.04 behavioral oracle remains
+unchanged. Canonical's [installed-file list](https://packages.ubuntu.com/resolute/amd64/gnu-coreutils/filelist)
+documents these paths. The checksum case explicitly selects `--binary` on both
+sides because GNU's default text/binary output marker differs on Windows;
+complete output bytes and digests must still match.
