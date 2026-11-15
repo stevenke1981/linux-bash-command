@@ -15,6 +15,7 @@ const HELP: &str = "Usage: mv [OPTION]... SOURCE... DEST\nRename SOURCE to DEST,
 enum Overwrite {
     All,
     Never,
+    NoClobber,
     NeverFail,
     Older,
     Ask,
@@ -48,6 +49,9 @@ fn relocate(
         }
         match opts.overwrite {
             Overwrite::Never => return Ok(()),
+            Overwrite::NoClobber => {
+                return Err(std::io::Error::from(std::io::ErrorKind::Interrupted))
+            }
             Overwrite::NeverFail => {
                 return Err(std::io::Error::from(std::io::ErrorKind::AlreadyExists))
             }
@@ -60,7 +64,7 @@ fn relocate(
             }
             Overwrite::Ask => {
                 if !transfer::prompt(&format!("mv: overwrite '{}'? ", super::display(dest))) {
-                    return Ok(());
+                    return Err(std::io::Error::from(std::io::ErrorKind::Interrupted));
                 }
             }
             Overwrite::All => {}
@@ -147,7 +151,7 @@ pub fn run(argv: &[String]) -> i32 {
             }
             Item::Opt("force", _) => options.overwrite = Overwrite::All,
             Item::Opt("interactive", _) => options.overwrite = Overwrite::Ask,
-            Item::Opt("no-clobber", _) => options.overwrite = Overwrite::Never,
+            Item::Opt("no-clobber", _) => options.overwrite = Overwrite::NoClobber,
             Item::Opt("strip-trailing-slashes", _) => strip = true,
             Item::Opt("suffix", Some(v)) => {
                 options.suffix = v;
@@ -244,6 +248,7 @@ pub fn run(argv: &[String]) -> i32 {
             match relocate(source, &target, &options, out) {
                 Ok(()) => {}
                 Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => return Err(e),
+                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => failed = true,
                 Err(e) => {
                     eprintln!(
                         "mv: cannot move '{}' to '{}': {}",

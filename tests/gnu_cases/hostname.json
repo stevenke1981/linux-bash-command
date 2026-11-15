@@ -224,7 +224,7 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": "02 requires usage status1 and help status0; Ubuntu hostname uses255. CLI goldens verify the specification."
     },
     {
       "name": "unknown_long_option",
@@ -241,7 +241,7 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": "02 requires usage status1 and help status0; Ubuntu hostname uses255. CLI goldens verify the specification."
     },
     {
       "name": "short_option_after_operand",
@@ -281,7 +281,7 @@
       "compare": [
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": "02 requires usage status1 and help status0; Ubuntu hostname uses255. CLI goldens verify the specification."
     },
     {
       "name": "audit_version",

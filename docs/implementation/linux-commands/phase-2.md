@@ -39,3 +39,20 @@ Git for Windows GNU 8.32 checks are provisional, not Ubuntu 24.04 acceptance.
 No uutils source was ported, so there is no new attribution entry.
 
 Source/test snapshot SHA-256: `49da1f1f0cd9e65da3fb22f4175f9b7394b91fa84f600cef0adb889f0772a5ea` (295 files; same sorted path/NUL/LF-normalized content/NUL format as Phase 0).
+
+
+First CI candidate: `fe1813c`, run
+https://github.com/stevenke1981/linux-bash-command/actions/runs/43684677570.
+Windows and Ubuntu builds passed; macOS fixture assumptions and a Rust 1.100
+clippy warning were found and repaired. GNU9.4: 1,792 passed, 45 failed,
+22 skipped before the repair batch. The repairs follow the measured 9.4 behavior,
+including declined overwrite status, explicit sum filenames and checksum CRLF.
+The rm no-follow rule, CRC32B, hostname statuses and inherited ls behavior retain
+the specified behavior, with linked CLI goldens and known-difference entries.
+
+The first measurement was common 1,831/1,992 (91.92%) and commands
+9,111/10,338 (88.13%). Several individual modules were below80%; additional
+filesystem, stat and timezone regression cases have been added. This measurement
+does not constitute final per-module acceptance; an updated CI artifact is required.
+
+Repair candidate Windows verification: 1,495 passed, 0 failed, 1 ignored; fmt and all-target clippy PASS. Repair source/test snapshot: `f7ef536cb2bda00927d1011b43fc539a0f81863cb912be967e53e57a6a1e6d65` (299 files). Cross-platform/GNU/coverage acceptance remains pending the next CI run.

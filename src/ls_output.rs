@@ -28,6 +28,17 @@ pub(super) fn quote(name: &str, style: Quoting) -> String {
     match style {
         Quoting::Literal => name.into(),
         Quoting::Shell => {
+            if name.contains('=') {
+                return format!("'{}'", name.replace('\'', "'\\''"));
+            }
+            if !name.is_empty()
+                && !name.starts_with(['~', '#'])
+                && name
+                    .bytes()
+                    .all(|byte| byte.is_ascii_alphanumeric() || b"_@%+:,./-~#".contains(&byte))
+            {
+                return name.into();
+            }
             String::from_utf8_lossy(&crate::common::escape::quote_name(name.as_bytes()))
                 .into_owned()
         }
@@ -260,5 +271,12 @@ mod tests {
     #[test]
     fn always() {
         assert_eq!(quote("abc", Quoting::Always), "'abc'");
+    }
+    #[test]
+    fn shell_tilde_is_special_only_at_the_start() {
+        assert_eq!(quote("backup~", Quoting::Shell), "backup~");
+        assert_eq!(quote("a~b", Quoting::Shell), "a~b");
+        assert_eq!(quote("~backup", Quoting::Shell), "'~backup'");
+        assert_eq!(quote("a=b", Quoting::Shell), "'a=b'");
     }
 }

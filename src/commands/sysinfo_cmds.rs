@@ -153,13 +153,6 @@ pub fn run_uptime(args_in: &[String]) -> i32 {
             args::Item::Opt(_, _) => unreachable!(),
         }
     }
-    if pretty && since {
-        return error::usage(
-            "uptime",
-            "options --pretty and --since are mutually exclusive",
-            1,
-        );
-    }
     let seconds = sysinfo::System::uptime();
     if since {
         return match format_since(seconds) {

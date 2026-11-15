@@ -1,6 +1,7 @@
 name: Build and test
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 concurrency:
@@ -64,7 +65,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: sudo apt-get update && sudo apt-get install -y gawk tree xxd dos2unix patch bsdextrautils
       - run: AGENTCMD_GNU_DIFF=1 cargo test --locked --test gnu_diff -- --nocapture
-      - run: AGENTCMD_GNU_DIFF=1 cargo test --locked --test phase2_metadata --test phase2_hashes
+      - run: AGENTCMD_GNU_DIFF=1 cargo test --locked --test phase2_metadata --test phase2_hashes --test phase2_system
   coverage:
     runs-on: ubuntu-24.04
     steps:

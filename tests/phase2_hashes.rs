@@ -398,11 +398,11 @@ fn stdin_manifests_cannot_verify_the_same_stdin_as_a_file() {
     }
 }
 #[test]
-fn bsd_sum_prints_filenames_only_with_multiple_operands() {
+fn sum_names_explicit_operands_as_gnu_9_4_does() {
     let output = run("sum", &["data"], b"", &[("data", b"abc")]);
-    assert_eq!(output.stdout, b"16556     1\n");
+    assert_eq!(output.stdout, b"16556     1 data\n");
     let output = run("sum", &["-"], b"abc", &[]);
-    assert_eq!(output.stdout, b"16556     1\n");
+    assert_eq!(output.stdout, b"16556     1 -\n");
     let output = run("sum", &["-", "data"], b"abc", &[("data", b"abc")]);
     assert_eq!(output.stdout, b"16556     1 -\n16556     1 data\n");
     let output = run("sum", &["-s", "data"], b"", &[("data", b"abc")]);

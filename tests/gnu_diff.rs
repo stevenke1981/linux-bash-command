@@ -292,6 +292,7 @@ fn gnu_differential() {
             };
             let program=["/usr/bin","/bin"].iter().map(|d|Path::new(d).join(parts[0])).find(|p|p.is_file()).unwrap_or_else(||panic!("missing GNU program {}: install coreutils/findutils/grep or 06-testing packages",parts[0]));
             let mut oracle = Command::new(program);
+            oracle.arg0(parts[0]);
             oracle.args(&parts[1..]).args(&args);
             environment(&mut oracle, &right.path, &case["env"]);
             let timeout = case["timeout_ms"].as_u64().unwrap_or(10000);
@@ -308,6 +309,12 @@ fn gnu_differential() {
             }
             if compare.contains(&"stdout") && actual.stdout != oracle.stdout {
                 reasons.push("stdout");
+            }
+            if compare.contains(&"stdout_columns") {
+                let skip = case["skip_stdout_columns"].as_u64().unwrap() as usize;
+                if column_tail(&actual.stdout, skip) != column_tail(&oracle.stdout, skip) {
+                    reasons.push("stdout_columns");
+                }
             }
             if compare.contains(&"exit") && actual.code != oracle.code {
                 reasons.push("exit");
@@ -353,6 +360,10 @@ fn gnu_differential() {
 }
 
 fn runner_self_check() {
+    assert_eq!(
+        column_tail(b"mode 1 - - 0 Jan  1  2000 old\n", 4),
+        b"0 Jan  1  2000 old\n"
+    );
     let sandbox = Sandbox::new();
     fixtures(
         &sandbox.path,
@@ -388,4 +399,27 @@ fn runner_self_check() {
         started.elapsed() < Duration::from_secs(5),
         "capture exceeded its deadline"
     );
+}
+
+fn column_tail(bytes: &[u8], count: usize) -> Vec<u8> {
+    let mut output = Vec::new();
+    for line in bytes.split_inclusive(|b| *b == b'\n') {
+        let mut index = 0;
+        for _ in 0..count {
+            while matches!(line.get(index), Some(b' ' | b'\t')) {
+                index += 1;
+            }
+            while line
+                .get(index)
+                .is_some_and(|b| !matches!(b, b' ' | b'\t' | b'\n'))
+            {
+                index += 1;
+            }
+        }
+        while matches!(line.get(index), Some(b' ' | b'\t')) {
+            index += 1;
+        }
+        output.extend_from_slice(&line[index..]);
+    }
+    output
 }

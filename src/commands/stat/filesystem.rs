@@ -109,16 +109,19 @@ fn filesystem_type(path: &std::ffi::CStr) -> io::Result<(String, String, String)
             std::mem::size_of_val(&value.f_fsid),
         )
     };
-    let id = bytes
-        .iter()
-        .rev()
-        .map(|byte| format!("{byte:02x}"))
-        .collect::<String>()
-        .trim_start_matches('0')
-        .to_owned();
-    let id = if id.is_empty() { "0".into() } else { id };
+    let id = filesystem_id(bytes);
     #[cfg(target_os = "linux")]
-    let name = match value.f_type as u64 {
+    let name = filesystem_name(value.f_type as u64).to_owned();
+    #[cfg(not(target_os = "linux"))]
+    let name = unsafe { std::ffi::CStr::from_ptr(value.f_fstypename.as_ptr()) }
+        .to_string_lossy()
+        .into_owned();
+    Ok((format!("{:x}", value.f_type), name, id))
+}
+
+#[cfg(target_os = "linux")]
+fn filesystem_name(magic: u64) -> &'static str {
+    match magic {
         0xef53 => "ext2/ext3",
         0x794c7630 => "overlayfs",
         0x01021994 => "tmpfs",
@@ -133,12 +136,55 @@ fn filesystem_type(path: &std::ffi::CStr) -> io::Result<(String, String, String)
         0x858458f6 => "ramfs",
         _ => "UNKNOWN",
     }
-    .to_owned();
-    #[cfg(not(target_os = "linux"))]
-    let name = unsafe { std::ffi::CStr::from_ptr(value.f_fstypename.as_ptr()) }
-        .to_string_lossy()
-        .into_owned();
-    Ok((format!("{:x}", value.f_type), name, id))
+}
+
+#[cfg(unix)]
+fn filesystem_id(bytes: &[u8]) -> String {
+    // GNU prints the two native 32-bit fsid words in field order, not a
+    // native-endian 64-bit reinterpretation of the structure.
+    let first = u32::from_ne_bytes(bytes[..4].try_into().unwrap());
+    let second = u32::from_ne_bytes(bytes[4..8].try_into().unwrap());
+    format!("{:x}", (u64::from(first) << 32) | u64::from(second))
+}
+
+#[cfg(all(test, unix))]
+mod tests {
+    use super::*;
+    #[test]
+    fn fsid_words_preserve_native_field_order() {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&0x3b0cea2cu32.to_ne_bytes());
+        bytes.extend_from_slice(&0xb204e0feu32.to_ne_bytes());
+        assert_eq!(filesystem_id(&bytes), "3b0cea2cb204e0fe");
+    }
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn known_filesystem_magic_values_have_native_names() {
+        for (magic, name) in [
+            (0xef53, "ext2/ext3"),
+            (0x794c7630, "overlayfs"),
+            (0x01021994, "tmpfs"),
+            (0x9fa0, "proc"),
+            (0x62656572, "sysfs"),
+            (0x9123683e, "btrfs"),
+            (0x58465342, "xfs"),
+            (0x6969, "nfs"),
+            (0xff534d42, "cifs"),
+            (0x65735546, "fuseblk"),
+            (0x2fc12fc1, "zfs"),
+            (0x858458f6, "ramfs"),
+            (0, "UNKNOWN"),
+        ] {
+            assert_eq!(filesystem_name(magic), name);
+        }
+    }
+    #[test]
+    fn filesystem_query_rejects_nul_before_calling_the_os() {
+        assert_eq!(
+            query(Path::new("invalid\0name")).err().unwrap().kind(),
+            io::ErrorKind::InvalidInput
+        );
+    }
 }
 
 #[cfg(windows)]

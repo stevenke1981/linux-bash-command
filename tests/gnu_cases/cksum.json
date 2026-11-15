@@ -59,7 +59,7 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": "03 requires IEEE CRC32B; Ubuntu 24.04 GNU9.4 does not provide this algorithm. CLI golden verifies the required result."
     },
     {
       "name": "bsd",

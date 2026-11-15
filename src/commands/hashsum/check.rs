@@ -53,6 +53,9 @@ fn verify_list(
         if line.last() == Some(&b'\n') {
             line.pop();
         }
+        if line.last() == Some(&b'\r') {
+            line.pop();
+        }
         if line.is_empty() || line.first() == Some(&b'#') {
             line.clear();
             continue;
@@ -360,19 +363,22 @@ mod tests {
         line.extend_from_slice(b"name-\xff");
         let record = parse(&line, Algorithm::Md5, false, false).unwrap();
         assert_eq!(record.name.as_os_str().as_bytes(), b"name-\xff");
-        let root = std::env::temp_dir().join(format!(
-            "agentcmd-hash-bytes-{}-{}",
-            std::process::id(),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_nanos()
-        ));
-        std::fs::create_dir(&root).unwrap();
-        let path = root.join(record.name);
-        std::fs::write(&path, b"abc").unwrap();
-        let actual = engine::hash(Algorithm::Md5, &mut record_input(&path).unwrap()).unwrap();
-        std::fs::remove_dir_all(root).unwrap();
-        assert_eq!(actual.bytes, record.digest);
+        #[cfg(target_os = "linux")]
+        {
+            let root = std::env::temp_dir().join(format!(
+                "agentcmd-hash-bytes-{}-{}",
+                std::process::id(),
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos()
+            ));
+            std::fs::create_dir(&root).unwrap();
+            let path = root.join(record.name);
+            std::fs::write(&path, b"abc").unwrap();
+            let actual = engine::hash(Algorithm::Md5, &mut record_input(&path).unwrap()).unwrap();
+            std::fs::remove_dir_all(root).unwrap();
+            assert_eq!(actual.bytes, record.digest);
+        }
     }
 }

@@ -13,7 +13,7 @@ use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
-const HELP: &str = "Usage: du [OPTION]... [FILE]...\nSummarize disk usage of each file, recursively for directories.\n  -0, --null                 end each output with NUL\n  -a, --all                  write counts for all files\n      --apparent-size        use apparent sizes instead of allocated blocks\n  -B, --block-size=SIZE      scale sizes by SIZE bytes\n  -b, --bytes                equivalent to --apparent-size --block-size=1\n  -c, --total                produce a grand total\n  -D, -H, --dereference-args follow symbolic links on the command line\n  -d, --max-depth=N          print directories at most N levels deep\n  -h, --human-readable       print sizes in powers of 1024\n  -k                         use 1024-byte blocks\n  -L, --dereference          follow all symbolic links\n  -l, --count-links          count hard links repeatedly\n  -m                         use 1048576-byte blocks\n  -P, --no-dereference       never follow symbolic links (default)\n  -S, --separate-dirs        exclude subdirectories from directory sizes\n      --si                   print sizes in powers of 1000\n  -s, --summarize            display only totals for operands\n  -t, --threshold=SIZE       include sizes >= SIZE (or <= -SIZE)\n      --time[=WORD]          show latest mtime, atime/access, or ctime/status\n      --time-style=STYLE     full-iso, long-iso, iso, or +FORMAT\n  -X, --exclude-from=FILE    exclude patterns read from FILE\n      --exclude=PATTERN      exclude matching files\n  -x, --one-file-system      skip directories on different file systems\n      --help                 display this help\n      --version              output version information\n";
+const HELP: &str = "Usage: du [OPTION]... [FILE]...\nSummarize disk usage of each file, recursively for directories.\n  -0, --null                 end each output with NUL\n  -a, --all                  write counts for all files\n      --apparent-size        use apparent sizes instead of allocated blocks\n  -B, --block-size=SIZE      scale sizes by SIZE bytes\n  -b, --bytes                equivalent to --apparent-size --block-size=1\n  -c, --total                produce a grand total\n  -D, -H, --dereference-args follow symbolic links on the command line\n  -d, --max-depth=N          print directories at most N levels deep\n  -h, --human-readable       print sizes in powers of 1024\n  -k                         use 1024-byte blocks\n  -L, --dereference          follow all symbolic links\n  -l, --count-links          count hard links repeatedly\n  -m                         use 1048576-byte blocks\n  -P, --no-dereference       never follow symbolic links (default)\n  -S, --separate-dirs        exclude subdirectories from directory sizes\n      --si                   print sizes in powers of 1000\n  -s, --summarize            display only totals for operands\n  -t, --threshold=SIZE       include sizes >= SIZE (or <= -SIZE)\n      --time[=WORD]          show latest modification time (or atime/access/use, ctime/status)\n      --time-style=STYLE     full-iso, long-iso, iso, or +FORMAT\n  -X, --exclude-from=FILE    exclude patterns read from FILE\n      --exclude=PATTERN      exclude matching files\n  -x, --one-file-system      skip directories on different file systems\n      --help                 display this help\n      --version              output version information\n";
 
 #[derive(Clone, Copy, PartialEq)]
 enum Follow {
@@ -199,11 +199,13 @@ fn parse(args: &[String]) -> Result<Options, i32> {
                     options.threshold = Some((negative, parse_size(value)?));
                 }
                 Item::Opt("time", value) => {
-                    options.clock = Some(match value.as_deref().unwrap_or("mtime") {
-                        "mtime" | "modification" => Clock::Modified,
-                        "atime" | "access" | "use" => Clock::Accessed,
-                        "ctime" | "status" => Clock::Changed,
-                        other => return Err(format!("invalid argument '{other}' for 'time'")),
+                    options.clock = Some(match value.as_deref() {
+                        None => Clock::Modified,
+                        Some("atime" | "access" | "use") => Clock::Accessed,
+                        Some("ctime" | "status") => Clock::Changed,
+                        Some(other) => {
+                            return Err(format!("invalid argument '{other}' for 'time'"))
+                        }
                     })
                 }
                 Item::Opt("time-style", Some(value)) => {
@@ -340,7 +342,11 @@ impl Walker<'_> {
             return Ok(Total::default());
         }
         let mut total = Total {
-            size: if self.options.apparent {
+            size: if self.options.apparent
+                && !(metadata.is_file() || metadata.file_type().is_symlink())
+            {
+                0
+            } else if self.options.apparent {
                 metadata.len()
             } else {
                 meta::allocated_bytes(&metadata)

@@ -327,7 +327,9 @@ mod tests {
     }
     #[test]
     fn missing_components_are_allowed() {
-        let path = std::env::temp_dir().join("agentcmd-canonical-missing/child");
+        let path = fs::canonicalize(std::env::temp_dir())
+            .unwrap()
+            .join("agentcmd-canonical-missing/child");
         assert!(canonicalize(&path, Existing::All, false, true).is_err());
         assert_eq!(
             canonicalize(&path, Existing::Missing, false, true).unwrap(),

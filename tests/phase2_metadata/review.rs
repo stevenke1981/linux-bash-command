@@ -4,7 +4,7 @@ use super::*;
 fn du_deduplicates_regular_files_directories_and_descendants() {
     let s = Sandbox::new();
     s.write("dir/file", b"abc");
-    let directory = std::fs::metadata(s.path.join("dir")).unwrap().len();
+    let directory = 0;
     for args in [vec!["-bc", "dir", "dir"], vec!["-bc", "dir", "dir/file"]] {
         let out = run(&s, "du", &args);
         success(&out);
@@ -55,7 +55,7 @@ fn du_separate_dirs_uses_dereferenced_child_kind() {
     std::os::unix::fs::symlink("../outside", s.path.join("dir/link")).unwrap();
     let out = run(&s, "du", &["-bLS", "dir"]);
     success(&out);
-    let own = std::fs::metadata(s.path.join("dir")).unwrap().len();
+    let own = 0;
     assert!(text(&out).ends_with(&format!("{own}\tdir\n")), "{out:?}");
     assert!(text(&out).contains("\tdir/link\n"));
 }
@@ -214,6 +214,69 @@ fn find_file_actions_share_repeated_and_equivalent_destinations() {
     success(&out);
     assert!(out.stdout.is_empty());
     assert_eq!(std::fs::read(s.path.join("out")).unwrap(), b".\n.\n.!");
+}
+
+#[test]
+fn stat_context_placeholder_reports_unavailable_context() {
+    let s = Sandbox::new();
+    s.write("file", b"x");
+    let out = run(&s, "stat", &["--printf=%C %%C", "file"]);
+    assert_eq!(out.status.code(), Some(1));
+    assert_eq!(out.stdout, b"? %C");
+    assert!(String::from_utf8_lossy(&out.stderr).contains("security context"));
+    success(&run(&s, "stat", &["--printf=%%C", "file"]));
+}
+
+#[test]
+fn du_modification_time_uses_bare_time_option() {
+    let s = Sandbox::new();
+    s.write("file", b"x");
+    success(&run(&s, "du", &["--time", "file"]));
+    for word in ["mtime", "modification", "modify"] {
+        assert_eq!(
+            run(&s, "du", &[&format!("--time={word}"), "file"])
+                .status
+                .code(),
+            Some(1)
+        );
+    }
+}
+
+#[cfg(target_os = "linux")]
+#[test]
+fn gnu_oracle_du_on_the_same_directory() {
+    if std::env::var("AGENTCMD_GNU_DIFF").as_deref() != Ok("1") {
+        eprintln!("du same-file oracle: NOT_RUN (set AGENTCMD_GNU_DIFF=1)");
+        return;
+    }
+    let s = Sandbox::new();
+    s.write("dir/leaf", b"hello");
+    s.write("dir/sub/file", b"abc");
+    for args in [
+        vec!["-ab", "dir"],
+        vec!["-bS", "dir"],
+        vec!["-bs", "dir"],
+        vec!["-bc", "dir", "dir"],
+        vec!["-ab", "--max-depth=1", "dir"],
+        vec!["-b", "--exclude=leaf", "dir"],
+        vec!["-s", "dir"],
+    ] {
+        let expected = Command::new("/usr/bin/du")
+            .args(&args)
+            .current_dir(&s.path)
+            .env("LC_ALL", "C")
+            .env("TZ", "UTC")
+            .output()
+            .unwrap();
+        let actual = run(&s, "du", &args);
+        let sorted = |bytes: &[u8]| {
+            let mut rows = bytes.split(|byte| *byte == b'\n').collect::<Vec<_>>();
+            rows.sort();
+            rows.into_iter().map(<[u8]>::to_vec).collect::<Vec<_>>()
+        };
+        assert_eq!(actual.status.code(), expected.status.code(), "{args:?}");
+        assert_eq!(sorted(&actual.stdout), sorted(&expected.stdout), "{args:?}");
+    }
 }
 
 #[cfg(unix)]

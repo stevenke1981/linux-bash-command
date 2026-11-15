@@ -243,7 +243,7 @@ pub(crate) fn write_record(
         } else {
             write!(out, "{} {}", value.number(), value.size)?;
         }
-        if !o.files.is_empty() && (cksum || o.algorithm != Algorithm::Bsd || o.files.len() > 1) {
+        if !o.files.is_empty() {
             write!(out, " {name}")?;
         }
     } else {

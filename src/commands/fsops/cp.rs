@@ -203,7 +203,7 @@ fn should_copy(source: &fs::Metadata, dest: &Path, opts: &CopyOptions) -> std::i
     }
     if opts.interactive && !transfer::prompt(&format!("cp: overwrite '{}'? ", super::display(dest)))
     {
-        return Ok(false);
+        return Err(std::io::Error::from(std::io::ErrorKind::Interrupted));
     }
     Ok(true)
 }
@@ -624,6 +624,7 @@ pub fn run(argv: &[String]) -> i32 {
             match copy_inner(source, &target, &options, &mut state, true, out) {
                 Ok(()) => {}
                 Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => return Err(e),
+                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => failed = true,
                 Err(e) => {
                     eprintln!("cp: {}", error::io_text(&e));
                     failed = true;

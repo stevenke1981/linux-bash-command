@@ -58,24 +58,28 @@ pub fn symlink(_target: &Path, _link: &Path, _directory: bool) -> io::Result<()>
     ))
 }
 
-pub fn backup(path: &Path, source: &Path, control: &str, suffix: &str) -> io::Result<()> {
-    if !exists(path) || matches!(control, "none" | "off") {
-        return Ok(());
-    }
+pub fn backup_destination(path: &Path, control: &str, suffix: &str) -> PathBuf {
     let mut simple = path.as_os_str().to_os_string();
     simple.push(suffix);
     let simple = PathBuf::from(simple);
     let numbered = matches!(control, "numbered" | "t")
         || matches!(control, "existing" | "nil")
             && (1..=1000).any(|n| numbered_path(path, n).exists());
-    let target = if numbered {
+    if numbered {
         (1..)
             .map(|n| numbered_path(path, n))
             .find(|p| !exists(p))
             .unwrap()
     } else {
         simple
-    };
+    }
+}
+
+pub fn backup(path: &Path, source: &Path, control: &str, suffix: &str) -> io::Result<()> {
+    if !exists(path) || matches!(control, "none" | "off") {
+        return Ok(());
+    }
+    let target = backup_destination(path, control, suffix);
     if target == path
         || target == source
         || (exists(&target) && crate::common::meta::same_file(source, &target).unwrap_or(false))

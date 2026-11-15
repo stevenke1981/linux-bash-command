@@ -36,24 +36,35 @@ pub fn format(date: &Zoned, pattern: &str) -> Result<String, String> {
             result.push(spec);
             continue;
         }
-        if spec == 'C' && colons.is_empty() {
-            let century = i32::from(date.year()).div_euclid(100).to_string();
+        if matches!(spec, 'C' | 's') && colons.is_empty() {
+            let number = if spec == 'C' {
+                i32::from(date.year()).div_euclid(100).to_string()
+            } else {
+                date.timestamp()
+                    .as_nanosecond()
+                    .div_euclid(1_000_000_000)
+                    .to_string()
+            };
             let width: usize = if flags.contains('-') {
                 0
             } else if width.is_empty() {
-                2
+                if spec == 'C' {
+                    2
+                } else {
+                    0
+                }
             } else {
                 width.parse().map_err(|_| "invalid width")?
             };
             let padding = if flags.contains('_') { ' ' } else { '0' };
-            let count = width.saturating_sub(century.len());
-            if century.starts_with('-') && padding == '0' && count > 0 {
+            let count = width.saturating_sub(number.len());
+            if number.starts_with('-') && padding == '0' && count > 0 {
                 result.push('-');
                 result.extend(std::iter::repeat_n(padding, count));
-                result.push_str(&century[1..]);
+                result.push_str(&number[1..]);
             } else {
                 result.extend(std::iter::repeat_n(padding, count));
-                result.push_str(&century);
+                result.push_str(&number);
             }
             continue;
         }

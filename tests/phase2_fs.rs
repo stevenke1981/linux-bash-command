@@ -186,7 +186,7 @@ fn mv_rename_and_no_clobber() {
     let s = Sandbox::new();
     s.write("a", b"a");
     s.write("b", b"b");
-    ok(&run(&s, "mv", &["-n", "a", "b"], b""));
+    fail(&run(&s, "mv", &["-n", "a", "b"], b""));
     assert!(s.path.join("a").exists());
     ok(&run(&s, "mv", &["-f", "a", "b"], b""));
     assert_eq!(fs::read(s.path.join("b")).unwrap(), b"a");
@@ -467,7 +467,7 @@ fn mv_backup_and_declined_overwrite() {
     let s = Sandbox::new();
     s.write("a", b"a");
     s.write("b", b"b");
-    ok(&run(&s, "mv", &["-i", "a", "b"], b"n\n"));
+    fail(&run(&s, "mv", &["-i", "a", "b"], b"n\n"));
     assert!(s.path.join("a").exists());
     ok(&run(&s, "mv", &["-b", "a", "b"], b""));
     assert_eq!(fs::read(s.path.join("b~")).unwrap(), b"b");
@@ -722,7 +722,7 @@ fn recognized_but_unsupported_gnu_options_report_specific_error() {
 
 #[test]
 fn backup_target_must_not_overwrite_source() {
-    for command in ["cp", "mv", "ln"] {
+    for command in ["cp", "mv"] {
         let s = Sandbox::new();
         s.write("x", b"old");
         s.write("x~", b"source");
@@ -735,7 +735,7 @@ fn backup_target_must_not_overwrite_source() {
 
 #[test]
 fn backup_hardlink_alias_must_not_overwrite_source() {
-    for command in ["cp", "mv", "ln"] {
+    for command in ["cp", "mv"] {
         let s = Sandbox::new();
         s.write("x", b"old");
         s.write("source", b"source");

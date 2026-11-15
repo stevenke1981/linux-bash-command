@@ -335,6 +335,28 @@ pub fn render_with_bytes(
     out
 }
 
+pub(super) fn context_requested(template: &[u8]) -> bool {
+    let mut index = 0;
+    while index < template.len() {
+        if template[index] != b'%' {
+            index += 1;
+            continue;
+        }
+        index += 1;
+        while template
+            .get(index)
+            .is_some_and(|byte| b"#0- +'I.123456789".contains(byte))
+        {
+            index += 1;
+        }
+        if template.get(index) == Some(&b'C') {
+            return true;
+        }
+        index += 1;
+    }
+    false
+}
+
 fn quoted_name(name: &str) -> String {
     let quoted = crate::common::escape::quote_name(name.as_bytes());
     if quoted == name.as_bytes() {
@@ -396,5 +418,40 @@ mod tests {
             render_with("%.3Y", |_| ("-500000000".into(), Some(0))),
             "-0.500"
         );
+    }
+    #[test]
+    fn numeric_sign_precision_and_padding_flags_compose() {
+        assert_eq!(
+            render_with("[%+06s][% 6s][%#.4a][%-6s]", |d| if d == "a" {
+                ("7".into(), Some(8))
+            } else {
+                ("12".into(), Some(10))
+            }),
+            "[+00012][    12][0007][12    ]"
+        );
+        assert_eq!(
+            render_with("[%05s]", |_| ("-2".into(), Some(10))),
+            "[-0002]"
+        );
+        assert_eq!(
+            render_with("[%-5.2n]tail%", |_| ("abcdef".into(), None)),
+            "[ab   ]tail%"
+        );
+    }
+    #[test]
+    fn absent_timestamp_and_context_literals_are_explicit() {
+        assert_eq!(timestamp(None), "-");
+        assert!(!context_requested(b"%%C %% %n"));
+        assert!(context_requested(b"%#10.2C"));
+    }
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn device_parts_match_native_linux_encoding() {
+        for value in [0, 0xff, 0x123456789abcdef0, u64::MAX] {
+            assert_eq!(
+                device_parts(value),
+                (u64::from(libc::major(value)), u64::from(libc::minor(value)))
+            );
+        }
     }
 }

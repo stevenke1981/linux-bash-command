@@ -61,6 +61,13 @@ fn make_link(source: &Path, dest: &Path, options: &Options) -> std::io::Result<b
             .as_ref()
             .filter(|value| !matches!(value.as_str(), "none" | "off"))
         {
+            let backup = transfer::backup_destination(dest, control, &options.suffix);
+            let aliases_source = backup == source
+                || (transfer::exists(&backup)
+                    && crate::common::meta::same_file(source, &backup).unwrap_or(false));
+            if aliases_source && !options.symbolic {
+                return link_over_source_backup(source, dest, control, options);
+            }
             transfer::backup(dest, source, control, &options.suffix)?;
         } else if options.force || options.interactive {
             transfer::remove(dest)?;
@@ -92,6 +99,44 @@ fn make_link(source: &Path, dest: &Path, options: &Options) -> std::io::Result<b
         fs::hard_link(source, dest)?;
     }
     Ok(true)
+}
+
+fn link_over_source_backup(
+    source: &Path,
+    dest: &Path,
+    control: &str,
+    options: &Options,
+) -> std::io::Result<bool> {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static NEXT: AtomicU64 = AtomicU64::new(0);
+    let source = if options.logical {
+        fs::canonicalize(source)?
+    } else {
+        source.to_owned()
+    };
+    let parent = dest
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .unwrap_or(Path::new("."));
+    let mut temporary = None;
+    for _ in 0..128 {
+        let sequence = NEXT.fetch_add(1, Ordering::Relaxed);
+        let path = parent.join(format!(".agentcmd-link-{}-{sequence}", std::process::id()));
+        match fs::hard_link(&source, &path) {
+            Ok(()) => {
+                temporary = Some(path);
+                break;
+            }
+            Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => continue,
+            Err(e) => return Err(e),
+        }
+    }
+    let temporary =
+        temporary.ok_or_else(|| std::io::Error::other("cannot create temporary hard link"))?;
+    let result = transfer::backup(dest, dest, control, &options.suffix)
+        .and_then(|()| fs::hard_link(&temporary, dest));
+    let cleanup = fs::remove_file(&temporary);
+    result.and(cleanup).map(|()| true)
 }
 pub fn run(argv: &[String]) -> i32 {
     let short = |id, short| OptSpec {
@@ -227,11 +272,13 @@ pub fn run(argv: &[String]) -> i32 {
             match make_link(source, &dest, &options) {
                 Ok(true) if options.verbose => writeln!(
                     out,
-                    "'{}' -> '{}'",
+                    "'{}' {} '{}'",
                     super::display(&dest),
+                    if options.symbolic { "->" } else { "=>" },
                     super::display(source)
                 )?,
-                Ok(_) => {}
+                Ok(true) => {}
+                Ok(false) => failed = true,
                 Err(e) => {
                     eprintln!(
                         "ln: failed to create {} link '{}': {}{}",

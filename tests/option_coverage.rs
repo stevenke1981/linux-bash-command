@@ -101,7 +101,14 @@ fn cli_option_cases_verify_documented_gnu_differences() {
                 "{name}: {output:?}"
             );
         }
-        assert!(output.stderr.is_empty(), "{name}: {output:?}");
+        if let Some(expected) = case["stderr_contains"].as_str() {
+            assert!(
+                String::from_utf8_lossy(&output.stderr).contains(expected),
+                "{name}: {output:?}"
+            );
+        } else {
+            assert!(output.stderr.is_empty(), "{name}: {output:?}");
+        }
     }
 }
 

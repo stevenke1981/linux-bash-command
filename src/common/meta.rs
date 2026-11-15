@@ -192,6 +192,41 @@ mod tests {
         assert_eq!(kind_char(&fs::metadata(&root).unwrap()), 'd');
         fs::remove_dir_all(root).unwrap();
     }
+    #[cfg(unix)]
+    #[test]
+    fn fifo_socket_and_special_modes_are_distinct() {
+        use std::os::unix::{ffi::OsStrExt, fs::PermissionsExt, net::UnixListener};
+        let root = std::path::Path::new("/tmp")
+            .join(format!("agentcmd-special-meta-{}", std::process::id()));
+        fs::create_dir_all(&root).unwrap();
+        let fifo = root.join("fifo");
+        let name = std::ffi::CString::new(fifo.as_os_str().as_bytes()).unwrap();
+        // SAFETY: the path is a NUL-terminated pathname inside the test sandbox.
+        assert_eq!(unsafe { libc::mkfifo(name.as_ptr(), 0o600) }, 0);
+        let listener = UnixListener::bind(root.join("socket")).unwrap();
+        for (name, kind) in [("fifo", 'p'), ("socket", 's')] {
+            let path = root.join(name);
+            let metadata = fs::symlink_metadata(&path).unwrap();
+            assert_eq!(kind_char(&metadata), kind);
+            assert!(mode_string(&path, &metadata).starts_with(kind));
+            assert!(!is_executable(&path, &metadata));
+        }
+        let path = root.join("mode");
+        fs::write(&path, b"x").unwrap();
+        for (mode, expected) in [
+            (0o7000, "---S--S--T"),
+            (0o7111, "---s--s--t"),
+            (0o0640, "-rw-r-----"),
+        ] {
+            fs::set_permissions(&path, fs::Permissions::from_mode(mode)).unwrap();
+            let metadata = fs::metadata(&path).unwrap();
+            assert_eq!(mode_string(&path, &metadata), expected);
+            assert_eq!(permission_bits(&metadata), mode);
+            assert_eq!(is_executable(&path, &metadata), mode & 0o111 != 0);
+        }
+        drop(listener);
+        fs::remove_dir_all(root).unwrap();
+    }
     #[cfg(windows)]
     #[test]
     fn windows_modes_follow_synthesized_permissions() {

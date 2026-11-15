@@ -391,7 +391,7 @@
       "skip_reason": null
     },
     {
-      "name": "manifest_cr_filename",
+      "name": "manifest_crlf_line",
       "args": [
         "-c",
         "list"
@@ -399,7 +399,7 @@
       "stdin": "",
       "files": {
         "list": "900150983cd24fb0d6963f7d28e17f72  file\r\n",
-        "file\r": "abc"
+        "file": "abc"
       },
       "compare": [
         "stdout",
@@ -447,6 +447,20 @@
       "files": {
         "list": "900150983cd24fb0d6963f7d28e17f72  data\n",
         "data": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "carriage_return_filename_output",
+      "args": [
+        "file\r"
+      ],
+      "files": {
+        "file\r": "abc"
       },
       "compare": [
         "stdout",

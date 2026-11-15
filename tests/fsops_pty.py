@@ -10,7 +10,7 @@ import tempfile
 import time
 
 
-def interact(binary_dir, sandbox, name, arguments, reply):
+def interact(binary_dir, sandbox, name, arguments, reply, expected=0):
     master, slave = pty.openpty()
     child = subprocess.Popen(
         [str(binary_dir / name), *arguments], cwd=sandbox,
@@ -39,7 +39,7 @@ def interact(binary_dir, sandbox, name, arguments, reply):
                     sent = True
             elif child.poll() is not None:
                 break
-        assert child.wait(timeout=1) == 0, (name, bytes(output))
+        assert child.wait(timeout=1) == expected, (name, bytes(output))
         assert sent, (name, "no interactive prompt", bytes(output))
         return bytes(output)
     finally:
@@ -55,7 +55,7 @@ def main():
         sandbox = Path(directory)
         (sandbox / "source").write_bytes(b"new")
         (sandbox / "destination").write_bytes(b"old")
-        interact(binary_dir, sandbox, "cp", ["-i", "source", "destination"], b"n")
+        interact(binary_dir, sandbox, "cp", ["-i", "source", "destination"], b"n", expected=1)
         assert (sandbox / "destination").read_bytes() == b"old"
         interact(binary_dir, sandbox, "cp", ["-i", "source", "destination"], b"y")
         assert (sandbox / "destination").read_bytes() == b"new"

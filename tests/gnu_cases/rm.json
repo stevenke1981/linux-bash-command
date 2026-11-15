@@ -380,7 +380,7 @@
         "exit",
         "files"
       ],
-      "skip_reason": null
+      "skip_reason": "03 forbids symlink traversal; GNU9.4 rm -r link/ removes target children before failing. Sandbox CLI verifies target preservation."
     }
   ]
 }

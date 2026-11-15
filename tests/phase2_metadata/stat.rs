@@ -33,7 +33,7 @@ fn file_modes_and_type_formats() {
     let s = Sandbox::new();
     s.write("sample", b"abc");
     let out = run(&s, "stat", &["--format=%a|%A|%f|%F|%C|%N", "sample"]);
-    success(&out);
+    assert_eq!(out.status.code(), Some(1));
     let text = text(&out);
     assert!(
         text.contains("|regular file|?|\u{27}sample\u{27}"),

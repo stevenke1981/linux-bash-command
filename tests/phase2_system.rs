@@ -429,10 +429,10 @@ mod uptime_cli {
     }
 
     #[test]
-    fn pretty_and_since_are_mutually_exclusive() {
+    fn combined_pretty_and_since_options_are_accepted() {
         assert_eq!(
             run("uptime", &["--pretty", "--since"]).status.code(),
-            Some(1)
+            Some(0)
         );
     }
 
@@ -456,12 +456,39 @@ mod uptime_cli {
     #[test]
     fn short_flags_are_clustered_as_gnu_options() {
         let out = run("uptime", &["-ps"]);
-        assert_eq!(out.status.code(), Some(1));
+        assert_eq!(out.status.code(), Some(0));
     }
 
     #[test]
     fn mode_long_names_accept_unique_prefixes() {
         assert_eq!(run("uptime", &["--pre"]).status.code(), Some(0));
         assert_eq!(run("uptime", &["--sin"]).status.code(), Some(0));
+    }
+}
+
+#[cfg(target_os = "linux")]
+#[test]
+fn combined_uptime_modes_match_ubuntu_gnu_report_kind() {
+    if std::env::var("AGENTCMD_GNU_DIFF").as_deref() != Ok("1") {
+        return;
+    }
+    for args in [["-p", "-s"], ["-s", "-p"]] {
+        let expected = Command::new("/usr/bin/uptime")
+            .args(args)
+            .env("LC_ALL", "C")
+            .env("TZ", "UTC")
+            .output()
+            .unwrap();
+        let actual = run("uptime", &args);
+        assert_eq!(actual.status.code(), expected.status.code());
+        assert_eq!(
+            actual.stdout.starts_with(b"up "),
+            expected.stdout.starts_with(b"up "),
+            "{actual:?} {expected:?}"
+        );
+        assert_eq!(
+            actual.stdout.iter().filter(|b| **b == b'\n').count(),
+            expected.stdout.iter().filter(|b| **b == b'\n').count()
+        );
     }
 }

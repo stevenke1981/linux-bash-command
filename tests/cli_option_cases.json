@@ -88,5 +88,72 @@
     "files": {},
     "stdout_regex": "mktemp",
     "exit": 0
+  },
+  {
+    "command": "cksum",
+    "args": [
+      "--algorithm=crc32b",
+      "data"
+    ],
+    "files": {
+      "data": "123456789"
+    },
+    "stdout": "3421780262 9 data\n",
+    "exit": 0
+  },
+  {
+    "command": "ls",
+    "args": [
+      "--colour=never",
+      "-1",
+      "file"
+    ],
+    "files": {
+      "file": ""
+    },
+    "stdout": "file\n",
+    "exit": 0
+  },
+  {
+    "command": "hostname",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "Usage: hostname",
+    "exit": 0
+  },
+  {
+    "command": "hostname",
+    "args": [
+      "-z"
+    ],
+    "files": {},
+    "stdout": "",
+    "exit": 1,
+    "stderr_contains": "hostname:"
+  },
+  {
+    "command": "hostname",
+    "args": [
+      "--unknown"
+    ],
+    "files": {},
+    "stdout": "",
+    "exit": 1,
+    "stderr_contains": "hostname:"
+  },
+  {
+    "command": "ls",
+    "args": [
+      "--sort=name",
+      "file"
+    ],
+    "files": {
+      "file": ""
+    },
+    "stdout": "",
+    "stderr_contains": "ls:",
+    "exit": 2
   }
 ]

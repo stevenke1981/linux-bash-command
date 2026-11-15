@@ -81,6 +81,7 @@ pub fn run(args: &[String]) -> i32 {
         template.into_bytes()
     };
     let mut failed = false;
+    let context_requested = !filesystem && format::context_requested(&template);
     let status = output("stat", |out| {
         for name in &paths {
             let path = Path::new(name);
@@ -97,6 +98,13 @@ pub fn run(args: &[String]) -> i32 {
             match rendered {
                 Ok(text) => {
                     out.write_all(&text)?;
+                    if context_requested {
+                        eprintln!(
+                            "stat: failed to get security context of '{}': No data available",
+                            crate::display_path(path)
+                        );
+                        failed = true;
+                    }
                     if !printf && custom {
                         out.write_all(b"\n")?;
                     }

@@ -271,7 +271,7 @@
       "name": "time_style",
       "args": [
         "-b",
-        "--time=mtime",
+        "--time",
         "--time-style=+%Y",
         "file"
       ],
@@ -290,7 +290,7 @@
       "name": "full_iso",
       "args": [
         "-b",
-        "--time=modification",
+        "--time",
         "--time-style=full-iso",
         "file"
       ],
@@ -759,6 +759,51 @@
         "dir/link": {
           "symlink": "../outside"
         }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_time_mtime",
+      "args": [
+        "--time=mtime",
+        "file"
+      ],
+      "files": {
+        "file": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_time_modification",
+      "args": [
+        "--time=modification",
+        "file"
+      ],
+      "files": {
+        "file": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_time_modify",
+      "args": [
+        "--time=modify",
+        "file"
+      ],
+      "files": {
+        "file": "x"
       },
       "compare": [
         "stdout",

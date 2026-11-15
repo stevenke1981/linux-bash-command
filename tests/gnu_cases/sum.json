@@ -252,7 +252,18 @@
         "exit"
       ],
       "skip_reason": null
+    },
+    {
+      "name": "explicit_stdin_operand",
+      "args": [
+        "-"
+      ],
+      "stdin": "abc",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
     }
   ]
 }
-

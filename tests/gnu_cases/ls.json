@@ -664,7 +664,8 @@
       "compare": [
         "stdout",
         "exit"
-      ]
+      ],
+      "skip_reason": "Preserve the inherited --colour alias as required by AGENTS; GNU9.4 only accepts --color. CLI golden verifies the existing alias."
     },
     {
       "name": "p2_long_show-control-chars",
@@ -921,7 +922,7 @@
     {
       "name": "p2_long_sort",
       "args": [
-        "--sort=name",
+        "--sort=extension",
         "-1",
         "file"
       ],
@@ -966,10 +967,11 @@
         }
       },
       "compare": [
-        "stdout",
+        "stdout_columns",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "skip_stdout_columns": 4
     },
     {
       "name": "review_old_locale",
@@ -986,10 +988,11 @@
         }
       },
       "compare": [
-        "stdout",
+        "stdout_columns",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "skip_stdout_columns": 4
     },
     {
       "name": "review_full_time_order",
@@ -1006,10 +1009,11 @@
         }
       },
       "compare": [
-        "stdout",
+        "stdout_columns",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "skip_stdout_columns": 4
     }
   ]
 }

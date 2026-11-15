@@ -127,3 +127,14 @@ CI（`ubuntu-24.04`）須安裝：`sudo apt-get install -y gawk tree xxd dos2uni
 |---|---|---|---|
 | v1.1 | 2026-10-30 | 新增 §2.1 差分器實作細節；CI 固定 ubuntu-24.04 | tests/gnu_diff.rs, CI |
 | v1.0 | 2026-10-30 | 初始建立 | — |
+
+
+### Focused legacy-column comparison
+
+A GNU case may use `compare: ["stdout_columns", "exit"]` with
+`skip_stdout_columns: N`. This removes only N leading space/tab-delimited
+columns from each line and compares the remaining bytes, including spacing.
+The P2 ls timestamp cases use N=4 because the inherited owner/group placeholders
+must be preserved under AGENTS.md. Separate CLI tests validate the legacy prefix.
+GNU programs are still resolved by absolute path; argv[0] is their basename so
+verbose mkdir/rmdir prefixes match a normal shell invocation.
