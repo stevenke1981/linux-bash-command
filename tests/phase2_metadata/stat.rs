@@ -162,13 +162,43 @@ fn gnu_oracle_default_terse_and_filesystem_layouts_on_the_same_file() {
             expected.status.code(),
             "{args:?}: {actual:?} / {expected:?}"
         );
-        assert_eq!(
-            actual.stdout, expected.stdout,
-            "same-file stat layout {args:?}"
-        );
+        if args.contains(&"--file-system") {
+            // Other tests and background services allocate/free blocks between
+            // the two stat calls. Compare every static field and the layout.
+            assert_eq!(
+                stable_filesystem_layout(&actual.stdout),
+                stable_filesystem_layout(&expected.stdout),
+                "same-file stat layout {args:?}"
+            );
+        } else {
+            assert_eq!(
+                actual.stdout, expected.stdout,
+                "same-file stat layout {args:?}"
+            );
+        }
         assert_eq!(
             actual.stderr, expected.stderr,
             "same-file stat diagnostics {args:?}"
         );
     }
+}
+
+fn stable_filesystem_layout(bytes: &[u8]) -> String {
+    let live_counts = regex::Regex::new(r"(Free|Available):[ \t]*[0-9]+[ \t]*").unwrap();
+    live_counts
+        .replace_all(&String::from_utf8_lossy(bytes), "$1: <live> ")
+        .into_owned()
+}
+
+#[test]
+fn filesystem_oracle_normalization_preserves_static_fields() {
+    let a = b"Blocks: Total: 12 Free: 8   Available: 7\nInodes: Total: 20 Free: 3\n";
+    let b = b"Blocks: Total: 12 Free: 6   Available: 5\nInodes: Total: 20 Free: 1\n";
+    assert_eq!(stable_filesystem_layout(a), stable_filesystem_layout(b));
+    assert_ne!(
+        stable_filesystem_layout(a),
+        stable_filesystem_layout(
+            b"Blocks: Total: 99 Free: 8 Available: 7\nInodes: Total: 20 Free: 3\n"
+        )
+    );
 }

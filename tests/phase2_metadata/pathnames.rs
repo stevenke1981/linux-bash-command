@@ -1,7 +1,10 @@
 use super::*;
 
 fn shown(sandbox: &Sandbox, relative: &str) -> String {
+    #[cfg(not(windows))]
     let physical_root = std::fs::canonicalize(&sandbox.path).unwrap();
+    #[cfg(windows)]
+    let physical_root = sandbox.path.clone();
     agentcmd::display_path(&physical_root.join(relative))
 }
 

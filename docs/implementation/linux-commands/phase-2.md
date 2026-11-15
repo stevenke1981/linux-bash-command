@@ -80,3 +80,15 @@ below80% (192/241,79.67%); a trailing-separator/update regression exercises its
 remaining normal option paths. Final CI acceptance remains pending.
 
 Fourth candidate Windows: 1,498 passed, 0 failed, 1 ignored; fmt/clippy PASS.
+
+
+Fourth CI candidate: `83d24ec`, run
+https://github.com/stevenke1981/linux-bash-command/actions/runs/43689788089.
+Linux, macOS, lint and coverage passed; Windows exposed an expected-path long-name
+expansion in the fixture and the stat filesystem oracle observed concurrent live
+free-block/inode changes. The path fixture now preserves Windows' supplied 8.3
+prefix; the filesystem oracle masks only live Free/Available counts and verifies
+all static fields and labels. File-stat default/terse and GNU JSON comparisons
+remain exact. A regression confirms normalization cannot mask changed totals.
+
+Fifth candidate Windows: 1,499 passed, 0 failed, 1 ignored; fmt/clippy PASS.
