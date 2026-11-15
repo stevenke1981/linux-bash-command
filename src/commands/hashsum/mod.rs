@@ -252,9 +252,12 @@ pub(crate) fn write_record(
         } else {
             value.hex()
         };
-        let escaped = !o.zero && (name.contains('\\') || name.contains('\n'));
+        let escaped =
+            !o.zero && (name.contains('\\') || name.contains('\n') || name.contains('\r'));
         let name = if escaped {
-            name.replace('\\', "\\\\").replace('\n', "\\n")
+            name.replace('\\', "\\\\")
+                .replace('\n', "\\n")
+                .replace('\r', "\\r")
         } else {
             name.into()
         };

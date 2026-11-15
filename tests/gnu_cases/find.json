@@ -82,7 +82,11 @@
         "link": {
           "symlink": "one"
         }
-      }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
     },
     {
       "name": "p2_gid",
@@ -102,7 +106,11 @@
         "link": {
           "symlink": "one"
         }
-      }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
     },
     {
       "name": "p2_user",
@@ -192,7 +200,11 @@
         "link": {
           "symlink": "one"
         }
-      }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
     },
     {
       "name": "p2_samefile",
@@ -320,7 +332,11 @@
         "link": {
           "symlink": "one"
         }
-      }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
     },
     {
       "name": "p2_regex_ere",
@@ -340,7 +356,11 @@
         "link": {
           "symlink": "one"
         }
-      }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
     },
     {
       "name": "p2_regex_emacs",
@@ -379,7 +399,11 @@
         "link": {
           "symlink": "one"
         }
-      }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
     },
     {
       "name": "p2_xdev",
@@ -399,7 +423,11 @@
         "link": {
           "symlink": "one"
         }
-      }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
     },
     {
       "name": "p2_fprint",

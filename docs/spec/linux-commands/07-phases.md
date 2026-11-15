@@ -88,6 +88,7 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | grep / egrep / fgrep | 無效 `-d ACTION` 回傳 2；GNU 9.4 回傳 1 | 02 grep 用法錯誤碼優先；CLI golden 驗證 | `grep/bad_directory`, `egrep/bad_directory`, `fgrep/bad_directory`（skip） |
 | grep / egrep / fgrep | `-L` 依是否列出檔案決定狀態；GNU 依是否有選取行決定 | AGENTS 要求保留非 05 P1 範圍的既有行為；保留既有測試並加 alias golden | 三者的 `long_files_without_match`（skip） |
 
+| ln | When a backup aliases the source, the new link retains the original source contents; GNU9.4 overwrites those contents before linking | Ambiguous source/backup alias cannot retain source data under GNU's post-backup reread; preserve both original payloads and report the difference | `ln/review_backup_source_collision` (skip), sandbox goldens |
 | cksum | IEEE CRC32B is required by 03 but absent from Ubuntu GNU 9.4 | Specification wins; polynomial/check value have unit and CLI goldens | `cksum/crc32b` (skip) |
 | hostname | Help is status 0 and usage errors status 1; Ubuntu hostname returns 255 | Explicit 02 contract wins | Three hostname GNU status cases (skip), CLI goldens |
 | ls | Inherited `--colour` alias and `-` owner/group placeholders are preserved | AGENTS forbids unrelated legacy behavior changes; timestamp GNU cases compare size/time/name after four leading columns | `ls/p2_long_colour` (skip), legacy CLI tests |

@@ -42,6 +42,10 @@ fn special_type_char(_metadata: &fs::Metadata) -> Option<char> {
 
 fn permission_triads(path: &Path, metadata: &fs::Metadata) -> String {
     let mode = permission_bits_at(path, metadata);
+    permission_triads_from_mode(mode)
+}
+
+fn permission_triads_from_mode(mode: u32) -> String {
     let mut text = String::with_capacity(9);
     for (shift, special, upper, lower) in [
         (6, 0o4000, 'S', 's'),
@@ -213,11 +217,7 @@ mod tests {
         }
         let path = root.join("mode");
         fs::write(&path, b"x").unwrap();
-        for (mode, expected) in [
-            (0o7000, "---S--S--T"),
-            (0o7111, "---s--s--t"),
-            (0o0640, "-rw-r-----"),
-        ] {
+        for (mode, expected) in [(0o0640, "-rw-r-----"), (0o0751, "-rwxr-x--x")] {
             fs::set_permissions(&path, fs::Permissions::from_mode(mode)).unwrap();
             let metadata = fs::metadata(&path).unwrap();
             assert_eq!(mode_string(&path, &metadata), expected);
@@ -226,6 +226,11 @@ mod tests {
         }
         drop(listener);
         fs::remove_dir_all(root).unwrap();
+    }
+    #[test]
+    fn special_permission_bits_are_formatted_independently_of_filesystem_policy() {
+        assert_eq!(permission_triads_from_mode(0o7000), "--S--S--T");
+        assert_eq!(permission_triads_from_mode(0o7111), "--s--s--t");
     }
     #[cfg(windows)]
     #[test]

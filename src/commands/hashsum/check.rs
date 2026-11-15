@@ -261,6 +261,7 @@ fn filename(bytes: &[u8], escaped: bool) -> Option<PathBuf> {
             result.push(match bytes.get(i)? {
                 b'\\' => b'\\',
                 b'n' => b'\n',
+                b'r' => b'\r',
                 _ => return None,
             });
         } else {

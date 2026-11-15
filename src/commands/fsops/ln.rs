@@ -10,6 +10,11 @@ use std::{
 const HELP: &str = "Usage: ln [OPTION]... TARGET... LINK_NAME\nCreate hard or symbolic links.\n  -b, --backup[=CONTROL]  back up destination\n  -f, --force             remove existing destination\n  -i, --interactive       prompt before replacing destination\n  -L, --logical           dereference source symlinks for hard links\n  -n, --no-dereference    treat a destination directory symlink as a file\n  -P, --physical          link the source symlink itself\n  -r, --relative          use relative symbolic link target\n  -s, --symbolic          create symbolic links\n  -S, --suffix=SUFFIX     override backup suffix\n  -t, --target-directory=DIR  create links in DIR\n  -T, --no-target-directory   treat LINK_NAME as a normal file\n  -v, --verbose           print link names\n      --help              display this help\n      --version           output version information\n";
 
 fn relative(target: &Path, parent: &Path) -> std::io::Result<PathBuf> {
+    let parent = if parent.as_os_str().is_empty() {
+        Path::new(".")
+    } else {
+        parent
+    };
     let target = fs::canonicalize(target).or_else(|_| std::path::absolute(target))?;
     let parent = fs::canonicalize(parent).or_else(|_| std::path::absolute(parent))?;
     let a: Vec<_> = target.components().collect();

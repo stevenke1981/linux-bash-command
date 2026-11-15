@@ -56,3 +56,14 @@ filesystem, stat and timezone regression cases have been added. This measurement
 does not constitute final per-module acceptance; an updated CI artifact is required.
 
 Repair candidate Windows verification: 1,495 passed, 0 failed, 1 ignored; fmt and all-target clippy PASS. Repair source/test snapshot: `f7ef536cb2bda00927d1011b43fc539a0f81863cb912be967e53e57a6a1e6d65` (299 files). Cross-platform/GNU/coverage acceptance remains pending the next CI run.
+
+
+Second CI candidate: `5018050`, run
+https://github.com/stevenke1981/linux-bash-command/actions/runs/43687364347.
+GNU9.4: 1,827 passed, 9 failed, 28 skipped. Remaining fixes are unordered find
+fixture comparisons, relative-link empty-parent handling and CR filename escaping;
+the source-alias backup case retains both payloads as a documented exception.
+macOS's kernel may clear setgid bits; special-bit formatting is now verified with
+pure supplied modes while native permission tests use ordinary modes.
+
+Third candidate Windows: 1,496 passed, 0 failed, 1 ignored; fmt/clippy PASS.

@@ -489,6 +489,23 @@
         "exit",
         "files"
       ],
+      "skip_reason": "Preserve original source content in the new link when the backup path aliases the source; GNU9.4 loses that content. Sandbox goldens verify both retained payloads."
+    },
+    {
+      "name": "relative_current_directory",
+      "args": [
+        "-sr",
+        "source",
+        "relative"
+      ],
+      "files": {
+        "source": "contents"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
       "skip_reason": null
     }
   ]
