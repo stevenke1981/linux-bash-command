@@ -354,4 +354,75 @@ mod tests {
     fn unterminated_strings_are_errors() {
         assert!(Lexer::new(b"\"bad".to_vec()).next().is_err());
     }
+    #[test]
+    fn incomplete_exponents_leave_following_tokens_unconsumed() {
+        assert_eq!(
+            kinds(b"1e+ 2E- 3e0"),
+            [
+                Kind::Number(1.0),
+                Kind::Word("e".into()),
+                Kind::Symbol("+"),
+                Kind::Number(2.0),
+                Kind::Word("E".into()),
+                Kind::Symbol("-"),
+                Kind::Number(3.0),
+            ],
+        );
+    }
+    #[test]
+    fn string_controls_octal_limits_and_continued_source_lines() {
+        assert_eq!(
+            kinds(br#""\a\b\f\r\v\777\1z\q""#),
+            [Kind::String(vec![7, 8, 12, 13, 11, 255, 1, b'z', b'q'])],
+        );
+        let mut lexer = Lexer::new(b"\"a\\\nb\" +".to_vec());
+        assert_eq!(lexer.next().unwrap().kind, Kind::String(b"ab".to_vec()));
+        let plus = lexer.next().unwrap();
+        assert_eq!(plus.kind, Kind::Symbol("+"));
+        assert_eq!((plus.line, plus.start), (2, 7));
+    }
+    #[test]
+    fn malformed_strings_and_unknown_bytes_report_source_context() {
+        for (bytes, message) in [
+            (b"\"a\n".as_slice(), "unterminated string"),
+            (b"\"a\\", "trailing backslash"),
+            (b"@", "unexpected byte 0x40"),
+        ] {
+            let error = Lexer::new(bytes.to_vec()).next().unwrap_err();
+            assert!(error.contains("source line 1"), "{error}");
+            assert!(error.contains(message), "{error}");
+        }
+    }
+    #[test]
+    fn regexp_escapes_and_classes_preserve_literal_delimiters() {
+        for (source, expected) in [
+            (b"/a\\/b\\\\c\\\nd/".as_slice(), br"a/b\\cd".as_slice()),
+            (br"/[^]a\/\\]/", br"[^]a/\\]"),
+            (br"/[[:digit:][.a.][=b=]]/", br"[[:digit:][.a.][=b=]]"),
+        ] {
+            let mut lexer = Lexer::new(source.to_vec());
+            let slash = lexer.next().unwrap();
+            assert_eq!(lexer.regex(slash.start).unwrap(), expected);
+            assert_eq!(lexer.next().unwrap().kind, Kind::End);
+        }
+    }
+    #[test]
+    fn malformed_regexps_fail_at_each_delimiter_boundary() {
+        for source in [
+            b"/abc".as_slice(),
+            b"/a\n",
+            b"/a\\",
+            b"/[abc",
+            b"/[a\n",
+            b"/[a\\",
+            b"/[[:alpha:",
+            b"/[[:a\n",
+        ] {
+            let mut lexer = Lexer::new(source.to_vec());
+            let slash = lexer.next().unwrap();
+            let error = lexer.regex(slash.start).unwrap_err();
+            assert!(error.contains("source line 1"), "{error}");
+            assert!(error.contains("unterminated regexp"), "{error}");
+        }
+    }
 }

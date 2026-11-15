@@ -4,6 +4,9 @@ pub(super) fn normalize(source: &str) -> Result<String, String> {
     while at < bytes.len() {
         let byte = bytes[at];
         at += 1;
+        if byte == b'{' && bytes.get(at) == Some(&b'}') {
+            return Err("invalid interval expression".into());
+        }
         if byte == b'{' && !bytes.get(at).is_some_and(u8::is_ascii_digit) {
             out.extend_from_slice(br"\{");
             continue;

@@ -234,3 +234,154 @@ All six jobs passed; every measured file exceeds80%.
 | `src/common/process.rs` | 105/115 | 91.30% |
 | `src/common/regex.rs` | 144/154 | 93.51% |
 | `src/common/size.rs` | 61/61 | 100.00% |
+
+
+## Accepted Phase 4 measurement, 2026-11-15
+
+Source: `6770af1`, Ubuntu 24.04, [CI coverage artifact](https://github.com/stevenke1981/linux-bash-command/actions/runs/43705680348).
+All six CI jobs passed, including Windows/Linux/macOS tests and release builds.
+GNU differential: 2,715 passed, 0 failed, 39 documented skips; extra gated
+metadata/hash/system oracle tests also passed. Windows 1,962, Linux 1,989,
+macOS 1,980 tests passed, with no failures or ignored tests.
+
+| Scope | Covered / lines | Coverage |
+|---|---:|---:|
+| common | 2,712 / 2,903 | 93.42% |
+| commands | 20,641 / 22,741 | 90.77% |
+
+Every shared/command file and the new diff format module exceeds 80%.
+
+| Module | Covered / lines | Coverage |
+|---|---:|---:|
+| src/commands/basenc/codec.rs | 352 / 370 | 95.14% |
+| src/commands/basenc/mod.rs | 69 / 79 | 87.34% |
+| src/commands/chmod/mod.rs | 171 / 207 | 82.61% |
+| src/commands/chmod/mode.rs | 114 / 122 | 93.44% |
+| src/commands/cksum.rs | 129 / 150 | 86.00% |
+| src/commands/cmp.rs | 284 / 325 | 87.38% |
+| src/commands/column.rs | 261 / 283 | 92.23% |
+| src/commands/comm.rs | 225 / 236 | 95.34% |
+| src/commands/csplit.rs | 311 / 367 | 84.74% |
+| src/commands/csplit/data.rs | 93 / 103 | 90.29% |
+| src/commands/cut.rs | 189 / 200 | 94.50% |
+| src/commands/date.rs | 128 / 137 | 93.43% |
+| src/commands/dos2unix.rs | 133 / 149 | 89.26% |
+| src/commands/dos2unix/stream.rs | 135 / 139 | 97.12% |
+| src/commands/du.rs | 300 / 331 | 90.63% |
+| src/commands/echo.rs | 52 / 53 | 98.11% |
+| src/commands/egrep.rs | 24 / 24 | 100.00% |
+| src/commands/env.rs | 261 / 306 | 85.29% |
+| src/commands/expand.rs | 209 / 216 | 96.76% |
+| src/commands/expr/eval.rs | 128 / 140 | 91.43% |
+| src/commands/expr/mod.rs | 31 / 31 | 100.00% |
+| src/commands/expr/parse.rs | 66 / 76 | 86.84% |
+| src/commands/factor.rs | 233 / 249 | 93.57% |
+| src/commands/fgrep.rs | 24 / 24 | 100.00% |
+| src/commands/fmt/linebreak.rs | 285 / 322 | 88.51% |
+| src/commands/fmt/mod.rs | 140 / 150 | 93.33% |
+| src/commands/fmt/parasplit.rs | 417 / 434 | 96.08% |
+| src/commands/fold.rs | 125 / 128 | 97.66% |
+| src/commands/free.rs | 257 / 287 | 89.55% |
+| src/commands/fsops/cp.rs | 464 / 534 | 86.89% |
+| src/commands/fsops/link.rs | 53 / 54 | 98.15% |
+| src/commands/fsops/ln.rs | 250 / 289 | 86.51% |
+| src/commands/fsops/mkdir.rs | 109 / 112 | 97.32% |
+| src/commands/fsops/mod.rs | 35 / 36 | 97.22% |
+| src/commands/fsops/mode.rs | 73 / 82 | 89.02% |
+| src/commands/fsops/mv.rs | 199 / 241 | 82.57% |
+| src/commands/fsops/rm.rs | 239 / 273 | 87.55% |
+| src/commands/fsops/rmdir.rs | 70 / 74 | 94.59% |
+| src/commands/fsops/touch.rs | 175 / 197 | 88.83% |
+| src/commands/fsops/transfer.rs | 82 / 97 | 84.54% |
+| src/commands/fsops/unlink.rs | 52 / 54 | 96.30% |
+| src/commands/hashsum/check.rs | 264 / 298 | 88.59% |
+| src/commands/hashsum/engine.rs | 198 / 225 | 88.00% |
+| src/commands/hashsum/mod.rs | 195 / 204 | 95.59% |
+| src/commands/join.rs | 464 / 520 | 89.23% |
+| src/commands/join/group.rs | 139 / 157 | 88.54% |
+| src/commands/kill.rs | 230 / 276 | 83.33% |
+| src/commands/mktemp.rs | 139 / 147 | 94.56% |
+| src/commands/nl.rs | 178 / 187 | 95.19% |
+| src/commands/numfmt/binary.rs | 109 / 123 | 88.62% |
+| src/commands/numfmt/mod.rs | 225 / 243 | 92.59% |
+| src/commands/numfmt/number.rs | 394 / 431 | 91.42% |
+| src/commands/od.rs | 480 / 512 | 93.75% |
+| src/commands/od/strings.rs | 75 / 81 | 92.59% |
+| src/commands/paste.rs | 137 / 140 | 97.86% |
+| src/commands/pathchk.rs | 191 / 207 | 92.27% |
+| src/commands/pathname.rs | 125 / 150 | 83.33% |
+| src/commands/pathname/canonical.rs | 225 / 249 | 90.36% |
+| src/commands/pgrep.rs | 369 / 389 | 94.86% |
+| src/commands/pkill.rs | 23 / 23 | 100.00% |
+| src/commands/pr/layout.rs | 133 / 153 | 86.93% |
+| src/commands/pr/mod.rs | 274 / 323 | 84.83% |
+| src/commands/pr/options.rs | 220 / 234 | 94.02% |
+| src/commands/printenv.rs | 75 / 77 | 97.40% |
+| src/commands/printf.rs | 442 / 513 | 86.16% |
+| src/commands/ptx/layout.rs | 148 / 178 | 83.15% |
+| src/commands/ptx/mod.rs | 221 / 238 | 92.86% |
+| src/commands/ptx/options.rs | 154 / 185 | 83.24% |
+| src/commands/rev.rs | 58 / 66 | 87.88% |
+| src/commands/sed/addr.rs | 120 / 124 | 96.77% |
+| src/commands/sed/exec.rs | 113 / 113 | 100.00% |
+| src/commands/sed/exec/actions.rs | 174 / 200 | 87.00% |
+| src/commands/sed/inplace.rs | 103 / 116 | 88.79% |
+| src/commands/sed/input.rs | 89 / 109 | 81.65% |
+| src/commands/sed/mod.rs | 27 / 27 | 100.00% |
+| src/commands/sed/options.rs | 62 / 66 | 93.94% |
+| src/commands/sed/output.rs | 170 / 188 | 90.43% |
+| src/commands/sed/parse.rs | 372 / 438 | 84.93% |
+| src/commands/sed/pattern.rs | 245 / 258 | 94.96% |
+| src/commands/sed/replacement.rs | 108 / 116 | 93.10% |
+| src/commands/sed/subst.rs | 77 / 77 | 100.00% |
+| src/commands/seq.rs | 199 / 231 | 86.15% |
+| src/commands/shuf.rs | 326 / 376 | 86.70% |
+| src/commands/sleep.rs | 51 / 55 | 92.73% |
+| src/commands/sort/compare.rs | 292 / 310 | 94.19% |
+| src/commands/sort/keys.rs | 116 / 126 | 92.06% |
+| src/commands/sort/mod.rs | 265 / 278 | 95.32% |
+| src/commands/sort/storage.rs | 116 / 128 | 90.62% |
+| src/commands/split.rs | 239 / 249 | 95.98% |
+| src/commands/split/stream.rs | 334 / 417 | 80.10% |
+| src/commands/stat.rs | 86 / 88 | 97.73% |
+| src/commands/stat/filesystem.rs | 123 / 126 | 97.62% |
+| src/commands/stat/format.rs | 322 / 372 | 86.56% |
+| src/commands/sysinfo_cmds.rs | 330 / 344 | 95.93% |
+| src/commands/tac.rs | 175 / 183 | 95.63% |
+| src/commands/tee.rs | 127 / 136 | 93.38% |
+| src/commands/test.rs | 259 / 268 | 96.64% |
+| src/commands/timeout.rs | 163 / 174 | 93.68% |
+| src/commands/timeout/unix.rs | 17 / 19 | 89.47% |
+| src/commands/tr.rs | 299 / 313 | 95.53% |
+| src/commands/tree/mod.rs | 323 / 358 | 90.22% |
+| src/commands/tree/options.rs | 203 / 208 | 97.60% |
+| src/commands/truefalse.rs | 44 / 45 | 97.78% |
+| src/commands/truncate.rs | 140 / 152 | 92.11% |
+| src/commands/tsort.rs | 184 / 190 | 96.84% |
+| src/commands/uname.rs | 216 / 223 | 96.86% |
+| src/commands/uniq.rs | 222 / 253 | 87.75% |
+| src/commands/unix2dos.rs | 3 / 3 | 100.00% |
+| src/commands/wc.rs | 217 / 226 | 96.02% |
+| src/commands/which.rs | 268 / 281 | 95.37% |
+| src/commands/whoami.rs | 60 / 63 | 95.24% |
+| src/commands/xargs.rs | 394 / 467 | 84.37% |
+| src/commands/yes.rs | 36 / 37 | 97.30% |
+| src/common/args.rs | 270 / 277 | 97.47% |
+| src/common/bre.rs | 428 / 473 | 90.49% |
+| src/common/color.rs | 136 / 149 | 91.28% |
+| src/common/datetime/format.rs | 122 / 134 | 91.04% |
+| src/common/datetime/mod.rs | 26 / 28 | 92.86% |
+| src/common/datetime/parse.rs | 449 / 482 | 93.15% |
+| src/common/error.rs | 42 / 45 | 93.33% |
+| src/common/escape.rs | 123 / 143 | 86.01% |
+| src/common/execution.rs | 3 / 3 | 100.00% |
+| src/common/external.rs | 359 / 371 | 96.77% |
+| src/common/io.rs | 95 / 107 | 88.79% |
+| src/common/meta.rs | 125 / 130 | 96.15% |
+| src/common/meta/identity.rs | 111 / 113 | 98.23% |
+| src/common/meta/owners.rs | 86 / 92 | 93.48% |
+| src/common/path.rs | 26 / 26 | 100.00% |
+| src/common/process.rs | 106 / 115 | 92.17% |
+| src/common/regex.rs | 144 / 154 | 93.51% |
+| src/common/size.rs | 61 / 61 | 100.00% |
+| src/diff/formats.rs | 195 / 208 | 93.75% |

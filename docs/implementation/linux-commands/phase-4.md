@@ -1,26 +1,15 @@
-# Phase 4 verification (in progress)
+# Phase 4 complete report
 
-Base: accepted Phase 3 c547543; native Phase 4 acceptance remains pending.
+- commits: f31680c adds the 16 commands and diff formats; b627899/1284748 repair platform/behavior checks; 6770af1 finalizes reference spelling and padding comparisons.
+- New commands: sed which tree uname whoami timeout kill pgrep pkill free cmp rev column dos2unix unix2dos chmod; registry total 107.
+- Tests: Windows 1,962, Linux 1,989 and macOS 1,980 passed; zero failures and zero ignored. GNU differential 2,715 passed, 0 failed, 39 documented skips. The separate gated metadata/hash/system oracle suites passed.
+- clippy/fmt: passed. All six [CI jobs](https://github.com/stevenke1981/linux-bash-command/actions/runs/43705680348) are green, including the three optimized release builds.
+- Coverage: common 2,712/2,903 (93.42%); commands 20,641/22,741 (90.77%); every measured module >=80%.
+- Incomplete/deferred: none for Phase 4. Phases 5-6 and final merge/install are separate deliverables.
+- Dependencies: no new crate; existing windows-sys enables process/security/job/toolhelp APIs.
 
-- New commands (16): sed which tree uname whoami timeout kill pgrep pkill free cmp rev column dos2unix unix2dos chmod; registry total107.
-- Existing gap: diff defaults to normal; explicit unified, context and side-by-side formats are supported.
-- Tests: complete Windows integration suite 1,962 passed, zero failures and zero ignored; native CI pending.
-- clippy/fmt: frozen Windows fmt --check and all-targets clippy with warnings denied passed.
-- Coverage: b627899 measured common 2,712/2,903 (93.42%) and commands 20,574/22,728 (90.53%). free and sed/inplace were below 80%; targeted regressions are included and a fresh native measurement is required.
-- Incomplete/deferred: Phase 4 final integration/gates; Phase 5-6 are separate work.
-- Dependencies: no new crate. Existing windows-sys adds only process/security/job/toolhelp feature APIs.
+Diff now defaults to normal format and supports explicit unified, context and side-by-side formats. Reference configuration and intentional GNU differences are recorded in 06/07: required UTF-8 tree branches with ordinary spaces, shared short-option forms, which information options, sed syntax statuses, UTF-8 rev, and converter aliases/statuses.
 
-Independent Astra reviews found and verified repair candidates for sed large-subject matching and explicit quit statuses; process inverse selection/counts and macOS signals; private atomic converter temporaries, complete newfile pairs, stdin/streaming/BOM rules; cmp streams/arguments; free repeated reports/numbers/metrics; Windows executable discovery/version; chmod filename preservation/directory special modes. Coordinator regressions and native CI must verify the integrated result. The timeout leader-exit question follows GNU9.4: escalation applies while COMMAND is still running, with no delayed signal after reaping.
+Independent Astra reviews verified the finite sed, process, converter, cmp, system-information and chmod repairs. Windows process tests compile minimal owned child fixtures; copied full test runners had triggered the host antivirus. Security settings were never changed. Mac filesystems that reject invalid UTF-8 filenames report that capability explicitly; raw process bytes remain unit-tested on Unix and the real path probe runs on capable filesystems.
 
-All mutating tests use temporary sandboxes. Dedicated owned child fixtures test process control; unrelated processes are never signaled. No GNU source was read or ported. New source files stay within800lines. Known GNU/spec differences are recorded in 07-phases.md after native comparison.
-
-Astra independently verified the finite review repairs. The final integration additionally checks literal marker-like filenames, directory special bits, legal empty/numeric mode actions, no-clobber publication and read-only staging cleanup. Process tests compile a minimal owned child fixture in each sandbox instead of copying the complete test runner; the host antivirus had blocked two copied runner fixtures. Security settings were not changed.
-
-
-Native follow-up repaired case-sensitive fixtures, platform-only helper cfgs,
-GNU fixture ID validation, and macOS filesystems that reject invalid UTF-8
-filenames. The raw-byte process-name unit still runs on Unix; the real filename
-probe reports unsupported filesystems explicitly. Tree root counts and column
-blank-row/table-option semantics now follow the Ubuntu reference. Reference
-configuration and intentional specification differences are recorded in 06/07.
-The final local gate log is `.git/agent-evidence/p4-ci-repairs-full.log`.
+Mutations stay in temporary sandboxes, and process control targets only owned children. No GNU source was read or ported; all new source files stay within 800 lines. Full per-file coverage is in coverage.md.

@@ -174,7 +174,10 @@ fn integer(
         _ => crate::commands::printf::float_format(value.abs(), b'f', Some(0), false),
     };
     if let Some(precision) = precision {
-        if precision == 0 && value == 0.0 {
+        if precision == 0
+            && value == 0.0
+            && !(flags.contains(&b'#') && matches!(conversion, b'x' | b'X'))
+        {
             digits.clear();
         }
         if digits.len() < precision {
@@ -312,6 +315,18 @@ mod tests {
             )
             .unwrap(),
             b"1000000000000000019884624838656 1e+30"
+        );
+    }
+    #[test]
+    fn alternate_zero_hex_retains_a_digit_at_zero_precision() {
+        assert_eq!(
+            render(
+                b"[%5.0d][%#.0o][%#.0x][%#.0X][%.0x]",
+                &vec![Scalar::Number(0.0); 5],
+                b"%.6g",
+            )
+            .unwrap(),
+            b"[     ][0][0][0][]",
         );
     }
 }

@@ -173,7 +173,7 @@ mod file_cli {
         b.write("sample", b"hi");
         assert_eq!(
             b.run("file", &["-0", "-b", "sample"], b"").stdout,
-            b"ASCII text, with no line terminators\0"
+            b"ASCII text, with no line terminators\n"
         );
         assert_eq!(
             out(&b.run("file", &["--mime-type", "sample"], b"")),

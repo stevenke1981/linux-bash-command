@@ -393,7 +393,11 @@ fn print_row<W: Write + ?Sized>(
         cols
     };
     let width = width_cols * if o.binary { 8 } else { 2 } + (cols - 1) / group;
-    write!(out, "{radix}: {field:<width$}  ")?;
+    write!(
+        out,
+        "{radix}: {field:<width$}  {}",
+        if o.little { " " } else { "" }
+    )?;
     for b in row {
         out.write_all(&[ascii(*b)])?;
     }
@@ -409,7 +413,7 @@ fn print_little_ungrouped<W: Write + ?Sized>(
     cols: usize,
     upper: bool,
 ) -> stdio::Result<()> {
-    let display_len = cols * 2 + 2 + row.len();
+    let display_len = cols * 2 + 3 + row.len();
     let max_index = row
         .iter()
         .enumerate()
@@ -427,7 +431,7 @@ fn print_little_ungrouped<W: Write + ?Sized>(
         let at = index * 2 + index / cols;
         field[at] = digits[(byte >> 4) as usize];
         field[at + 1] = digits[(byte & 15) as usize];
-        field[cols * 2 + 2 + i] = ascii(byte);
+        field[cols * 2 + 3 + i] = ascii(byte);
     }
     write!(out, "{radix}: ")?;
     out.write_all(&field[..display_len])?;

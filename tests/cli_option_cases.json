@@ -327,7 +327,7 @@
     "files": {
       "f": ""
     },
-    "stdout": "f: empty\u0000",
+    "stdout": "f\u0000: empty\n",
     "exit": 0
   },
   {

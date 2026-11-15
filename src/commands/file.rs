@@ -4,14 +4,14 @@ use crate::common::{
 };
 use std::{ffi::OsString, fs, io::Read, path::Path};
 
-const HELP: &str = "Usage: file [OPTION...] FILE...\nDetermine file type.\n  -b, --brief             do not prepend filenames\n  -i, --mime              output MIME type and encoding\n      --mime-type         output MIME type\n      --mime-encoding     output MIME encoding\n  -L, --dereference       follow symbolic links\n  -h, --no-dereference    do not follow symbolic links\n  -f, --files-from=FILE   read names from FILE\n  -0, --print0            terminate output with NUL\n      --help              display this help\n      --version           output version information\n";
+const HELP: &str = "Usage: file [OPTION...] FILE...\nDetermine file type.\n  -b, --brief             do not prepend filenames\n  -i, --mime              output MIME type and encoding\n      --mime-type         output MIME type\n      --mime-encoding     output MIME encoding\n  -L, --dereference       follow symbolic links\n  -h, --no-dereference    do not follow symbolic links\n  -f, --files-from=FILE   read names from FILE\n  -0, --print0            use NUL after filenames (twice: after descriptions too)\n      --help              display this help\n      --version           output version information\n";
 #[derive(Default)]
 struct Opt {
     brief: bool,
     mime: Option<u8>,
     follow: bool,
     from: Option<String>,
-    nul: bool,
+    nul: u8,
     files: Vec<String>,
 }
 fn parse(a: &[String]) -> Result<Opt, i32> {
@@ -24,6 +24,18 @@ fn parse(a: &[String]) -> Result<Opt, i32> {
         OptSpec::flag("no-dereference", 'h'),
         OptSpec::value("files-from", 'f'),
         OptSpec::flag("print0", '0'),
+        OptSpec {
+            id: "uncompress-short",
+            short: 'z',
+            long: "",
+            has_arg: args::HasArg::No,
+        },
+        OptSpec {
+            id: "uncompress-long",
+            short: '\0',
+            long: "uncompress",
+            has_arg: args::HasArg::No,
+        },
     ];
     let it = args::parse_command("file", a, HELP, &s, true)?;
     let mut o = Opt::default();
@@ -37,7 +49,15 @@ fn parse(a: &[String]) -> Result<Opt, i32> {
             Item::Opt("dereference", _) => o.follow = true,
             Item::Opt("no-dereference", _) => o.follow = false,
             Item::Opt("files-from", Some(v)) => o.from = Some(v),
-            Item::Opt("print0", _) => o.nul = true,
+            Item::Opt("print0", _) => o.nul = o.nul.saturating_add(1),
+            Item::Opt("uncompress-short", _) => {
+                eprintln!("file: option '-z' is not supported by agentcmd");
+                return Err(1);
+            }
+            Item::Opt("uncompress-long", _) => {
+                eprintln!("file: option '--uncompress' is not supported by agentcmd");
+                return Err(1);
+            }
             _ => unreachable!(),
         }
     }
@@ -444,39 +464,45 @@ pub fn run(a: &[String]) -> i32 {
     if files.is_empty() {
         return error::usage("file", "missing file operand", 1);
     }
+    let filename_width = files
+        .iter()
+        .map(|p| p.to_string_lossy().chars().count())
+        .max()
+        .unwrap_or(0);
     io::output("file", |out| {
         for p in files {
-            let (desc, mime, extra) = match inspect(Path::new(&p), o.follow) {
-                Ok(x) => x,
-                Err(e) => {
-                    if !o.brief {
-                        write!(out, "{}: ", p.to_string_lossy())?;
+            let result = match inspect(Path::new(&p), o.follow) {
+                Err(message) => message,
+                Ok((desc, mime, extra)) => match o.mime {
+                    Some(1) => mime,
+                    Some(2) => encoding(&mime, &desc).to_owned(),
+                    Some(_) => format!("{mime}; charset={}", encoding(&mime, &desc)),
+                    None => {
+                        if extra.is_empty() {
+                            desc
+                        } else if desc == "ELF" {
+                            format!("{desc} {}", extra.trim_start_matches(", "))
+                        } else if desc == "PE32" || desc == "PE32+" || extra.starts_with(", ") {
+                            format!("{desc}{extra}")
+                        } else {
+                            format!("{desc}, version {extra}")
+                        }
                     }
-                    writeln!(out, "{e}")?;
-                    continue;
-                }
-            };
-            let result = match o.mime {
-                Some(1) => mime,
-                Some(2) => encoding(&mime, &desc).to_owned(),
-                Some(_) => format!("{mime}; charset={}", encoding(&mime, &desc)),
-                None => {
-                    if extra.is_empty() {
-                        desc
-                    } else if desc == "ELF" {
-                        format!("{desc} {}", extra.trim_start_matches(", "))
-                    } else if desc == "PE32" || desc == "PE32+" || extra.starts_with(", ") {
-                        format!("{desc}{extra}")
-                    } else {
-                        format!("{desc}, version {extra}")
-                    }
-                }
+                },
             };
             if !o.brief {
-                write!(out, "{}: ", p.to_string_lossy())?
+                write!(out, "{}", p.to_string_lossy())?;
+                if o.nul > 0 {
+                    out.write_all(b"\0")?;
+                }
+                if o.nul < 2 {
+                    let padding =
+                        filename_width.saturating_sub(p.to_string_lossy().chars().count());
+                    write!(out, ": {:padding$}", "")?;
+                }
             }
-            write!(out, "{result}")?;
-            out.write_all(&[if o.nul { 0 } else { b'\n' }])?;
+            out.write_all(result.as_bytes())?;
+            out.write_all(&[if o.nul >= 2 { 0 } else { b'\n' }])?;
         }
         Ok(())
     })

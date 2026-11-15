@@ -298,8 +298,7 @@
       "stdin": "",
       "files": {},
       "gnu": [
-        "gawk",
-        "--posix"
+        "gawk"
       ],
       "compare": [
         "stdout",
@@ -315,8 +314,7 @@
       "stdin": "",
       "files": {},
       "gnu": [
-        "gawk",
-        "--posix"
+        "gawk"
       ],
       "compare": [
         "stdout",
@@ -332,8 +330,7 @@
       "stdin": "",
       "files": {},
       "gnu": [
-        "gawk",
-        "--posix"
+        "gawk"
       ],
       "compare": [
         "stdout",
@@ -349,8 +346,7 @@
       "stdin": "",
       "files": {},
       "gnu": [
-        "gawk",
-        "--posix"
+        "gawk"
       ],
       "compare": [
         "stdout",
@@ -366,8 +362,7 @@
       "stdin": "",
       "files": {},
       "gnu": [
-        "gawk",
-        "--posix"
+        "gawk"
       ],
       "compare": [
         "stdout",
@@ -400,8 +395,7 @@
       "stdin": "",
       "files": {},
       "gnu": [
-        "gawk",
-        "--posix"
+        "gawk"
       ],
       "compare": [
         "stdout",
@@ -417,8 +411,7 @@
       "stdin": "",
       "files": {},
       "gnu": [
-        "gawk",
-        "--posix"
+        "gawk"
       ],
       "compare": [
         "stdout",
@@ -553,8 +546,7 @@
       "stdin": "",
       "files": {},
       "gnu": [
-        "gawk",
-        "--posix"
+        "gawk"
       ],
       "compare": [
         "stdout",
@@ -2637,8 +2629,7 @@
       "stdin": "",
       "files": {},
       "gnu": [
-        "gawk",
-        "--posix"
+        "gawk"
       ],
       "compare": [
         "stdout",
@@ -3447,8 +3438,7 @@
       "stdin": "",
       "files": {},
       "gnu": [
-        "gawk",
-        "--posix"
+        "gawk"
       ],
       "compare": [
         "stdout",
@@ -4098,7 +4088,24 @@
     {
       "name": "literal_nonnumeric_intervals",
       "args": [
-        "BEGIN{print match(\"a{,2}\",/a{,2}/),match(\"a{,}\",/a{,}/),match(\"a{}\",/a{}/)}"
+        "BEGIN{print match(\"a{,}\",/a{,}/),RLENGTH}"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "gawk",
+        "--posix"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "literal_empty_lower_interval",
+      "args": [
+        "BEGIN{print match(\"a{,2}\",/a{,2}/),RLENGTH}"
       ],
       "stdin": "",
       "files": {},

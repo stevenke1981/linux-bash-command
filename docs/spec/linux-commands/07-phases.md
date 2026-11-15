@@ -117,8 +117,10 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | awk | Syntax errors return 2; GNU gawk returns 1 | Explicit 04 status contract | `awk/bad_syntax_spec_status` (skip), `phase5_awk` syntax-error golden |
 | awk | Function-call nesting is limited to 1024; oversized regex compilation fails cleanly with status 2 | Keep interpreter recursion and compilation resources bounded: separate 10 MiB validator/NFA payload budgets, validator AST nesting 250, at most 128 cached dynamic patterns | Deep-call and oversized-regex CLI regressions |
 | awk | `length()` decodes UTF-8 independently of locale; random sequences are implementation-defined | Explicit 02/04 text contract; `rand()` promises range/state behavior rather than GNU's exact generator | Builtin unit/CLI goldens |
-| awk | Required `**` and multi-byte regex `RS` extensions use default gawk as reference | gawk `--posix` disables the extensions explicitly required by 04; ordinary cases retain `--posix` | Enabled extension fixtures; no skipped extension behavior |
+| awk | Required `**`, multi-byte regex `RS`, and `length(array)` extensions use default gawk as reference | The Ubuntu gawk version in `--posix` mode disables extensions explicitly required by 04; ordinary cases retain `--posix` | Enabled extension fixtures; no skipped extension behavior |
 | patch | An already-applied patch under `-t` is skipped rather than automatically reversed | Explicit 04 forward/batch skip contract | Whole-file forward/batch CLI goldens |
+
+| patch | Accepts valid Git empty-file creation with unquoted space names; Ubuntu GNU patch rejects that header | 04 explicitly requires Git diff/new-file-mode support; independently generated with `git diff --cached` and observed in native Ubuntu comparison | `patch/git-empty-space` (skip), exact path/content CLI golden |
 
 ## 回報格式（每階段完成時，Codex 輸出）
 

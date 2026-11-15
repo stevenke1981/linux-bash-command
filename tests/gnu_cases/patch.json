@@ -702,7 +702,8 @@
         "stdout",
         "exit",
         "files"
-      ]
+      ],
+      "skip_reason": "04 requires valid Git diff/new-file-mode extensions including unquoted space names; Ubuntu GNU patch rejects this valid empty-file creation. phase5_patch::git_empty_file_with_spaces_in_header verifies the required file."
     },
     {
       "name": "git-empty-delete-nonempty",

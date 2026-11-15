@@ -255,9 +255,12 @@ pub fn argument(bytes: &[u8]) -> Result<Vec<u8>, String> {
     while at < bytes.len() {
         let byte = bytes[at];
         at += 1;
-        if byte != b'\\' || at == bytes.len() {
+        if byte != b'\\' {
             out.push(byte);
             continue;
+        }
+        if at == bytes.len() {
+            break;
         }
         let next = bytes[at];
         at += 1;
@@ -344,7 +347,8 @@ mod tests {
     #[test]
     fn assignment_escapes_are_data_and_follow_posix_rules() {
         assert_eq!(argument(b"a\\\"b").unwrap(), b"a\"b");
-        assert_eq!(argument(b"last\\").unwrap(), b"last\\");
+        assert_eq!(argument(b"last\\").unwrap(), b"last");
+        assert_eq!(argument(b"last\\\\").unwrap(), b"last\\");
         assert_eq!(argument(br"\141\x41").unwrap(), b"ax41");
         assert!(argument(b"a\nb").is_err());
     }

@@ -162,7 +162,7 @@ mod tests {
     }
     #[test]
     fn incomplete_intervals_are_literal_braces() {
-        for bytes in [b"a{b".as_slice(), b"a{", b"a}", b"a{,2}", b"a{,}", b"a{}"] {
+        for bytes in [b"a{b".as_slice(), b"a{", b"a}", b"a{,2}", b"a{,}"] {
             let pattern = Pattern::new(bytes).unwrap();
             assert!(pattern.is_match(bytes));
             assert_eq!(pattern.find(bytes, 0), Some((0, bytes.len())));
@@ -171,7 +171,7 @@ mod tests {
             Pattern::new(b"a{2,3}").unwrap().find(b"aaaa", 0),
             Some((0, 3))
         );
-        for bytes in [b"a{3,2}".as_slice(), b"a{2,3,4}", b"a{2,", b"a{2"] {
+        for bytes in [b"a{3,2}".as_slice(), b"a{2,3,4}", b"a{2,", b"a{2", b"a{}"] {
             assert!(Pattern::new(bytes).is_err());
         }
     }

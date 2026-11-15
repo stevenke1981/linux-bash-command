@@ -282,7 +282,13 @@ fn quoted_non_utf8_paths_preserve_raw_bytes() {
     use std::os::unix::ffi::OsStringExt;
     let s = Sandbox::new();
     let name = std::ffi::OsString::from_vec(b"f\xff".to_vec());
-    std::fs::write(s.path.join(&name), b"old\n").unwrap();
+    if let Err(error) = std::fs::write(s.path.join(&name), b"old\n") {
+        if error.raw_os_error() == Some(libc::EILSEQ) {
+            eprintln!("filesystem does not support non-UTF-8 filenames: {error}");
+            return;
+        }
+        panic!("write raw patch fixture: {error}");
+    }
     let diff = b"--- \"a/f\\377\"\n+++ \"b/f\\377\"\n@@ -1 +1 @@\n-old\n+new\n";
     good(&run(&s, &["-p1"], diff));
     assert_eq!(std::fs::read(s.path.join(&name)).unwrap(), b"new\n");

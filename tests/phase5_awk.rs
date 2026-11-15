@@ -11,12 +11,30 @@ fn incomplete_regex_intervals_match_literal_braces() {
     let s = Sandbox::new();
     success(
         s.run(
-            &[r#"BEGIN{print match("a{b",/a{b/),match("a{",/a{/),match("a}",/a}/),match("a{,2}",/a{,2}/),match("a{}",/a{}/)}"#],
+            &[r#"BEGIN{print match("a{b",/a{b/),match("a{",/a{/),match("a}",/a}/),match("a{,2}",/a{,2}/),match("a{q}",/a{q}/)}"#],
             b"",
         ),
         b"1 1 1 1 1\n",
     );
     error(s.run(&["BEGIN{print /a{2,/}"], b""), 2, "syntax error");
+    error(s.run(&["BEGIN{print /a{}/}"], b""), 2, "syntax error");
+}
+#[test]
+fn ubuntu_reference_format_and_assignment_edges() {
+    let s = Sandbox::new();
+    success(
+        s.run(
+            &["BEGIN{printf \"[%5.0d][%#.0o][%#.0x][%#.0X][%.0x]\\n\",0,0,0,0,0}"],
+            b"",
+        ),
+        b"[     ][0][0][0][]\n",
+    );
+    for args in [
+        ["-v", "x=a\\", "BEGIN{printf \"[%s]\\n\",x}"].as_slice(),
+        ["END{printf \"[%s]\\n\",x}", "x=a\\"].as_slice(),
+    ] {
+        success(s.run(args, b""), b"[a]\n");
+    }
 }
 struct Sandbox(PathBuf);
 impl Sandbox {

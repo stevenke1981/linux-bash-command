@@ -78,7 +78,7 @@ fn exact_short_rows_and_include() {
     );
     assert_eq!(
         s.run("xxd", &["-e"], b"ABC").stdout,
-        b"00000000:   434241                             ABC\n"
+        b"00000000:   434241                              ABC\n"
     );
     assert_eq!(
         s.run(
@@ -176,7 +176,95 @@ fn unix_raw_filename_list() {
     use std::os::unix::ffi::OsStringExt;
     let s = Sandbox::new();
     let name = std::ffi::OsString::from_vec(vec![b'x', 0xff]);
-    fs::write(s.0.join(name), b"").unwrap();
+    if let Err(error) = fs::write(s.0.join(name), b"") {
+        if error.raw_os_error() == Some(libc::EILSEQ) {
+            eprintln!("filesystem does not support non-UTF-8 filenames (EILSEQ)");
+            return;
+        }
+        panic!("cannot create non-UTF-8 filename: {error}");
+    }
     let o = s.run("file", &["-b", "-f", "-"], b"x\xff\n");
     assert_eq!(o.stdout, b"empty\n");
+}
+
+#[test]
+fn ubuntu_2404_little_endian_captured_goldens() {
+    let sandbox = Sandbox::new();
+    type CapturedCase = (
+        &'static str,
+        &'static [&'static str],
+        &'static [u8],
+        &'static [u8],
+    );
+    let cases: &[CapturedCase] = &[
+        ("little-endian", &["-e", "-g", "2"], b"ABCD", b"00000000: 4241 4443                                 ABCD\n"),
+        ("little-short-1", &["-e"], b"A", b"00000000:       41                              A\n"),
+        ("little-short-3", &["-e"], b"ABC", b"00000000:   434241                              ABC\n"),
+        ("little-five", &["-e"], b"ABCDE", b"00000000: 44434241       45                     ABCDE\n"),
+        ("little-group-2", &["-e", "-g", "2"], b"ABC", b"00000000: 4241   43                                 ABC\n"),
+        ("little-odd-short", &["-e", "-c", "7", "-g", "4"], b"ABCDEFGHIJK", b"00000000: 44434241   474645   ABCDEFG\n00000007: 4b4a4948            HIJK\n"),
+        ("little-ungrouped-3", &["-e", "-g0", "-c", "3"], b"ABCDEFGHIJKLMNOP", b"00000000: 43  41 42ABC\n00000003: 46  44 45DEF\n00000006: 49  47 48GHI\n00000009: 4c  4a 4bJKL\n0000000c: 4f  4d 4eMNO\n0000000f:     50   P\n"),
+        ("little-ungrouped-5", &["-e", "-g0", "-c", "5"], b"ABCDEFGHIJKLMNOP", b"00000000: 45      41 42434DE\n00000005: 4a      46 47484IJ\n0000000a: 4f      4b 4c4d4NO\n0000000f:         50   P\n"),
+        ("little-ungrouped-6", &["-e", "-g0", "-c", "6"], b"ABCDEFGHIJKLMNOP", b"00000000: 4645    4241 4443CDEF\n00000006: 4c4b    4847 4a49IJKL\n0000000c:         4e4d 504fOP\n"),
+        ("little-ungrouped-7", &["-e", "-g0", "-c", "7"], b"ABCDEFGHIJKLMNOP", b"00000000: 47  4546434441 42ABCDEFG\n00000007: 4e  4c4d4a4b48 49HIJKLMN\n0000000e:             4f 50OP\n"),
+        ("little-ungrouped-9", &["-e", "-g0", "-c", "9"], b"ABCDEFGHIJKLMNOP", b"00000000: 49              41 42434DEFGHI\n00000009:                 4a 4b4c4MNOP\n"),
+        ("little-group-exceeds-columns-2", &["-e", "-g", "5", "-c", "2"], b"ABCDEFGHIJKLMNOP", b"00000000: 4241   AB\n00000002: 4443   CD\n00000004: 4645   EF\n00000006: 4847   GH\n00000008: 4a49   IJ\n0000000a: 4c4b   KL\n0000000c: 4e4d   MN\n0000000e: 504f   OP\n"),
+        ("little-group-exceeds-columns-3", &["-e", "-g", "5", "-c", "3"], b"ABCDEFGHIJKLMNOP", b"00000000: 43  41 42ABC\n00000003: 46  44 45DEF\n00000006: 49  47 48GHI\n00000009: 4c  4a 4bJKL\n0000000c: 4f  4d 4eMNO\n0000000f:     50   P\n"),
+    ];
+    for &(name, args, input, expected) in cases {
+        let actual = sandbox.run("xxd", args, input);
+        assert!(actual.status.success(), "{name}");
+        assert_eq!(actual.stdout, expected, "{name}");
+    }
+}
+
+#[test]
+fn nul_framing_and_unsupported_uncompress() {
+    let s = Sandbox::new();
+    s.write("f", b"");
+    for (args, expected) in [
+        (&["-0", "f"][..], &b"f\0: empty\n"[..]),
+        (&["--print0", "f"][..], &b"f\0: empty\n"[..]),
+        (&["-00", "f"][..], &b"f\0empty\0"[..]),
+        (&["-000", "f"][..], &b"f\0empty\0"[..]),
+        (&["-b", "-0", "f"][..], &b"empty\n"[..]),
+        (&["-b", "-00", "f"][..], &b"empty\0"[..]),
+        (
+            &["-0", "missing"][..],
+            &b"missing\0: cannot open `missing' (No such file or directory)\n"[..],
+        ),
+        (
+            &["-00", "missing"][..],
+            &b"missing\0cannot open `missing' (No such file or directory)\0"[..],
+        ),
+        (
+            &["-b", "-0", "missing"][..],
+            &b"cannot open `missing' (No such file or directory)\n"[..],
+        ),
+        (
+            &["-b", "-00", "missing"][..],
+            &b"cannot open `missing' (No such file or directory)\0"[..],
+        ),
+    ] {
+        let result = s.run("file", args, b"");
+        assert_eq!(result.status.code(), Some(0), "{args:?}");
+        assert_eq!(result.stdout, expected, "{args:?}");
+    }
+    let result = s.run("file", &["-0", "f", "missing"], b"");
+    assert_eq!(result.status.code(), Some(0));
+    assert_eq!(
+        result.stdout,
+        b"f\0:       empty\nmissing\0: cannot open `missing' (No such file or directory)\n"
+    );
+    for (flag, expected) in [
+        ("-z", "file: option '-z' is not supported by agentcmd\n"),
+        (
+            "--uncompress",
+            "file: option '--uncompress' is not supported by agentcmd\n",
+        ),
+    ] {
+        let result = s.run("file", &[flag, "f"], b"");
+        assert_eq!(result.status.code(), Some(1));
+        assert_eq!(result.stderr, expected.as_bytes());
+    }
 }

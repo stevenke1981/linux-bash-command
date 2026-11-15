@@ -208,7 +208,13 @@ fn gzip_recursive_preserves_non_utf8_names() {
     let s = Sandbox::new();
     fs::create_dir(s.path.join("dir")).unwrap();
     let name = OsString::from_vec(b"f\xff".to_vec());
-    fs::write(s.path.join("dir").join(&name), b"data").unwrap();
+    if let Err(error) = fs::write(s.path.join("dir").join(&name), b"data") {
+        if error.raw_os_error() == Some(libc::EILSEQ) {
+            eprintln!("filesystem does not support non-UTF-8 filenames: {error}");
+            return;
+        }
+        panic!("create non-UTF-8 gzip fixture: {error}");
+    }
     ok(&run(&s, "gzip", &["-r", "dir"], b""));
     let mut compressed = name.clone();
     compressed.push(".gz");
