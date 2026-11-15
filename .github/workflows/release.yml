@@ -123,10 +123,21 @@ jobs:
           $dir = Join-Path $env:RUNNER_TEMP 'agent-commands-install'
           $installer = Start-Process -Wait -PassThru -WindowStyle Hidden -FilePath $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=$dir"
           if ($installer.ExitCode -ne 0) { throw "Installer exited with code $($installer.ExitCode)" }
-          & "$dir\agentcmd.exe" --list | Select-Object -First 3
-          if ($LASTEXITCODE -ne 0) { exit 1 }
-          'hi' | & "$dir\wc.exe" -l
-          if ($LASTEXITCODE -ne 0) { exit 1 }
+          $commands = @(& "$dir\agentcmd.exe" --list)
+          if ($LASTEXITCODE -ne 0) { throw "agentcmd --list failed with code $LASTEXITCODE" }
+          if ($commands.Count -ne 115) { throw "Expected 115 commands, got $($commands.Count)" }
+          foreach ($name in @('[', 'awk', 'gzip', 'link', 'sed', 'tar', 'test', 'whoami', 'zcat')) {
+            if ($commands -cnotcontains $name) { throw "Missing registry command: $name" }
+          }
+          $commands | Select-Object -First 3
+          $versionLines = @(& "$dir\agentcmd.exe" --version)
+          if ($LASTEXITCODE -ne 0) { throw "agentcmd --version failed with code $LASTEXITCODE" }
+          if ($versionLines.Count -ne 1 -or $versionLines[0] -cne "agentcmd $env:VERSION (multi-call binary)") {
+            throw "Unexpected agentcmd version: $versionLines"
+          }
+          $count = @('hi' | & "$dir\wc.exe" -l)
+          if ($LASTEXITCODE -ne 0) { throw "wc -l failed with code $LASTEXITCODE" }
+          if ($count.Count -ne 1 -or $count[0].Trim() -cne '1') { throw "Unexpected wc -l output: $count" }
       - name: Archive
         shell: bash
         run: |
