@@ -1,3 +1,4 @@
+mod formats;
 use similar::{capture_diff_slices, Algorithm, DiffOp};
 use std::collections::BTreeSet;
 use std::ffi::OsString;
@@ -15,7 +16,7 @@ const DEFAULT_CONTEXT: usize = 3;
 
 const USAGE: &str = concat!(
     "Usage: diff [OPTIONS] LEFT RIGHT\n",
-    "Compare two files, or two directories (-r recurses), and print a unified diff.\n",
+    "Compare two files, or two directories (-r recurses), and print a normal diff (use -u for unified output).\n",
     "\n",
     "Options:\n",
     "  -u, -U N, --unified[=N]       Unified format with N unchanged context lines (default: 3)\n",
@@ -30,19 +31,32 @@ const USAGE: &str = concat!(
     "      --strip-trailing-cr       Ignore a trailing carriage return on each line\n",
     "  -a, --text                    Compare binary-looking files as text\n",
     "      --label LABEL             Use LABEL in headers instead of the file name (up to two)\n",
-    "      --context N               Same as -U N\n",
+    "  -c, -C N, --context[=N]       Context format with N context lines (default 3)\n",
+    "  -y, --side-by-side            Print in two columns\n",
+    "  -W N, --width=N               Side-by-side output width (default 130)\n",
+    "      --normal                  Normal format (default)\n",
     "      --color[=WHEN]            Color hunks on a terminal: auto (bare --color), always, never\n",
     "  -h, --help                    Show this help\n",
     "      --version                 Show the version\n",
     "\n",
-    "Not supported: -c, -C, -y, -e (only unified output is available).\n",
+    "Not supported: -e (ed script output).\n",
     "Exit status: 0 when equal, 1 when different, 2 on error.\n",
 );
 
+#[derive(Default, Clone, Copy, PartialEq)]
+enum Format {
+    #[default]
+    Normal,
+    Unified,
+    Context,
+    Side,
+}
 /// Options that change how files are compared or how the result is reported.
 #[derive(Default)]
 struct Options {
     context: usize,
+    format: Format,
+    width: usize,
     brief: bool,
     report_identical: bool,
     recursive: bool,
@@ -88,6 +102,7 @@ pub fn run(args: &[String]) -> i32 {
 fn parse_args(args: &[String]) -> Result<(Options, Vec<String>), i32> {
     let mut options = Options {
         context: DEFAULT_CONTEXT,
+        width: 130,
         ..Options::default()
     };
     let mut paths = Vec::new();
@@ -116,6 +131,7 @@ fn parse_args(args: &[String]) -> Result<(Options, Vec<String>), i32> {
                     "unified",
                     "label",
                     "context",
+                    "width",
                     "color",
                     "side-by-side",
                     "ed",
@@ -174,16 +190,19 @@ fn parse_long(
         "ignore-case" => options.ignore_case = true,
         "strip-trailing-cr" => options.strip_trailing_cr = true,
         "text" => options.text = true,
-        "unified" => {}
+        "unified" => options.format = Format::Unified,
         "label" => {
             let label = next_value(args, index, "--label")?;
             push_label(options, label)?;
         }
-        "context" => {
-            let value = next_value(args, index, "--context")?;
-            options.context = parse_context(value)?;
+        "context" => options.format = Format::Context,
+        "normal" => options.format = Format::Normal,
+        "side-by-side" => options.format = Format::Side,
+        "width" => {
+            let value = next_value(args, index, "--width")?;
+            options.width = parse_context(value)?.max(1);
         }
-        "side-by-side" | "ed" | "normal" | "context-format" => {
+        "ed" | "context-format" => {
             eprintln!("diff: --{name} is not supported (only unified output is available)");
             return Err(2);
         }
@@ -198,6 +217,13 @@ fn parse_long_with_value(name: &str, arg: &str, options: &mut Options) -> Result
         .or_else(|| name.strip_prefix("context="))
     {
         options.context = parse_context(value)?;
+        options.format = if name.starts_with("unified=") {
+            Format::Unified
+        } else {
+            Format::Context
+        };
+    } else if let Some(value) = name.strip_prefix("width=") {
+        options.width = parse_context(value)?.max(1);
     } else if let Some(label) = name.strip_prefix("label=") {
         push_label(options, label)?;
     } else if let Some(value) = color::color_arg(arg) {
@@ -217,7 +243,9 @@ fn parse_short(
 ) -> Result<(), i32> {
     for (offset, flag) in flags.char_indices() {
         match flag {
-            'u' => {}
+            'u' => options.format = Format::Unified,
+            'c' => options.format = Format::Context,
+            'y' => options.format = Format::Side,
             'q' => options.brief = true,
             's' => options.report_identical = true,
             'r' => options.recursive = true,
@@ -227,21 +255,30 @@ fn parse_short(
             'B' => options.ignore_blank_lines = true,
             'i' => options.ignore_case = true,
             'a' => options.text = true,
-            'U' => {
+            'U' | 'C' | 'W' => {
                 let rest = &flags[offset + flag.len_utf8()..];
                 let value = if rest.is_empty() {
                     next_value(args, index, "-U")?
                 } else {
                     rest
                 };
-                options.context = parse_context(value)?;
+                if flag == 'W' {
+                    options.width = parse_context(value)?.max(1);
+                } else {
+                    options.context = parse_context(value)?;
+                    options.format = if flag == 'C' {
+                        Format::Context
+                    } else {
+                        Format::Unified
+                    };
+                }
                 return Ok(());
             }
             'h' => {
                 print!("{USAGE}");
                 return Err(0);
             }
-            'c' | 'C' | 'y' | 'e' => {
+            'e' => {
                 eprintln!("diff: -{flag} is not supported (only unified output is available)");
                 return Err(2);
             }
@@ -382,9 +419,34 @@ fn compare_loaded(
 ) -> Result<(i32, Vec<u8>), String> {
     let left_bytes = load(left, options.new_file)?;
     let right_bytes = load(right, options.new_file)?;
-    Ok(report_pair(&left_bytes, &right_bytes, names, options))
+    let context_names = if options.format == Format::Context {
+        Some((
+            context_name(left, &names.0, 0, options),
+            context_name(right, &names.1, 1, options),
+        ))
+    } else {
+        None
+    };
+    Ok(report_pair(
+        &left_bytes,
+        &right_bytes,
+        context_names.as_ref().unwrap_or(names),
+        options,
+    ))
 }
 
+fn context_name(path: &Path, name: &str, index: usize, options: &Options) -> String {
+    if options.labels.len() > index {
+        return name.to_owned();
+    }
+    let time = fs::metadata(path)
+        .and_then(|m| m.modified())
+        .unwrap_or(std::time::UNIX_EPOCH);
+    let stamp = crate::common::datetime::from_system_time(time)
+        .and_then(|date| crate::common::datetime::format(&date, "%Y-%m-%d %H:%M:%S.%N %z"))
+        .unwrap_or_default();
+    format!("{name}\t{stamp}")
+}
 fn load(path: &Path, new_file: bool) -> Result<Vec<u8>, String> {
     if path == Path::new("-") {
         let mut bytes = Vec::new();
@@ -564,6 +626,16 @@ fn report_pair(
             0,
             format!("Files {} and {} are identical\n", names.0, names.1).into_bytes(),
         ),
+        Comparison::Same if options.format == Format::Side && !options.brief => (
+            0,
+            formats::side(
+                &[],
+                &split_lines(left),
+                &split_lines(right),
+                options.width,
+                options.colored,
+            ),
+        ),
         Comparison::Same => (0, Vec::new()),
         Comparison::Binary if options.brief => (1, differ_message(names, "Files").into_bytes()),
         Comparison::Binary => (1, differ_message(names, "Binary files").into_bytes()),
@@ -624,6 +696,33 @@ fn unified_body(
     let ops = capture_diff_slices(Algorithm::Myers, &old_keys, &new_keys);
     let changes = collect_changes(&ops, &old_lines, &new_lines, options.ignore_blank_lines);
     let hunks = group_hunks(&changes, options.context, old_lines.len());
+    if !hunks.is_empty() {
+        match options.format {
+            Format::Normal => {
+                return Some(formats::normal(
+                    &changes,
+                    &old_lines,
+                    &new_lines,
+                    options.colored,
+                ))
+            }
+            Format::Context => {
+                return Some(formats::context(
+                    &hunks, &changes, &old_lines, &new_lines, names, options,
+                ))
+            }
+            Format::Side => {
+                return Some(formats::side(
+                    &changes,
+                    &old_lines,
+                    &new_lines,
+                    options.width,
+                    options.colored,
+                ))
+            }
+            Format::Unified => {}
+        }
+    }
     if hunks.is_empty() {
         return None;
     }
@@ -879,6 +978,7 @@ mod tests {
     fn text_options() -> Options {
         Options {
             context: 3,
+            format: super::Format::Unified,
             ..Options::default()
         }
     }

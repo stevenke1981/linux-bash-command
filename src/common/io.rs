@@ -26,10 +26,20 @@ pub fn output_status(
     failure: i32,
     action: impl FnOnce(&mut dyn Write) -> io::Result<()>,
 ) -> i32 {
+    output_result(command, failure, |out| action(out).map(|()| success))
+}
+
+/// Compute the final command status inside the output action. A closed pipe
+/// takes precedence over that status, including errors already reported.
+pub fn output_result(
+    command: &str,
+    failure: i32,
+    action: impl FnOnce(&mut dyn Write) -> io::Result<i32>,
+) -> i32 {
     let stdout = io::stdout();
     let mut out = BufWriter::with_capacity(BUFFER_SIZE, stdout.lock());
-    match action(&mut out).and_then(|()| out.flush()) {
-        Ok(()) => success,
+    match action(&mut out).and_then(|status| out.flush().map(|()| status)) {
+        Ok(status) => status,
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
             eprintln!("{command}: write error: {}", super::error::io_text(&error));

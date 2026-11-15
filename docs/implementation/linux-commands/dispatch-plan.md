@@ -18,9 +18,9 @@ in `docs/spec/linux-commands/`; its requirements and dependency order apply.
 | P2 system information | Luna | nproc, hostname, arch, uptime | P0 and P1 accepted |
 | P2 checksums, codecs and integration | Coordinator | 12 commands, registry, fixtures, CI | Worker handoffs |
 | P2 independent review | Astra / Terra / Sol | Filesystem/date / metadata / checksums and system | Frozen author snapshots |
-| P3 remaining aligned commands | Assigned engineers | Command modules, sort merge, tests | P2 accepted |
-| P4 extra commands A | Assigned engineers | Command modules and tests | P3 accepted |
-| P5 extra commands B | Assigned engineers | Command modules and tests | P4 accepted |
+| P3 remaining aligned commands | Sol/Terra xhigh, Luna, coordinator; Astra high review | 13 commands, external sort; accepted c547543 | P2 accepted |
+| P4 extra commands A | Sol/Terra xhigh, Luna, coordinator; Astra high review | 16 commands and diff formats | P3 accepted |
+| P5 extra commands B | Sol xhigh awk, Terra xhigh archives/repair, Luna initial xxd/file, coordinator patch; Astra high review | 8 commands | P4 accepted before delivery |
 | P6 packaging and delivery | Coordinator and reviewer | Packaging, release, local installation | P5 accepted |
 
 Each author has a separate worktree. Workers hand off uncommitted files;

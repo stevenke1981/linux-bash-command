@@ -1,0 +1,550 @@
+{
+  "command": "tree",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ascii",
+      "args": [
+        "--charset=ascii"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "directories",
+      "args": [
+        "-d"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "depth",
+      "args": [
+        "-L1"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "include",
+      "args": [
+        "-P*.txt"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "exclude",
+      "args": [
+        "-If*|a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "full",
+      "args": [
+        "-f"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "flat",
+      "args": [
+        "-i"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "classify",
+      "args": [
+        "-F"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "dirsfirst",
+      "args": [
+        "--dirsfirst"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "filesfirst",
+      "args": [
+        "--filesfirst"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "reverse",
+      "args": [
+        "-r"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version_sort",
+      "args": [
+        "-v"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "prune",
+      "args": [
+        "--prune",
+        "-P*.txt"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "matchdirs",
+      "args": [
+        "--matchdirs",
+        "-Pdir"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ignore_case",
+      "args": [
+        "--ignore-case",
+        "-PDIR"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "noreport",
+      "args": [
+        "--noreport"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "permissions",
+      "args": [
+        "-p"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "size_sort",
+      "args": [
+        "--sort=size"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "filelimit",
+      "args": [
+        "--filelimit=1"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "mtime",
+      "args": [
+        "-t"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ctime",
+      "args": [
+        "--sort=ctime"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "gitignore",
+      "args": [
+        "--gitignore"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n",
+        ".gitignore": "f*\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "json",
+      "args": [
+        "-J"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x\n",
+        "b": "yy\n",
+        "dir/c": "z\n",
+        "dir/d.txt": "d\n",
+        "f2": "2\n",
+        "f10": "10\n"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "absent"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "si_sizes",
+      "args": [
+        "--si"
+      ],
+      "files": {
+        "file": "x"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "explicit_timefmt",
+      "args": [
+        "--timefmt=%Y",
+        "--noreport"
+      ],
+      "files": {
+        "file": {
+          "text": "x",
+          "mtime": 1700000000
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

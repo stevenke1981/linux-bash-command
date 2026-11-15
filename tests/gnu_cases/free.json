@@ -1,0 +1,539 @@
+{
+  "command": "free",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bytes",
+      "args": [
+        "-b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "kibi",
+      "args": [
+        "-k"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "mebi",
+      "args": [
+        "-m"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "gibi",
+      "args": [
+        "-g"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "human",
+      "args": [
+        "-h"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "si",
+      "args": [
+        "--si"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "total",
+      "args": [
+        "-t"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "wide",
+      "args": [
+        "-w"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "lohi",
+      "args": [
+        "-l"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "repeat",
+      "args": [
+        "-s",
+        "0.01",
+        "-c",
+        "1"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--bytes",
+      "args": [
+        "--bytes"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--kibi",
+      "args": [
+        "--kibi"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--mebi",
+      "args": [
+        "--mebi"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--gibi",
+      "args": [
+        "--gibi"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--tebi",
+      "args": [
+        "--tebi"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--pebi",
+      "args": [
+        "--pebi"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--kilo",
+      "args": [
+        "--kilo"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--mega",
+      "args": [
+        "--mega"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--giga",
+      "args": [
+        "--giga"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--tera",
+      "args": [
+        "--tera"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--peta",
+      "args": [
+        "--peta"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--human",
+      "args": [
+        "--human"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--lohi",
+      "args": [
+        "--lohi"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--total",
+      "args": [
+        "--total"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--wide",
+      "args": [
+        "--wide"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_seconds",
+      "args": [
+        "--seconds=0.01",
+        "--count=1"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_count",
+      "args": [
+        "--count=1"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_interval_text",
+      "args": [
+        "--seconds=bad"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_interval_zero",
+      "args": [
+        "-s",
+        "0"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_interval_nan",
+      "args": [
+        "-s",
+        "NaN"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "zero_count",
+      "args": [
+        "-c",
+        "0"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "finite_interval_count",
+      "args": [
+        "-s",
+        "0.001",
+        "-c",
+        "2"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "count_without_interval",
+      "args": [
+        "-c",
+        "1"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "free"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

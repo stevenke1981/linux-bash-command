@@ -1,22 +1,18 @@
-# Phase 3 verification (in progress)
+# Phase 3 completion report
 
-Base: accepted Phase 2 `071f6a9`. This phase is accepted only after the final frozen source passes Windows/Linux/macOS, GNU comparison, lint and coverage.
+Accepted source: `c547543874dbc75bfefa3963b574657de7fbf994`.
 
-- Commits: implementation candidate pending.
-- New commands (13): join od split csplit fmt pr shuf tsort numfmt factor expr pathchk ptx; registry total 91.
-- Existing gap: stable bounded-memory external sort, including merge, unique, binary records and atomic output replacement. The deferred ignored test is now an executed spill regression.
-- Tests: Windows full suite 1,675 passed, zero failures, zero ignored; Unix and GNU gates pending.
-- clippy/fmt: Windows fmt --check and all-targets clippy with warnings denied passed.
-- Coverage: Ubuntu measurement pending.
-- Incomplete/deferred: final Phase 3 acceptance; Phase 4-6 remain separate work.
-- Dependencies: no new crate. NOTICE.md includes full MIT license and exact uutils revision for the three attributed formatting files.
+- Commits: `6b14214` data/formatting commands and external sorting; `b94ff48` GNU chunking/scales and coverage repairs; `c547543` GNU numeric rounding and portable early-reader tests.
+- New commands (13): join od split csplit fmt pr shuf tsort numfmt factor expr pathchk ptx; total91.
+- Existing gap completed: stable external sort with bounded memory and merge fan-in, unique/merge/NUL records, private spill cleanup, and atomic output replacement. The previously deferred ignored spill test now runs.
+- Tests: Windows1,698, Ubuntu1,721 and macOS1,713 passed; zero failures and zero ignored. GNU JSON2,175passed, zero failures,33documented skips. All six native CI jobs passed.
+- clippy/fmt: passed, including all-target warnings-as-errors.
+- Coverage: common2,675/2,868 (93.27%); commands15,693/17,314 (90.64%). Every measured common/command file exceeds80%.
+- Incomplete/deferred: none in Phase3. Phase4-6 remain separate work.
+- Dependencies: no new crate. Three attributed MIT uutils formatting files include exact revision and full license in NOTICE.md.
 
-Independent reviews identified and repaired repeat-output buffering, zero-count reads, range parsing, shared pr stdin, numeric option errors, unsafe tab-character slicing, line counter limits, expr capture-state growth/subgroup priority, closed stdout status, and atomic sort rewrite failure handling. Factor primality results use complete n-1 Pocklington certificates rather than probable-prime acceptance above u64; independent mathematical review found the certificate checks sound. Runtime has no worst-case factoring-time guarantee.
+Acceptance evidence: [CI run43697989178](https://github.com/stevenke1981/linux-bash-command/actions/runs/43697989178). This supersedes candidate runs43692908098 and43696088415. Per-file coverage is recorded in coverage.md.
 
-No GNU source was read or ported. Ubuntu 24.04 GNU 9.4 is the acceptance reference; local Git GNU 8.32 probes are provisional. Known differences appear in 07-phases.md. Source files stay within 800 lines; mutating tests are confined to temporary sandboxes.
+Independent reviews and measured regressions resolved shuf streaming/zero-count/range handling, shared pr stdin and tab-character validation, numfmt scaling/rounding, split chunk distribution, od operand checks, expr capture-state growth/subgroup priority/closed output status, and sort failure-safe rewrite. Contextual BRE matching uses constant-size matchers with one real adjacent byte; a100KB regression avoids subject-sized compiled regexes. Factor's u128 primality results use complete n-1 Pocklington certificates; independent mathematical review found the checks sound. Factoring has no worst-case runtime guarantee.
 
-First CI candidate: `6b14214`, [run 43692908098](https://github.com/stevenke1981/linux-bash-command/actions/runs/43692908098). Windows 1,675, Ubuntu 1,698 and macOS 1,690 tests passed, with no failures or ignored tests; all three builds and lint passed. GNU JSON: 2,146 passed, 11 failed, 29 skipped. Measured common coverage: 2,672/2,866 (93.23%); commands: 15,179/17,095 (88.79%). Four individual files remain below80% pending the targeted repair batch; this candidate is not accepted.
-
-Repair candidate Windows: 1,698 passed, zero failures and zero ignored; fmt/clippy passed. Repairs cover measured split chunk boundaries, R/Q scales, full-domain shuf rejection, and additional real coverage paths. Contextual BRE matching now uses a single real right-context byte with fixed-size regexes; a 100 KB boundary regression passes without compiling a subject-sized regex. Four confirmed GNU/spec differences are documented rather than silently changing required behavior. Final native CI and coverage remain pending.
-
-Second CI candidate b94ff48: common2,675/2,868 (93.27%); commands15,655/17,280 (90.60%); every individual file exceeds80%. GNU2,167passed/8failed/33documented skips; remaining differences were large decimal conversion rounding and unsigned unit-size limits. Ubuntu additionally exposed a test writer's early-reader BrokenPipe race. The next candidate repairs those three paths; full Windows1,698tests and fmt/all-targets clippy pass. Native acceptance remains pending.
+The known-differences table records required expr runtime status3, FIFO Kahn tsort order, safe csplit alias refusal and portable od long-double formatting. Native GNU9.4 supplied acceptance; Git GNU8.32 probes were provisional. No GNU source was read or ported. New files stay within800lines, and mutating tests use only temporary sandboxes.

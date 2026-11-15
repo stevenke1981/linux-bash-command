@@ -34,7 +34,10 @@ utilities! {
     "basenc" => crate::commands::basenc::run_basenc, "Encode and decode basenc streams", Ms, None;
     "cat" => crate::text_commands::cat, "Concatenate files", Existing, Some("PowerShell");
     "cd" => crate::cd_command::run, "Resolve a directory", Existing, Some("PowerShell");
+    "chmod" => crate::commands::chmod::run, "Run chmod", Extra, None;
     "cksum" => crate::commands::cksum::run, "Compute cksum checksums", Ms, None;
+    "cmp" => crate::commands::cmp::run, "Run cmp", Extra, None;
+    "column" => crate::commands::column::run, "Run column", Extra, None;
     "comm" => crate::commands::comm::run, "Compare sorted files", Ms, None;
     "cp" => crate::commands::fsops::cp::run, "Cp filesystem entries", Ms, None;
     "csplit" => crate::commands::csplit::run, "Split input by context patterns", Ms, None;
@@ -44,6 +47,7 @@ utilities! {
     "df" => crate::df_command::run, "Report filesystem space", Existing, None;
     "diff" => crate::diff::run, "Compare files", Existing, Some("PowerShell 5.1");
     "dirname" => crate::commands::pathname::run_dirname, "Remove final path component", Ms, None;
+    "dos2unix" => crate::commands::dos2unix::run, "Run dos2unix", Extra, None;
     "du" => crate::commands::du::run, "Report disk usage", Ms, None;
     "echo" => crate::commands::echo::run, "Display a line of text", Ms, Some("PowerShell");
     "egrep" => crate::commands::egrep::run, "Search extended regular expressions", Extra, None;
@@ -56,10 +60,12 @@ utilities! {
     "find" => crate::find_command::find, "Find files", Existing, Some("Windows");
     "fmt" => crate::commands::fmt::run, "Reflow text paragraphs", Ms, None;
     "fold" => crate::commands::fold::run, "Wrap input lines", Ms, None;
+    "free" => crate::commands::free::run, "Run free", Extra, None;
     "grep" => crate::grep_command::run, "Search text", Existing, None;
     "head" => crate::text_commands::head, "Print first lines", Existing, None;
     "hostname" => crate::commands::sysinfo_cmds::run_hostname, "Report hostname system information", Ms, Some("Windows System32");
     "join" => crate::commands::join::run, "Join records on matching fields", Ms, None;
+    "kill" => crate::commands::kill::run, "Run kill", Extra, Some("PowerShell");
     "less" => crate::less_command::run, "Display files", Existing, None;
     "link" => crate::commands::fsops::link::run, "Link filesystem entries", Ms, Some("MSVC linker");
     "list" => crate::files::list, "List files recursively", Existing, None;
@@ -75,6 +81,8 @@ utilities! {
     "od" => crate::commands::od::run, "Dump input bytes in selected formats", Ms, None;
     "paste" => crate::commands::paste::run, "Merge lines", Ms, None;
     "pathchk" => crate::commands::pathchk::run, "Validate pathnames", Ms, None;
+    "pgrep" => crate::commands::pgrep::run_pgrep, "Run pgrep", Extra, None;
+    "pkill" => crate::commands::pkill::run, "Run pkill", Extra, None;
     "pr" => crate::commands::pr::run, "Paginate and arrange text", Ms, None;
     "printenv" => crate::commands::printenv::run, "Print environment values", Ms, None;
     "printf" => crate::commands::printf::run, "Format arguments", Ms, None;
@@ -84,10 +92,12 @@ utilities! {
     "read" => crate::files::read, "Read numbered lines", Existing, None;
     "readlink" => crate::commands::pathname::run_readlink, "Display symbolic link targets", Ms, None;
     "realpath" => crate::commands::pathname::run_realpath, "Resolve canonical paths", Ms, None;
+    "rev" => crate::commands::rev::run, "Run rev", Extra, None;
     "rg" => crate::search::run_rg, "Search files recursively", Existing, None;
     "rm" => crate::commands::fsops::rm::run, "Rm filesystem entries", Ms, None;
     "rmdir" => crate::commands::fsops::rmdir::run, "Rmdir filesystem entries", Ms, None;
     "search" => crate::search::run, "Search text in files", Existing, None;
+    "sed" => crate::commands::sed::run, "Run sed", Extra, None;
     "seq" => crate::commands::seq::run, "Print numeric sequences", Ms, None;
     "sha1sum" => crate::commands::hashsum::run_sha1sum, "Compute sha1sum checksums", Ms, None;
     "sha224sum" => crate::commands::hashsum::run_sha224sum, "Compute sha224sum checksums", Ms, None;
@@ -104,16 +114,22 @@ utilities! {
     "tail" => crate::text_commands::tail, "Print last lines", Existing, None;
     "tee" => crate::commands::tee::run, "Copy input to files and stdout", Ms, Some("PowerShell");
     "test" => crate::commands::test::run, "Evaluate an expression", Ms, None;
+    "timeout" => crate::commands::timeout::run, "Run timeout", Extra, Some("Windows System32");
     "touch" => crate::commands::fsops::touch::run, "Touch filesystem entries", Ms, None;
     "tr" => crate::commands::tr::run, "Translate or delete bytes", Ms, None;
+    "tree" => crate::commands::tree::run, "Run tree", Extra, Some("Windows tree.com");
     "true" => crate::commands::truefalse::run_true, "Exit successfully", Ms, None;
     "truncate" => crate::commands::truncate::run, "Resize files", Ms, None;
     "tsort" => crate::commands::tsort::run, "Topologically order tokens", Ms, None;
+    "uname" => crate::commands::uname::run, "Run uname", Extra, None;
     "unexpand" => crate::commands::expand::run_unexpand, "Convert spaces to expand", Ms, None;
     "uniq" => crate::commands::uniq::run, "Filter adjacent repeated records", Ms, None;
+    "unix2dos" => crate::commands::unix2dos::run, "Run unix2dos", Extra, None;
     "unlink" => crate::commands::fsops::unlink::run, "Unlink filesystem entries", Ms, None;
     "uptime" => crate::commands::sysinfo_cmds::run_uptime, "Report uptime system information", Ms, Some("PowerShell");
     "wc" => crate::commands::wc::run, "Count input lines, words and bytes", Ms, None;
+    "which" => crate::commands::which::run, "Run which", Extra, None;
+    "whoami" => crate::commands::whoami::run, "Run whoami", Extra, Some("Windows System32");
     "xargs" => crate::commands::xargs::run, "Build and execute command lines", Ms, None;
     "yes" => crate::commands::yes::run, "Repeatedly display text", Ms, None;
 }
@@ -140,7 +156,10 @@ mod tests {
             "basenc",
             "cat",
             "cd",
+            "chmod",
             "cksum",
+            "cmp",
+            "column",
             "comm",
             "cp",
             "csplit",
@@ -150,6 +169,7 @@ mod tests {
             "df",
             "diff",
             "dirname",
+            "dos2unix",
             "du",
             "echo",
             "egrep",
@@ -162,10 +182,12 @@ mod tests {
             "find",
             "fmt",
             "fold",
+            "free",
             "grep",
             "head",
             "hostname",
             "join",
+            "kill",
             "less",
             "link",
             "list",
@@ -181,6 +203,8 @@ mod tests {
             "od",
             "paste",
             "pathchk",
+            "pgrep",
+            "pkill",
             "pr",
             "printenv",
             "printf",
@@ -190,10 +214,12 @@ mod tests {
             "read",
             "readlink",
             "realpath",
+            "rev",
             "rg",
             "rm",
             "rmdir",
             "search",
+            "sed",
             "seq",
             "sha1sum",
             "sha224sum",
@@ -210,16 +236,22 @@ mod tests {
             "tail",
             "tee",
             "test",
+            "timeout",
             "touch",
             "tr",
+            "tree",
             "true",
             "truncate",
             "tsort",
+            "uname",
             "unexpand",
             "uniq",
+            "unix2dos",
             "unlink",
             "uptime",
             "wc",
+            "which",
+            "whoami",
             "xargs",
             "yes",
         ];

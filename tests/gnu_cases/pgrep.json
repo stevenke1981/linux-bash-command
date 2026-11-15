@@ -1,0 +1,169 @@
+{
+  "command": "pgrep",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-regex",
+      "args": [
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-full",
+      "args": [
+        "--full",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-exact",
+      "args": [
+        "--exact",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-icase",
+      "args": [
+        "--ignore-case",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-count",
+      "args": [
+        "--count",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-newest",
+      "args": [
+        "--newest",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-oldest",
+      "args": [
+        "--oldest",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-inverse",
+      "args": [
+        "--inverse",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-parent",
+      "args": [
+        "--parent=not-a-pid",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-regex-euid",
+      "args": [
+        "--euid=0",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-regex-uid",
+      "args": [
+        "--uid=0",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-regex-list-name",
+      "args": [
+        "--list-name",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-regex-list-full",
+      "args": [
+        "--list-full",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-regex-delimiter",
+      "args": [
+        "--delimiter=,",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

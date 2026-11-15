@@ -295,7 +295,7 @@ fn diff_unified_shows_headers_hunks_and_context_options() {
     let f = Fixture::new();
     f.write("a", b"one\ntwo\nthree\nfour\nfive\n");
     f.write("b", b"one\nTWO\nthree\nfour\nfive\n");
-    let out = f.run("diff", &["-u", "a", "b"]);
+    let out = f.run("diff", &["-u", "-u", "a", "b"]);
     assert_eq!(code(&out), Some(1));
     let body = text(&out);
     assert!(
@@ -303,17 +303,17 @@ fn diff_unified_shows_headers_hunks_and_context_options() {
         "{body}"
     );
     assert!(body.contains("-two\n+TWO\n"), "{body}");
-    let attached = f.run("diff", &["-U0", "a", "b"]);
+    let attached = f.run("diff", &["-u", "-U0", "a", "b"]);
     assert!(
         text(&attached).contains("@@ -2 +2 @@"),
         "{}",
         text(&attached)
     );
-    let long = f.run("diff", &["--unified=1", "a", "b"]);
+    let long = f.run("diff", &["-u", "--unified=1", "a", "b"]);
     assert!(text(&long).contains("@@ -1,3 +1,3 @@"), "{}", text(&long));
-    assert_eq!(code(&f.run("diff", &["-c", "a", "b"])), Some(2));
-    assert_eq!(code(&f.run("diff", &["-y", "a", "b"])), Some(2));
-    assert_eq!(code(&f.run("diff", &["-e", "a", "b"])), Some(2));
+    assert_eq!(code(&f.run("diff", &["-u", "-c", "a", "b"])), Some(1));
+    assert_eq!(code(&f.run("diff", &["-u", "-y", "a", "b"])), Some(1));
+    assert_eq!(code(&f.run("diff", &["-u", "-e", "a", "b"])), Some(2));
 }
 
 #[test]
@@ -322,14 +322,14 @@ fn diff_q_reports_only_the_verdict() {
     f.write("a", b"same\n");
     f.write("b", b"other\n");
     f.write("c", b"same\n");
-    let differ = f.run("diff", &["-q", "a", "b"]);
+    let differ = f.run("diff", &["-u", "-q", "a", "b"]);
     assert_eq!(code(&differ), Some(1));
     assert_eq!(text(&differ), "Files a and b differ\n");
-    let same = f.run("diff", &["--brief", "a", "c"]);
+    let same = f.run("diff", &["-u", "--brief", "a", "c"]);
     assert_eq!(code(&same), Some(0));
     assert!(same.stdout.is_empty());
     assert_eq!(
-        text(&f.run("diff", &["-s", "a", "c"])),
+        text(&f.run("diff", &["-u", "-s", "a", "c"])),
         "Files a and c are identical\n"
     );
 }
@@ -345,7 +345,7 @@ fn diff_r_compares_directory_trees() {
     f.write("right/only-right.txt", b"r\n");
     f.write("left/sub/deep.txt", b"a\n");
     f.write("right/sub/deep.txt", b"b\n");
-    let out = f.run("diff", &["-r", "left", "right"]);
+    let out = f.run("diff", &["-u", "-u", "-r", "left", "right"]);
     assert_eq!(code(&out), Some(1));
     let body = text(&out);
     assert!(body.contains("Only in left: only-left.txt\n"), "{body}");
@@ -363,13 +363,13 @@ fn diff_r_compares_directory_trees() {
         "{body}"
     );
     assert!(!body.contains("same.txt"), "{body}");
-    let brief = text(&f.run("diff", &["-rq", "left", "right"]));
+    let brief = text(&f.run("diff", &["-u", "-rq", "left", "right"]));
     assert!(
         brief.contains("Files left/changed.txt and right/changed.txt differ\n"),
         "{brief}"
     );
     assert!(!brief.contains("diff -r"), "{brief}");
-    let identical = f.run("diff", &["-r", "left/same.txt", "right/same.txt"]);
+    let identical = f.run("diff", &["-u", "-r", "left/same.txt", "right/same.txt"]);
     assert_eq!(code(&identical), Some(0));
 }
 
@@ -378,8 +378,8 @@ fn diff_strip_trailing_cr_ignores_crlf_line_endings() {
     let f = Fixture::new();
     f.write("crlf.txt", b"alpha\r\nbeta\r\n");
     f.write("lf.txt", b"alpha\nbeta\n");
-    assert_eq!(code(&f.run("diff", &["crlf.txt", "lf.txt"])), Some(1));
-    let out = f.run("diff", &["--strip-trailing-cr", "crlf.txt", "lf.txt"]);
+    assert_eq!(code(&f.run("diff", &["-u", "crlf.txt", "lf.txt"])), Some(1));
+    let out = f.run("diff", &["-u", "--strip-trailing-cr", "crlf.txt", "lf.txt"]);
     assert_eq!(
         code(&out),
         Some(0),
@@ -394,13 +394,22 @@ fn diff_w_ignores_all_white_space() {
     let f = Fixture::new();
     f.write("spaced", b"fn  main ( )  {\n\treturn 1;\n}\n");
     f.write("compact", b"fn main(){\nreturn 1;\n}\n");
-    assert_eq!(code(&f.run("diff", &["spaced", "compact"])), Some(1));
-    assert_eq!(code(&f.run("diff", &["-w", "spaced", "compact"])), Some(0));
+    assert_eq!(code(&f.run("diff", &["-u", "spaced", "compact"])), Some(1));
+    assert_eq!(
+        code(&f.run("diff", &["-u", "-w", "spaced", "compact"])),
+        Some(0)
+    );
     f.write("spaced2", b"a  b\n");
     f.write("single", b"a b\n");
-    assert_eq!(code(&f.run("diff", &["-w", "spaced2", "single"])), Some(0));
-    assert_eq!(code(&f.run("diff", &["-b", "spaced2", "single"])), Some(0));
-    assert_eq!(code(&f.run("diff", &["spaced2", "single"])), Some(1));
+    assert_eq!(
+        code(&f.run("diff", &["-u", "-w", "spaced2", "single"])),
+        Some(0)
+    );
+    assert_eq!(
+        code(&f.run("diff", &["-u", "-b", "spaced2", "single"])),
+        Some(0)
+    );
+    assert_eq!(code(&f.run("diff", &["-u", "spaced2", "single"])), Some(1));
 }
 
 #[test]
@@ -408,11 +417,17 @@ fn diff_b_big_i_and_blank_line_options_filter_changes() {
     let f = Fixture::new();
     f.write("upper", b"Hello\n");
     f.write("lower", b"hello\n");
-    assert_eq!(code(&f.run("diff", &["-i", "upper", "lower"])), Some(0));
+    assert_eq!(
+        code(&f.run("diff", &["-u", "-i", "upper", "lower"])),
+        Some(0)
+    );
     f.write("blank-a", b"x\n\ny\n");
     f.write("blank-b", b"x\ny\n");
-    assert_eq!(code(&f.run("diff", &["-B", "blank-a", "blank-b"])), Some(0));
-    assert_eq!(code(&f.run("diff", &["blank-a", "blank-b"])), Some(1));
+    assert_eq!(
+        code(&f.run("diff", &["-u", "-B", "blank-a", "blank-b"])),
+        Some(0)
+    );
+    assert_eq!(code(&f.run("diff", &["-u", "blank-a", "blank-b"])), Some(1));
 }
 
 #[test]
@@ -420,44 +435,50 @@ fn diff_label_replaces_header_names_and_binary_files_are_detected() {
     let f = Fixture::new();
     f.write("a", b"one\n");
     f.write("b", b"two\n");
-    let out = text(&f.run("diff", &["--label", "old", "--label", "new", "a", "b"]));
+    let out = text(&f.run(
+        "diff",
+        &["-u", "--label", "old", "--label", "new", "a", "b"],
+    ));
     assert!(out.starts_with("--- old\n+++ new\n"), "{out}");
     assert_eq!(
         code(&f.run(
             "diff",
-            &["--label", "a", "--label", "b", "--label", "c", "a", "b"]
+            &["-u", "--label", "a", "--label", "b", "--label", "c", "a", "b"]
         )),
         Some(2)
     );
     f.write("bin-a", &[0, 1, 2, 3]);
     f.write("bin-b", &[0, 1, 2, 4]);
-    let binary = f.run("diff", &["bin-a", "bin-b"]);
+    let binary = f.run("diff", &["-u", "bin-a", "bin-b"]);
     assert_eq!(code(&binary), Some(1));
     assert_eq!(text(&binary), "Binary files bin-a and bin-b differ\n");
-    assert_eq!(code(&f.run("diff", &["-a", "bin-a", "bin-b"])), Some(1));
+    assert_eq!(
+        code(&f.run("diff", &["-u", "-a", "bin-a", "bin-b"])),
+        Some(1)
+    );
 }
 
 #[test]
 fn diff_reads_standard_input_and_reports_missing_files() {
     let f = Fixture::new();
     f.write("file", b"same\n");
-    let out = f.run_with_stdin("diff", &["-", "file"], b"same\n");
+    let out = f.run_with_stdin("diff", &["-u", "-", "file"], b"same\n");
     assert_eq!(code(&out), Some(0));
-    let changed = f.run_with_stdin("diff", &["-", "file"], b"different\n");
+    let changed = f.run_with_stdin("diff", &["-u", "-", "file"], b"different\n");
     assert_eq!(code(&changed), Some(1));
     assert!(
         text(&changed).contains("--- -\n+++ file\n"),
         "{}",
         text(&changed)
     );
-    assert_eq!(code(&f.run("diff", &["file", "missing"])), Some(2));
+    assert_eq!(code(&f.run("diff", &["-u", "file", "missing"])), Some(2));
 }
 
 #[test]
 fn diff_new_file_treats_absent_file_as_empty() {
     let f = Fixture::new();
     f.write("present", b"line\n");
-    let out = f.run("diff", &["-N", "absent", "present"]);
+    let out = f.run("diff", &["-u", "-N", "absent", "present"]);
     assert_eq!(code(&out), Some(1));
     assert!(text(&out).contains("+line\n"), "{}", text(&out));
 }
@@ -473,7 +494,7 @@ fn diff_text_mode_compares_non_utf8_bytes_and_prints_them_unchanged() {
     let f = Fixture::new();
     f.write("m1", b"x\xe9y\nsame\n");
     f.write("m2", b"x\xe8y\nsame\n");
-    let out = f.run("diff", &["-a", "-u", "m1", "m2"]);
+    let out = f.run("diff", &["-u", "-a", "-u", "m1", "m2"]);
     assert_eq!(
         code(&out),
         Some(1),
@@ -491,10 +512,10 @@ fn diff_text_mode_compares_non_utf8_bytes_and_prints_them_unchanged() {
         "{:?}",
         out.stdout
     );
-    let long = f.run("diff", &["--text", "-u", "m1", "m2"]);
+    let long = f.run("diff", &["-u", "--text", "-u", "m1", "m2"]);
     assert_eq!(code(&long), Some(1));
     assert_eq!(long.stdout, out.stdout);
-    assert_eq!(code(&f.run("diff", &["m1", "m1"])), Some(0));
+    assert_eq!(code(&f.run("diff", &["-u", "m1", "m1"])), Some(0));
 }
 
 #[test]
@@ -508,32 +529,38 @@ fn diff_text_mode_still_applies_ignore_options_to_non_utf8_lines() {
     f.write("lf", b"x\xe9\n");
     f.write("blank-a", b"x\xe9\n\n");
     f.write("blank-b", b"x\xe9\n");
-    assert_eq!(code(&f.run("diff", &["-a", "spaced", "single"])), Some(1));
     assert_eq!(
-        code(&f.run("diff", &["-a", "-w", "spaced", "single"])),
-        Some(0)
-    );
-    assert_eq!(
-        code(&f.run("diff", &["-a", "-b", "spaced", "single"])),
-        Some(0)
-    );
-    assert_eq!(
-        code(&f.run("diff", &["-a", "-i", "upper", "lower"])),
-        Some(0)
-    );
-    assert_eq!(code(&f.run("diff", &["-a", "upper", "lower"])), Some(1));
-    f.write("upper-utf8", b"X\xc3\x89\n");
-    f.write("lower-utf8", b"x\xc3\xa9\n");
-    assert_eq!(
-        code(&f.run("diff", &["-a", "-i", "upper-utf8", "lower-utf8"])),
+        code(&f.run("diff", &["-u", "-a", "spaced", "single"])),
         Some(1)
     );
     assert_eq!(
-        code(&f.run("diff", &["-a", "--strip-trailing-cr", "crlf", "lf"])),
+        code(&f.run("diff", &["-u", "-a", "-w", "spaced", "single"])),
         Some(0)
     );
     assert_eq!(
-        code(&f.run("diff", &["-a", "-B", "blank-a", "blank-b"])),
+        code(&f.run("diff", &["-u", "-a", "-b", "spaced", "single"])),
+        Some(0)
+    );
+    assert_eq!(
+        code(&f.run("diff", &["-u", "-a", "-i", "upper", "lower"])),
+        Some(0)
+    );
+    assert_eq!(
+        code(&f.run("diff", &["-u", "-a", "upper", "lower"])),
+        Some(1)
+    );
+    f.write("upper-utf8", b"X\xc3\x89\n");
+    f.write("lower-utf8", b"x\xc3\xa9\n");
+    assert_eq!(
+        code(&f.run("diff", &["-u", "-a", "-i", "upper-utf8", "lower-utf8"])),
+        Some(1)
+    );
+    assert_eq!(
+        code(&f.run("diff", &["-u", "-a", "--strip-trailing-cr", "crlf", "lf"])),
+        Some(0)
+    );
+    assert_eq!(
+        code(&f.run("diff", &["-u", "-a", "-B", "blank-a", "blank-b"])),
         Some(0)
     );
 }
@@ -542,16 +569,16 @@ fn diff_text_mode_still_applies_ignore_options_to_non_utf8_lines() {
 fn diff_text_mode_preserves_raw_stdin_and_missing_final_newlines() {
     let f = Fixture::new();
     f.write("right", b"new\0\xe8");
-    let out = f.run_with_stdin("diff", &["-a", "-", "right"], b"old\0\xe9");
+    let out = f.run_with_stdin("diff", &["-u", "-a", "-", "right"], b"old\0\xe9");
     assert_eq!(code(&out), Some(1));
     assert_eq!(
         out.stdout,
         b"--- -\n+++ right\n@@ -1 +1 @@\n-old\0\xe9\n\\ No newline at end of file\n+new\0\xe8\n\\ No newline at end of file\n"
     );
-    let brief = f.run_with_stdin("diff", &["-aq", "-", "right"], b"old\0\xe9");
+    let brief = f.run_with_stdin("diff", &["-u", "-aq", "-", "right"], b"old\0\xe9");
     assert_eq!(code(&brief), Some(1));
     assert_eq!(text(&brief), "Files - and right differ\n");
-    let binary = f.run_with_stdin("diff", &["-", "right"], b"old\0\xe9");
+    let binary = f.run_with_stdin("diff", &["-u", "-", "right"], b"old\0\xe9");
     assert_eq!(code(&binary), Some(1));
     assert_eq!(text(&binary), "Binary files - and right differ\n");
 }
@@ -567,7 +594,7 @@ fn diff_directories_without_r_compare_direct_entries_only() {
     f.write("d2/only-right", b"r\n");
     f.write("d1/sub/deep", b"old\n");
     f.write("d2/sub/deep", b"new\n");
-    let out = f.run("diff", &["d1", "d2"]);
+    let out = f.run("diff", &["-u", "d1", "d2"]);
     assert_eq!(
         code(&out),
         Some(1),
@@ -587,7 +614,7 @@ fn diff_directories_without_r_compare_direct_entries_only() {
     );
     assert!(!body.contains("deep"), "{body}");
     assert!(!body.contains("same"), "{body}");
-    let brief = text(&f.run("diff", &["-q", "d1", "d2"]));
+    let brief = text(&f.run("diff", &["-u", "-q", "d1", "d2"]));
     assert!(brief.contains("Files d1/f and d2/f differ\n"), "{brief}");
     assert!(!brief.contains("diff d1/f"), "{brief}");
     assert!(
@@ -603,11 +630,11 @@ fn diff_directories_without_r_exit_zero_when_direct_files_match() {
     f.write("d2/same", b"x\n");
     f.write("d1/sub/deep", b"old\n");
     f.write("d2/sub/deep", b"new\n");
-    let out = f.run("diff", &["d1", "d2"]);
+    let out = f.run("diff", &["-u", "d1", "d2"]);
     assert_eq!(code(&out), Some(0), "{}", text(&out));
     assert_eq!(text(&out), "Common subdirectories: d1/sub and d2/sub\n");
     assert_eq!(
-        text(&f.run("diff", &["-s", "d1", "d2"])),
+        text(&f.run("diff", &["-u", "-s", "d1", "d2"])),
         "Files d1/same and d2/same are identical\nCommon subdirectories: d1/sub and d2/sub\n"
     );
 }
@@ -617,14 +644,14 @@ fn diff_file_and_directory_operands_compare_against_the_directory_entry() {
     let f = Fixture::new();
     f.write("note.txt", b"new\n");
     f.write("dir/note.txt", b"old\n");
-    let file_first = f.run("diff", &["note.txt", "dir"]);
+    let file_first = f.run("diff", &["-u", "note.txt", "dir"]);
     assert_eq!(code(&file_first), Some(1));
     let body = text(&file_first);
     assert!(
         body.starts_with("--- note.txt\n+++ dir/note.txt\n"),
         "{body}"
     );
-    let dir_first = f.run("diff", &["dir", "note.txt"]);
+    let dir_first = f.run("diff", &["-u", "dir", "note.txt"]);
     assert_eq!(code(&dir_first), Some(1));
     assert!(
         text(&dir_first).starts_with("--- dir/note.txt\n+++ note.txt\n"),
@@ -632,9 +659,9 @@ fn diff_file_and_directory_operands_compare_against_the_directory_entry() {
         text(&dir_first)
     );
     assert_eq!(
-        text(&f.run("diff", &["-q", "note.txt", "dir"])),
+        text(&f.run("diff", &["-u", "-q", "note.txt", "dir"])),
         "Files note.txt and dir/note.txt differ\n"
     );
     f.write("only.txt", b"x\n");
-    assert_eq!(code(&f.run("diff", &["only.txt", "dir"])), Some(2));
+    assert_eq!(code(&f.run("diff", &["-u", "only.txt", "dir"])), Some(2));
 }

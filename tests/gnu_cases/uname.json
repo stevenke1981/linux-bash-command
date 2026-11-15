@@ -1,0 +1,348 @@
+{
+  "command": "uname",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "all",
+      "args": [
+        "-a"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "kernel-name",
+      "args": [
+        "-s"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "nodename",
+      "args": [
+        "-n"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "release",
+      "args": [
+        "-r"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "-v"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "machine",
+      "args": [
+        "-m"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "processor",
+      "args": [
+        "-p"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "hardware",
+      "args": [
+        "-i"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "operating-system",
+      "args": [
+        "-o"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--all",
+      "args": [
+        "--all"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--kernel-name",
+      "args": [
+        "--kernel-name"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--nodename",
+      "args": [
+        "--nodename"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--kernel-release",
+      "args": [
+        "--kernel-release"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--kernel-version",
+      "args": [
+        "--kernel-version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--machine",
+      "args": [
+        "--machine"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--processor",
+      "args": [
+        "--processor"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--hardware-platform",
+      "args": [
+        "--hardware-platform"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_--operating-system",
+      "args": [
+        "--operating-system"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_release",
+      "args": [
+        "--kernel-release"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "release_with_other_field",
+      "args": [
+        "-sr"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "uname"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

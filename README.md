@@ -93,7 +93,7 @@ Use `--` before positional arguments that begin with a dash. Arguments must be v
 
 ### Phase 1 text pipelines
 
-The multi-call registry includes 91 names: the original 17, these 29 Phase 1 names, 32 Phase 2 names, and 13 Phase 3 names:
+The multi-call registry includes 107 names: the original 17, these 29 Phase 1 names, 32 Phase 2 names, 13 Phase 3 names, and 16 Phase 4 names:
 
 `wc sort uniq cut tr tee echo printf true false test [ seq tac nl paste comm fold expand unexpand yes basename dirname xargs env printenv sleep egrep fgrep`.
 
@@ -168,3 +168,11 @@ Automated CLI tests use temporary directories and cover common success and error
 ### Additional data and formatting commands
 
 `join od split csplit fmt pr shuf tsort numfmt factor expr pathchk ptx` are available through the registry and standalone executables. Duplicate join groups and permuted indexes spill to private temporary files. `factor` supports u128 values using certified prime factors; `expr` uses checked i128 arithmetic. See each command's help for options and the known-differences table for required GNU exceptions. Attribution for the MIT-licensed formatting components is in [NOTICE.md](NOTICE.md).
+
+### Additional Linux tools
+
+`sed which tree uname whoami timeout kill pgrep pkill free cmp rev column dos2unix unix2dos chmod` are available as standalone commands and through `agentcmd`.
+
+**Diff format change:** `diff` now defaults to GNU normal format. Use `diff -u` for unified output; `-c`/`-C` select context and `-y`/`-W` select side-by-side output.
+
+On Windows, `tree`, `whoami`, `timeout` and `kill` conflict with system executables or PowerShell commands. Use `agentcmd NAME` or the executable's full path to select this implementation. Unix permission bits map to the Windows read-only attribute for chmod; signal delivery terminates the selected process, while timeout uses a Job Object for its owned process tree.

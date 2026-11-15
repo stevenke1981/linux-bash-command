@@ -53,6 +53,9 @@ impl TemporaryFile {
     pub fn file(&mut self) -> &mut File {
         self.file.as_mut().unwrap()
     }
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
     pub fn reader(&mut self) -> io::Result<BufReader<&mut File>> {
         self.file().seek(SeekFrom::Start(0))?;
         Ok(BufReader::with_capacity(
@@ -93,9 +96,55 @@ impl TemporaryFile {
         }
         Ok(())
     }
+    /// Publish only if the destination does not exist, without a check/create race.
+    pub fn persist_noclobber(mut self, destination: &Path) -> io::Result<()> {
+        self.file().sync_all()?;
+        drop(self.file.take());
+        #[cfg(not(windows))]
+        fs::hard_link(&self.path, destination)?;
+        #[cfg(windows)]
+        {
+            use std::os::windows::ffi::OsStrExt;
+            use windows_sys::Win32::Storage::FileSystem::{MoveFileExW, MOVEFILE_WRITE_THROUGH};
+            let wide = |p: &Path| {
+                p.as_os_str()
+                    .encode_wide()
+                    .chain(Some(0))
+                    .collect::<Vec<_>>()
+            };
+            let source = wide(&self.path);
+            let target = wide(destination);
+            if unsafe { MoveFileExW(source.as_ptr(), target.as_ptr(), MOVEFILE_WRITE_THROUGH) } == 0
+            {
+                return Err(io::Error::last_os_error());
+            }
+        }
+        Ok(())
+    }
 }
 impl Drop for TemporaryFile {
     fn drop(&mut self) {
+        #[cfg(windows)]
+        {
+            // A failed publish may leave copied read-only attributes on our
+            // private staging file. Clear them so cleanup can remove it.
+            let metadata = self
+                .file
+                .as_ref()
+                .and_then(|file| file.metadata().ok())
+                .or_else(|| fs::symlink_metadata(&self.path).ok());
+            if let Some(metadata) = metadata.filter(|m| m.is_file() && m.permissions().readonly()) {
+                let mut permissions = metadata.permissions();
+                // This branch is Windows-only: it changes an attribute, not Unix mode bits.
+                #[allow(clippy::permissions_set_readonly_false)]
+                permissions.set_readonly(false);
+                if let Some(file) = self.file.as_ref() {
+                    let _ = file.set_permissions(permissions);
+                } else {
+                    let _ = fs::set_permissions(&self.path, permissions);
+                }
+            }
+        }
         drop(self.file.take());
         let _ = fs::remove_file(&self.path);
     }
@@ -456,5 +505,46 @@ mod tests {
         );
         assert!(sorter.push(b"a".to_vec()).is_err());
         assert_eq!(fs::read(file).unwrap(), b"unchanged");
+    }
+    #[test]
+    fn no_clobber_publish_keeps_existing_files_and_cleans_the_staging_name() {
+        let sandbox = Sandbox::new();
+        let destination = sandbox.0.join("destination");
+        fs::write(&destination, b"original").unwrap();
+        let mut temporary = TemporaryFile::new(&sandbox.0).unwrap();
+        let staging = temporary.path().to_owned();
+        temporary.file().write_all(b"replacement").unwrap();
+        assert!(temporary.persist_noclobber(&destination).is_err());
+        assert_eq!(fs::read(&destination).unwrap(), b"original");
+        assert!(!staging.exists());
+        let destination = sandbox.0.join("new");
+        let mut temporary = TemporaryFile::new(&sandbox.0).unwrap();
+        let staging = temporary.path().to_owned();
+        temporary.file().write_all(b"new contents").unwrap();
+        temporary.persist_noclobber(&destination).unwrap();
+        assert_eq!(fs::read(destination).unwrap(), b"new contents");
+        assert!(!staging.exists());
+    }
+    #[cfg(windows)]
+    #[test]
+    fn read_only_staging_files_are_removed_after_drop_and_failed_publish() {
+        let sandbox = Sandbox::new();
+        for publish in [false, true] {
+            let mut temporary = TemporaryFile::new(&sandbox.0).unwrap();
+            let staging = temporary.path().to_owned();
+            temporary.file().write_all(b"private data").unwrap();
+            let mut permissions = temporary.file().metadata().unwrap().permissions();
+            permissions.set_readonly(true);
+            temporary.file().set_permissions(permissions).unwrap();
+            let destination = sandbox.0.join("destination");
+            if publish {
+                fs::write(&destination, b"original").unwrap();
+                assert!(temporary.persist_noclobber(&destination).is_err());
+                assert_eq!(fs::read(&destination).unwrap(), b"original");
+            } else {
+                drop(temporary);
+            }
+            assert!(!staging.exists());
+        }
     }
 }

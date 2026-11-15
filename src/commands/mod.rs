@@ -5,6 +5,7 @@ pub mod truefalse;
 pub mod yes;
 
 pub mod basenc;
+pub mod chmod;
 pub mod cksum;
 pub mod comm;
 pub mod csplit;
@@ -47,3 +48,24 @@ pub mod tsort;
 pub mod uniq;
 pub mod wc;
 pub mod xargs;
+
+pub mod column;
+pub mod tree;
+
+pub mod sed;
+
+pub mod kill;
+pub mod pgrep;
+pub mod pkill;
+pub mod timeout;
+
+pub mod rev;
+pub mod whoami;
+
+pub mod free;
+pub mod uname;
+pub mod which;
+
+pub mod cmp;
+pub mod dos2unix;
+pub mod unix2dos;

@@ -243,7 +243,9 @@ fn gnu_differential() {
         let data: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
         let util = data["command"].as_str().unwrap();
         let cases = data["cases"].as_array().unwrap();
-        let minimum = if matches!(util, "cat" | "head" | "tail" | "grep" | "find" | "ls") {
+        let minimum = if matches!(util, "sed" | "awk") {
+            120
+        } else if matches!(util, "cat" | "head" | "tail" | "grep" | "find" | "ls") {
             5
         } else if matches!(
             util,
@@ -260,6 +262,22 @@ fn gnu_differential() {
                 | "expr"
                 | "pathchk"
                 | "ptx"
+                | "which"
+                | "tree"
+                | "uname"
+                | "whoami"
+                | "timeout"
+                | "kill"
+                | "pgrep"
+                | "pkill"
+                | "free"
+                | "cmp"
+                | "rev"
+                | "column"
+                | "dos2unix"
+                | "unix2dos"
+                | "chmod"
+                | "diff"
         ) {
             10
         } else {

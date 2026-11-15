@@ -113,20 +113,20 @@
 | fgrep | extra | P1 | grep 別名 | grep | — |
 | sed | extra | P4 | sed/ | sed 4.9 | — |
 | which | extra | P4 | which.rs | debianutils which | — |
-| tree | extra | P4 | tree.rs | tree 2.1 | SYS（`tree.com`） |
-| uname | extra | P4 | sysinfo_cmds.rs | coreutils（Linux 限 `-s -m -o`） | — |
-| whoami | extra | P4 | sysinfo_cmds.rs | — | SYS |
+| tree | extra | P4 | tree/mod.rs | tree 2.1 | SYS（`tree.com`） |
+| uname | extra | P4 | uname.rs | coreutils（Linux 限 `-s -m -o`） | — |
+| whoami | extra | P4 | whoami.rs | — | SYS |
 | timeout | extra | P4 | timeout.rs | coreutils（exit code） | SYS |
-| kill | extra | P4 | signal.rs | — | PS |
+| kill | extra | P4 | kill.rs | — | PS |
 | pgrep | extra | P4 | pgrep.rs | — | — |
-| pkill | extra | P4 | pgrep.rs | — | — |
-| free | extra | P4 | sysinfo_cmds.rs | —（格式 golden） | — |
+| pkill | extra | P4 | pkill.rs | — | — |
+| free | extra | P4 | free.rs | —（格式 golden） | — |
 | cmp | extra | P4 | cmp.rs | diffutils | — |
 | rev | extra | P4 | rev.rs | util-linux | — |
 | column | extra | P4 | column.rs | util-linux（`bsdextrautils`） | — |
 | dos2unix | extra | P4 | dos2unix.rs | dos2unix | — |
-| unix2dos | extra | P4 | dos2unix.rs | dos2unix | — |
-| chmod | extra | P4 | fsops/chmod.rs | coreutils（Unix） | — |
+| unix2dos | extra | P4 | unix2dos.rs | dos2unix | — |
+| chmod | extra | P4 | chmod/mod.rs | coreutils（Unix） | — |
 | awk | extra | P5 | awk/ | gawk `--posix` | — |
 | tar | extra | P5 | tar.rs | GNU tar（`-t` 列表） | SYS（bsdtar） |
 | gzip | extra | P5 | gzip.rs | gzip（解壓結果） | — |

@@ -155,5 +155,15 @@
     "stdout": "",
     "stderr_contains": "ls:",
     "exit": 2
+  },
+  {
+    "command": "free",
+    "args": [
+      "--committed"
+    ],
+    "files": {},
+    "stdout": "",
+    "exit": 1,
+    "stderr_contains": "not supported"
   }
 ]
