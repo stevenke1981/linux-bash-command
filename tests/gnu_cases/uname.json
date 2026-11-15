@@ -75,7 +75,7 @@
       "skip_reason": null
     },
     {
-      "name": "version",
+      "name": "kernel-version",
       "args": [
         "-v"
       ],

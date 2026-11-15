@@ -441,13 +441,14 @@ fn pgrep_preserves_non_utf8_process_names() {
     let mut raw = prefix.as_bytes().to_vec();
     raw.push(0xff);
     let path = s.path.join(OsStr::from_bytes(&raw));
+    let compiled_path = s.path.join(format!("{prefix}-build"));
     let source = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/process_child.rs");
     let rustc = std::env::var_os("RUSTC").unwrap_or_else(|| "rustc".into());
     let compiled = Command::new(rustc)
         .args(["--edition=2021", "-Cdebuginfo=0", "-Copt-level=1"])
         .arg(source)
         .arg("-o")
-        .arg(&path)
+        .arg(&compiled_path)
         .current_dir(&s.path)
         .output()
         .unwrap();
@@ -456,6 +457,7 @@ fn pgrep_preserves_non_utf8_process_names() {
         "fixture compilation: {}",
         String::from_utf8_lossy(&compiled.stderr)
     );
+    fs::rename(&compiled_path, &path).unwrap();
     let child = spawn_child(&path, "stay", &s.path.join("ready"));
     let parent = std::process::id().to_string();
     let pattern = format!("{}.", regex::escape(&prefix));

@@ -53,6 +53,7 @@ fn parse(arguments: &[String]) -> Result<Options, i32> {
     Ok(options)
 }
 
+#[cfg(any(windows, test))]
 fn extensions(value: Option<&str>) -> Vec<String> {
     value
         .unwrap_or(".COM;.EXE;.BAT;.CMD")
@@ -313,7 +314,7 @@ mod tests {
     fn windows_extensionless_candidate_does_not_precede_exe() {
         let d = Dir::new();
         d.file("tool");
-        d.file("tool.exe");
+        d.file("tool.EXE");
         assert_eq!(
             find_all("tool", std::slice::from_ref(&d.0), &[".EXE".into()], true),
             vec![d.0.join("tool.EXE")]
@@ -372,7 +373,7 @@ mod tests {
         {
             let d = Dir::new();
             fs::write(d.0.join("x"), b"x").unwrap();
-            assert!(find_all("x", &[d.0.clone()], &[], false).is_empty());
+            assert!(find_all("x", std::slice::from_ref(&d.0), &[], false).is_empty());
         }
     }
 }

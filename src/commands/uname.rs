@@ -191,6 +191,7 @@ fn windows_build() -> Option<u32> {
     (status >= 0 && info.major == 10 && info.minor == 0 && info.build > 0).then_some(info.build)
 }
 
+#[cfg(any(windows, test))]
 fn parse_windows_build(value: &str) -> Option<u32> {
     let tail = value.split("10.0.").nth(1)?;
     let digits = tail
