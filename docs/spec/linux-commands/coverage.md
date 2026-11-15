@@ -6,7 +6,9 @@
 - Windows fmt and clippy (all targets, warnings denied): PASS.
 - Current Linux GNU, macOS, and coverage: pending CI; do not substitute the
   historical measurements below for the current candidate.
-- Source/test snapshot: `e155214e74168350cba393bea5f402c10b2e2f8cd59421615d4fba480902e6f0`.
+- Source/test snapshot: `c9718a1ff486b5655409d4a17d726ed9457ef17f11a7319bdbe8cdeba8b4df44`.
+- Linux measurement at `82b4f81`: common 1,039/1,149 (90.43%), commands
+  4,748/5,167 (91.89%); newer path helper tests await an updated measurement.
 - Full evidence and outstanding gates: [Phase 0 report](../../implementation/linux-commands/phase-0.md).
 
 ## Historical Phase 1 verification

@@ -4,19 +4,19 @@ Date: 2026-11-15 (Asia/Taipei).
 Base: `617a90c73554ccb5a6c6eebc631e26c78948927a`.
 Candidate: `feat/linux-commands`, foundations plus cross-platform fixture repairs.
 Source/test snapshot SHA-256:
-`e155214e74168350cba393bea5f402c10b2e2f8cd59421615d4fba480902e6f0`.
+`c9718a1ff486b5655409d4a17d726ed9457ef17f11a7319bdbe8cdeba8b4df44`.
 The digest concatenates each sorted UTF-8 path, NUL, LF-normalized file contents,
 and NUL for all 183 files under `src/` and `tests/`.
 
-- commits: `d770070` `fix: finish Linux command foundations`; follow-up
-  `test: make output failure fixtures portable`
+- commits: `d770070` `fix: finish Linux command foundations`; `82b4f81`
+  `test: make output failure fixtures portable`; follow-up path-normalization tests
 - New commands: none; preserve all 46 inherited names, including the original 17
 - Tests: Windows `cargo test --locked`: 1,053 passed, 0 failed, 1 ignored
 - clippy/fmt: Windows PASS, including all targets and warnings denied
 - GNU differential: initial candidate passed Ubuntu 24.04 CI; 984 cases, 968
   enabled and 16 documented skips. Latest fixture repair awaits CI acceptance.
-- Coverage: current measurement pending Linux CI artifact; historical P1 results
-  remain separately recorded in `docs/spec/linux-commands/coverage.md`
+- Coverage: `82b4f81` Linux measurement: common 1,039/1,149 (90.43%), commands
+  4,748/5,167 (91.89%). Latest path-normalization tests await updated measurement.
 - Incomplete/deferred: Linux/macOS CI, current coverage; later phases have not started
 - New dependencies: none
 
@@ -46,3 +46,7 @@ The repaired fixture uses a retained, completely full nonblocking pipe to produc
 a genuine non-BrokenPipe write failure. Linux/macOS helper compilation and Windows
 regressions passed. GNU child captures now explicitly call `wait()` on every path
 for the newer CI clippy check. CI cancels stale runs for the same branch.
+Windows path normalization is now a pure helper tested on every OS; actual
+platform selection uses `#[cfg]`. This preserves output and avoids counting
+unreachable Windows-only branches in the Linux measurement. All command modules
+already exceeded 80%; the helper tests address the path module's remaining gap.

@@ -455,7 +455,7 @@ fn ls_distinguishes_inaccessible_operands_from_nested_directory_errors() {
     let sandbox = Sandbox::new();
     let nested = sandbox.path.join("parent/blocked");
     std::fs::create_dir_all(&nested).unwrap();
-    std::fs::set_permissions(&nested, std::fs::Permissions::from_mode(0)).unwrap();
+    std::fs::set_permissions(&nested, std::fs::Permissions::from_mode(0o0)).unwrap();
     // Restore permissions before assertions so cleanup also works on failure.
     let operand = sandbox.run("ls", &["parent/blocked"], b"");
     let recursive = sandbox.run("ls", &["-R", "parent"], b"");
