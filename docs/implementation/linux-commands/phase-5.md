@@ -3,7 +3,7 @@
 Base: accepted Phase 4 6770af1; native Phase 5 acceptance remains pending.
 
 - New commands (8): awk tar gzip gunzip zcat patch xxd file; registry total 115.
-- Local validation: final Windows fmt, all-target Clippy, and full cargo test passed: 2,196 passed, 0 failed, 0 ignored. Targeted Phase 5 CLI suites passed (27 archive, 40 AWK after refresh, 22 patch, 30 xxd/file).
+- Local validation: final Windows fmt, all-target Clippy, and full cargo test passed: 2,198 passed, 0 failed, 0 ignored. Targeted Phase 5 CLI suites passed (27 archive, 40 AWK after refresh, 22 patch, 30 xxd/file).
 - GNU reference: native Ubuntu 24.04 integration pending. AWK's local gawk matrix has 234 matching cases and one explicit syntax-status difference. Patch's unquoted Git space-name creation remains enabled for native determination; it is valid Git output under 04.
 - Independent Astra resolution audits passed for archive, patch, xxd/file and the original three AWK findings.
 - Coverage: native measurement pending; no aggregate result substitutes for the per-module 80% requirement.
@@ -23,4 +23,7 @@ First native candidate a758430 passed lint/coverage and the Linux/Windows ordina
 Native follow-up uses default gawk for the ten required length(array) fixtures, preserves ordinary POSIX-mode cases, and follows Ubuntu gawk formatting/assignment rules where the specification is silent. The two comma-interval forms have independent reference cases to resolve their precise native behavior. Mac raw-filename tests report EILSEQ filesystem limitations while preserving real Linux coverage.
 
 
-The repaired Windows candidate passes fmt, all-target Clippy and all 2,196 tests with zero failures/ignored. Updated file -0 framing and known unsupported -z diagnostics also match black-box file observations. Native revalidation and lexer coverage remain pending.
+The repaired Windows candidate passes fmt, all-target Clippy and all 2,198 tests with zero failures/ignored. Updated file -0 framing and known unsupported -z diagnostics also match black-box file observations. Native revalidation and lexer coverage remain pending.
+
+
+Final interval refresh implements native empty-lower-bound repetition forms without changing the enabled GNU fixtures. All 2,198 Windows tests, fmt and all-target Clippy pass. A native-only inherited color test exposed a stdin BrokenPipe race; its helper now accepts a child that exits before reading usage-error input.

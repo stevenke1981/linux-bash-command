@@ -7,6 +7,10 @@ pub(super) fn normalize(source: &str) -> Result<String, String> {
         if byte == b'{' && bytes.get(at) == Some(&b'}') {
             return Err("invalid interval expression".into());
         }
+        if byte == b'{' && empty_lower_interval(&bytes[at..]) {
+            out.extend_from_slice(b"{0");
+            continue;
+        }
         if byte == b'{' && !bytes.get(at).is_some_and(u8::is_ascii_digit) {
             out.extend_from_slice(br"\{");
             continue;
@@ -20,6 +24,13 @@ pub(super) fn normalize(source: &str) -> Result<String, String> {
         }
     }
     Ok(String::from_utf8(out).unwrap())
+}
+fn empty_lower_interval(bytes: &[u8]) -> bool {
+    let Some(tail) = bytes.strip_prefix(b",") else {
+        return false;
+    };
+    let digits = tail.iter().take_while(|byte| byte.is_ascii_digit()).count();
+    tail.get(digits) == Some(&b'}')
 }
 fn class(bytes: &[u8], at: &mut usize, out: &mut Vec<u8>) -> Result<(), String> {
     if bytes.get(*at) == Some(&b'^') {

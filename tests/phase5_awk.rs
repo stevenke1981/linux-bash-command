@@ -7,6 +7,17 @@ use std::{
 };
 static NEXT: AtomicU64 = AtomicU64::new(0);
 #[test]
+fn empty_lower_intervals_match_ubuntu_reference_and_escaped_braces() {
+    let s = Sandbox::new();
+    success(
+        s.run(
+            &[r#"BEGIN{print match("a{,}",/a{,}/),RLENGTH;print match("a{,2}",/a{,2}/),RLENGTH;print match("a{,}",/a\{,\}/),RLENGTH;print match("a{,2}",/a\{,2\}/),RLENGTH}"#],
+            b"",
+        ),
+        b"1 1\n1 1\n1 4\n1 5\n",
+    );
+}
+#[test]
 fn incomplete_regex_intervals_match_literal_braces() {
     let s = Sandbox::new();
     success(
