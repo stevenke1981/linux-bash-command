@@ -1,0 +1,170 @@
+{
+  "command": "od",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "abc\n"
+    },
+    {
+      "name": "chars",
+      "args": [
+        "-c"
+      ],
+      "stdin": "ab\n"
+    },
+    {
+      "name": "named",
+      "args": [
+        "-a"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "octal",
+      "args": [
+        "-b"
+      ],
+      "stdin": "abc"
+    },
+    {
+      "name": "hex",
+      "args": [
+        "-x"
+      ],
+      "stdin": "abc"
+    },
+    {
+      "name": "decimal",
+      "args": [
+        "-d"
+      ],
+      "stdin": "abc"
+    },
+    {
+      "name": "address",
+      "args": [
+        "-Ax",
+        "-t",
+        "x1"
+      ],
+      "stdin": "abc"
+    },
+    {
+      "name": "no-address",
+      "args": [
+        "-An",
+        "-t",
+        "u1"
+      ],
+      "stdin": "abc"
+    },
+    {
+      "name": "big-endian",
+      "args": [
+        "--endian=big",
+        "-t",
+        "x2"
+      ],
+      "stdin": "abcd"
+    },
+    {
+      "name": "skip",
+      "args": [
+        "-j1",
+        "-N2",
+        "-t",
+        "x1"
+      ],
+      "stdin": "abcd"
+    },
+    {
+      "name": "width",
+      "args": [
+        "-w2",
+        "-t",
+        "x1"
+      ],
+      "stdin": "abcd"
+    },
+    {
+      "name": "duplicates",
+      "args": [
+        "-w2",
+        "-v",
+        "-t",
+        "x1"
+      ],
+      "stdin": "ababab"
+    },
+    {
+      "name": "strings",
+      "args": [
+        "-S3"
+      ],
+      "stdin": "hello\u0000world\u0000"
+    },
+    {
+      "name": "address-long",
+      "args": [
+        "--address-radix=x",
+        "--format=x1"
+      ],
+      "stdin": "abc"
+    },
+    {
+      "name": "skip-long",
+      "args": [
+        "--skip-bytes=1",
+        "--read-bytes=2"
+      ],
+      "stdin": "abcd"
+    },
+    {
+      "name": "strings-long",
+      "args": [
+        "--strings=3"
+      ],
+      "stdin": "hello\u0000"
+    },
+    {
+      "name": "duplicates-long",
+      "args": [
+        "--output-duplicates",
+        "--width=2",
+        "--format=x1"
+      ],
+      "stdin": "ababab"
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "hexadecimal-skip",
+      "args": [
+        "-j",
+        "0x2",
+        "-An",
+        "-tx1"
+      ],
+      "stdin": "abcdef"
+    }
+  ]
+}

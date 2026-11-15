@@ -1,0 +1,330 @@
+{
+  "command": "pr",
+  "cases": [
+    {
+      "name": "plain",
+      "args": [
+        "--omit-header"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "columns",
+      "args": [
+        "--omit-header",
+        "--columns=3",
+        "--width=30"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "across",
+      "args": [
+        "-t",
+        "-3",
+        "--across",
+        "-w30"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "numbered",
+      "args": [
+        "-t",
+        "--number-lines=:3",
+        "--first-line-number=10",
+        "--indent=2",
+        "--page-width=12"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "separator",
+      "args": [
+        "-t",
+        "-3",
+        "--separator=:"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "string_separator",
+      "args": [
+        "-t",
+        "-3",
+        "--sep-string=|"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "join",
+      "args": [
+        "-t",
+        "-3",
+        "--join-lines"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "short_pages",
+      "args": [
+        "-t",
+        "-2",
+        "--length=3"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "double",
+      "args": [
+        "-t",
+        "-2",
+        "-l3",
+        "--double-space"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "pages",
+      "args": [
+        "-t",
+        "-l2",
+        "--pages=2:3"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "header",
+      "args": [
+        "-l12",
+        "--date-format=DATE",
+        "--header=TITLE"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "form",
+      "args": [
+        "-l12",
+        "-D",
+        "DATE",
+        "-h",
+        "TITLE",
+        "--form-feed"
+      ],
+      "stdin": "one\ntwo\nthree\nfour\nfive\nsix\nseven\n"
+    },
+    {
+      "name": "tabs",
+      "args": [
+        "-t",
+        "--expand-tabs=:4",
+        "--output-tabs=;4"
+      ],
+      "stdin": "a:b:c\n"
+    },
+    {
+      "name": "controls",
+      "args": [
+        "-t",
+        "--show-control-chars"
+      ],
+      "stdin": "a\u0001b\n"
+    },
+    {
+      "name": "octal",
+      "args": [
+        "-t",
+        "--show-nonprinting"
+      ],
+      "stdin": "a\u0001b\n"
+    },
+    {
+      "name": "no_pagination",
+      "args": [
+        "--omit-pagination"
+      ],
+      "stdin": "a\fb\n"
+    },
+    {
+      "name": "merge",
+      "args": [
+        "-t",
+        "--merge",
+        "-w20",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\nc\n",
+        "b": "1\n2\n"
+      }
+    },
+    {
+      "name": "merge_join",
+      "args": [
+        "-t",
+        "-m",
+        "-J",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abcdef\nghij\n",
+        "b": "12\n34\n"
+      }
+    },
+    {
+      "name": "fixed_mtime",
+      "args": [
+        "file"
+      ],
+      "stdin": "",
+      "files": {
+        "file": {
+          "text": "one\ntwo\n",
+          "mtime": 1700000000
+        }
+      }
+    },
+    {
+      "name": "multiple",
+      "args": [
+        "-t",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "one\n",
+        "b": "two\n"
+      }
+    },
+    {
+      "name": "missing",
+      "args": [
+        "--no-file-warnings",
+        "missing"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bogus"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "merge_numbered_after_first_eof",
+      "args": [
+        "-t",
+        "-m",
+        "-n:3",
+        "-w20",
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "one\n",
+        "b": "two\nthree\n"
+      }
+    },
+    {
+      "name": "double_single_partial_page",
+      "args": [
+        "-t",
+        "-d",
+        "-l4"
+      ],
+      "stdin": "one\n"
+    },
+    {
+      "name": "merge_repeated_stdin",
+      "args": [
+        "-t",
+        "-m",
+        "-",
+        "-"
+      ],
+      "stdin": "a\nb\nc\nd\n"
+    },
+    {
+      "name": "multibyte_expand_arg",
+      "args": [
+        "-t",
+        "-eé"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "multibyte_number_arg",
+      "args": [
+        "-t",
+        "-né"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "multibyte_output_tab_arg",
+      "args": [
+        "-t",
+        "-ié"
+      ],
+      "stdin": "a\n"
+    },
+    {
+      "name": "first_number_out_of_range",
+      "args": [
+        "-t",
+        "-m",
+        "-N18446744073709551615",
+        "in"
+      ],
+      "files": {
+        "in": "a\nb\n"
+      }
+    },
+    {
+      "name": "first_number_negative",
+      "args": [
+        "-t",
+        "-N-1",
+        "-n:3"
+      ],
+      "stdin": "a\nb\n"
+    },
+    {
+      "name": "info_help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "pr"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "info_version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "pr"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

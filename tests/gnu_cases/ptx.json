@@ -1,0 +1,241 @@
+{
+  "command": "ptx",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "traditional",
+      "args": [
+        "--traditional"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "width",
+      "args": [
+        "--width=40"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "narrow",
+      "args": [
+        "-w20"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "fold",
+      "args": [
+        "--ignore-case"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "automatic",
+      "args": [
+        "--auto-reference"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "right",
+      "args": [
+        "--auto-reference",
+        "--right-side-refs"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "references",
+      "args": [
+        "--references"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "truncation",
+      "args": [
+        "-w20",
+        "--flag-truncation=!"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "gap",
+      "args": [
+        "--gap-size=1",
+        "-w40"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "ignore",
+      "args": [
+        "--ignore-file=ignore"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n",
+      "files": {
+        "ignore": "beta\n"
+      }
+    },
+    {
+      "name": "only",
+      "args": [
+        "--only-file=only"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n",
+      "files": {
+        "only": "beta\n"
+      }
+    },
+    {
+      "name": "breaks",
+      "args": [
+        "--break-file=breaks"
+      ],
+      "stdin": "one,two;three\n",
+      "files": {
+        "breaks": ",;\n"
+      }
+    },
+    {
+      "name": "word_regex",
+      "args": [
+        "--word-regexp=[a-z]+"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "sentence_regex",
+      "args": [
+        "--sentence-regexp=\\n"
+      ],
+      "stdin": "one two\nthree four\n"
+    },
+    {
+      "name": "typeset",
+      "args": [
+        "--typeset-mode"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "roff",
+      "args": [
+        "--format=roff",
+        "--macro-name=index"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "tex",
+      "args": [
+        "--format=tex"
+      ],
+      "stdin": "Alpha beta gamma.\nDelta beta epsilon.\n"
+    },
+    {
+      "name": "merged_lines",
+      "args": [],
+      "stdin": "one two three\nfour five\n"
+    },
+    {
+      "name": "multiple",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "one two.\n",
+        "b": "three four.\n"
+      }
+    },
+    {
+      "name": "automatic_file",
+      "args": [
+        "-A",
+        "file"
+      ],
+      "stdin": "",
+      "files": {
+        "file": "one two\n"
+      }
+    },
+    {
+      "name": "traditional_file",
+      "args": [
+        "-G",
+        "file",
+        "out"
+      ],
+      "stdin": "",
+      "files": {
+        "file": "one two\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bogus"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "empty_break_file",
+      "args": [
+        "--break-file=breaks"
+      ],
+      "stdin": "one two\n",
+      "files": {
+        "breaks": ""
+      }
+    },
+    {
+      "name": "info_help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "ptx"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "info_version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "ptx"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

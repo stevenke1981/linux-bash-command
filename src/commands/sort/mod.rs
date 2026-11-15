@@ -1,15 +1,18 @@
 mod compare;
 mod keys;
+mod storage;
 use crate::common::{
     args::{self, HasArg, Item, OptSpec},
-    error, io,
+    error,
+    external::{Config, Sorter},
+    io,
 };
 use compare::{hash, Modifiers};
 use keys::Key;
 use std::cmp::Ordering;
 use std::io::{Read, Write};
 
-const HELP: &str = "Usage: sort [OPTION]... [FILE]...\nSort lines using byte order in the C locale.\n  -b, --ignore-leading-blanks   ignore leading blanks\n  -d, --dictionary-order       compare letters, digits and blanks\n  -f, --ignore-case            fold ASCII case\n  -g, --general-numeric-sort   compare floating point numbers\n  -i, --ignore-nonprinting     ignore nonprinting bytes\n  -M, --month-sort             compare month abbreviations\n  -h, --human-numeric-sort     compare human sizes\n  -n, --numeric-sort           compare exact decimal numbers\n  -R, --random-sort            group equal keys randomly\n      --random-source=FILE     obtain random seed from FILE\n  -r, --reverse                reverse comparisons\n  -V, --version-sort           compare version numbers\n  -k, --key=KEYDEF             use F[.C][OPTS][,F[.C][OPTS]]\n  -t, --field-separator=SEP    separate fields with SEP\n  -u, --unique                 output first of equal keys\n  -s, --stable                 disable whole-line fallback\n  -c, --check[=diagnose-first|quiet|silent] check order\n  -C                          check order silently\n  -m, --merge                  merge sorted files\n  -o, --output=FILE            write output to FILE\n  -z, --zero-terminated        use NUL records\n  -S, --buffer-size=SIZE       memory buffer size (external merge deferred)\n  -T, --temporary-directory=DIR temporary directory\n      --parallel=N            accepted worker count\n      --sort=WORD             general-numeric,human-numeric,month,numeric,random,version\n      --files0-from=FILE       read NUL-separated input names\n      --batch-size=N          merge at most N files per batch\n      --help                  display this help\n      --version               output version information\nExit status: 0 success, 1 disorder, 2 error.\n";
+const HELP: &str = "Usage: sort [OPTION]... [FILE]...\nSort lines using byte order in the C locale.\n  -b, --ignore-leading-blanks   ignore leading blanks\n  -d, --dictionary-order       compare letters, digits and blanks\n  -f, --ignore-case            fold ASCII case\n  -g, --general-numeric-sort   compare floating point numbers\n  -i, --ignore-nonprinting     ignore nonprinting bytes\n  -M, --month-sort             compare month abbreviations\n  -h, --human-numeric-sort     compare human sizes\n  -n, --numeric-sort           compare exact decimal numbers\n  -R, --random-sort            group equal keys randomly\n      --random-source=FILE     obtain random seed from FILE\n  -r, --reverse                reverse comparisons\n  -V, --version-sort           compare version numbers\n  -k, --key=KEYDEF             use F[.C][OPTS][,F[.C][OPTS]]\n  -t, --field-separator=SEP    separate fields with SEP\n  -u, --unique                 output first of equal keys\n  -s, --stable                 disable whole-line fallback\n  -c, --check[=diagnose-first|quiet|silent] check order\n  -C                          check order silently\n  -m, --merge                  merge sorted files\n  -o, --output=FILE            write output to FILE\n  -z, --zero-terminated        use NUL records\n  -S, --buffer-size=SIZE       memory budget before external spill (default 256 MiB)\n  -T, --temporary-directory=DIR temporary directory\n      --parallel=N            accepted worker count\n      --sort=WORD             general-numeric,human-numeric,month,numeric,random,version\n      --files0-from=FILE       read NUL-separated input names\n      --batch-size=N          merge at most N files per batch\n      --help                  display this help\n      --version               output version information\nExit status: 0 success, 1 disorder, 2 error.\n";
 
 fn usage(message: &str) -> i32 {
     error::usage("sort", message, 2)
@@ -67,6 +70,8 @@ pub fn run(arguments: &[String]) -> i32 {
         (Vec::new(), Vec::new(), None, None, None, None);
     let (mut stable, mut unique, mut check, mut quiet, mut merge, mut delimiter) =
         (false, false, false, false, false, b'\n');
+    let mut storage = Config::default();
+    let mut temporary_set = false;
     for item in parsed {
         let (id, value) = match item {
             Item::Operand(s) => {
@@ -148,25 +153,28 @@ pub fn run(arguments: &[String]) -> i32 {
                 global.mode = mode;
             }
             "parallel" | "batch-size" => {
-                if value
-                    .as_ref()
-                    .and_then(|v| v.parse::<usize>().ok())
-                    .is_none_or(|n| n < if id == "batch-size" { 2 } else { 1 })
-                {
-                    return usage("invalid count");
+                let minimum = if id == "batch-size" { 2 } else { 1 };
+                let count = match value.as_ref().and_then(|v| v.parse::<usize>().ok()) {
+                    Some(n) if n >= minimum => n,
+                    _ => return usage("invalid count"),
+                };
+                if id == "batch-size" {
+                    storage.batch_size = count;
                 }
             }
-            "buffer-size" => {
-                let v = value.unwrap();
-                if !v.as_bytes().first().is_some_and(u8::is_ascii_digit)
-                    || !v
-                        .bytes()
-                        .all(|b| b.is_ascii_digit() || b"bBkKmMgGtTpPeEzZyYrRqQ%".contains(&b))
-                {
-                    return usage("invalid buffer size");
+            "buffer-size" => match storage::buffer_size(&value.unwrap()) {
+                Ok(size) => storage.memory_limit = size,
+                Err(error) => return usage(error),
+            },
+            "temporary-directory" => {
+                if !temporary_set {
+                    storage.temporary_dirs.clear();
+                    temporary_set = true;
                 }
+                storage
+                    .temporary_dirs
+                    .push(std::path::PathBuf::from(value.unwrap()));
             }
-            "temporary-directory" => {}
             _ => unreachable!(),
         }
     }
@@ -248,74 +256,58 @@ pub fn run(arguments: &[String]) -> i32 {
             }
         })
     };
-    let mut inputs = Vec::new();
+    let mut sorter = Sorter::new(storage, &compare);
+    sorter.set_unique(unique);
     for name in &files {
-        let mut rows = Vec::new();
-        match io::input(name).and_then(|mut r| {
-            io::records(&mut r, delimiter, |line| {
-                rows.push(line.to_vec());
-                Ok(())
-            })
-        }) {
-            Ok(()) => {}
-            Err(e) => {
-                eprintln!("sort: {name}: {}", error::io_text(&e));
+        let mut input = match io::input(name) {
+            Ok(input) => input,
+            Err(error) => {
+                eprintln!("sort: {name}: {}", error::io_text(&error));
                 return 2;
             }
-        }
+        };
         if check {
-            for (i, pair) in rows.windows(2).enumerate() {
-                if compare(&pair[0], &pair[1]) == Ordering::Greater
-                    || unique && compare_keys(&pair[0], &pair[1]) == Ordering::Equal
-                {
+            return match storage::check(&mut input, delimiter, unique, &compare, &compare_keys) {
+                Ok(Some((line, row))) => {
                     if !quiet {
                         eprintln!(
-                            "sort: {name}:{}: disorder: {}",
-                            i + 2,
-                            String::from_utf8_lossy(&pair[1])
+                            "sort: {name}:{line}: disorder: {}",
+                            String::from_utf8_lossy(&row)
                         );
                     }
-                    return 1;
+                    1
                 }
-            }
-            return 0;
+                Ok(None) => 0,
+                Err(error) => {
+                    eprintln!("sort: {name}: {}", error::io_text(&error));
+                    2
+                }
+            };
         }
-        inputs.push(rows);
-    }
-    let mut rows = if merge {
-        let mut positions = vec![0; inputs.len()];
-        let mut rows = Vec::new();
-        while let Some(index) = (0..inputs.len())
-            .filter(|i| positions[*i] < inputs[*i].len())
-            .min_by(|i, j| compare(&inputs[*i][positions[*i]], &inputs[*j][positions[*j]]))
-        {
-            rows.push(inputs[index][positions[index]].clone());
-            positions[index] += 1;
-        }
-        rows
-    } else {
-        let mut rows: Vec<_> = inputs.into_iter().flatten().collect();
-        rows.sort_by(|a, b| compare(a, b));
-        rows
-    };
-    if unique {
-        rows.dedup_by(|a, b| compare_keys(a, b) == Ordering::Equal);
-    }
-    let write = |out: &mut dyn Write| {
-        for row in &rows {
-            out.write_all(row)?;
-            out.write_all(&[delimiter])?;
-        }
-        Ok(())
-    };
-    if let Some(name) = output {
-        if let Err(e) =
-            std::fs::File::create(&name).and_then(|mut f| write(&mut f).and_then(|()| f.flush()))
-        {
-            eprintln!("sort: {name}: {}", error::io_text(&e));
+        let result = if merge {
+            sorter.add_sorted_input(&mut input, delimiter)
+        } else {
+            io::records(&mut input, delimiter, |row| sorter.push(row.to_vec()))
+        };
+        if let Err(error) = result {
+            eprintln!("sort: {name}: {}", error::io_text(&error));
             return 2;
         }
-        0
+    }
+    let write = |out: &mut dyn Write| {
+        sorter.finish(&mut |row| {
+            out.write_all(row)?;
+            out.write_all(&[delimiter])
+        })
+    };
+    if let Some(name) = output {
+        let result = storage::output(&name, write);
+        if let Err(error) = result {
+            eprintln!("sort: {name}: {}", error::io_text(&error));
+            2
+        } else {
+            0
+        }
     } else {
         let code = io::output("sort", write);
         if code == 1 {
@@ -329,8 +321,29 @@ pub fn run(arguments: &[String]) -> i32 {
 #[cfg(test)]
 mod tests {
     #[test]
-    #[ignore = "Phase 3: external merge must enforce -S memory limits"]
     fn external_merge_memory_limit() {
-        panic!("external merge is deferred to Phase 3");
+        let root = std::env::temp_dir().join(format!(
+            "agentcmd-sort-spill-{}-{}",
+            std::process::id(),
+            rand::random::<u64>()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let input = root.join("input");
+        let output = root.join("output");
+        let lines: Vec<_> = (0..200).map(|n| format!("{n:04} value\n")).collect();
+        std::fs::write(&input, lines.iter().rev().cloned().collect::<String>()).unwrap();
+        let args = vec![
+            "-S1K".into(),
+            "--batch-size=2".into(),
+            "-T".into(),
+            root.to_string_lossy().into_owned(),
+            "-o".into(),
+            output.to_string_lossy().into_owned(),
+            input.to_string_lossy().into_owned(),
+        ];
+        assert_eq!(super::run(&args), 0);
+        assert_eq!(std::fs::read(&output).unwrap(), lines.concat().as_bytes());
+        assert_eq!(std::fs::read_dir(&root).unwrap().count(), 2);
+        std::fs::remove_dir_all(root).unwrap();
     }
 }

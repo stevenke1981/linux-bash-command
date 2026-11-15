@@ -245,6 +245,23 @@ fn gnu_differential() {
         let cases = data["cases"].as_array().unwrap();
         let minimum = if matches!(util, "cat" | "head" | "tail" | "grep" | "find" | "ls") {
             5
+        } else if matches!(
+            util,
+            "join"
+                | "od"
+                | "split"
+                | "csplit"
+                | "fmt"
+                | "pr"
+                | "shuf"
+                | "tsort"
+                | "numfmt"
+                | "factor"
+                | "expr"
+                | "pathchk"
+                | "ptx"
+        ) {
+            10
         } else {
             15
         };

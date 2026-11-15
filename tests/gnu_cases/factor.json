@@ -1,0 +1,104 @@
+{
+  "command": "factor",
+  "cases": [
+    {
+      "name": "zero",
+      "args": [
+        "0"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "one",
+      "args": [
+        "1"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "prime",
+      "args": [
+        "97"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "composite",
+      "args": [
+        "360"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "multiple",
+      "args": [
+        "0",
+        "1",
+        "2",
+        "36"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "input",
+      "args": [],
+      "stdin": "15 17\n"
+    },
+    {
+      "name": "leading-zero",
+      "args": [
+        "00012"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "plus",
+      "args": [
+        "+12"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "semiprime",
+      "args": [
+        "1000036000099"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "large-prime",
+      "args": [
+        "1000000007"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "exponents-long",
+      "args": [
+        "--exponents",
+        "360"
+      ],
+      "stdin": ""
+    }
+  ]
+}

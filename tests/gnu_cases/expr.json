@@ -1,0 +1,394 @@
+{
+  "command": "expr",
+  "cases": [
+    {
+      "name": "precedence",
+      "args": [
+        "2",
+        "+",
+        "3",
+        "*",
+        "4"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "parentheses",
+      "args": [
+        "(",
+        "2",
+        "+",
+        "3",
+        ")",
+        "*",
+        "4"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "numeric_compare",
+      "args": [
+        "5",
+        "<",
+        "12"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "string_compare",
+      "args": [
+        "a",
+        ">",
+        "b"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "or_short_circuit",
+      "args": [
+        "yes",
+        "|",
+        "1",
+        "/",
+        "0"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "and_short_circuit",
+      "args": [
+        "0",
+        "&",
+        "1",
+        "/",
+        "0"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty",
+      "args": [
+        ""
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "negative_zero",
+      "args": [
+        "-00"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "plus_string",
+      "args": [
+        "+0"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "quoted_keyword",
+      "args": [
+        "+",
+        "length"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "length",
+      "args": [
+        "length",
+        "abc"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "index",
+      "args": [
+        "index",
+        "abcdef",
+        "ed"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "substr",
+      "args": [
+        "substr",
+        "abcdef",
+        "2",
+        "3"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "substr_zero",
+      "args": [
+        "substr",
+        "abcdef",
+        "0",
+        "3"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "longest",
+      "args": [
+        "abc",
+        ":",
+        "a\\|ab"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "capture_tie",
+      "args": [
+        "abc",
+        ":",
+        "\\(a\\|ab\\).*"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "backreference",
+      "args": [
+        "abab",
+        ":",
+        "\\(ab\\)\\1"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "capture_missing",
+      "args": [
+        "match",
+        "abc",
+        "\\(z\\)"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty_repetition",
+      "args": [
+        "xxx",
+        ":",
+        "\\(\\)*"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "syntax",
+      "args": [
+        "1",
+        "+"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_regex",
+      "args": [
+        "x",
+        ":",
+        "["
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "division_error_spec",
+      "args": [
+        "1",
+        "/",
+        "0"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "integer_error_spec",
+      "args": [
+        "a",
+        "+",
+        "1"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "repeated_subgroup_priority",
+      "args": [
+        "aaaa",
+        ":",
+        "\\(a\\|aa\\)*"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "boundary_retains_right_context",
+      "args": [
+        "ab",
+        ":",
+        "\\(a\\)\\B"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "end_anchor_retains_right_context",
+      "args": [
+        "ab",
+        ":",
+        "a$"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

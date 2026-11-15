@@ -105,3 +105,17 @@ including Windows/Linux/macOS builds, GNU differential, lint and coverage.
 
 Every measured module exceeds 80%; the lowest is common/meta at 80.85%.
 Phase 2 has its own subsequent measurement; the above is the immutable P0/P1 result.
+
+
+## Accepted Phase 2 measurement, 2026-11-15
+
+Source: `071f6a9e448e4a0ef34f93b25673724ed9169361`, Ubuntu 24.04,
+[CI coverage artifact](https://github.com/stevenke1981/linux-bash-command/actions/runs/43690770481).
+All six CI jobs passed. This supersedes earlier Phase 2 candidate measurements.
+
+| Scope | Covered / lines | Coverage |
+|---|---:|---:|
+| common | 1,901 / 2,043 | 93.05% |
+| commands | 9,555 / 10,488 | 91.10% |
+
+Every measured common/command file exceeds 80%.

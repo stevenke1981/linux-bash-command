@@ -15,14 +15,25 @@ pub fn input(path: &str) -> io::Result<Box<dyn BufRead>> {
 }
 
 pub fn output(command: &str, action: impl FnOnce(&mut dyn Write) -> io::Result<()>) -> i32 {
+    output_status(command, 0, 1, action)
+}
+
+/// Preserve a command's predicate status on successful output, while a closed
+/// reader always ends quietly with status zero.
+pub fn output_status(
+    command: &str,
+    success: i32,
+    failure: i32,
+    action: impl FnOnce(&mut dyn Write) -> io::Result<()>,
+) -> i32 {
     let stdout = io::stdout();
     let mut out = BufWriter::with_capacity(BUFFER_SIZE, stdout.lock());
     match action(&mut out).and_then(|()| out.flush()) {
-        Ok(()) => 0,
+        Ok(()) => success,
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
             eprintln!("{command}: write error: {}", super::error::io_text(&error));
-            1
+            failure
         }
     }
 }

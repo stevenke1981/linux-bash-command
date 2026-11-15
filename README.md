@@ -93,7 +93,7 @@ Use `--` before positional arguments that begin with a dash. Arguments must be v
 
 ### Phase 1 text pipelines
 
-The multi-call registry includes 78 names: the original 17, these 29 Phase 1 names, and 32 Phase 2 names:
+The multi-call registry includes 91 names: the original 17, these 29 Phase 1 names, 32 Phase 2 names, and 13 Phase 3 names:
 
 `wc sort uniq cut tr tee echo printf true false test [ seq tac nl paste comm fold expand unexpand yes basename dirname xargs env printenv sleep egrep fgrep`.
 
@@ -108,7 +108,7 @@ agentcmd sort -t, -k2,2n data.csv
 agentcmd env -i PATH=/usr/bin:/bin printenv PATH
 ```
 
-Phase 1 data processing uses byte order and ASCII classes in the C locale. `wc -m` explicitly counts UTF-8 characters, including one character per invalid byte. `seq` uses exact decimal steps unless scientific notation or a custom format requires floating point. `printf`, `seq`, and `sort -g` use `f64`. `sort` currently sorts in memory; external merge is scheduled for Phase 3. Broken output pipes exit silently with status 0. The full specification and documented exceptions are in [Linux commands](docs/spec/linux-commands/README.md) and its [known differences](docs/spec/linux-commands/07-phases.md).
+Phase 1 data processing uses byte order and ASCII classes in the C locale. `wc -m` explicitly counts UTF-8 characters, including one character per invalid byte. `seq` uses exact decimal steps unless scientific notation or a custom format requires floating point. `printf`, `seq`, and `sort -g` use `f64`. `sort` spills to a stable external merge when its 256 MiB memory budget (or `-S`) is exceeded; `-T` and `--batch-size` control its temporary storage and merge fan-in. Broken output pipes exit silently with status 0. The full specification and documented exceptions are in [Linux commands](docs/spec/linux-commands/README.md) and its [known differences](docs/spec/linux-commands/07-phases.md).
 
 On Windows, `echo`, `tee`, `sort`, and `sleep` can conflict with PowerShell commands, while `expand` and `sort` also conflict with System32 executables. Use `agentcmd <name>` or an explicit executable path to select this implementation.
 
@@ -164,3 +164,7 @@ Use `--help` on each command for the implemented options. Standard input is sele
 ## Development
 
 Automated CLI tests use temporary directories and cover common success and error paths.
+
+### Additional data and formatting commands
+
+`join od split csplit fmt pr shuf tsort numfmt factor expr pathchk ptx` are available through the registry and standalone executables. Duplicate join groups and permuted indexes spill to private temporary files. `factor` supports u128 values using certified prime factors; `expr` uses checked i128 arithmetic. See each command's help for options and the known-differences table for required GNU exceptions. Attribution for the MIT-licensed formatting components is in [NOTICE.md](NOTICE.md).

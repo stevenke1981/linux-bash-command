@@ -1,0 +1,562 @@
+{
+    "command":  "shuf",
+    "cases":  [
+                  {
+                      "name":  "help",
+                      "args":  [
+                                   "--help"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "version",
+                      "args":  [
+                                   "--version"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "single_default",
+                      "args":  [
+
+                               ],
+                      "stdin":  "one\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "empty_stdin",
+                      "args":  [
+
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "echo_random",
+                      "args":  [
+                                   "--echo",
+                                   "a",
+                                   "b",
+                                   "c"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "echo_head_count",
+                      "args":  [
+                                   "-e",
+                                   "x",
+                                   "y",
+                                   "z",
+                                   "--head-count=1"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "range_single",
+                      "args":  [
+                                   "--input-range=8-8",
+                                   "--head-count=1"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "range_repeat_single",
+                      "args":  [
+                                   "-i",
+                                   "1-1",
+                                   "-r",
+                                   "-n",
+                                   "4"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "head_zero",
+                      "args":  [
+                                   "--head-count=0"
+                               ],
+                      "stdin":  "a\nb\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "output_file",
+                      "args":  [
+                                   "--echo",
+                                   "only",
+                                   "--output=out"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+                                    "out":  ""
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "files",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "zero_terminated_single",
+                      "args":  [
+                                   "--zero-terminated"
+                               ],
+                      "stdin":  "x\u0000",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "random_source_repeatable",
+                      "args":  [
+                                   "--random-source=seed",
+                                   "--head-count=2"
+                               ],
+                      "stdin":  "a\nb\nc\n",
+                      "files":  {
+                                    "seed":  "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss"
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "large_sparse_sample",
+                      "args":  [
+                                   "--input-range=1-1000000000",
+                                   "--head-count=2"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "invalid_range",
+                      "args":  [
+                                   "--input-range=9-2"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "exclusive_selectors",
+                      "args":  [
+                                   "--echo",
+                                   "--input-range=1-2",
+                                   "x"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "extra_operand",
+                      "args":  [
+                                   "a",
+                                   "b"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "missing_random_source",
+                      "args":  [
+                                   "--random-source=absent"
+                               ],
+                      "stdin":  "x\ny\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "short_output_file",
+                      "args":  [
+                                   "--echo",
+                                   "only",
+                                   "-o",
+                                   "out"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+                                    "out":  ""
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "files",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "short_repeat_single",
+                      "args":  [
+                                   "-e",
+                                   "only",
+                                   "-r",
+                                   "-n",
+                                   "3"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "short_zero_terminated",
+                      "args":  [
+                                   "-z"
+                               ],
+                      "stdin":  "x\u0000",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "u64_max_singleton",
+                      "args":  [
+                                   "--input-range=18446744073709551615-18446744073709551615",
+                                   "--head-count=1"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "empty_range_sentinel",
+                      "args":  [
+                                   "--input-range=1-0"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "negative_range_invalid",
+                      "args":  [
+                                   "--input-range=-1-5"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "random_source_eof_when_draw_required",
+                      "args":  [
+                                   "--random-source=empty-seed"
+                               ],
+                      "stdin":  "a\nb\n",
+                      "files":  {
+                                    "empty-seed":  ""
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "short_seed_repeat_multiple_draws",
+                      "args":  [
+                                   "--echo",
+                                   "a",
+                                   "b",
+                                   "--repeat",
+                                   "-n",
+                                   "2",
+                                   "--random-source=seed"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+                                    "seed":  {
+                                                 "hex":  "00"
+                                             }
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "short_seed_partial_shuffle_multiple_draws",
+                      "args":  [
+                                   "--echo",
+                                   "a",
+                                   "b",
+                                   "c",
+                                   "-n",
+                                   "2",
+                                   "--random-source=seed"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+                                    "seed":  {
+                                                 "hex":  "00"
+                                             }
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "zero_count_missing_input_skips_open",
+                      "args":  [
+                                   "-n",
+                                   "0",
+                                   "missing"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "full_u64_domain_eight_byte_source",
+                      "args":  [
+                                   "--input-range=0-18446744073709551615",
+                                   "-n",
+                                   "1",
+                                   "--random-source=seed"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+                                    "seed":  {
+                                                 "hex":  "0000000000000000"
+                                             }
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "zero_count_does_not_open_random_source",
+                      "args":  [
+                                   "-n",
+                                   "0",
+                                   "--random-source=absent"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "shuf"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  }
+              ]
+}

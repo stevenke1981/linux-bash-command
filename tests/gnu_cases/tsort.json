@@ -1,0 +1,233 @@
+{
+    "command":  "tsort",
+    "cases":  [
+                  {
+                      "name":  "help",
+                      "args":  [
+                                   "--help"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "version",
+                      "args":  [
+                                   "--version"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "chain",
+                      "args":  [
+
+                               ],
+                      "stdin":  "a b\nb c\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "first_seen_kahn",
+                      "args":  [
+
+                               ],
+                      "stdin":  "a b\nc d\ne f\na c\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "duplicate_edge",
+                      "args":  [
+
+                               ],
+                      "stdin":  "a b\na b\nb c\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "cycle",
+                      "args":  [
+
+                               ],
+                      "stdin":  "a b\nb a\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "odd_tokens",
+                      "args":  [
+
+                               ],
+                      "stdin":  "a b c\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "empty_input",
+                      "args":  [
+
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "file_input",
+                      "args":  [
+                                   "data"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+                                    "data":  "root child\n"
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "missing_file",
+                      "args":  [
+                                   "missing"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "extra_operand",
+                      "args":  [
+                                   "one",
+                                   "two"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "unknown_option",
+                      "args":  [
+                                   "--unexpected"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "self_pair_declares_node",
+                      "args":  [
+
+                               ],
+                      "stdin":  "a a\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "tsort"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  }
+              ]
+}

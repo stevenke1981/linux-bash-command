@@ -3,7 +3,7 @@ use std::collections::BTreeSet;
 
 #[test]
 fn every_implemented_phase_help_option_has_a_case() {
-    let names = "wc sort uniq cut tr tee echo printf true false test [ seq tac nl paste comm fold expand unexpand yes basename dirname xargs env printenv sleep egrep fgrep mkdir rm rmdir cp mv touch ln link unlink realpath readlink stat du mktemp date md5sum sha1sum sha224sum sha256sum sha384sum sha512sum b2sum cksum sum base64 base32 basenc truncate nproc hostname arch uptime ls find df";
+    let names = "wc sort uniq cut tr tee echo printf true false test [ seq tac nl paste comm fold expand unexpand yes basename dirname xargs env printenv sleep egrep fgrep mkdir rm rmdir cp mv touch ln link unlink realpath readlink stat du mktemp date md5sum sha1sum sha224sum sha256sum sha384sum sha512sum b2sum cksum sum base64 base32 basenc truncate nproc hostname arch uptime ls find df join od split csplit fmt pr shuf tsort numfmt factor expr pathchk ptx";
     let pattern = regex::Regex::new(r"--[a-z][a-z0-9-]*").unwrap();
     let cli_cases: serde_json::Value =
         serde_json::from_str(include_str!("cli_option_cases.json")).unwrap();

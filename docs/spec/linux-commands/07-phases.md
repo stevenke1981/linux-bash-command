@@ -79,7 +79,6 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | sed | pattern 內 backreference 不支援 | `regex` crate 限制 | `sed_backref`（skip） |
 | awk | 不支援 pipe／`system()` | 需 shell | — |
 | diff | 預設 unified → P4 改 normal | 對齊 GNU | — |
-| sort | P1 全部讀入記憶體，`-S`/`-T` 尚不觸發外部合併 | 本階段明確允許延至 P3；保留 ignored 測試 | `sort::tests::external_merge_memory_limit`（ignore） |
 | test / [ | `<`、`>` 字串比較依本規格支援；GNU test 9.4 回傳 2 | 規格優先；CLI golden 驗證 | `test/less`, `test/greater`, `[/less`, `[/greater`（skip） |
 | seq | 小數位數取所有運算元最大值；GNU 不從 LAST 推導精度 | 03 明定規則優先；CLI golden 驗證 | `seq/last_precision_spec`（skip） |
 | printenv | NAME 後的選項仍置換解析；GNU 9.4 遇 NAME 即停止 | 02 預設置換，例外未列 printenv | `printenv/permutation`（skip） |
@@ -99,6 +98,8 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | date / touch | Calendar representation is limited to years -9999 through 9999 | Allowlisted jiff representation | `common::datetime` range checks |
 | nproc | `--all` ignores both OpenMP variables; otherwise OMP_NUM_THREADS supplies the count and OMP_THREAD_LIMIT caps it | Resolve the parenthetical ambiguity by GNU behavior | GNU cases and `sysinfo_cmds` units |
 | stat -f (Windows) | Linux filesystem magic and inode capacity are unavailable, shown as `?` / `-`; native type, serial and blocks are reported | Native Windows APIs cannot express Linux-only fields | Windows CLI metadata tests |
+
+| od fL | Long double is represented and formatted as f64 | 03 explicitly requires this portable representation | od numeric CLI goldens |
 
 ## 回報格式（每階段完成時，Codex 輸出）
 
