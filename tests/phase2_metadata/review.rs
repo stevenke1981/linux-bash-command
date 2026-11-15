@@ -228,6 +228,34 @@ fn stat_context_placeholder_reports_unavailable_context() {
 }
 
 #[test]
+fn stat_default_names_use_shell_quoting_and_custom_names_always_quote() {
+    let s = Sandbox::new();
+    s.write("sample", b"x");
+    s.write("has space", b"x");
+    let out = run(&s, "stat", &["sample"]);
+    success(&out);
+    assert!(out.stdout.starts_with(b"  File: sample\n"));
+    let out = run(&s, "stat", &["has space"]);
+    success(&out);
+    assert!(out.stdout.starts_with(b"  File: 'has space'\n"));
+    assert_eq!(
+        run(&s, "stat", &["--format=%N", "sample"]).stdout,
+        b"'sample'\n"
+    );
+    #[cfg(unix)]
+    {
+        std::os::unix::fs::symlink("sample", s.path.join("link")).unwrap();
+        let out = run(&s, "stat", &["link"]);
+        success(&out);
+        assert!(out.stdout.starts_with(b"  File: link -> sample\n"));
+        assert_eq!(
+            run(&s, "stat", &["--format=%N", "link"]).stdout,
+            b"'link' -> 'sample'\n"
+        );
+    }
+}
+
+#[test]
 fn du_modification_time_uses_bare_time_option() {
     let s = Sandbox::new();
     s.write("file", b"x");

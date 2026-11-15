@@ -93,7 +93,13 @@ pub fn run(args: &[String]) -> i32 {
                 } else {
                     fs::symlink_metadata(path)
                 })
-                .map(|meta| format::render_bytes(path, &meta, &template))
+                .map(|meta| {
+                    if custom {
+                        format::render_bytes(path, &meta, &template)
+                    } else {
+                        format::render_default_bytes(path, &meta, &template)
+                    }
+                })
             };
             match rendered {
                 Ok(text) => {

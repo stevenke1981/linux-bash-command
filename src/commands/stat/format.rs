@@ -78,6 +78,19 @@ pub fn device_parts(device: u64) -> (u64, u64) {
 }
 
 pub fn render_bytes(path: &Path, metadata: &Metadata, template: &[u8]) -> Vec<u8> {
+    render_with_name_quoting(path, metadata, template, true)
+}
+
+pub fn render_default_bytes(path: &Path, metadata: &Metadata, template: &[u8]) -> Vec<u8> {
+    render_with_name_quoting(path, metadata, template, false)
+}
+
+fn render_with_name_quoting(
+    path: &Path,
+    metadata: &Metadata,
+    template: &[u8],
+    always_quote: bool,
+) -> Vec<u8> {
     let id = meta::file_identity(path, metadata);
     let (uid, gid) = meta::owner_ids(metadata);
     let mode = meta::permission_bits_at(path, metadata);
@@ -141,12 +154,12 @@ pub fn render_bytes(path: &Path, metadata: &Metadata, template: &[u8]) -> Vec<u8
                     "m" => display_path(&mount(path)),
                     "n" => display_path(path),
                     "N" => {
-                        let mut text = quoted_name(&display_path(path));
+                        let mut text = quoted_name(&display_path(path), always_quote);
                         if metadata.file_type().is_symlink() {
                             if let Ok(target) = fs::read_link(path) {
                                 text.push_str(&format!(
                                     " -> {}",
-                                    quoted_name(&display_path(&target))
+                                    quoted_name(&display_path(&target), always_quote)
                                 ));
                             }
                         }
@@ -357,9 +370,9 @@ pub(super) fn context_requested(template: &[u8]) -> bool {
     false
 }
 
-fn quoted_name(name: &str) -> String {
+fn quoted_name(name: &str, always: bool) -> String {
     let quoted = crate::common::escape::quote_name(name.as_bytes());
-    if quoted == name.as_bytes() {
+    if always && quoted == name.as_bytes() {
         format!("'{name}'")
     } else {
         String::from_utf8_lossy(&quoted).into_owned()

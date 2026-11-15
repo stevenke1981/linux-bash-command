@@ -93,3 +93,38 @@ fn negative_fractional_timestamp_uses_floor_seconds() {
         assert_eq!(out.stdout, expected.as_bytes());
     }
 }
+
+#[test]
+fn move_strips_requested_trailing_separators_and_respects_older_update() {
+    let sandbox = Sandbox::new();
+    sandbox.write("source", b"data");
+    let output = run(
+        &sandbox,
+        "mv",
+        &[
+            "--strip-trailing-slashes",
+            "--no-target-directory",
+            "source/",
+            "destination",
+        ],
+        b"",
+    );
+    assert_eq!(output.status.code(), Some(0), "{output:?}");
+    assert_eq!(fs::read(sandbox.path.join("destination")).unwrap(), b"data");
+    sandbox.write("old", b"old");
+    sandbox.write("new", b"new");
+    filetime::set_file_mtime(
+        sandbox.path.join("old"),
+        filetime::FileTime::from_unix_time(100, 0),
+    )
+    .unwrap();
+    filetime::set_file_mtime(
+        sandbox.path.join("new"),
+        filetime::FileTime::from_unix_time(200, 0),
+    )
+    .unwrap();
+    let output = run(&sandbox, "mv", &["-u", "old", "new"], b"");
+    assert_eq!(output.status.code(), Some(0), "{output:?}");
+    assert_eq!(fs::read(sandbox.path.join("old")).unwrap(), b"old");
+    assert_eq!(fs::read(sandbox.path.join("new")).unwrap(), b"new");
+}

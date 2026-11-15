@@ -67,3 +67,16 @@ macOS's kernel may clear setgid bits; special-bit formatting is now verified wit
 pure supplied modes while native permission tests use ordinary modes.
 
 Third candidate Windows: 1,496 passed, 0 failed, 1 ignored; fmt/clippy PASS.
+
+
+Third CI candidate: `1c4f438`, run
+https://github.com/stevenke1981/linux-bash-command/actions/runs/43688703866.
+GNU JSON: 1,836 passed, 0 failed, 29 documented skips. The separate large-stream
+SysV oracle also passed. Linux build, lint and coverage passed. The same-file stat
+oracle found a default-only quoting difference, repaired without changing explicit
+%N formats. Six macOS path expectations now canonicalize only the sandbox prefix.
+Coverage: common 1,901/2,043 (93.05%); commands 9,533/10,473 (91.03%). Only mv was
+below80% (192/241,79.67%); a trailing-separator/update regression exercises its
+remaining normal option paths. Final CI acceptance remains pending.
+
+Fourth candidate Windows: 1,498 passed, 0 failed, 1 ignored; fmt/clippy PASS.

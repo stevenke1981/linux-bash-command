@@ -1,7 +1,8 @@
 use super::*;
 
-fn shown(path: &std::path::Path) -> String {
-    agentcmd::display_path(path)
+fn shown(sandbox: &Sandbox, relative: &str) -> String {
+    let physical_root = std::fs::canonicalize(&sandbox.path).unwrap();
+    agentcmd::display_path(&physical_root.join(relative))
 }
 
 #[test]
@@ -25,7 +26,7 @@ fn realpath_parent_may_end_in_a_missing_name() {
     let s = Sandbox::new();
     let out = run(&s, "realpath", &["missing"]);
     success(&out);
-    assert_eq!(text(&out), format!("{}\n", shown(&s.path.join("missing"))));
+    assert_eq!(text(&out), format!("{}\n", shown(&s, "missing")));
 }
 #[test]
 fn realpath_existing_and_missing_policies() {
@@ -38,7 +39,7 @@ fn realpath_existing_and_missing_policies() {
     );
     let out = run(&s, "realpath", &["--canonicalize-missing", "a/b/../c"]);
     success(&out);
-    assert_eq!(text(&out), format!("{}\n", shown(&s.path.join("a/c"))));
+    assert_eq!(text(&out), format!("{}\n", shown(&s, "a/c")));
 }
 #[test]
 fn realpath_strip_normalizes_components() {
@@ -50,7 +51,7 @@ fn realpath_strip_normalizes_components() {
         &["--strip", "--no-symlinks", "--logical", "a/../a/file"],
     );
     success(&out);
-    assert_eq!(text(&out), format!("{}\n", shown(&s.path.join("a/file"))));
+    assert_eq!(text(&out), format!("{}\n", shown(&s, "a/file")));
 }
 #[test]
 fn realpath_relative_to_and_base() {
@@ -75,7 +76,7 @@ fn realpath_relative_base_keeps_outside_absolute() {
         &["--relative-to=a", "--relative-base=a", "b/file"],
     );
     success(&out);
-    assert_eq!(text(&out), format!("{}\n", shown(&s.path.join("b/file"))));
+    assert_eq!(text(&out), format!("{}\n", shown(&s, "b/file")));
 }
 #[test]
 fn realpath_zero_and_multiple_operands() {
@@ -149,7 +150,7 @@ fn readlink_canonicalize_accepts_missing_last_component() {
     let s = Sandbox::new();
     let out = run(&s, "readlink", &["-f", "missing"]);
     success(&out);
-    assert_eq!(text(&out), format!("{}\n", shown(&s.path.join("missing"))));
+    assert_eq!(text(&out), format!("{}\n", shown(&s, "missing")));
 }
 #[test]
 fn readlink_existing_requires_all_components() {
@@ -168,7 +169,7 @@ fn readlink_missing_and_no_newline() {
         &["--canonicalize-missing", "--no-newline", "one/two"],
     );
     success(&out);
-    assert_eq!(text(&out), shown(&s.path.join("one/two")));
+    assert_eq!(text(&out), shown(&s, "one/two"));
 }
 #[test]
 fn readlink_zero_delimiter() {
