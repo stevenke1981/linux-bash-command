@@ -1,7 +1,18 @@
-# Phase 1 驗證與覆蓋率
+# 驗證與覆蓋率
+
+## 2026-11-15 Phase 0 candidate
+
+- Windows `cargo test --locked`: 1,053 passed, 0 failed, 1 ignored.
+- Windows fmt and clippy (all targets, warnings denied): PASS.
+- Current Linux GNU, macOS, and coverage: pending CI; do not substitute the
+  historical measurements below for the current candidate.
+- Source/test snapshot: `2b9415eea68287fd99cb106c2cbf156a07e6f62ff418cde2e0f14b7e9ea502e5`.
+- Full evidence and outstanding gates: [Phase 0 report](../../implementation/linux-commands/phase-0.md).
+
+## Historical Phase 1 verification
 
 - 日期：2026-10-30（Asia/Taipei）。
-- Revision：本文件所屬的 `feat: implement phase 1 text pipeline commands` 提交；分支 `feat/phase1-coreutils`，parent `ca2e828`。可用 `git log -1 -- docs/spec/coreutils-alignment/coverage.md` 取得完整 commit。
+- Revision：本文件所屬的 `feat: implement phase 1 text pipeline commands` 提交；分支 `feat/phase1-coreutils`，parent `ca2e828`。可用 `git log -1 -- docs/spec/linux-commands/coverage.md` 取得完整 commit。
 - 已測 `src/` 與 `tests/` 快照 SHA-256：`42d036fc9dd7d4cd49a795d91a3a3f87fba1eb0ba8838fc3207e91ece2bd5690`。依路徑排序，逐檔串接 UTF-8 相對路徑、NUL、LF 正規化內容、NUL 計算。
 - Phase 1 新增 29 個 registry 名稱，連同既有指令共 46 個。原工作區同時進行的 Phase 0 修改保留在原處；本提交以獨立 worktree 驗證。
 

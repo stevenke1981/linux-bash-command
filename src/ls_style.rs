@@ -168,10 +168,8 @@ fn special_kind(_file_type: &fs::FileType) -> Option<&'static str> {
 
 /// Parses the value of `--color[=WHEN]`; the bare form means `always`, as in GNU ls.
 pub fn parse_color(value: Option<&str>) -> Result<color::When, i32> {
-    color::parse_when(value, color::When::Always).map_err(|error| {
-        eprintln!("ls: {error}");
-        2
-    })
+    color::parse_when(value, color::When::Always)
+        .map_err(|error| crate::common::error::usage("ls", error, 2))
 }
 
 /// Arranges short-format cells. Columns are used when forced by `-C`/`-x`, or on a

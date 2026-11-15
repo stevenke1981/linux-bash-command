@@ -49,6 +49,7 @@ Actions:
   -exec CMD {} +             Run CMD with batches of paths
   -execdir CMD {} ;          Like -exec, run in the entry's directory with ./NAME
   -ok, -okdir                Rejected (interactive prompts are not supported)
+  --help, --version          Show help or version information
 
 Operators: ( ) ! -not -a -and -o -or , (precedence as in GNU find).
 Exit status: 0 on success, 1 when some entries below a starting point could not be read
@@ -56,9 +57,35 @@ or an action failed, invalid usage, or a starting point that does not exist.
 ";
 
 pub fn find(args: &[String]) -> i32 {
-    if matches!(args.first().map(String::as_str), Some("--help" | "-h")) {
-        print!("{HELP}");
-        return 0;
+    let expanded;
+    let first = if let Some(arg) = args
+        .first()
+        .filter(|arg| arg.starts_with("--") && *arg != "--")
+    {
+        expanded = match crate::common::args::expand_long(arg, &["help", "version"]) {
+            Ok(arg) => arg,
+            Err(error) => return crate::common::error::usage("find", error, 1),
+        };
+        Some(expanded.as_str())
+    } else {
+        args.first().map(String::as_str)
+    };
+    if first == Some("--version") {
+        return crate::common::args::help_version("find", &["--version".into()], HELP, true)
+            .unwrap();
+    }
+    if matches!(first, Some("--help" | "-h")) {
+        return crate::common::args::help_version("find", &["--help".into()], HELP, true).unwrap();
+    }
+    if let Some(arg) = first.filter(|arg| arg.starts_with("--") && arg.contains('=')) {
+        return crate::common::error::usage(
+            "find",
+            format!(
+                "option '{}' doesn't allow an argument",
+                arg.split('=').next().unwrap()
+            ),
+            1,
+        );
     }
     match parse::parse(args) {
         Ok(plan) => walk::run(plan),

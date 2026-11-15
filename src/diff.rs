@@ -33,6 +33,7 @@ const USAGE: &str = concat!(
     "      --context N               Same as -U N\n",
     "      --color[=WHEN]            Color hunks on a terminal: auto (bare --color), always, never\n",
     "  -h, --help                    Show this help\n",
+    "      --version                 Show the version\n",
     "\n",
     "Not supported: -c, -C, -y, -e (only unified output is available).\n",
     "Exit status: 0 when equal, 1 when different, 2 on error.\n",
@@ -76,6 +77,7 @@ pub fn run(args: &[String]) -> i32 {
         .and_then(|status| out.flush().map(|()| status));
     match result {
         Ok(status) => status,
+        Err(error) if crate::common::io::is_closed_pipe(&error) => 0,
         Err(error) => {
             eprintln!("diff: cannot write output: {}", io_text(&error));
             2
@@ -90,12 +92,46 @@ fn parse_args(args: &[String]) -> Result<(Options, Vec<String>), i32> {
     };
     let mut paths = Vec::new();
     let mut end_of_options = false;
+    let posix = std::env::var_os("POSIXLY_CORRECT").is_some();
     let mut index = 0;
     while index < args.len() {
-        let arg = args[index].as_str();
+        let raw = args[index].as_str();
+        let expanded;
+        let arg = if !end_of_options && raw.starts_with("--") && raw != "--" {
+            expanded = crate::common::args::expand_long(
+                raw,
+                &[
+                    "help",
+                    "version",
+                    "brief",
+                    "report-identical-files",
+                    "recursive",
+                    "new-file",
+                    "ignore-all-space",
+                    "ignore-space-change",
+                    "ignore-blank-lines",
+                    "ignore-case",
+                    "strip-trailing-cr",
+                    "text",
+                    "unified",
+                    "label",
+                    "context",
+                    "color",
+                    "side-by-side",
+                    "ed",
+                    "normal",
+                    "context-format",
+                ],
+            )
+            .map_err(|error| usage("diff", error, 2))?;
+            expanded.as_str()
+        } else {
+            raw
+        };
         index += 1;
         if end_of_options || arg == "-" || !arg.starts_with('-') {
             paths.push(arg.to_string());
+            end_of_options |= posix;
         } else if arg == "--" {
             end_of_options = true;
         } else if let Some(name) = arg.strip_prefix("--") {
@@ -118,6 +154,15 @@ fn parse_long(
         "help" => {
             print!("{USAGE}");
             return Err(0);
+        }
+        "version" => {
+            return Err(crate::common::args::help_version(
+                "diff",
+                &["--version".into()],
+                USAGE,
+                true,
+            )
+            .unwrap());
         }
         "brief" => options.brief = true,
         "report-identical-files" => options.report_identical = true,

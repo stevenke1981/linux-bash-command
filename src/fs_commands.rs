@@ -5,7 +5,7 @@ use crate::common::size::human_size;
 use std::cmp::Ordering;
 use std::env;
 use std::fs;
-use std::io::{self, Write};
+use std::io::{self, BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -15,10 +15,6 @@ use crate::ls_style::{self, Layout, Style};
 const SECONDS_PER_DAY: i64 = 86_400;
 
 pub fn pwd(args: &[String]) -> i32 {
-    if args.iter().any(|arg| arg == "-h" || arg == "--help") {
-        println!("Usage: pwd [-L | -P]\nPrint the current working directory.\n\nOptions:\n  -L, --logical   Print $PWD when it names the current directory (default)\n  -P, --physical  Print the directory with symbolic links resolved\n  -h, --help      Show this help\n\nExit status: 0 on success, 1 on error.");
-        return 0;
-    }
     let physical = match parse_pwd_mode(args) {
         Ok(physical) => physical,
         Err(code) => return code,
@@ -51,29 +47,62 @@ fn parse_pwd_mode(args: &[String]) -> Result<bool, i32> {
     let mut physical = false;
     let mut options = true;
     for arg in args {
+        let expanded;
+        let arg = if options && arg.starts_with("--") && arg != "--" {
+            expanded =
+                crate::common::args::expand_long(arg, &["physical", "logical", "help", "version"])
+                    .map_err(|error| crate::common::error::usage("pwd", error, 1))?;
+            &expanded
+        } else {
+            arg
+        };
         if options && arg == "--" {
             options = false;
+        } else if options && (arg == "-h" || arg == "--help") {
+            return Err(crate::common::io::output("pwd", |out| {
+                writeln!(out, "Usage: pwd [-L | -P]\nPrint the current working directory.\n\nOptions:\n  -L, --logical   Print $PWD when it names the current directory (default)\n  -P, --physical  Print the directory with symbolic links resolved\n  -h, --help      Show this help\n      --version             Show version\n\nExit status: 0 on success, 1 on error.")
+            }));
+        } else if options && arg == "--version" {
+            return Err(
+                crate::common::args::help_version("pwd", &["--version".into()], "", true).unwrap(),
+            );
         } else if options && arg == "--physical" {
             physical = true;
         } else if options && arg == "--logical" {
             physical = false;
         } else if options && arg.starts_with("--") {
-            eprintln!("pwd: unknown option: {arg}");
-            return Err(1);
+            if let Some((name, _)) = arg.split_once('=') {
+                return Err(crate::common::error::usage(
+                    "pwd",
+                    format!("option '{name}' doesn't allow an argument"),
+                    1,
+                ));
+            }
+            return Err(crate::common::error::usage(
+                "pwd",
+                format!("unrecognized option '{arg}'"),
+                1,
+            ));
         } else if options && arg.len() > 1 && arg.starts_with('-') {
             for flag in arg[1..].chars() {
                 match flag {
                     'P' => physical = true,
                     'L' => physical = false,
                     _ => {
-                        eprintln!("pwd: unknown option: -{flag}");
-                        return Err(1);
+                        return Err(crate::common::error::usage(
+                            "pwd",
+                            format!("invalid option -- '{flag}'"),
+                            1,
+                        ));
                     }
                 }
             }
         } else {
-            eprintln!("pwd: this command does not accept arguments");
-            return Err(1);
+            return Err(crate::common::error::usage(
+                "pwd",
+                "this command does not accept arguments",
+                1,
+            ));
         }
     }
     Ok(physical)
@@ -175,7 +204,7 @@ enum Argument {
     Directory(PathBuf),
 }
 
-const LS_USAGE: &str = "Usage: ls [OPTION]... [PATH]...\nList directory entries. Times are shown in UTC.\n\nOptions:\n  -a, --all                Include dot-prefixed names, then . and ..\n  -A, --almost-all         Include dot-prefixed names, without . and ..\n  -f                       Same as -a -U\n  -l, -n, -o, -g           Long format: mode, link count, owner '-', group '-', size, time, name\n  -h, --human-readable     With -l, print sizes such as 512, 4.0K, 12M\n  -F, --classify           Append / to directories, @ to symlinks, * to executables\n  -p                       Append / to directories\n  -d, --directory          List directories themselves, not their contents\n  -R, --recursive          List subdirectories recursively\n  -t                       Sort by modification time, newest first\n  -S                       Sort by size, largest first\n  -v                       Sort names in natural order (file2 before file10)\n  -U                       Do not sort; use directory order\n  -r, --reverse            Reverse the sort order\n      --group-directories-first\n                           List directories before files\n      --full-time          With -l, show seconds and +0000\n      --time-style=STYLE   full-iso (seconds), or long-iso, iso, locale (minutes)\n  -C                       List entries in columns (default on a terminal)\n  -x                       List entries across rows instead of down columns\n  -1                       List one entry per line (default when piped)\n  -G                       Accepted and ignored\n      --color[=WHEN]       Color names by type, using LS_COLORS: always (bare form),\n                           auto (terminal only), or never\n      --show-control-chars Accepted and ignored\n  -i and -s are not supported and exit 2\n\nExit status: 0 on success, 1 on minor errors, 2 on serious errors.\n";
+const LS_USAGE: &str = "Usage: ls [OPTION]... [PATH]...\nList directory entries. Times are shown in UTC.\n\nOptions:\n  -a, --all                Include dot-prefixed names, then . and ..\n  -A, --almost-all         Include dot-prefixed names, without . and ..\n  -f                       Same as -a -U\n  -l, -n, -o, -g           Long format: mode, link count, owner '-', group '-', size, time, name\n  -h, --human-readable     With -l, print sizes such as 512, 4.0K, 12M\n  -F, --classify           Append / to directories, @ to symlinks, * to executables\n  -p                       Append / to directories\n  -d, --directory          List directories themselves, not their contents\n  -R, --recursive          List subdirectories recursively\n  -t                       Sort by modification time, newest first\n  -S                       Sort by size, largest first\n  -v                       Sort names in natural order (file2 before file10)\n  -U                       Do not sort; use directory order\n  -r, --reverse            Reverse the sort order\n      --group-directories-first\n                           List directories before files\n      --full-time          With -l, show seconds and +0000\n      --time-style=STYLE   full-iso (seconds), or long-iso, iso, locale (minutes)\n  -C                       List entries in columns (default on a terminal)\n  -x                       List entries across rows instead of down columns\n  -1                       List one entry per line (default when piped)\n  -G                       Accepted and ignored\n      --color[=WHEN]       Color names by type, using LS_COLORS: always (bare form),\n                           auto (terminal only), or never\n      --show-control-chars Accepted and ignored\n      --help               Show this help\n      --version            Show version\n  -i and -s are not supported and exit 2\n\nExit status: 0 on success, 1 on minor errors, 2 on serious errors.\n";
 
 pub fn ls(args: &[String]) -> i32 {
     let (options, paths) = match parse_ls(args) {
@@ -190,12 +219,13 @@ pub fn ls(args: &[String]) -> i32 {
         status: 0,
     };
     let stdout = io::stdout();
-    let mut out = stdout.lock();
-    match listing.run(&paths, &mut out) {
+    let mut out = BufWriter::with_capacity(crate::common::io::BUFFER_SIZE, stdout.lock());
+    match listing.run(&paths, &mut out).and_then(|()| out.flush()) {
         Ok(()) => listing.status,
+        Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
-            eprintln!("ls: cannot write output: {}", io_text(&error));
-            2
+            eprintln!("ls: write error: {}", io_text(&error));
+            1
         }
     }
 }
@@ -224,12 +254,10 @@ fn parse_ls(args: &[String]) -> Result<(LsOptions, Vec<PathBuf>), i32> {
                     "colour",
                     "show-control-chars",
                     "help",
+                    "version",
                 ],
             )
-            .map_err(|error| {
-                eprintln!("ls: {error}");
-                2
-            })?;
+            .map_err(|error| crate::common::error::usage("ls", error, 2))?;
             &expanded
         } else {
             arg
@@ -242,8 +270,21 @@ fn parse_ls(args: &[String]) -> Result<(LsOptions, Vec<PathBuf>), i32> {
         } else if arg == "--" {
             end_of_options = true;
         } else if arg == "--help" {
-            print!("{LS_USAGE}");
-            return Err(0);
+            return Err(crate::common::args::help_version(
+                "ls",
+                &["--help".into()],
+                LS_USAGE,
+                true,
+            )
+            .unwrap());
+        } else if arg == "--version" {
+            return Err(crate::common::args::help_version(
+                "ls",
+                &["--version".into()],
+                LS_USAGE,
+                true,
+            )
+            .unwrap());
         } else if let Some(name) = arg.strip_prefix("--") {
             parse_ls_long(name, arg, &mut options)?;
         } else {
@@ -286,12 +327,18 @@ fn parse_ls_short(flags: &str, options: &mut LsOptions) -> Result<(), i32> {
             '1' => options.layout = Layout::OneLine,
             'G' => {}
             'i' | 's' => {
-                eprintln!("ls: -{flag} is not supported");
-                return Err(2);
+                return Err(crate::common::error::usage(
+                    "ls",
+                    format!("option '-{flag}' is not supported by agentcmd"),
+                    2,
+                ));
             }
             _ => {
-                eprintln!("ls: unknown option: -{flag}");
-                return Err(2);
+                return Err(crate::common::error::usage(
+                    "ls",
+                    format!("invalid option -- '{flag}'"),
+                    2,
+                ));
             }
         }
     }
@@ -305,6 +352,14 @@ fn parse_ls_long(name: &str, arg: &str, options: &mut LsOptions) -> Result<(), i
     }
     if name == "show-control-chars" {
         return Ok(());
+    }
+    if name.contains('=') && !name.starts_with("time-style=") {
+        let name = name.split('=').next().unwrap();
+        return Err(crate::common::error::usage(
+            "ls",
+            format!("option '--{name}' doesn't allow an argument"),
+            2,
+        ));
     }
     match name {
         "all" => {
@@ -322,8 +377,11 @@ fn parse_ls_long(name: &str, arg: &str, options: &mut LsOptions) -> Result<(), i
         _ => match name.strip_prefix("time-style=") {
             Some(style) => options.time_style = parse_time_style(style)?,
             None => {
-                eprintln!("ls: unknown option: {arg}");
-                return Err(2);
+                return Err(crate::common::error::usage(
+                    "ls",
+                    format!("unrecognized option '{arg}'"),
+                    2,
+                ));
             }
         },
     }
@@ -334,10 +392,11 @@ fn parse_time_style(style: &str) -> Result<TimeStyle, i32> {
     match style {
         "full-iso" => Ok(TimeStyle::Seconds),
         "long-iso" | "iso" | "locale" => Ok(TimeStyle::Minutes),
-        _ => {
-            eprintln!("ls: unsupported time style: {style}");
-            Err(2)
-        }
+        _ => Err(crate::common::error::usage(
+            "ls",
+            format!("unsupported time style: {style}"),
+            2,
+        )),
     }
 }
 

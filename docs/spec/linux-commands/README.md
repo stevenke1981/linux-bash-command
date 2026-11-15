@@ -1,4 +1,4 @@
-# 規格：對齊 microsoft/coreutils 並擴充常用 Linux 指令
+# Linux commands 規格
 
 狀態：待實作（交由 Codex）
 撰寫日期：2026-10-30
@@ -50,5 +50,5 @@
 1. `cargo fmt --check`、`cargo clippy --all-targets --locked -- -D warnings`、`cargo test --locked` 於 Windows／Linux／macOS CI 全綠。
 2. Linux CI 之 GNU 差分測試（`AGENTCMD_GNU_DIFF=1`）全綠。
 3. `agentcmd --list` 列出 [commands.md](commands.md) 全部指令；每一指令 `--help` exit 0、`--version` exit 0。
-4. 新增模組行覆蓋率 ≥ 80%（`cargo llvm-cov`，本機量測並記錄於 `docs/spec/coreutils-alignment/coverage.md`）。
+4. 新增模組行覆蓋率 ≥ 80%（`cargo llvm-cov`，本機量測並記錄於 `docs/spec/linux-commands/coverage.md`）。
 5. README 之指令章節、Windows 衝突表、`packaging/` 與 CI 收集清單同步更新。

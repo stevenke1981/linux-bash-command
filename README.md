@@ -108,7 +108,7 @@ agentcmd sort -t, -k2,2n data.csv
 agentcmd env -i PATH=/usr/bin:/bin printenv PATH
 ```
 
-Phase 1 data processing uses byte order and ASCII classes in the C locale. `wc -m` explicitly counts UTF-8 characters, including one character per invalid byte. `seq` uses exact decimal steps unless scientific notation or a custom format requires floating point. `printf`, `seq`, and `sort -g` use `f64`. `sort` currently sorts in memory; external merge is scheduled for Phase 3. Broken output pipes exit silently with status 0. The full specification and documented exceptions are in [coreutils alignment](docs/spec/coreutils-alignment/README.md) and its [known differences](docs/spec/coreutils-alignment/07-phases.md).
+Phase 1 data processing uses byte order and ASCII classes in the C locale. `wc -m` explicitly counts UTF-8 characters, including one character per invalid byte. `seq` uses exact decimal steps unless scientific notation or a custom format requires floating point. `printf`, `seq`, and `sort -g` use `f64`. `sort` currently sorts in memory; external merge is scheduled for Phase 3. Broken output pipes exit silently with status 0. The full specification and documented exceptions are in [Linux commands](docs/spec/linux-commands/README.md) and its [known differences](docs/spec/linux-commands/07-phases.md).
 
 On Windows, `echo`, `tee`, `sort`, and `sleep` can conflict with PowerShell commands, while `expand` and `sort` also conflict with System32 executables. Use `agentcmd <name>` or an explicit executable path to select this implementation.
 

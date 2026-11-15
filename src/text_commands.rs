@@ -2,12 +2,17 @@ use crate::common::error::io_text as io_message;
 use crate::common::io::{is_closed_pipe, report_failure, report_open};
 use std::collections::VecDeque;
 use std::fs::File;
-use std::io::{self, BufRead, BufReader, Read, Seek, SeekFrom, Write};
+use std::io::{self, BufRead, BufReader, BufWriter, Read, Seek, SeekFrom, Write};
 use std::thread;
 use std::time::Duration;
 use sysinfo::{Pid, ProcessesToUpdate, System};
 
 const DEFAULT_SLEEP: Duration = Duration::from_millis(500);
+
+enum Parsed<T> {
+    Run(T),
+    Info(i32),
+}
 
 // ---------------------------------------------------------------- cat
 
@@ -40,8 +45,8 @@ struct CatState {
 
 pub fn cat(args: &[String]) -> i32 {
     let (options, paths) = match parse_cat(args) {
-        Ok(Some(parsed)) => parsed,
-        Ok(None) => return 0,
+        Ok(Parsed::Run(parsed)) => parsed,
+        Ok(Parsed::Info(code)) => return code,
         Err(error) => {
             eprintln!("cat: {error}\nTry 'cat --help' for more information.");
             return 1;
@@ -53,7 +58,7 @@ pub fn cat(args: &[String]) -> i32 {
         paths
     };
     let stdout = io::stdout();
-    let mut output = stdout.lock();
+    let mut output = BufWriter::with_capacity(crate::common::io::BUFFER_SIZE, stdout.lock());
     let mut state = CatState::default();
     let mut had_error = false;
     for path in &inputs {
@@ -73,10 +78,10 @@ pub fn cat(args: &[String]) -> i32 {
             had_error = true;
         }
     }
-    status(had_error)
+    finish_output("cat", &mut output, had_error)
 }
 
-fn parse_cat(args: &[String]) -> Result<Option<(CatOptions, Vec<String>)>, String> {
+fn parse_cat(args: &[String]) -> Result<Parsed<(CatOptions, Vec<String>)>, String> {
     let mut options = CatOptions::default();
     let mut paths = Vec::new();
     let mut options_open = true;
@@ -95,6 +100,7 @@ fn parse_cat(args: &[String]) -> Result<Option<(CatOptions, Vec<String>)>, Strin
                     "show-all",
                     "unbuffered",
                     "help",
+                    "version",
                 ],
             )?;
             &expanded
@@ -104,8 +110,15 @@ fn parse_cat(args: &[String]) -> Result<Option<(CatOptions, Vec<String>)>, Strin
         if options_open && arg == "--" {
             options_open = false;
         } else if options_open && (arg == "-h" || arg == "--help") {
-            print!("{CAT_HELP}");
-            return Ok(None);
+            return Ok(Parsed::Info(
+                crate::common::args::help_version("cat", &["--help".into()], CAT_HELP, true)
+                    .unwrap(),
+            ));
+        } else if options_open && arg == "--version" {
+            return Ok(Parsed::Info(
+                crate::common::args::help_version("cat", &["--version".into()], CAT_HELP, true)
+                    .unwrap(),
+            ));
         } else if options_open && arg.starts_with("--") {
             apply_cat_long(arg, &mut options)?;
         } else if options_open && arg.len() > 1 && arg.starts_with('-') {
@@ -119,10 +132,13 @@ fn parse_cat(args: &[String]) -> Result<Option<(CatOptions, Vec<String>)>, Strin
             }
         }
     }
-    Ok(Some((options, paths)))
+    Ok(Parsed::Run((options, paths)))
 }
 
 fn apply_cat_long(arg: &str, options: &mut CatOptions) -> Result<(), String> {
+    if let Some((name, _)) = arg.split_once('=') {
+        return Err(format!("option '{name}' doesn't allow an argument"));
+    }
     let letter = match arg {
         "--number" => 'n',
         "--number-nonblank" => 'b',
@@ -132,7 +148,7 @@ fn apply_cat_long(arg: &str, options: &mut CatOptions) -> Result<(), String> {
         "--show-nonprinting" => 'v',
         "--show-all" => 'A',
         "--unbuffered" => 'u',
-        _ => return Err(format!("unknown option: {arg}")),
+        _ => return Err(format!("unrecognized option '{arg}'")),
     };
     apply_cat_short(letter, options)
 }
@@ -149,7 +165,7 @@ fn apply_cat_short(letter: char, options: &mut CatOptions) -> Result<(), String>
         'e' => set_all(options, false, true, true),
         't' => set_all(options, true, false, true),
         'u' => {}
-        _ => return Err(format!("unknown option: -{letter}")),
+        _ => return Err(format!("invalid option -- '{letter}'")),
     }
     Ok(())
 }
@@ -335,6 +351,12 @@ impl LineOptions {
         }
         for (offset, letter) in flags.char_indices() {
             let rest = &flags[offset + letter.len_utf8()..];
+            if (matches!(letter, 'n' | 'c') || (letter == 's' && is_tail))
+                && rest.is_empty()
+                && next.is_none()
+            {
+                return Err(format!("option requires an argument -- '{letter}'"));
+            }
             match letter {
                 'n' => return self.take_value("--lines", rest, next),
                 'c' => return self.take_value("--bytes", rest, next),
@@ -347,7 +369,7 @@ impl LineOptions {
                     self.follow = Follow::Name;
                     self.retry = true;
                 }
-                _ => return Err(format!("unknown option: -{letter}")),
+                _ => return Err(format!("invalid option -- '{letter}'")),
             }
         }
         Ok(false)
@@ -383,7 +405,10 @@ impl LineOptions {
             }
             ("--follow", Some("name")) if is_tail => self.follow = Follow::Name,
             ("--retry", None) if is_tail => self.retry = true,
-            _ => return Err(format!("unknown option: {arg}")),
+            _ if inline.is_some() && name != "--follow" => {
+                return Err(format!("option '{name}' doesn't allow an argument"))
+            }
+            _ => return Err(format!("unrecognized option '{arg}'")),
         }
         Ok(false)
     }
@@ -476,7 +501,7 @@ fn parse_text_args(
     args: &[String],
     help: &str,
     is_tail: bool,
-) -> Result<Option<(LineOptions, Vec<String>)>, String> {
+) -> Result<Parsed<(LineOptions, Vec<String>)>, String> {
     let mut options = LineOptions::new();
     let mut paths = Vec::new();
     let mut options_open = true;
@@ -491,6 +516,7 @@ fn parse_text_args(
             "verbose",
             "zero-terminated",
             "help",
+            "version",
         ];
         if is_tail {
             long_options.extend(["sleep-interval", "pid", "follow", "retry"]);
@@ -506,8 +532,16 @@ fn parse_text_args(
         if options_open && arg == "--" {
             options_open = false;
         } else if options_open && (arg == "-h" || arg == "--help") {
-            print!("{help}");
-            return Ok(None);
+            let command = if is_tail { "tail" } else { "head" };
+            return Ok(Parsed::Info(
+                crate::common::args::help_version(command, &["--help".into()], help, true).unwrap(),
+            ));
+        } else if options_open && arg == "--version" {
+            let command = if is_tail { "tail" } else { "head" };
+            return Ok(Parsed::Info(
+                crate::common::args::help_version(command, &["--version".into()], help, true)
+                    .unwrap(),
+            ));
         } else if options_open && arg.starts_with("--") {
             consumed = options.apply_long(arg, next, is_tail)?;
         } else if options_open && arg.len() > 1 && arg.starts_with('-') {
@@ -523,7 +557,7 @@ fn parse_text_args(
     if paths.is_empty() {
         paths.push("-".to_string());
     }
-    Ok(Some((options, paths)))
+    Ok(Parsed::Run((options, paths)))
 }
 
 /// An input that is either standard input or an owned, buffered file.
@@ -584,15 +618,15 @@ impl Headers {
 
 pub fn head(args: &[String]) -> i32 {
     let (options, paths) = match parse_text_args(args, HEAD_HELP, false) {
-        Ok(Some(parsed)) => parsed,
-        Ok(None) => return 0,
+        Ok(Parsed::Run(parsed)) => parsed,
+        Ok(Parsed::Info(code)) => return code,
         Err(error) => {
             eprintln!("head: {error}\nTry 'head --help' for more information.");
             return 1;
         }
     };
     let stdout = io::stdout();
-    let mut output = stdout.lock();
+    let mut output = BufWriter::with_capacity(crate::common::io::BUFFER_SIZE, stdout.lock());
     let mut headers = Headers::new(options.headers, paths.len());
     let mut had_error = false;
     for (index, path) in paths.iter().enumerate() {
@@ -614,7 +648,7 @@ pub fn head(args: &[String]) -> i32 {
             had_error = true;
         }
     }
-    status(had_error)
+    finish_output("head", &mut output, had_error)
 }
 
 fn head_one(
@@ -699,15 +733,15 @@ fn head_all_but_last_bytes(
 
 pub fn tail(args: &[String]) -> i32 {
     let (options, paths) = match parse_text_args(args, TAIL_HELP, true) {
-        Ok(Some(parsed)) => parsed,
-        Ok(None) => return 0,
+        Ok(Parsed::Run(parsed)) => parsed,
+        Ok(Parsed::Info(code)) => return code,
         Err(error) => {
             eprintln!("tail: {error}\nTry 'tail --help' for more information.");
             return 1;
         }
     };
     let stdout = io::stdout();
-    let mut output = stdout.lock();
+    let mut output = BufWriter::with_capacity(crate::common::io::BUFFER_SIZE, stdout.lock());
     let mut headers = Headers::new(options.headers, paths.len());
     let mut followers = Vec::new();
     let mut had_error = false;
@@ -745,7 +779,14 @@ pub fn tail(args: &[String]) -> i32 {
         }
     }
     if followers.is_empty() {
-        return status(had_error);
+        return finish_output("tail", &mut output, had_error);
+    }
+    if let Err(error) = output.flush() {
+        if is_closed_pipe(&error) {
+            return 0;
+        }
+        eprintln!("tail: write error: {}", io_message(&error));
+        return 1;
     }
     let code = follow(&mut followers, &options, &mut headers, &mut output);
     if had_error {
@@ -1003,18 +1044,31 @@ fn status(had_error: bool) -> i32 {
     }
 }
 
-const CAT_HELP: &str = "Usage: cat [OPTION]... [FILE]...\n\nConcatenate FILE(s) to standard output. With no FILE, or when FILE is -, read standard input.\n\nOptions:\n  -A, --show-all          Same as -vET\n  -b, --number-nonblank   Number non-empty output lines (overrides -n)\n  -e                      Same as -vE\n  -E, --show-ends         Show $ at the end of each line\n  -n, --number            Number all output lines (format: %6d TAB)\n  -s, --squeeze-blank     Suppress repeated empty output lines\n  -t                      Same as -vT\n  -T, --show-tabs         Show TAB characters as ^I\n  -u                      Accepted and ignored\n  -v, --show-nonprinting  Show control characters with ^ and M- notation\n  -h, --help              Show this help\n\nExit status: 0 on success, 1 if an input could not be read.\n";
+fn finish_output(command: &str, output: &mut dyn Write, had_error: bool) -> i32 {
+    match output.flush() {
+        Ok(()) => status(had_error),
+        Err(error) if is_closed_pipe(&error) => 0,
+        Err(error) => {
+            eprintln!("{command}: write error: {}", io_message(&error));
+            1
+        }
+    }
+}
 
-const HEAD_HELP: &str = "Usage: head [OPTION]... [FILE]...\n\nPrint the first 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[-]N      Print the first N lines; with -N, all but the last N lines\n  -c, --bytes=[-]N      Print the first N bytes; with -N, all but the last N bytes\n  -N                    Same as -n N (for example -5)\n  -z, --zero-terminated  Records end with NUL instead of newline\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024). +N is the same as N.\nExit status: 0 on success, 1 if an input could not be read.\n";
+const CAT_HELP: &str = "Usage: cat [OPTION]... [FILE]...\n\nConcatenate FILE(s) to standard output. With no FILE, or when FILE is -, read standard input.\n\nOptions:\n  -A, --show-all          Same as -vET\n  -b, --number-nonblank   Number non-empty output lines (overrides -n)\n  -e                      Same as -vE\n  -E, --show-ends         Show $ at the end of each line\n  -n, --number            Number all output lines (format: %6d TAB)\n  -s, --squeeze-blank     Suppress repeated empty output lines\n  -t                      Same as -vT\n  -T, --show-tabs         Show TAB characters as ^I\n  -u                      Accepted and ignored\n  -v, --show-nonprinting  Show control characters with ^ and M- notation\n  -h, --help              Show this help\n      --version             Show version\n\nExit status: 0 on success, 1 if an input could not be read.\n";
 
-const TAIL_HELP: &str = "Usage: tail [OPTION]... [FILE]...\n\nPrint the last 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[+]N      Print the last N lines; with +N, start at line N\n  -c, --bytes=[+]N      Print the last N bytes; with +N, start at byte N\n  -N                    Same as -n N (for example -5)\n  -f, --follow[=name|descriptor]\n                        Print appended data as the file grows\n  -F                    Same as --follow=name --retry\n      --retry           Keep trying to open a file that is missing (with -F)\n  -s, --sleep-interval=S\n                        Poll interval in seconds while following (default 0.5)\n      --pid=PID         With -f, stop following when process PID exits\n  -z, --zero-terminated  Records end with NUL instead of newline\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024).\nFollowing stdin is not supported and ends at end of input, like GNU tail.\nReplacement detection with -F uses file identity on Unix only.\nExit status: 0 on success, 1 if an input could not be read.\n";
+const HEAD_HELP: &str = "Usage: head [OPTION]... [FILE]...\n\nPrint the first 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[-]N      Print the first N lines; with -N, all but the last N lines\n  -c, --bytes=[-]N      Print the first N bytes; with -N, all but the last N bytes\n  -N                    Same as -n N (for example -5)\n  -z, --zero-terminated  Records end with NUL instead of newline\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n      --version             Show version\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024). +N is the same as N.\nExit status: 0 on success, 1 if an input could not be read.\n";
+
+const TAIL_HELP: &str = "Usage: tail [OPTION]... [FILE]...\n\nPrint the last 10 lines of each FILE (or of standard input for no FILE or -).\n\nOptions:\n  -n, --lines=[+]N      Print the last N lines; with +N, start at line N\n  -c, --bytes=[+]N      Print the last N bytes; with +N, start at byte N\n  -N                    Same as -n N (for example -5)\n  -f, --follow[=name|descriptor]\n                        Print appended data as the file grows\n  -F                    Same as --follow=name --retry\n      --retry           Keep trying to open a file that is missing (with -F)\n  -s, --sleep-interval=S\n                        Poll interval in seconds while following (default 0.5)\n      --pid=PID         With -f, stop following when process PID exits\n  -z, --zero-terminated  Records end with NUL instead of newline\n  -q, --quiet, --silent Never print headers giving file names\n  -v, --verbose         Always print headers giving file names\n  -h, --help            Show this help\n      --version             Show version\n\nN may end in b (512), K (1024), M (1024*1024) or G (1024*1024*1024).\nFollowing stdin is not supported and ends at end of input, like GNU tail.\nReplacement detection with -F uses file identity on Unix only.\nExit status: 0 on success, 1 if an input could not be read.\n";
 
 #[cfg(test)]
 mod phase1_tests {
     use super::*;
     fn render(tail: bool, args: &[&str], data: &[u8]) -> Vec<u8> {
         let args: Vec<String> = args.iter().map(|s| (*s).into()).collect();
-        let (options, _) = parse_text_args(&args, "", tail).unwrap().unwrap();
+        let Parsed::Run((options, _)) = parse_text_args(&args, "", tail).unwrap() else {
+            panic!("expected execution options");
+        };
         let mut input = io::Cursor::new(data);
         let mut output = Vec::new();
         if tail {

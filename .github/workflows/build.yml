@@ -59,3 +59,18 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: sudo apt-get update && sudo apt-get install -y gawk tree xxd dos2unix patch bsdextrautils
       - run: AGENTCMD_GNU_DIFF=1 cargo test --locked --test gnu_diff
+  coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+      - run: cargo install cargo-llvm-cov --version 0.9.1 --locked
+      - run: cargo llvm-cov --locked --json --output-path coverage.json
+      - name: Summarize new module coverage
+        run: python3 scripts/coverage_summary.py coverage.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-command-coverage
+          path: coverage.json

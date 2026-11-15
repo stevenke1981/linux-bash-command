@@ -1,0 +1,5 @@
+[
+  {"command":"grep","args":["--files-without-match","needle","hay"],"files":{"hay":"no\n"},"stdout":"hay\n","exit":0},
+  {"command":"egrep","args":["--files-without-match","needle","hay"],"files":{"hay":"no\n"},"stdout":"hay\n","exit":0},
+  {"command":"fgrep","args":["--files-without-match","needle","hay"],"files":{"hay":"no\n"},"stdout":"hay\n","exit":0}
+]

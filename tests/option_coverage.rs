@@ -5,6 +5,8 @@ use std::collections::BTreeSet;
 fn every_phase1_help_option_has_a_case() {
     let names = "wc sort uniq cut tr tee echo printf true false test [ seq tac nl paste comm fold expand unexpand yes basename dirname xargs env printenv sleep egrep fgrep";
     let pattern = regex::Regex::new(r"--[a-z][a-z0-9-]*").unwrap();
+    let cli_cases: serde_json::Value =
+        serde_json::from_str(include_str!("cli_option_cases.json")).unwrap();
     let mut missing = Vec::new();
     for name in names.split_whitespace().filter(|n| *n != "test") {
         let args = if name == "[" {
@@ -27,6 +29,7 @@ fn every_phase1_help_option_has_a_case() {
             .as_array()
             .unwrap()
             .iter()
+            .filter(|case| case["skip_reason"].as_str().is_none_or(str::is_empty))
             .flat_map(|c| {
                 c["args"]
                     .as_array()
@@ -34,6 +37,20 @@ fn every_phase1_help_option_has_a_case() {
                     .iter()
                     .map(|a| a.as_str().unwrap())
             })
+            .chain(
+                cli_cases
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .filter(|case| case["command"].as_str() == Some(name))
+                    .flat_map(|case| {
+                        case["args"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .map(|arg| arg.as_str().unwrap())
+                    }),
+            )
             .collect();
         for option in options {
             if !args
@@ -49,6 +66,37 @@ fn every_phase1_help_option_has_a_case() {
         "untested help options: {}",
         missing.join(", ")
     );
+}
+
+#[test]
+fn cli_option_cases_verify_documented_gnu_differences() {
+    let cases: serde_json::Value =
+        serde_json::from_str(include_str!("cli_option_cases.json")).unwrap();
+    for case in cases.as_array().unwrap() {
+        let sandbox = common::Sandbox::new();
+        for (name, contents) in case["files"].as_object().unwrap() {
+            sandbox.write(name, contents.as_str().unwrap());
+        }
+        let name = case["command"].as_str().unwrap();
+        let args: Vec<_> = case["args"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|arg| arg.as_str().unwrap())
+            .collect();
+        let output = sandbox.run(name, &args, b"");
+        assert_eq!(
+            output.status.code(),
+            Some(case["exit"].as_i64().unwrap() as i32),
+            "{name}: {output:?}"
+        );
+        assert_eq!(
+            output.stdout,
+            case["stdout"].as_str().unwrap().as_bytes(),
+            "{name}"
+        );
+        assert!(output.stderr.is_empty(), "{name}: {output:?}");
+    }
 }
 
 #[test]

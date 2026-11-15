@@ -29,26 +29,31 @@ fn main() {
                 eprintln!("agentcmd: missing argument");
                 1
             }
-            Some("--list") if args.len() == 1 => {
+            Some("--list") if args.len() == 1 => agentcmd::common::io::output("agentcmd", |out| {
                 for utility in UTILITIES {
-                    println!("{}", utility.name);
+                    writeln!(out, "{}", utility.name)?;
                 }
-                0
-            }
+                Ok(())
+            }),
             Some("--list") => {
                 eprintln!("agentcmd: invalid argument");
                 1
             }
-            Some("--version" | "-V") => {
-                println!("agentcmd {} (multi-call binary)", env!("CARGO_PKG_VERSION"));
-                0
-            }
+            Some("--version" | "-V") => agentcmd::common::io::output("agentcmd", |out| {
+                writeln!(
+                    out,
+                    "agentcmd {} (multi-call binary)",
+                    env!("CARGO_PKG_VERSION")
+                )
+            }),
             Some("--help" | "-h" | "help") if args.len() == 1 => {
-                println!("Usage: agentcmd <utility> [arguments]\n\nUtilities:");
-                for utility in UTILITIES {
-                    println!("  {:<8} {}", utility.name, utility.summary);
-                }
-                0
+                agentcmd::common::io::output("agentcmd", |out| {
+                    writeln!(out, "Usage: agentcmd <utility> [arguments]\n\nUtilities:")?;
+                    for utility in UTILITIES {
+                        writeln!(out, "  {:<8} {}", utility.name, utility.summary)?;
+                    }
+                    Ok(())
+                })
             }
             Some("--help" | "-h" | "help") if args.len() == 2 => {
                 dispatch(&args[1], &["--help".to_owned()])

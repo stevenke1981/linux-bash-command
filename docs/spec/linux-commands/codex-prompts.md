@@ -8,7 +8,7 @@ Phase 1 指令多，可在 prompt 末尾加 `Only do commands X–Y this session
 ## Prompt 0：基礎建設
 
 ```
-Read AGENTS.md, then docs/spec/coreutils-alignment/README.md, 01-architecture.md, 02-conventions.md, 05-existing-gaps.md, 06-testing.md and 07-phases.md.
+Read AGENTS.md, then docs/spec/linux-commands/README.md, 01-architecture.md, 02-conventions.md, 05-existing-gaps.md, 06-testing.md and 07-phases.md.
 
 Implement Phase 0 exactly as described in 07-phases.md:
 1. src/common/ (args, error, io, path, meta, size, regex, escape, process) with unit tests.
@@ -24,7 +24,7 @@ Run cargo fmt --check, cargo clippy --all-targets --locked -- -D warnings, cargo
 ## Prompt 1：文字管線
 
 ```
-Read AGENTS.md and docs/spec/coreutils-alignment/ (README, 01, 02, commands.md, 06, 07). Phase 0 is done.
+Read AGENTS.md and docs/spec/linux-commands/ (README, 01, 02, commands.md, 06, 07). Phase 0 is done.
 
 Implement Phase 1 from 07-phases.md: the 29 commands marked P1 in commands.md, per their specs in 03-commands-core.md (wc, sort, uniq, cut, tr, tee, echo, printf, true, false, test, [, seq, tac, nl, paste, comm, fold, unexpand, yes, basename, dirname, xargs, env, printenv, sleep) and expand, egrep, fgrep. Also the P1 rows of 05-existing-gaps.md §4 (head/tail -z, cat -u, grep additions).
 
@@ -36,7 +36,7 @@ Run all checks before each commit; do not push. Add any unavoidable deviation to
 ## Prompt 2：檔案系統與系統資訊
 
 ```
-Read AGENTS.md and docs/spec/coreutils-alignment/. Phases 0–1 are done.
+Read AGENTS.md and docs/spec/linux-commands/. Phases 0–1 are done.
 
 Implement Phase 2 from 07-phases.md: the 32 commands marked P2 in commands.md per 03-commands-core.md, add common::datetime (shared by date, touch, stat, ls --time-style), and the P2 rows of 05-existing-gaps.md §4 (ls, find, df).
 
@@ -48,7 +48,7 @@ Run all checks, commit by domain, do not push, end with the Phase report.
 ## Prompt 3：其餘對齊指令
 
 ```
-Read AGENTS.md and docs/spec/coreutils-alignment/. Phases 0–2 are done.
+Read AGENTS.md and docs/spec/linux-commands/. Phases 0–2 are done.
 
 Implement Phase 3: join, od, split, csplit, fmt, pr, shuf, tsort, numfmt, factor, expr, pathchk, ptx per 03-commands-core.md, plus sort external merge (spill to temp files beyond -S or 256 MiB; un-ignore its placeholder tests).
 
@@ -58,7 +58,7 @@ Acceptance: every command in commands.md section B is listed by `agentcmd --list
 ## Prompt 4：擴充 A
 
 ```
-Read AGENTS.md and docs/spec/coreutils-alignment/. Phases 0–3 are done.
+Read AGENTS.md and docs/spec/linux-commands/. Phases 0–3 are done.
 
 Implement Phase 4 per 04-commands-extra.md: sed (first; split into parse/addr/exec/subst/mod, each ≤800 lines), which, tree, uname, whoami, timeout, kill, pgrep, pkill, free, cmp, rev, column, dos2unix, unix2dos, chmod. Also the diff changes in 05-existing-gaps.md §4 (normal format as default, -c/-C, -y/-W, --normal) and update README for that breaking change.
 
@@ -68,7 +68,7 @@ sed needs ≥40 unit, ≥20 CLI and ≥120 GNU diff cases. timeout on Windows mu
 ## Prompt 5：擴充 B
 
 ```
-Read AGENTS.md and docs/spec/coreutils-alignment/. Phases 0–4 are done.
+Read AGENTS.md and docs/spec/linux-commands/. Phases 0–4 are done.
 
 Implement Phase 5 per 04-commands-extra.md, in this order: gzip/gunzip/zcat (flate2 rust_backend only) → tar (must enforce the path-traversal and symlink-escape rules) → awk (lexer → parser → interp → builtins → io, each file ≤800 lines; diff against `gawk --posix`; ≥120 diff cases) → patch → xxd → file.
 
@@ -78,9 +78,9 @@ Run all checks, commit, do not push, end with the Phase report.
 ## Prompt 6：封裝與文件
 
 ```
-Read AGENTS.md and docs/spec/coreutils-alignment/07-phases.md Phase 6.
+Read AGENTS.md and docs/spec/linux-commands/07-phases.md Phase 6.
 
-Generate packaging payloads from `agentcmd --list` (Windows: add [.exe as a copy of test.exe, exclude link.exe). Rewrite README's command section as categorized tables, add a Windows conflicts table from commands.md, and a "Known differences from GNU" section from the 07-phases.md table. Add NOTICE.md if any uutils code was ported. Record binary/package sizes and final coverage in docs/spec/coreutils-alignment/coverage.md.
+Generate packaging payloads from `agentcmd --list` (Windows: add [.exe as a copy of test.exe, exclude link.exe). Rewrite README's command section as categorized tables, add a Windows conflicts table from commands.md, and a "Known differences from GNU" section from the 07-phases.md table. Add NOTICE.md if any uutils code was ported. Record binary/package sizes and final coverage in docs/spec/linux-commands/coverage.md.
 
 Run all checks, commit, do not push, end with the final report covering all phases.
 ```
@@ -90,7 +90,7 @@ Run all checks, commit, do not push, end with the final report covering all phas
 ## 追問用：Codex 問到 GNU 差分器時
 
 ```
-The GNU differential runner is now fully specified in docs/spec/coreutils-alignment/06-testing.md §2.1 (pull the latest main). Key points:
+The GNU differential runner is now fully specified in docs/spec/linux-commands/06-testing.md §2.1 (pull the latest main). Key points:
 - tests/gnu_diff.rs is Linux-only, one #[test], passes with a "skipped" note unless AGENTCMD_GNU_DIFF=1; with it set, missing GNU tools are a failure.
 - Our side always runs CARGO_BIN_EXE_agentcmd with [command, args...] (multi-call); the GNU side resolves the program from /usr/bin then /bin, never via PATH.
 - Both sides: fresh sandbox cwd, env_clear() + PATH=/usr/bin:/bin LC_ALL=C TZ=UTC COLUMNS=80 HOME=<sandbox>, 10 s timeout.

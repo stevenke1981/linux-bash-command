@@ -1,4 +1,5 @@
 use crate::common::color;
+use crate::common::error::io_text;
 use crate::common::size::human;
 use std::io::{self, Write};
 use std::path::PathBuf;
@@ -25,6 +26,7 @@ Other options:
   -t, --type=TYPE         Only filesystems of TYPE (repeatable)
   -x, --exclude-type=TYPE Exclude filesystems of TYPE (repeatable)
       --help              Show this help
+      --version              Show version
 
 Not supported: -i (inode usage), because the OS interface does not report inode counts.
 Available space and percentages can differ from GNU df because each OS reports
@@ -71,6 +73,7 @@ struct Options {
 
 enum Parsed {
     Help,
+    Version,
     Run(Options),
 }
 
@@ -78,8 +81,12 @@ pub fn run(args: &[String]) -> i32 {
     let options = match parse(args) {
         Ok(Parsed::Run(options)) => options,
         Ok(Parsed::Help) => {
-            print!("{HELP}");
-            return 0;
+            return crate::common::args::help_version("df", &["--help".into()], HELP, true)
+                .unwrap();
+        }
+        Ok(Parsed::Version) => {
+            return crate::common::args::help_version("df", &["--version".into()], HELP, true)
+                .unwrap();
         }
         Err(error) => {
             eprintln!("df: {error}\nTry 'df --help' for more information.");
@@ -124,14 +131,39 @@ fn parse(args: &[String]) -> Result<Parsed, String> {
     let mut index = 0;
     let mut operands_only = false;
     while index < args.len() {
-        let arg = args[index].as_str();
+        let expanded;
+        let arg = if !operands_only && args[index].starts_with("--") && args[index] != "--" {
+            expanded = crate::common::args::expand_long(
+                &args[index],
+                &[
+                    "human-readable",
+                    "si",
+                    "print-type",
+                    "portability",
+                    "local",
+                    "all",
+                    "inodes",
+                    "block-size",
+                    "type",
+                    "exclude-type",
+                    "help",
+                    "version",
+                ],
+            )?;
+            expanded.as_str()
+        } else {
+            args[index].as_str()
+        };
         index += 1;
         if operands_only || arg == "-" || !arg.starts_with('-') {
             options.paths.push(PathBuf::from(arg));
+            operands_only |= std::env::var_os("POSIXLY_CORRECT").is_some();
         } else if arg == "--" {
             operands_only = true;
         } else if arg == "--help" {
             return Ok(Parsed::Help);
+        } else if arg == "--version" {
+            return Ok(Parsed::Version);
         } else if let Some(long) = arg.strip_prefix("--") {
             parse_long(long, args, &mut index, &mut size, &mut options)?;
         } else {
@@ -166,7 +198,7 @@ fn apply_flag(letter: char, size: &mut Size, options: &mut Options) -> Result<()
                     .to_string(),
             )
         }
-        other => return Err(format!("unknown option: -{other}")),
+        other => return Err(format!("invalid option -- '{other}'")),
     }
     Ok(())
 }
@@ -213,6 +245,9 @@ fn parse_long(
         Some((name, value)) => (name, Some(value)),
         None => (long, None),
     };
+    if inline.is_some() && !matches!(name, "block-size" | "type" | "exclude-type") {
+        return Err(format!("option '--{name}' doesn't allow an argument"));
+    }
     match name {
         "human-readable" => *size = Size::Human(1024),
         "si" => *size = Size::Human(1000),
@@ -240,7 +275,7 @@ fn parse_long(
             };
             apply_value(letter, &value, size, options)?;
         }
-        _ => return Err(format!("unknown option: --{name}")),
+        _ => return Err(format!("unrecognized option '--{name}'")),
     }
     Ok(())
 }
@@ -288,7 +323,11 @@ fn select<'a>(mounted: &'a [Disk], paths: &[PathBuf]) -> (Vec<&'a Disk>, bool) {
         let canonical = match std::fs::canonicalize(path) {
             Ok(path) => path,
             Err(error) => {
-                eprintln!("df: cannot access '{}': {error}", path.display());
+                eprintln!(
+                    "df: cannot access '{}': {}",
+                    crate::display_path(path),
+                    io_text(&error)
+                );
                 failed = true;
                 continue;
             }
@@ -307,7 +346,10 @@ fn select<'a>(mounted: &'a [Disk], paths: &[PathBuf]) -> (Vec<&'a Disk>, bool) {
             }
             Some(_) => {}
             None => {
-                eprintln!("df: no mounted filesystem found for '{}'", path.display());
+                eprintln!(
+                    "df: no mounted filesystem found for '{}'",
+                    crate::display_path(path)
+                );
                 failed = true;
             }
         }
@@ -458,11 +500,15 @@ fn print_table(headers: &[String], rows: &[Vec<String>], options: &Options) -> i
     for row in rows {
         push(row, false);
     }
-    match io::stdout().lock().write_all(out.as_bytes()) {
+    let mut stdout = io::stdout().lock();
+    match stdout
+        .write_all(out.as_bytes())
+        .and_then(|()| stdout.flush())
+    {
         Ok(()) => 0,
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
-            eprintln!("df: cannot write output: {error}");
+            eprintln!("df: write error: {}", io_text(&error));
             1
         }
     }

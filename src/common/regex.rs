@@ -185,4 +185,22 @@ mod tests {
         assert_eq!(super::bre_to_regex(r"a\|b").unwrap(), "a|b");
         assert!(super::bre_to_regex("[").is_err());
     }
+    #[test]
+    fn translates_groups_intervals_and_anchors() {
+        assert_eq!(
+            super::bre_to_regex(r"^\(ab\|c\)\{2,3\}$").unwrap(),
+            "^(ab|c){2,3}$"
+        );
+        assert_eq!(super::bre_to_regex(r"a\{,3\}").unwrap(), "a{0,3}");
+        assert_eq!(super::bre_to_regex("*a^b$c").unwrap(), r"\*a\^b\$c");
+        assert_eq!(super::bre_to_regex(r"\<word\>").unwrap(), r"\bword\b");
+        assert_eq!(super::bre_to_regex("[[:digit:]]").unwrap(), "[[:digit:]]");
+    }
+
+    #[test]
+    fn rejects_unsupported_and_malformed_constructs() {
+        for pattern in [r"\1", "[", "a\\", r"a\{", r"a\{x\}", r"\<(a", "[[.ch.]]"] {
+            assert!(super::bre_to_regex(pattern).is_err(), "{pattern}");
+        }
+    }
 }

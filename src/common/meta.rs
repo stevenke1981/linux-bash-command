@@ -181,4 +181,33 @@ mod tests {
         assert_eq!(kind_char(&fs::metadata(&root).unwrap()), 'd');
         fs::remove_dir_all(root).unwrap();
     }
+    #[cfg(windows)]
+    #[test]
+    fn legacy_windows_file_modes_are_preserved() {
+        let root =
+            std::env::temp_dir().join(format!("agentcmd-meta-windows-{}", std::process::id()));
+        fs::create_dir_all(&root).unwrap();
+        let plain = root.join("file.txt");
+        let executable = root.join("tool.EXE");
+        fs::write(&plain, b"").unwrap();
+        fs::write(&executable, b"").unwrap();
+        let metadata = fs::metadata(&plain).unwrap();
+        assert_eq!(mode_string(&plain, &metadata), "-rw-rw-rw-");
+        assert_eq!(permission_bits(&metadata), 0o644);
+        let metadata = fs::metadata(&executable).unwrap();
+        assert_eq!(mode_string(&executable, &metadata), "-rwxrwxrwx");
+        assert_eq!(permission_bits(&metadata), 0o644);
+        let metadata = fs::metadata(&root).unwrap();
+        assert_eq!(mode_string(&root, &metadata), "drwxrwxrwx");
+        assert_eq!(permission_bits(&metadata), 0o755);
+        let original_permissions = fs::metadata(&plain).unwrap().permissions();
+        let mut permissions = original_permissions.clone();
+        permissions.set_readonly(true);
+        fs::set_permissions(&plain, permissions).unwrap();
+        let metadata = fs::metadata(&plain).unwrap();
+        assert_eq!(mode_string(&plain, &metadata), "-r--r--r--");
+        assert_eq!(permission_bits(&metadata), 0o444);
+        fs::set_permissions(&plain, original_permissions).unwrap();
+        fs::remove_dir_all(root).unwrap();
+    }
 }

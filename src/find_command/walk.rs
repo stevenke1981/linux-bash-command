@@ -101,7 +101,7 @@ impl<'a> Walker<'a> {
             expr: &plan.expr,
             options: plan.options,
             now_ns: now_ns(),
-            out: BufWriter::new(io::stdout().lock()),
+            out: BufWriter::with_capacity(crate::common::io::BUFFER_SIZE, io::stdout().lock()),
             batches: plan.batches.iter().map(Batch::new).collect(),
             ancestors: Vec::new(),
             status: 0,

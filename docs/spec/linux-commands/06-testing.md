@@ -106,7 +106,7 @@ CI（`ubuntu-24.04`）須安裝：`sudo apt-get install -y gawk tree xxd dos2uni
 ## 4. 覆蓋率
 
 - 本機：`cargo llvm-cov --summary-only`；新模組（`src/common/`、`src/commands/`）行覆蓋率 ≥ 80%。
-- 每階段結束將摘要寫入 `docs/spec/coreutils-alignment/coverage.md`（附日期、commit、各模組百分比）。
+- 每階段結束將摘要寫入 `docs/spec/linux-commands/coverage.md`（附日期、commit、各模組百分比）。
 - CI 不設覆蓋率閘門（避免三平台工具安裝成本），但 Linux job 可選擇性執行並上傳報告。
 
 ## 5. CI 變更（Phase 0）

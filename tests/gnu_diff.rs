@@ -4,7 +4,7 @@ use common::Sandbox;
 use serde_json::Value;
 use std::os::unix::{
     fs::{symlink, PermissionsExt},
-    process::ExitStatusExt,
+    process::{CommandExt, ExitStatusExt},
 };
 use std::{
     collections::BTreeMap,
@@ -24,6 +24,7 @@ fn hex(s: &str) -> Vec<u8> {
 }
 fn fixtures(root: &Path, files: &Value) {
     if let Some(files) = files.as_object() {
+        let mut directories = Vec::new();
         for (name, value) in files {
             let p = root.join(name);
             assert!(
@@ -35,34 +36,47 @@ fn fixtures(root: &Path, files: &Value) {
             fs::create_dir_all(p.parent().unwrap()).unwrap();
             if value["dir"].as_bool() == Some(true) {
                 fs::create_dir_all(&p).unwrap();
-                continue;
-            }
-            if let Some(target) = value["symlink"].as_str() {
+                directories.push((p.clone(), value));
+            } else if let Some(target) = value["symlink"].as_str() {
                 symlink(target, &p).unwrap();
+            } else {
+                let data = if let Some(s) = value.as_str() {
+                    s.as_bytes().to_vec()
+                } else if let Some(s) = value["hex"].as_str() {
+                    hex(s)
+                } else {
+                    value["text"].as_str().unwrap_or("").as_bytes().to_vec()
+                };
+                fs::write(&p, data).unwrap();
+            }
+            // Never follow a fixture symlink when applying metadata.
+            if value["symlink"].as_str().is_some() || value["dir"].as_bool() == Some(true) {
                 continue;
             }
-            let data = if let Some(s) = value.as_str() {
-                s.as_bytes().to_vec()
-            } else if let Some(s) = value["hex"].as_str() {
-                hex(s)
-            } else {
-                value["text"].as_str().unwrap_or("").as_bytes().to_vec()
-            };
-            fs::write(&p, data).unwrap();
-            if let Some(mode) = value["mode"].as_str() {
-                fs::set_permissions(
-                    &p,
-                    fs::Permissions::from_mode(u32::from_str_radix(mode, 8).unwrap()),
-                )
-                .unwrap();
-            }
-            if let Some(seconds) = value["mtime"].as_u64() {
-                fs::File::open(&p)
-                    .unwrap()
-                    .set_modified(std::time::UNIX_EPOCH + Duration::from_secs(seconds))
-                    .unwrap();
-            }
+            fixture_metadata(&p, value);
         }
+        // Creating children changes a directory's timestamp. Restore directory
+        // metadata from the deepest level upwards after all fixtures exist.
+        directories.sort_by_key(|(path, _)| std::cmp::Reverse(path.components().count()));
+        for (path, value) in directories {
+            fixture_metadata(&path, value);
+        }
+    }
+}
+
+fn fixture_metadata(path: &Path, value: &Value) {
+    if let Some(seconds) = value["mtime"].as_u64() {
+        fs::File::open(path)
+            .unwrap()
+            .set_modified(std::time::UNIX_EPOCH + Duration::from_secs(seconds))
+            .unwrap();
+    }
+    if let Some(mode) = value["mode"].as_str() {
+        fs::set_permissions(
+            path,
+            fs::Permissions::from_mode(u32::from_str_radix(mode, 8).unwrap()),
+        )
+        .unwrap();
     }
 }
 fn inventory(root: &Path, mode: bool) -> BTreeMap<PathBuf, (u8, Vec<u8>, Option<u32>)> {
@@ -127,6 +141,7 @@ struct Captured {
     timed_out: bool,
 }
 fn capture(mut cmd: Command, input: &[u8], timeout: u64, prefix: Option<usize>) -> Captured {
+    cmd.process_group(0);
     let mut child = cmd
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -156,17 +171,34 @@ fn capture(mut cmd: Command, input: &[u8], timeout: u64, prefix: Option<usize>) 
     });
     let deadline = Instant::now() + Duration::from_millis(timeout);
     let mut timed_out = false;
-    let status = loop {
-        if let Some(s) = child.try_wait().unwrap() {
-            break s;
+    let mut status = None;
+    loop {
+        if status.is_none() {
+            status = child.try_wait().unwrap();
+        }
+        if status.is_some() && writer.is_finished() && out.is_finished() && err.is_finished() {
+            break;
         }
         if Instant::now() >= deadline {
             timed_out = true;
-            child.kill().unwrap();
-            break child.wait().unwrap();
+            // Descendants may hold inherited pipes after the direct child exits.
+            // Every capture owns its own group, so this cannot kill the test runner.
+            let group = i32::try_from(child.id()).unwrap();
+            let result = unsafe { libc::kill(-group, libc::SIGKILL) };
+            if result != 0 {
+                assert_eq!(
+                    std::io::Error::last_os_error().raw_os_error(),
+                    Some(libc::ESRCH)
+                );
+            }
+            if status.is_none() {
+                status = Some(child.wait().unwrap());
+            }
+            break;
         }
         std::thread::sleep(Duration::from_millis(5));
-    };
+    }
+    let status = status.unwrap();
     writer.join().unwrap();
     Captured {
         stdout: out.join().unwrap(),
@@ -197,6 +229,7 @@ fn gnu_differential() {
         eprintln!("gnu_diff: skipped (set AGENTCMD_GNU_DIFF=1)");
         return;
     }
+    runner_self_check();
     let filter = std::env::var("AGENTCMD_GNU_DIFF_FILTER").ok();
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/gnu_cases");
     let mut paths: Vec<_> = fs::read_dir(root)
@@ -318,4 +351,42 @@ fn gnu_differential() {
         failures.len()
     );
     assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+fn runner_self_check() {
+    let sandbox = Sandbox::new();
+    fixtures(
+        &sandbox.path,
+        &serde_json::json!({
+            "directory": {"dir": true, "mtime": 1700000000, "mode": "750"},
+            "locked": {"dir": true, "mtime": 1700000000, "mode": "000"},
+            "writeonly": {"text": "x", "mtime": 1700000000, "mode": "200"}
+        }),
+    );
+    let meta = fs::metadata(sandbox.path.join("directory")).unwrap();
+    assert_eq!(meta.permissions().mode() & 0o777, 0o750);
+    assert_eq!(
+        meta.modified().unwrap(),
+        std::time::UNIX_EPOCH + Duration::from_secs(1700000000)
+    );
+    for name in ["locked", "writeonly"] {
+        let path = sandbox.path.join(name);
+        assert_eq!(
+            fs::metadata(&path).unwrap().modified().unwrap(),
+            std::time::UNIX_EPOCH + Duration::from_secs(1700000000)
+        );
+        fs::set_permissions(path, fs::Permissions::from_mode(0o700)).unwrap();
+    }
+    let mut child = Command::new("/bin/sh");
+    child.args(["-c", "sleep 30 & exit 0"]);
+    let started = Instant::now();
+    let captured = capture(child, b"", 100, None);
+    assert!(
+        captured.timed_out,
+        "inherited pipes must remain subject to the timeout"
+    );
+    assert!(
+        started.elapsed() < Duration::from_secs(5),
+        "capture exceeded its deadline"
+    );
 }

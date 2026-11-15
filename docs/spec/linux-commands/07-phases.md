@@ -70,6 +70,9 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | 全部 | BrokenPipe exit 0（GNU 被 SIGPIPE 終止） | 延續既有政策 | — |
 | ls grep rg diff df ps | 預設 `auto`：stdout 為終端機時自行上色並排版（ls 分欄、rg 分組標題）；GNU grep/diff/ls 預設不上色 | 2026-10-31 使用者要求每個指令自行上色與格式化；管線輸出不變；`AGENTCMD_COLOR`／`NO_COLOR` 可關閉 | `color_*` CLI 測試 |
 | 全部 | 不展開 Windows glob | 見 README.md §2 | — |
+| registry（P0） | 驗收保留 46 個繼承名稱，確認原有 17 個皆存在，不回退至 17 行 | 基準已提交 P1；保留既有指令優先，P0 報告記錄完整名稱數 | `registry::tests::registry_matches_existing_commands`、`tests/multicall.rs` |
+| ls / find（Windows，P0） | 保留既有不同的合成權限：ls 0666/0777、find 0644/0755（唯讀 0444） | 05 §3 要求 P0 抽取行為不變，與 02 §7 的統一模式衝突；P2 統一 | `common::meta::tests::legacy_windows_file_modes_are_preserved` |
+| false | 單一 `--help` / `--version` 印出資訊但回傳 1 | 03 的指令規格優先於 02 的一般資訊選項回傳 0；與 GNU 一致 | `false/help`、`false/version` |
 | expr | i128 溢位報錯（GNU bignum） | 不引入 bignum | `expr_bignum`（skip） |
 | printf seq sort -g | f64 精度（GNU long double） | Rust 無 f80 | 相關 skip 案例 |
 | du（Windows） | 磁碟用量以 4096 取整 | 不呼叫 cluster API | — |
@@ -105,5 +108,7 @@ Phase N 完成報告
 | v1.0 | 2026-10-30 | 初始建立 | — |
 
 ## Phase 1 整合備註
+
+以下為先前整合狀態；2026-11-15 的重新驗證記錄見 [Phase 0 report](../../implementation/linux-commands/phase-0.md)。
 
 開始時 HEAD 的 Phase 0 僅有部分共用模組與 registry；工作樹補入 P1 必需的 args/error/io/escape/process、GNU 測試器及 CI 設定，並繼續調整既有指令的狀態碼、訊息與部分參數解析。Phase 0 仍有未完成的對齊項目；Linux GNU 差分與覆蓋率尚待驗證，Phase 0 和 Phase 1 均不可視為已驗收。

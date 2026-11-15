@@ -316,6 +316,50 @@ mod tests {
             .contains("doesn't allow"));
     }
     #[test]
+    fn reports_option_errors_and_prefers_exact_long_names() {
+        assert_eq!(p(&["-x"], true).unwrap_err(), "invalid option -- 'x'");
+        assert_eq!(
+            p(&["--unknown"], true).unwrap_err(),
+            "unrecognized option '--unknown'"
+        );
+        assert_eq!(
+            p(&["--number"], true).unwrap_err(),
+            "option '--number' requires an argument"
+        );
+        assert_eq!(
+            p(&["--verbose=x"], true).unwrap_err(),
+            "option '--verbose' doesn't allow an argument"
+        );
+        assert_eq!(
+            p(&["--ver"], true).unwrap_err(),
+            "option '--ver' is ambiguous; possibilities: '--verbose' '--version'"
+        );
+        assert_eq!(
+            p(&["--version"], true).unwrap(),
+            [Item::Opt("version", None)]
+        );
+    }
+    #[test]
+    fn optional_values_and_termination() {
+        assert_eq!(
+            p(&["--color=always", "-cauto", "-c", "next"], true).unwrap(),
+            [
+                Item::Opt("color", Some("always".into())),
+                Item::Opt("color", Some("auto".into())),
+                Item::Opt("color", None),
+                Item::Operand("next".into()),
+            ]
+        );
+        assert_eq!(
+            p(&["-", "-v"], false).unwrap(),
+            [Item::Operand("-".into()), Item::Operand("-v".into())]
+        );
+        assert_eq!(
+            p(&["-", "-v"], true).unwrap(),
+            [Item::Operand("-".into()), Item::Opt("verbose", None)]
+        );
+    }
+    #[test]
     fn expands_long_prefixes_and_rejects_ambiguity() {
         assert_eq!(
             expand_long("--num=3", &["number", "verbose"]).unwrap(),

@@ -68,6 +68,11 @@ pub fn is_closed_pipe(error: &io::Error) -> bool {
 }
 
 pub fn report_open(command: &str, path: &str, error: &io::Error) {
+    let path = super::path::display_path(std::path::Path::new(path));
+    if command == "cat" {
+        eprintln!("cat: {path}: {}", super::error::io_text(error));
+        return;
+    }
     eprintln!(
         "{command}: cannot open '{path}' for reading: {}",
         super::error::io_text(error)
@@ -75,6 +80,11 @@ pub fn report_open(command: &str, path: &str, error: &io::Error) {
 }
 
 pub fn report_failure(command: &str, path: &str, error: &io::Error) {
+    let path = super::path::display_path(std::path::Path::new(path));
+    if command == "cat" {
+        eprintln!("cat: {path}: {}", super::error::io_text(error));
+        return;
+    }
     eprintln!("{command}: '{path}': {}", super::error::io_text(error));
 }
 

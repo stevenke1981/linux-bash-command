@@ -1,4 +1,5 @@
 use crate::common::color;
+use crate::common::error::io_text;
 use std::cmp::Ordering;
 use std::collections::BTreeSet;
 use std::io::{self, Write};
@@ -32,6 +33,7 @@ Output:
       --no-headers, h   Omit the header line
       --json            Emit a JSON array of the selected processes
   -h, --help            Show this help
+      --version              Show version
 
 Notes: TIME and TTY are shown as '?' because the OS statistics are not available here.
 START and STIME are shown in UTC. %CPU is measured over about 200 ms when requested.
@@ -107,6 +109,7 @@ struct Options {
 
 enum Parsed {
     Help,
+    Version,
     Run(Options),
 }
 
@@ -200,12 +203,16 @@ fn apply_value_option(
     options: &mut Options,
 ) -> Result<(), String> {
     let value = match inline {
-        Some(value) if !value.is_empty() => value.to_string(),
+        Some(value) => value.to_string(),
         _ => {
             *index += 1;
-            args.get(*index)
-                .cloned()
-                .ok_or_else(|| format!("option {name} requires a value"))?
+            args.get(*index).cloned().ok_or_else(|| {
+                if name.len() == 1 {
+                    format!("option requires an argument -- '{name}'")
+                } else {
+                    format!("option '--{name}' requires an argument")
+                }
+            })?
         }
     };
     match name {
@@ -231,7 +238,7 @@ fn apply_flag(letter: char, options: &mut Options) -> Result<(), String> {
         'f' => options.full = true,
         'u' => options.user_format = true,
         'h' => options.no_headers = true,
-        other => return Err(format!("unknown option: -{other}")),
+        other => return Err(format!("invalid option -- '{other}'")),
     }
     Ok(())
 }
@@ -246,6 +253,14 @@ fn parse_long(
         Some((name, value)) => (name, Some(value)),
         None => (arg, None),
     };
+    if inline.is_some()
+        && matches!(
+            name,
+            "all" | "json" | "no-headers" | "no-heading" | "help" | "version"
+        )
+    {
+        return Err(format!("option '--{name}' doesn't allow an argument"));
+    }
     match name {
         "all" => {
             options.all = true;
@@ -262,7 +277,7 @@ fn parse_long(
         "sort" | "pid" | "user" | "format" | "command-name" => {
             apply_value_option(name, inline, args, index, options)
         }
-        _ => Err(format!("unknown option: --{name}")),
+        _ => Err(format!("unrecognized option '--{name}'")),
     }
 }
 
@@ -277,7 +292,13 @@ fn parse_dash_cluster(
     for (position, letter) in cluster.char_indices() {
         if matches!(letter, 'p' | 'u' | 'U' | 'C' | 'o' | 'O') {
             let rest = &cluster[position + letter.len_utf8()..];
-            return apply_value_option(&letter.to_string(), Some(rest), args, index, options);
+            return apply_value_option(
+                &letter.to_string(),
+                (!rest.is_empty()).then_some(rest),
+                args,
+                index,
+                options,
+            );
         }
         apply_flag(letter, options)?;
     }
@@ -295,19 +316,49 @@ fn parse_bsd_letters(letters: &str, options: &mut Options) -> Result<(), String>
 fn parse(args: &[String]) -> Result<Parsed, String> {
     let mut options = Options::default();
     let mut index = 0;
+    let mut options_open = true;
     while index < args.len() {
-        let arg = args[index].as_str();
-        if arg == "-h" || arg == "--help" {
+        let expanded;
+        let arg = if options_open && args[index].starts_with("--") && args[index] != "--" {
+            expanded = crate::common::args::expand_long(
+                &args[index],
+                &[
+                    "all",
+                    "json",
+                    "no-headers",
+                    "no-heading",
+                    "sort",
+                    "pid",
+                    "user",
+                    "format",
+                    "command-name",
+                    "help",
+                    "version",
+                ],
+            )?;
+            expanded.as_str()
+        } else {
+            args[index].as_str()
+        };
+        if options_open && (arg == "-h" || arg == "--help") {
             return Ok(Parsed::Help);
-        } else if let Some(long) = arg.strip_prefix("--") {
+        } else if options_open && arg == "--version" {
+            return Ok(Parsed::Version);
+        } else if options_open && arg == "--" {
+            options_open = false;
+        } else if let Some(long) = arg.strip_prefix("--").filter(|_| options_open) {
             parse_long(long, args, &mut index, &mut options)?;
-        } else if let Some(cluster) = arg.strip_prefix('-').filter(|rest| !rest.is_empty()) {
+        } else if let Some(cluster) = arg
+            .strip_prefix('-')
+            .filter(|rest| options_open && !rest.is_empty())
+        {
             if arg == "-l" {
                 return Err("-l (long format) is not supported; use -o or -f".into());
             }
             parse_dash_cluster(cluster, args, &mut index, &mut options)?;
         } else if !arg.is_empty() && arg.chars().all(|letter| letter.is_ascii_alphabetic()) {
             parse_bsd_letters(arg, &mut options)?;
+            options_open &= std::env::var_os("POSIXLY_CORRECT").is_none();
         } else {
             return Err(format!("unknown option: {arg}"));
         }
@@ -320,8 +371,12 @@ pub fn run(args: &[String]) -> i32 {
     let options = match parse(args) {
         Ok(Parsed::Run(options)) => options,
         Ok(Parsed::Help) => {
-            print!("{HELP}");
-            return 0;
+            return crate::common::args::help_version("ps", &["--help".into()], HELP, true)
+                .unwrap();
+        }
+        Ok(Parsed::Version) => {
+            return crate::common::args::help_version("ps", &["--version".into()], HELP, true)
+                .unwrap();
         }
         Err(error) => {
             eprintln!("ps: {error}\nTry 'ps --help' for more information.");
@@ -696,7 +751,7 @@ fn write_stdout(text: &str) -> i32 {
         Ok(()) => 0,
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
-            eprintln!("ps: cannot write output: {error}");
+            eprintln!("ps: write error: {}", io_text(&error));
             1
         }
     }
