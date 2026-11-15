@@ -78,14 +78,17 @@ fn help_and_version_return_one_for_other_output_errors() {
         "cat", "head", "tail", "ls", "pwd", "find", "df", "ps", "less", "curl", "cd",
     ] {
         for flag in ["--help", "--version"] {
-            let read_only = std::fs::File::open(sandbox.path.join("read-only-handle")).unwrap();
+            let (stdout, reader) = failing_stdout(&sandbox);
             let output = Command::new(binary(name))
                 .current_dir(&sandbox.path)
                 .arg(flag)
                 .stdin(Stdio::null())
-                .stdout(read_only)
+                .stdout(stdout)
                 .output()
                 .unwrap();
+            // Keep a Unix pipe's reader alive until the child has exited, so the
+            // failure stays WouldBlock instead of becoming BrokenPipe.
+            drop(reader);
             assert_eq!(
                 output.status.code(),
                 Some(1),
@@ -104,6 +107,42 @@ fn help_and_version_return_one_for_other_output_errors() {
         std::fs::read(sandbox.path.join("read-only-handle")).unwrap(),
         b"original"
     );
+}
+
+#[cfg(not(unix))]
+fn failing_stdout(sandbox: &Sandbox) -> (Stdio, Option<std::io::PipeReader>) {
+    let file = std::fs::File::open(sandbox.path.join("read-only-handle")).unwrap();
+    (file.into(), None)
+}
+
+#[cfg(unix)]
+fn failing_stdout(_sandbox: &Sandbox) -> (Stdio, Option<std::io::PipeReader>) {
+    use std::os::fd::AsRawFd;
+
+    let (reader, mut writer) = std::io::pipe().unwrap();
+    let descriptor = writer.as_raw_fd();
+    // SAFETY: descriptor belongs to the live writer; F_GETFL takes no argument.
+    let flags = unsafe { libc::fcntl(descriptor, libc::F_GETFL) };
+    assert_ne!(flags, -1, "{}", std::io::Error::last_os_error());
+    // SAFETY: F_SETFL accepts these flags for the same live pipe descriptor.
+    assert_ne!(
+        unsafe { libc::fcntl(descriptor, libc::F_SETFL, flags | libc::O_NONBLOCK) },
+        -1,
+        "{}",
+        std::io::Error::last_os_error()
+    );
+    // Fill quickly, then consume every remaining byte of capacity. A large write
+    // can return WouldBlock while a small information message would still fit.
+    for bytes in [&[0u8; 65536][..], &[0u8; 1][..]] {
+        loop {
+            match writer.write(bytes) {
+                Ok(count) => assert_ne!(count, 0),
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => break,
+                Err(error) => panic!("fill nonblocking stdout pipe: {error}"),
+            }
+        }
+    }
+    (writer.into(), Some(reader))
 }
 
 #[test]

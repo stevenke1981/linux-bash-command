@@ -191,14 +191,13 @@ fn capture(mut cmd: Command, input: &[u8], timeout: u64, prefix: Option<usize>) 
                     Some(libc::ESRCH)
                 );
             }
-            if status.is_none() {
-                status = Some(child.wait().unwrap());
-            }
             break;
         }
         std::thread::sleep(Duration::from_millis(5));
     }
-    let status = status.unwrap();
+    // wait() is safe after a successful try_wait() and makes reaping explicit
+    // on every normal and timeout path, even when pipe readers finish later.
+    let status = child.wait().unwrap();
     writer.join().unwrap();
     Captured {
         stdout: out.join().unwrap(),

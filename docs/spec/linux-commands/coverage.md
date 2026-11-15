@@ -6,7 +6,7 @@
 - Windows fmt and clippy (all targets, warnings denied): PASS.
 - Current Linux GNU, macOS, and coverage: pending CI; do not substitute the
   historical measurements below for the current candidate.
-- Source/test snapshot: `2b9415eea68287fd99cb106c2cbf156a07e6f62ff418cde2e0f14b7e9ea502e5`.
+- Source/test snapshot: `e155214e74168350cba393bea5f402c10b2e2f8cd59421615d4fba480902e6f0`.
 - Full evidence and outstanding gates: [Phase 0 report](../../implementation/linux-commands/phase-0.md).
 
 ## Historical Phase 1 verification
