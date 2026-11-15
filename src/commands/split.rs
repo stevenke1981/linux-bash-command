@@ -10,6 +10,23 @@ enum Mode {
     LineBytes(usize),
     Number(char, Option<usize>, usize),
 }
+fn chunk_len(length: u64, total: usize, index: usize) -> u64 {
+    let total = total as u64;
+    length / total + u64::from((index as u64) < length % total)
+}
+fn chunk_at(length: u64, total: usize, offset: u64) -> usize {
+    let total = total as u64;
+    let base = length / total;
+    let extra = length % total;
+    let larger_region = (base + 1) * extra;
+    if offset < larger_region {
+        (offset / (base + 1)) as usize
+    } else {
+        (offset - larger_region)
+            .checked_div(base)
+            .map_or(total - 1, |part| (extra + part).min(total - 1)) as usize
+    }
+}
 
 fn positive(s: &str) -> Result<usize, String> {
     let n = s
@@ -65,71 +82,6 @@ fn number(s: &str) -> Result<Mode, String> {
         return Err(format!("invalid number of chunks: '{s}'"));
     }
     Ok(Mode::Number(kind, which, total))
-}
-#[cfg(test)]
-fn records(data: &[u8], sep: u8) -> Vec<&[u8]> {
-    if data.is_empty() {
-        Vec::new()
-    } else {
-        data.split_inclusive(|b| *b == sep).collect()
-    }
-}
-#[cfg(test)]
-fn chunks(data: &[u8], mode: Mode, sep: u8) -> Vec<Vec<u8>> {
-    let lines = records(data, sep);
-    match mode {
-        Mode::Bytes(n) => data.chunks(n).map(<[u8]>::to_vec).collect(),
-        Mode::Lines(n) => lines.chunks(n).map(|x| x.concat()).collect(),
-        Mode::LineBytes(n) => {
-            let mut out = Vec::new();
-            let mut buffer = Vec::new();
-            for mut line in lines {
-                while !line.is_empty() {
-                    if !buffer.is_empty() && line.len() > n - buffer.len() {
-                        out.push(std::mem::take(&mut buffer));
-                    }
-                    let take = line.len().min(n - buffer.len());
-                    buffer.extend_from_slice(&line[..take]);
-                    line = &line[take..];
-                    if buffer.len() == n {
-                        out.push(std::mem::take(&mut buffer));
-                    }
-                }
-            }
-            if !buffer.is_empty() {
-                out.push(buffer);
-            }
-            out
-        }
-        Mode::Number(kind, _, total) => {
-            let mut out = vec![Vec::new(); total];
-            if kind == 'r' {
-                for (i, line) in lines.iter().enumerate() {
-                    out[i % total].extend_from_slice(line);
-                }
-            } else if kind == 'b' {
-                let q = (data.len() / total).max(1);
-                let mut start = 0usize;
-                for (i, chunk) in out.iter_mut().enumerate() {
-                    let end = if i + 1 == total {
-                        data.len()
-                    } else {
-                        start.saturating_add(q).min(data.len())
-                    };
-                    chunk.extend_from_slice(&data[start..end]);
-                    start = end;
-                }
-            } else {
-                let mut position = 0usize;
-                for line in lines {
-                    let i = (position / (data.len() / total).max(1)).min(total - 1);
-                    out[i].extend_from_slice(line);
-                    position += line.len();
-                }
-            }
-            out
-        }
-    }
 }
 fn suffix(mut index: usize, width: usize, base: u8) -> Option<String> {
     let alphabet = match base {
@@ -308,6 +260,22 @@ mod tests {
         assert_eq!(size("1K"), Ok(1024));
         assert_eq!(size("2MB"), Ok(2_000_000));
         assert!(size("0").is_err());
+        for (text, expected) in [
+            ("1b", 512),
+            ("1kB", 1000),
+            ("1MiB", 1_048_576),
+            ("1G", 1_073_741_824),
+            ("1GB", 1_000_000_000),
+        ] {
+            assert_eq!(size(text), Ok(expected), "{text}");
+        }
+        #[cfg(target_pointer_width = "64")]
+        for text in ["1T", "1TB", "1P", "1PB", "1E", "1EB"] {
+            assert!(size(text).is_ok(), "{text}");
+        }
+        for text in ["", "bad", "1bad", "18446744073709551615K"] {
+            assert!(size(text).is_err(), "{text}");
+        }
     }
     #[test]
     fn suffixes() {
@@ -319,13 +287,29 @@ mod tests {
     }
     #[test]
     fn split_modes() {
+        assert!(matches!(number("3"), Ok(Mode::Number('b', None, 3))));
+        assert!(matches!(number("2/3"), Ok(Mode::Number('b', Some(2), 3))));
+        assert!(matches!(number("l/2/3"), Ok(Mode::Number('l', Some(2), 3))));
+        assert!(matches!(number("r/3"), Ok(Mode::Number('r', None, 3))));
+        assert!(number("4/3").is_err());
+        assert!(number("0").is_err());
+    }
+    #[test]
+    fn balanced_chunk_boundaries() {
         assert_eq!(
-            chunks(b"a\nb\nc\n", Mode::Lines(2), b'\n'),
-            [b"a\nb\n".to_vec(), b"c\n".to_vec()]
+            (0..3).map(|i| chunk_len(14, 3, i)).collect::<Vec<_>>(),
+            [5, 5, 4]
         );
         assert_eq!(
-            chunks(b"abc", Mode::Bytes(2), b'\n'),
-            [b"ab".to_vec(), b"c".to_vec()]
+            (0..3).map(|i| chunk_len(7, 3, i)).collect::<Vec<_>>(),
+            [3, 2, 2]
         );
+        assert_eq!(
+            (0..5).map(|i| chunk_len(2, 5, i)).collect::<Vec<_>>(),
+            [1, 1, 0, 0, 0]
+        );
+        for (offset, expected) in [(0, 0), (4, 0), (5, 1), (9, 1), (10, 2), (13, 2)] {
+            assert_eq!(chunk_at(14, 3, offset), expected);
+        }
     }
 }

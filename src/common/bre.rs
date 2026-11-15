@@ -355,8 +355,7 @@ pub struct Matcher {
 struct Regular {
     anchored: regex::bytes::Regex,
     search: regex::bytes::Regex,
-    source: String,
-    context: bool,
+    right: Option<regex::bytes::Regex>,
 }
 // A regular pattern can use the linear-space regex engine. Force the longest
 // whole prefix, retaining ordered alternatives for GNU's subgroup selection.
@@ -418,8 +417,11 @@ fn fast_matchers(pattern: &Pattern) -> Option<Regular> {
     Some(Regular {
         anchored: build(&format!("\\A(?:{pattern})\\z"))?,
         search: build(&pattern)?,
-        source: pattern,
-        context,
+        right: if context {
+            Some(build(&format!("\\A(?:{pattern})(?s:.)\\z"))?)
+        } else {
+            None
+        },
     })
 }
 #[derive(Debug)]
@@ -464,21 +466,12 @@ impl Matcher {
     pub fn captures_at_start(&self, input: &[u8]) -> Option<Captures> {
         if let Some(regular) = &self.fast {
             for end in (0..=input.len()).rev() {
-                let contextual;
-                let (matcher, haystack) = if regular.context && end < input.len() {
-                    contextual = regex::bytes::RegexBuilder::new(&format!(
-                        "\\A(?:{})(?s:.){{{}}}\\z",
-                        regular.source,
-                        input.len() - end
-                    ))
-                    .unicode(false)
-                    .dot_matches_new_line(true)
-                    .build()
-                    .ok()?;
-                    (&contextual, input)
-                } else {
-                    (&regular.anchored, &input[..end])
-                };
+                let (matcher, haystack) =
+                    if let Some(right) = regular.right.as_ref().filter(|_| end < input.len()) {
+                        (right, &input[..end + 1])
+                    } else {
+                        (&regular.anchored, &input[..end])
+                    };
                 if let Some(found) = matcher.captures(haystack) {
                     let mut state = State {
                         at: end,
@@ -544,6 +537,17 @@ mod tests {
         assert_eq!(matching(b"abc", br"\(a\|ab\).*").unwrap(), b"a");
         assert_eq!(matching(b"aaaa", br"\(a\|aa\)*").unwrap(), b"a");
         assert_eq!(matching(b"ab", br"\(a*\)\(.*\)").unwrap(), b"a");
+    }
+    #[test]
+    fn long_subject_does_not_expand_the_boundary_matcher() {
+        let mut text = vec![b'b'; 100001];
+        text[0] = b'a';
+        let matcher = Matcher::compile(br"\(a\)\B").unwrap();
+        assert_eq!(
+            matcher.captures_at_start(&text).unwrap().range(1),
+            Some(0..1)
+        );
+        assert_eq!(matching(&text, br"a$").unwrap(), b"0");
     }
     #[test]
     fn ambiguous_regular_captures_do_not_enumerate_partitions() {

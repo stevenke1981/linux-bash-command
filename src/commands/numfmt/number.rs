@@ -138,7 +138,7 @@ pub fn unit(text: &str) -> Result<i128, String> {
     let multiplier = if suffix.is_empty() {
         1
     } else {
-        let index = b"KMGTPEZY"
+        let index = b"KMGTPEZYRQ"
             .iter()
             .position(|b| suffix.as_bytes().first() == Some(b))
             .ok_or_else(|| format!("invalid unit size '{text}'"))?
@@ -202,7 +202,7 @@ impl Number {
         let (power, base) = if suffix.is_empty() {
             (0, 1i128)
         } else {
-            let power = b"KMGTPEZY"
+            let power = b"KMGTPEZYRQ"
                 .iter()
                 .position(|b| suffix.as_bytes().first() == Some(b))
                 .ok_or_else(|| format!("invalid suffix in input: '{text}'"))?
@@ -273,7 +273,7 @@ impl Number {
         };
         let mut power = 0;
         if scale != Scale::None {
-            while power < 8 && numerator.abs() / denominator >= base {
+            while power < 10 && numerator.abs() / denominator >= base {
                 denominator = denominator.checked_mul(base).ok_or_else(overflow)?;
                 power += 1
             }
@@ -307,12 +307,14 @@ impl Number {
             .rounded(round)?;
 
         if scale != Scale::None
-            && power == 8
+            && power == 10
             && rounded.abs() >= base * 10i128.pow(precision as u32)
         {
             return Err("value too large to be converted".into());
         }
-        if scale != Scale::None && power < 8 && rounded.abs() >= base * 10i128.pow(precision as u32)
+        if scale != Scale::None
+            && power < 10
+            && rounded.abs() >= base * 10i128.pow(precision as u32)
         {
             power += 1;
             precision = format.precision.unwrap_or(1);
@@ -357,7 +359,7 @@ impl Number {
         } else {
             format!(
                 "{}{}",
-                char::from(b"KMGTPEZY"[power - 1]),
+                char::from(b"KMGTPEZYRQ"[power - 1]),
                 if scale == Scale::IecI { "i" } else { "" }
             )
         };
@@ -439,5 +441,108 @@ mod tests {
     #[test]
     fn empty_unit_is_invalid() {
         assert!(unit("").is_err());
+    }
+    #[test]
+    fn ronna_and_quetta_round_trip() {
+        for (letter, power) in [("R", 9), ("Q", 10)] {
+            for (scale, base, tail) in [
+                (Scale::Si, 1000i128, ""),
+                (Scale::Iec, 1024i128, ""),
+                (Scale::IecI, 1024i128, "i"),
+            ] {
+                let raw = base.pow(power).to_string();
+                let value = Number::parse(&raw, Scale::None).unwrap();
+                assert_eq!(
+                    value
+                        .render(1, 1, scale, Round::Away, &Format::default())
+                        .unwrap(),
+                    format!("1.0{letter}{tail}")
+                );
+                let value = Number::parse(&format!("1{letter}{tail}"), scale).unwrap();
+                assert_eq!(
+                    value
+                        .render(1, 1, scale, Round::Away, &Format::default())
+                        .unwrap(),
+                    format!("1.0{letter}{tail}")
+                );
+            }
+        }
+    }
+    #[test]
+    fn larger_units_and_invalid_unit_sizes() {
+        assert_eq!(unit("RB").unwrap(), 1000i128.pow(9));
+        assert_eq!(unit("QiB").unwrap(), 1024i128.pow(10));
+        assert_eq!(unit("2MB").unwrap(), 2_000_000);
+        for invalid in [
+            "0",
+            "10XX",
+            "999999999999999999999999999999999999999999",
+            "170141183460469231731687303715884105727Q",
+        ] {
+            assert!(unit(invalid).is_err(), "{invalid}");
+        }
+    }
+    #[test]
+    fn number_format_preserves_flags_and_literal_percents() {
+        let f = Format::parse("%% %-+' 8.f %%").unwrap();
+        assert_eq!(f.prefix, "% ");
+        assert_eq!(f.suffix, " %");
+        assert!(f.left && f.plus && f.space);
+        assert_eq!(
+            Number::parse("12", Scale::None)
+                .unwrap()
+                .render(1, 1, Scale::None, Round::Away, &f)
+                .unwrap(),
+            "+12     "
+        );
+        let f = Format::parse("% 5f").unwrap();
+        assert_eq!(
+            Number::parse("12", Scale::None)
+                .unwrap()
+                .render(1, 1, Scale::None, Round::Away, &f)
+                .unwrap(),
+            "   12"
+        );
+        for invalid in [
+            "%f%f",
+            "plain",
+            "%q",
+            "%1000001f",
+            "%.1000001f",
+            "%99999999999999999999999999f",
+        ] {
+            assert!(Format::parse(invalid).is_err(), "{invalid}");
+        }
+    }
+    #[test]
+    fn rounding_carries_to_the_next_scale() {
+        let n = Number::parse("999999", Scale::None).unwrap();
+        assert_eq!(
+            n.render(1, 1, Scale::Si, Round::Away, &Format::default())
+                .unwrap(),
+            "1.0M"
+        );
+        let n = Number::parse("1000000000000000000000000000000000", Scale::None).unwrap();
+        assert!(n
+            .render(1, 1, Scale::Si, Round::Away, &Format::default())
+            .is_err());
+    }
+    #[test]
+    fn precision_and_arithmetic_limits_are_checked() {
+        assert!(Number::parse("1.0000000000000000001", Scale::None).is_err());
+        assert!(Number::parse("170141183460469231731687303715884105728", Scale::None).is_err());
+        assert!(Number::parse("170141183460469231731687303715884105727Q", Scale::Si).is_err());
+        let n = Number::parse("1000000000000000000000000000000", Scale::None).unwrap();
+        assert!(n
+            .render(
+                1000i128.pow(10),
+                1,
+                Scale::Si,
+                Round::Away,
+                &Format::default()
+            )
+            .is_err());
+        let f = Format::parse("%.19f").unwrap();
+        assert!(n.render(1, 1, Scale::Si, Round::Away, &f).is_err());
     }
 }

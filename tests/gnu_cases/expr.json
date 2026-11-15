@@ -310,7 +310,7 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": "02 and03 explicitly require expr runtime error status3; Ubuntu GNU9.4 returns2. CLI error goldens verify the specification."
     },
     {
       "name": "integer_error_spec",
@@ -324,7 +324,7 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": "02 and03 explicitly require expr runtime error status3; Ubuntu GNU9.4 returns2. CLI error goldens verify the specification."
     },
     {
       "name": "help",

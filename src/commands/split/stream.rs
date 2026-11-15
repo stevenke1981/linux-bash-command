@@ -1,4 +1,4 @@
-use super::{automatic_suffix, suffix, Mode};
+use super::{automatic_suffix, chunk_at, chunk_len, suffix, Mode};
 use crate::common::io as common_io;
 use std::{
     fs::{self, File, OpenOptions},
@@ -272,15 +272,10 @@ fn run_inner(
                     outputs.bucket(i, false)?;
                 }
             }
-            let part = (len / total as u64).max(1);
             if kind == 'b' {
                 let mut start = 0u64;
                 for i in 0..total {
-                    let end = if i + 1 == total {
-                        len
-                    } else {
-                        start.saturating_add(part).min(len)
-                    };
+                    let end = start + chunk_len(len, total, i);
                     if start < end {
                         write_piece(&mut data, start, end, i, outputs, elide)?;
                     }
@@ -293,7 +288,7 @@ fn run_inner(
                     let bucket = if kind == 'r' {
                         line % total
                     } else {
-                        ((start / part) as usize).min(total - 1)
+                        chunk_at(len, total, start)
                     };
                     line += 1;
                     write_piece(&mut data, start, end, bucket, outputs, elide)

@@ -783,3 +783,7 @@ impl<'a> Iterator for WordSplit<'a> {
         })
     }
 }
+
+#[cfg(test)]
+#[path = "parasplit_tests.rs"]
+mod tests;

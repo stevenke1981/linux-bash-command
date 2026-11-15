@@ -183,8 +183,8 @@ fn split_chunk_selection_and_suffix_rollover() {
     let s = Sandbox::new();
     s.write("input", b"abc\nd\neee\nf\ng\n");
     for (args, expected) in [
-        (vec!["-n", "2/3", "input"], b"d\nee".as_slice()),
-        (vec!["-n", "l/2/3", "input"], b"d\neee\n".as_slice()),
+        (vec!["-n", "2/3", "input"], b"\neee\n".as_slice()),
+        (vec!["-n", "l/2/3", "input"], b"eee\n".as_slice()),
         (vec!["-n", "r/2/3", "input"], b"d\ng\n".as_slice()),
     ] {
         let out = run(&s, "split", &args, b"");
@@ -216,6 +216,181 @@ fn split_chunk_selection_and_suffix_rollover() {
     );
     assert!(out.status.success(), "{out:?}");
     assert_eq!(fs::read(s.path.join("x050")).unwrap(), b"a");
+}
+
+#[test]
+fn split_number_uses_balanced_byte_boundaries() {
+    let s = Sandbox::new();
+    s.write("input", b"abc\nd\neee\nf\ng\n");
+    let out = run(&s, "split", &["-n", "3", "input"], b"");
+    assert!(out.status.success(), "{out:?}");
+    for (name, bytes) in [
+        ("xaa", b"abc\nd".as_slice()),
+        ("xab", b"\neee\n".as_slice()),
+        ("xac", b"f\ng\n".as_slice()),
+    ] {
+        assert_eq!(fs::read(s.path.join(name)).unwrap(), bytes);
+    }
+    let s = Sandbox::new();
+    s.write("input", b"abc\nd\neee\nf\ng\n");
+    let out = run(&s, "split", &["-n", "l/3", "input"], b"");
+    assert!(out.status.success(), "{out:?}");
+    for (name, bytes) in [
+        ("xaa", b"abc\nd\n".as_slice()),
+        ("xab", b"eee\n".as_slice()),
+        ("xac", b"f\ng\n".as_slice()),
+    ] {
+        assert_eq!(fs::read(s.path.join(name)).unwrap(), bytes);
+    }
+    let s = Sandbox::new();
+    let out = run(&s, "split", &["-n", "3", "-", "out"], b"abcdef\n");
+    assert!(out.status.success(), "{out:?}");
+    for (name, bytes) in [
+        ("outaa", b"abc".as_slice()),
+        ("outab", b"de".as_slice()),
+        ("outac", b"f\n".as_slice()),
+    ] {
+        assert_eq!(fs::read(s.path.join(name)).unwrap(), bytes);
+    }
+    let s = Sandbox::new();
+    s.write("input", b"a\nbc\nd");
+    let out = run(&s, "split", &["-n", "l/3", "input"], b"");
+    assert!(out.status.success(), "{out:?}");
+    for (name, bytes) in [
+        ("xaa", b"a\n".as_slice()),
+        ("xab", b"bc\n".as_slice()),
+        ("xac", b"d".as_slice()),
+    ] {
+        assert_eq!(fs::read(s.path.join(name)).unwrap(), bytes);
+    }
+    let s = Sandbox::new();
+    s.write("input", b"abcdefghij\nz\n");
+    let out = run(&s, "split", &["-e", "-n", "l/4", "input"], b"");
+    assert!(out.status.success(), "{out:?}");
+    assert_eq!(fs::read(s.path.join("xaa")).unwrap(), b"abcdefghij\n");
+    assert_eq!(fs::read(s.path.join("xab")).unwrap(), b"z\n");
+}
+
+#[test]
+fn split_rejects_invalid_settings_before_output() {
+    let s = Sandbox::new();
+    for args in [
+        vec!["-b0"],
+        vec!["-l0"],
+        vec!["-a0"],
+        vec!["-b1", "-l1"],
+        vec!["--numeric-suffixes=bad"],
+        vec!["--separator=ab"],
+        vec!["-n", "4/3"],
+        vec!["missing"],
+        vec!["a", "b", "c"],
+    ] {
+        let out = run(&s, "split", &args, b"");
+        assert!(!out.status.success(), "{args:?}: {out:?}");
+        assert!(out.stdout.is_empty());
+    }
+    assert_eq!(fs::read_dir(&s.path).unwrap().count(), 0);
+}
+
+#[test]
+fn od_formats_duplicates_and_error_paths() {
+    let s = Sandbox::new();
+    for (args, input, expected) in [
+        (
+            vec!["-An", "-a"],
+            b" \0\xff".as_slice(),
+            b"  sp nul del\n".as_slice(),
+        ),
+        (
+            vec!["-An", "-d"],
+            b"\x01\x00".as_slice(),
+            b"     1\n".as_slice(),
+        ),
+        (
+            vec!["-An", "-i"],
+            b"\xff\xff\xff\xff".as_slice(),
+            b"          -1\n".as_slice(),
+        ),
+        (
+            vec!["-Ad", "-j2", "-N3", "-tx1"],
+            b"abcdef".as_slice(),
+            b"0000002 63 64 65\n0000005\n".as_slice(),
+        ),
+        (
+            vec!["-w2", "-tx1"],
+            b"ababab".as_slice(),
+            b"0000000 61 62\n*\n0000006\n".as_slice(),
+        ),
+        (
+            vec!["-w4", "-tx1z"],
+            b"A\0".as_slice(),
+            b"0000000 41 00        >A.<\n0000002\n".as_slice(),
+        ),
+    ] {
+        let out = run(&s, "od", &args, input);
+        assert!(out.status.success(), "{args:?}: {out:?}");
+        assert_eq!(out.stdout, expected, "{args:?}");
+    }
+    for args in [
+        vec!["--address-radix=q"],
+        vec!["--skip-bytes=bad"],
+        vec!["--read-bytes=bad"],
+        vec!["--width=bad"],
+        vec!["--format=q"],
+        vec!["--endian=middle"],
+        vec!["missing"],
+        vec!["-N0", "missing"],
+        vec!["-j9"],
+    ] {
+        let out = run(&s, "od", &args, b"abc");
+        assert!(!out.status.success(), "{args:?}: {out:?}");
+        assert!(out.stdout.is_empty(), "{args:?}: {out:?}");
+    }
+    s.write("empty", b"");
+    let out = run(&s, "od", &["-N0", "missing", "empty"], b"");
+    assert!(!out.status.success());
+    assert_eq!(out.stdout, b"0000000\n");
+}
+
+#[test]
+fn od_legacy_formats_and_multi_input() {
+    let s = Sandbox::new();
+    let zeros = [0u8; 8];
+    for (flag, expected) in [
+        ("-a", " nul nul nul nul nul nul nul nul\n"),
+        ("-b", " 000 000 000 000 000 000 000 000\n"),
+        ("-c", "  \\0  \\0  \\0  \\0  \\0  \\0  \\0  \\0\n"),
+        ("-d", "     0     0     0     0\n"),
+        ("-f", "               0               0\n"),
+        ("-i", "           0           0\n"),
+        ("-l", "                    0\n"),
+        ("-o", " 000000 000000 000000 000000\n"),
+        ("-s", "      0      0      0      0\n"),
+        ("-x", " 0000 0000 0000 0000\n"),
+    ] {
+        let out = run(&s, "od", &["-An", flag], &zeros);
+        assert!(out.status.success(), "{flag}: {out:?}");
+        assert_eq!(out.stdout, expected.as_bytes(), "{flag}");
+    }
+    s.write("one", b"a");
+    s.write("two", b"b");
+    let out = run(
+        &s,
+        "od",
+        &["-An", "--endian=little", "-tx1", "one", "two"],
+        b"",
+    );
+    assert!(out.status.success());
+    assert_eq!(out.stdout, b" 61 62\n");
+    let out = run(&s, "od", &["-N1", "-An", "-tx1", "one", "missing"], b"");
+    assert!(out.status.success());
+    assert_eq!(out.stdout, b" 61\n");
+    let out = run(&s, "od", &["-w2", "--output-duplicates", "-tx1"], b"ababab");
+    assert!(out.status.success());
+    assert_eq!(
+        out.stdout,
+        b"0000000 61 62\n0000002 61 62\n0000004 61 62\n0000006\n"
+    );
 }
 
 #[test]

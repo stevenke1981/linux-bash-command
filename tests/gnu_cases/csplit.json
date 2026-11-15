@@ -345,7 +345,7 @@
         "exit",
         "files"
       ],
-      "skip_reason": null
+      "skip_reason": "02 requires failed in-place writes to preserve the input. GNU9.4 removes its input when an output filename aliases it; safe CLI golden retains the input."
     }
   ]
 }

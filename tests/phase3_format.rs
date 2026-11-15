@@ -301,6 +301,37 @@ mod numfmt {
         );
     }
     #[test]
+    fn ronna_quetta_and_binary_equivalents_round_trip() {
+        let s = Sandbox::new();
+        for (value, scale, expected) in [
+            (1000i128.pow(9), "si", "1.0R\n"),
+            (1000i128.pow(10), "si", "1.0Q\n"),
+            (1024i128.pow(9), "iec", "1.0R\n"),
+            (1024i128.pow(10), "iec-i", "1.0Qi\n"),
+        ] {
+            let value = value.to_string();
+            let flag = format!("--to={scale}");
+            let out = run(&s, "numfmt", &[&flag, &value], b"");
+            ok(&out);
+            assert_eq!(out.stdout, expected.as_bytes());
+        }
+        for (from, to, value, expected) in [
+            ("si", "si", "1R", "1.0R\n"),
+            ("si", "si", "1Q", "1.0Q\n"),
+            ("iec-i", "iec-i", "1Ri", "1.0Ri\n"),
+            ("auto", "iec-i", "1Qi", "1.0Qi\n"),
+        ] {
+            let out = run(
+                &s,
+                "numfmt",
+                &[&format!("--from={from}"), &format!("--to={to}"), value],
+                b"",
+            );
+            ok(&out);
+            assert_eq!(out.stdout, expected.as_bytes());
+        }
+    }
+    #[test]
     fn headers_and_selected_fields() {
         let s = Sandbox::new();
         let out = run(

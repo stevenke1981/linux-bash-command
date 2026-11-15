@@ -110,7 +110,7 @@ mod shuf_cli {
 
     #[test]
     fn huge_range_uses_sparse_unique_sampling() {
-        let out = Sandbox::new().run("shuf", &["-i", "0-18446744073709551615", "-n", "8"], b"");
+        let out = Sandbox::new().run("shuf", &["-i", "1-18446744073709551615", "-n", "8"], b"");
         assert_eq!(code(&out), 0);
         let values = text(&out)
             .lines()
@@ -125,7 +125,7 @@ mod shuf_cli {
     }
 
     #[test]
-    fn maximum_unsigned_and_empty_range_are_supported() {
+    fn maximum_unsigned_singleton_and_empty_range_are_supported() {
         let dir = Sandbox::new();
         let max = dir.run(
             "shuf",
@@ -283,8 +283,7 @@ mod shuf_cli {
             ],
             b"",
         );
-        assert_eq!(code(&max_range), 0);
-        assert_eq!(max_range.stdout, b"0\n");
+        assert_eq!(code(&max_range), 1);
     }
 
     #[test]

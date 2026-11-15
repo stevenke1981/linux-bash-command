@@ -261,24 +261,31 @@ struct Inputs {
     current: Option<(String, Box<dyn std::io::BufRead>)>,
     failed: bool,
 }
+impl Inputs {
+    fn open_next(&mut self) -> bool {
+        for name in self.names.by_ref() {
+            match io::input(&name) {
+                Ok(input) => {
+                    self.current = Some((name, input));
+                    return true;
+                }
+                Err(e) => {
+                    io::report_open("od", &name, &e);
+                    self.failed = true;
+                }
+            }
+        }
+        false
+    }
+}
 impl Read for Inputs {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         if buf.is_empty() {
             return Ok(0);
         }
         loop {
-            if self.current.is_none() {
-                let Some(name) = self.names.next() else {
-                    return Ok(0);
-                };
-                match io::input(&name) {
-                    Ok(input) => self.current = Some((name, input)),
-                    Err(e) => {
-                        io::report_open("od", &name, &e);
-                        self.failed = true;
-                        continue;
-                    }
-                }
+            if self.current.is_none() && !self.open_next() {
+                return Ok(0);
             }
             let (name, input) = self.current.as_mut().unwrap();
             match input.read(buf) {
@@ -426,6 +433,9 @@ pub fn run(arguments: &[String]) -> i32 {
         current: None,
         failed: false,
     };
+    if !input.open_next() {
+        return i32::from(input.failed);
+    }
     let mut skip_failed = false;
     let status = io::output("od", |out| {
         let mut left_to_skip = skip;
@@ -547,5 +557,111 @@ mod tests {
     fn characters() {
         assert_eq!(value(b"\n", formats("c").unwrap()[0], false), "\\n");
         assert_eq!(address(16, 'o'), "0000020");
+    }
+    #[test]
+    fn type_sizes_and_ascii_suffix() {
+        for (name, expected) in [
+            ("xC", 1),
+            ("xS", 2),
+            ("xI", 4),
+            ("xL", 8),
+            ("fF", 4),
+            ("fD", 8),
+            ("fL", 8),
+            ("x", 4),
+            ("f", 8),
+        ] {
+            assert_eq!(formats(name).unwrap()[0].size, expected, "{name}");
+        }
+        assert!(formats("x1z").unwrap()[0].ascii);
+        for bad in [
+            "",
+            "a2",
+            "c4",
+            "f1",
+            "x3",
+            "q",
+            "x999999999999999999999999999999999",
+        ] {
+            assert!(formats(bad).is_err(), "{bad}");
+        }
+    }
+    #[test]
+    fn byte_counts_and_radices() {
+        for (text, expected) in [
+            ("0", 0),
+            ("010", 8),
+            ("0x10", 16),
+            ("1b", 512),
+            ("1k", 1024),
+            ("1KB", 1000),
+            ("1MiB", 1048576),
+            ("1MB", 1000000),
+            ("0Y", 0),
+            ("0ZB", 0),
+        ] {
+            assert_eq!(size(text), Ok(expected), "{text}");
+        }
+        for bad in ["", "08", "0x", "1bad", "1Y"] {
+            assert!(size(bad).is_err(), "{bad}");
+        }
+        assert_eq!(address(16, 'd'), "0000016");
+        assert_eq!(address(16, 'x'), "000010");
+        assert_eq!(address(16, 'n'), "");
+    }
+    #[test]
+    fn byte_formats_have_expected_values() {
+        let named = formats("a").unwrap()[0];
+        for (byte, expected) in [
+            (0, "nul"),
+            (10, "nl"),
+            (32, "sp"),
+            (65, "A"),
+            (127, "del"),
+            (255, "del"),
+        ] {
+            assert_eq!(value(&[byte], named, false), expected);
+        }
+        let character = formats("c").unwrap()[0];
+        for (byte, expected) in [
+            (0, "\\0"),
+            (7, "\\a"),
+            (8, "\\b"),
+            (9, "\\t"),
+            (11, "\\v"),
+            (12, "\\f"),
+            (13, "\\r"),
+            (255, "377"),
+        ] {
+            assert_eq!(value(&[byte], character, false), expected);
+        }
+        assert_eq!(value(&[255], formats("d1").unwrap()[0], false), "-1");
+        assert_eq!(value(&[255], formats("u1").unwrap()[0], false), "255");
+        assert_eq!(value(&[255], formats("o1").unwrap()[0], false), "377");
+        assert_eq!(
+            value(&1.5f64.to_le_bytes(), formats("f8").unwrap()[0], false),
+            "1.5"
+        );
+    }
+    #[test]
+    fn format_widths_and_float_notation() {
+        for (format, expected) in [
+            ("u1", 3),
+            ("u2", 5),
+            ("u4", 10),
+            ("u8", 20),
+            ("d1", 4),
+            ("d2", 6),
+            ("d4", 11),
+            ("d8", 20),
+            ("f4", 15),
+            ("f8", 24),
+        ] {
+            assert_eq!(width(formats(format).unwrap()[0]), expected);
+        }
+        assert_eq!(float_text("1e-5".into(), "0.00001".into(), 6), "1e-05");
+        assert_eq!(float_text("1e6".into(), "1000000".into(), 6), "1e+06");
+        assert_eq!(float_text("1.5e0".into(), "1.5".into(), 6), "1.5");
+        assert_eq!(float_text("inf".into(), "inf".into(), 6), "inf");
     }
 }

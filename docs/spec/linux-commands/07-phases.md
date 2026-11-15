@@ -101,6 +101,10 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 
 | od fL | Long double is represented and formatted as f64 | 03 explicitly requires this portable representation | od numeric CLI goldens |
 
+| expr | Runtime errors use status 3; Ubuntu GNU 9.4 uses 2 for zero division and noninteger arithmetic | Explicit 02/03 status contract | `expr/division_error_spec`, `expr/integer_error_spec` (skip), phase3_root CLI goldens |
+| tsort | FIFO Kahn queue preserves first-seen ordering among available nodes | Explicit 03 algorithm/order contract | `tsort/first_seen_kahn` (skip), phase3_small FIFO CLI golden |
+| csplit | Refuses output aliases before truncating input; GNU 9.4 can remove its input before failing | 02 failed in-place rewrite preservation takes precedence | `csplit/input_output_alias` (skip), phase3_numeric preservation golden |
+
 ## 回報格式（每階段完成時，Codex 輸出）
 
 ```

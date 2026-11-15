@@ -52,7 +52,7 @@ fn parse_range(text: &str) -> Result<(u64, u64), String> {
     let high = high
         .parse::<u64>()
         .map_err(|_| format!("invalid input range: '{text}'"))?;
-    if low > high && (low, high) != (1, 0) {
+    if (low, high) == (0, u64::MAX) || (low > high && (low, high) != (1, 0)) {
         return Err(format!("invalid input range: '{text}'"));
     }
     Ok((low, high))
@@ -215,6 +215,9 @@ fn sparse_unique<R: RandomSourceTrait>(
     } else {
         u128::from(high) - u128::from(low) + 1
     };
+    if total == (u128::from(u64::MAX) + 1) {
+        return Err("invalid input range: full 64-bit range is not supported".into());
+    }
     if total == 0 {
         return Ok(Vec::new());
     }
@@ -436,10 +439,7 @@ mod tests {
 
     #[test]
     fn parses_unsigned_ranges_and_the_empty_sentinel() {
-        assert_eq!(
-            parse_range("0-18446744073709551615").unwrap(),
-            (0, u64::MAX)
-        );
+        assert!(parse_range("0-18446744073709551615").is_err());
         assert_eq!(parse_range("1-0").unwrap(), (1, 0));
         assert_eq!(
             parse_range("18446744073709551615-18446744073709551615").unwrap(),
@@ -452,7 +452,7 @@ mod tests {
     #[test]
     fn sparse_sampling_is_unique_for_wide_unsigned_ranges() {
         let mut rng = StdRng::seed_from_u64(17);
-        let values = sparse_unique(0, u64::MAX, 64, &mut rng).unwrap();
+        let values = sparse_unique(1, u64::MAX, 64, &mut rng).unwrap();
         let set: std::collections::HashSet<_> = values.iter().cloned().collect();
         assert_eq!(values.len(), 64);
         assert_eq!(set.len(), 64);
@@ -464,6 +464,7 @@ mod tests {
             [u64::MAX.to_string().into_bytes()]
         );
         assert!(sparse_unique(1, 0, 4, &mut rng).unwrap().is_empty());
+        assert!(sparse_unique(0, u64::MAX, 1, &mut rng).is_err());
     }
 
     #[test]
