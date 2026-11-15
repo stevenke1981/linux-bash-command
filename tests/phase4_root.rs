@@ -146,7 +146,7 @@ fn tree_default_ascii_and_json_describe_the_same_tree() {
     assert!(out.status.success());
     assert_eq!(
         out.stdout,
-        ".\n├── alpha\n└── dir\n    └── beta\n\n1 directory, 2 files\n".as_bytes()
+        ".\n├── alpha\n└── dir\n    └── beta\n\n2 directories, 2 files\n".as_bytes()
     );
     let out = s.run("tree", &["--charset=ascii", "--noreport", "-L1"], b"");
     assert_eq!(out.stdout, b".\n|-- alpha\n`-- dir\n");
@@ -154,7 +154,7 @@ fn tree_default_ascii_and_json_describe_the_same_tree() {
     let json: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
     assert_eq!(json[0]["contents"].as_array().unwrap().len(), 3);
     let out = s.run("tree", &["-d", "-i"], b"");
-    assert_eq!(out.stdout, b".\ndir\n\n1 directory\n");
+    assert_eq!(out.stdout, b".\ndir\n\n2 directories\n");
 }
 #[test]
 fn tree_patterns_pruning_sorting_gitignore_and_file_limits() {
@@ -185,7 +185,7 @@ fn tree_patterns_pruning_sorting_gitignore_and_file_limits() {
         let out = s.run("tree", &args, b"");
         assert!(out.status.success(), "{args:?}: {out:?}");
     }
-    assert!(!s.run("tree", &["missing"], b"").status.success());
+    assert_eq!(s.run("tree", &["missing"], b"").status.code(), Some(2));
     assert_eq!(s.run("tree", &["-L0"], b"").status.code(), Some(1));
 }
 #[test]
@@ -196,7 +196,7 @@ fn column_table_splits_empty_fields_aligns_and_hides_columns() {
         (vec!["-t", "-R2"], "a 2\nb 100\n", "a    2\nb  100\n"),
         (vec!["-t", "-H2"], "a b c\nx y z\n", "a  c\nx  z\n"),
         (vec!["-t", "-l2"], "a b  c\nx y\n", "a  b  c\nx  y\n"),
-        (vec!["-t", "-L"], "a b\n\nx y\n", "a  b\n\nx  y\n"),
+        (vec!["-t", "-L"], "a b\n\nx y\n", "a  b\n   \nx  y\n"),
         (vec!["-t"], "界 x\na y\n", "界  x\na   y\n"),
     ] {
         let out = common::run("column", &args, input.as_bytes());
@@ -206,6 +206,10 @@ fn column_table_splits_empty_fields_aligns_and_hides_columns() {
 }
 #[test]
 fn column_normal_fill_order_json_and_error_cases() {
+    let out = common::run("column", &["--table-columns=NAME,COUNT"], b"a 2\n");
+    assert_eq!(out.status.code(), Some(1));
+    assert!(out.stdout.is_empty());
+    assert!(String::from_utf8_lossy(&out.stderr).contains("--table required"));
     assert_eq!(
         common::run("column", &["-c16"], b"a\nb\nc\nd\n").stdout,
         b"a\tc\nb\td\n"

@@ -17,7 +17,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "ascii",
@@ -37,7 +41,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "directories",
@@ -57,12 +65,17 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "depth",
       "args": [
-        "-L1"
+        "-L",
+        "1"
       ],
       "stdin": "",
       "files": {
@@ -77,12 +90,17 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "include",
       "args": [
-        "-P*.txt"
+        "-P",
+        "*.txt"
       ],
       "stdin": "",
       "files": {
@@ -97,12 +115,17 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "exclude",
       "args": [
-        "-If*|a"
+        "-I",
+        "f*|a"
       ],
       "stdin": "",
       "files": {
@@ -117,7 +140,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "full",
@@ -137,7 +164,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "flat",
@@ -157,7 +188,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "classify",
@@ -177,7 +212,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "dirsfirst",
@@ -197,7 +236,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "filesfirst",
@@ -217,7 +260,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "reverse",
@@ -237,7 +284,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "version_sort",
@@ -257,13 +308,18 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "prune",
       "args": [
         "--prune",
-        "-P*.txt"
+        "-P",
+        "*.txt"
       ],
       "stdin": "",
       "files": {
@@ -278,13 +334,18 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "matchdirs",
       "args": [
         "--matchdirs",
-        "-Pdir"
+        "-P",
+        "dir"
       ],
       "stdin": "",
       "files": {
@@ -299,13 +360,18 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "ignore_case",
       "args": [
         "--ignore-case",
-        "-PDIR"
+        "-P",
+        "DIR"
       ],
       "stdin": "",
       "files": {
@@ -320,7 +386,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "noreport",
@@ -340,7 +410,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "permissions",
@@ -360,7 +434,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "size_sort",
@@ -379,7 +457,11 @@
       "compare": [
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "filelimit",
@@ -399,7 +481,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "mtime",
@@ -418,7 +504,11 @@
       "compare": [
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "ctime",
@@ -437,7 +527,11 @@
       "compare": [
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "gitignore",
@@ -458,7 +552,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "json",
@@ -477,7 +575,11 @@
       "compare": [
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "help",
@@ -489,7 +591,11 @@
       "compare": [
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "version",
@@ -501,7 +607,11 @@
       "compare": [
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "missing",
@@ -513,7 +623,11 @@
       "compare": [
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "si_sizes",
@@ -526,7 +640,11 @@
       "compare": [
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     },
     {
       "name": "explicit_timefmt",
@@ -544,7 +662,11 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": null,
+      "gnu": [
+        "tree",
+        "--charset=utf-8"
+      ]
     }
   ]
 }

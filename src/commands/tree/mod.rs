@@ -396,14 +396,21 @@ pub fn run(arguments: &[String]) -> i32 {
             &mut counts,
             false,
         ) {
-            Ok(node) => nodes.push(node),
+            Ok(node) => {
+                if node.directory {
+                    counts.directories += 1;
+                } else {
+                    counts.files += 1;
+                }
+                nodes.push(node);
+            }
             Err(e) => {
                 eprintln!("tree: {name}: {}", error::io_text(&e));
                 counts.failed = true;
             }
         }
     }
-    io::output_result("tree", 1, |out| {
+    io::output_result("tree", 2, |out| {
         if o.json {
             let mut data: Vec<_> = nodes
                 .iter()
@@ -438,7 +445,7 @@ pub fn run(arguments: &[String]) -> i32 {
                 }
             }
         }
-        Ok(i32::from(counts.failed))
+        Ok(if counts.failed { 2 } else { 0 })
     })
 }
 #[cfg(test)]

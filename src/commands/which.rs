@@ -48,7 +48,7 @@ fn parse(arguments: &[String]) -> Result<Options, i32> {
         }
     }
     if options.names.is_empty() {
-        return Err(error::usage("which", "missing operand", 2));
+        return Err(error::usage("which", "missing operand", 1));
     }
     Ok(options)
 }
@@ -235,7 +235,7 @@ mod tests {
     }
     #[test]
     fn no_operand_is_usage_error() {
-        assert_eq!(parse(&[]).unwrap_err(), 2);
+        assert_eq!(parse(&[]).unwrap_err(), 1);
     }
     #[test]
     fn rejects_unknown_option_with_status_two() {

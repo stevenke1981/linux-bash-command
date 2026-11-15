@@ -7,9 +7,8 @@
         "--help"
       ],
       "compare": [
-        "stdout",
-        "exit"
-      ]
+          "exit"
+        ]
     },
     {
       "name": "version",
@@ -17,9 +16,8 @@
         "--version"
       ],
       "compare": [
-        "stdout",
-        "exit"
-      ]
+          "exit"
+        ]
     },
     {
       "name": "success",

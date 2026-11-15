@@ -94,6 +94,12 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | rm | A trailing-slash symlink is refused before traversal; GNU 9.4 can remove its target children before failing | 03 explicitly forbids following symlinks/junctions | `rm/review_no_symlink_traversal` (skip), sandbox target-preservation CLI regression |
 | hostname | Hostname-setting operands are rejected with exit 1; GNU setter cases are not invoked | Explicit specification rejects system mutation; safe CLI goldens exercise all operand forms | `phase2_system` hostname cases |
 | rm | Every filesystem root remains protected even with `--no-preserve-root` | The unconditional root-refusal rule takes precedence over the override option | Pure `fsops::rm` tests; no CLI root invocation |
+
+| which | `--help` and `--version` exit 0; Ubuntu's which does not support them | 02 explicitly requires both information options | `which/help`, `which/version` (skip), CLI goldens |
+| sed | An undefined branch label exits 1; GNU sed exits 4 | 04 explicitly specifies status 1 for script syntax errors | `sed/syntax_missing_label` (skip), CLI golden |
+| rev | Valid UTF-8 is reversed by character even in the C locale; util-linux rev may stall on such input in that locale | 04 explicitly requires UTF-8 decoding independent of locale | `rev/unicode` (skip), Unicode and invalid-byte CLI goldens |
+| dos2unix / unix2dos | Opening a missing file exits 1; Ubuntu dos2unix exits 2 | 02 explicitly specifies status 1 for ordinary file-open errors | Sandbox CLI missing-file goldens |
+
 | cp / mv | `--update=none-fail` is implemented although Ubuntu 24.04 coreutils 9.4 does not offer it | Explicit specification wins | `phase2_fs` absent/existing destination and flag-order goldens |
 | date / touch | Calendar representation is limited to years -9999 through 9999 | Allowlisted jiff representation | `common::datetime` range checks |
 | nproc | `--all` ignores both OpenMP variables; otherwise OMP_NUM_THREADS supplies the count and OMP_THREAD_LIMIT caps it | Resolve the parenthetical ambiguity by GNU behavior | GNU cases and `sysinfo_cmds` units |
@@ -104,6 +110,8 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | expr | Runtime errors use status 3; Ubuntu GNU 9.4 uses 2 for zero division and noninteger arithmetic | Explicit 02/03 status contract | `expr/division_error_spec`, `expr/integer_error_spec` (skip), phase3_root CLI goldens |
 | tsort | FIFO Kahn queue preserves first-seen ordering among available nodes | Explicit 03 algorithm/order contract | `tsort/first_seen_kahn` (skip), phase3_small FIFO CLI golden |
 | csplit | Refuses output aliases before truncating input; GNU 9.4 can remove its input before failing | 02 failed in-place rewrite preservation takes precedence | `csplit/input_output_alias` (skip), phase3_numeric preservation golden |
+
+| tree | Default branches are UTF-8 even under C locale; attached short-option values follow the shared CLI parser | Explicit 04 branch glyphs and 02 argument contract; GNU tree 2.1 defaults to ASCII in C locale and requires separate short-option values | Native cases use an explicit GNU `--charset=utf-8` prefix and separate arguments; `phase4_root` checks the required default and attached forms |
 
 ## 回報格式（每階段完成時，Codex 輸出）
 

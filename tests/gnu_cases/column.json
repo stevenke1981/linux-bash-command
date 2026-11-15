@@ -83,6 +83,7 @@
     {
       "name": "headers",
       "args": [
+        "-t",
         "--table-columns=NAME,COUNT"
       ],
       "stdin": "a 2\nb 100\n",
@@ -219,6 +220,18 @@
       "stdin": "a 2\n",
       "files": {},
       "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "headers_require_table",
+      "args": [
+        "--table-columns=NAME,COUNT"
+      ],
+      "stdin": "a 2\n",
+      "compare": [
+        "stdout",
         "exit"
       ],
       "skip_reason": null

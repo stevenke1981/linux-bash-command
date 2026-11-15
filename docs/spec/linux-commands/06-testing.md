@@ -138,3 +138,13 @@ The P2 ls timestamp cases use N=4 because the inherited owner/group placeholders
 must be preserved under AGENTS.md. Separate CLI tests validate the legacy prefix.
 GNU programs are still resolved by absolute path; argv[0] is their basename so
 verbose mkdir/rmdir prefixes match a normal shell invocation.
+
+
+### Tree reference configuration
+
+Tree fixtures pass `--charset=utf-8` to the reference program because 04
+requires UTF-8 branch glyphs independently of locale. Explicit ASCII cases
+override that prefix. Short options with values use separate arguments for
+the reference parser; CLI goldens also exercise the shared parser's required
+attached forms. Report counts include each displayed root directory, matching
+the Ubuntu tree 2.1 reference.

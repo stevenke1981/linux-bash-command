@@ -457,7 +457,13 @@ fn pgrep_preserves_non_utf8_process_names() {
         "fixture compilation: {}",
         String::from_utf8_lossy(&compiled.stderr)
     );
-    fs::rename(&compiled_path, &path).unwrap();
+    if let Err(error) = fs::rename(&compiled_path, &path) {
+        if error.raw_os_error() == Some(libc::EILSEQ) {
+            eprintln!("filesystem does not support non-UTF-8 filenames: {error}");
+            return;
+        }
+        panic!("rename process fixture: {error}");
+    }
     let child = spawn_child(&path, "stay", &s.path.join("ready"));
     let parent = std::process::id().to_string();
     let pattern = format!("{}.", regex::escape(&prefix));

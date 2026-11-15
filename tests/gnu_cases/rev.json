@@ -70,7 +70,7 @@
                       "compare":  [
                                       "exit"
                                   ],
-                      "skip_reason":  null
+                      "skip_reason":  "04 requires UTF-8 character reversal; util-linux rev in the C locale can stall on UTF-8 input"
                   },
                   {
                       "name":  "crlf",

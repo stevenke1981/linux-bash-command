@@ -165,5 +165,23 @@
     "stdout": "",
     "exit": 1,
     "stderr_contains": "not supported"
+  },
+  {
+    "command": "which",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "^Usage: which [\\s\\S]*",
+    "exit": 0
+  },
+  {
+    "command": "which",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "^which \\(agentcmd\\) [^\\r\\n]+\\n$",
+    "exit": 0
   }
 ]

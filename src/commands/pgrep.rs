@@ -429,6 +429,13 @@ mod tests {
         a.push(pattern.into());
         parse(&a, false, &Users::new_with_refreshed_list()).unwrap()
     }
+    #[cfg(unix)]
+    #[test]
+    fn unix_os_strings_preserve_non_utf8_process_bytes() {
+        use std::os::unix::ffi::OsStrExt;
+        let raw = std::ffi::OsStr::from_bytes(b"p4\xffname");
+        assert_eq!(os_bytes(raw).as_ref(), b"p4\xffname");
+    }
     #[test]
     fn matching() {
         let r = row(11, "Alpha", 2);

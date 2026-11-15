@@ -65,7 +65,7 @@ fn which_cli() {
         Some(1)
     );
     assert_eq!(d.run("which", &["--bad"], b"").status.code(), Some(2));
-    assert_eq!(d.run("which", &["-a"], b"").status.code(), Some(2));
+    assert_eq!(d.run("which", &["-a"], b"").status.code(), Some(1));
     assert_eq!(
         d.run("which", &["missing", "missing"], b"").status.code(),
         Some(1)

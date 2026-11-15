@@ -199,12 +199,15 @@
         "f"
       ],
       "stdin": "",
-      "files": {},
+      "files": {
+        "f": "a\r\nb\n"
+      },
       "gnu": [
         "unix2dos"
       ],
       "compare": [
-        "exit"
+        "exit",
+        "files"
       ],
       "skip_reason": null
     },
@@ -215,12 +218,15 @@
         "f"
       ],
       "stdin": "",
-      "files": {},
+      "files": {
+        "f": "a\r\nb\n"
+      },
       "gnu": [
         "unix2dos"
       ],
       "compare": [
-        "exit"
+        "exit",
+        "files"
       ],
       "skip_reason": null
     },
@@ -231,12 +237,15 @@
         "f"
       ],
       "stdin": "",
-      "files": {},
+      "files": {
+        "f": "a\r\nb\n"
+      },
       "gnu": [
         "unix2dos"
       ],
       "compare": [
-        "exit"
+        "exit",
+        "files"
       ],
       "skip_reason": null
     },
@@ -247,12 +256,15 @@
         "f"
       ],
       "stdin": "",
-      "files": {},
+      "files": {
+        "f": "a\r\nb\n"
+      },
       "gnu": [
         "unix2dos"
       ],
       "compare": [
-        "exit"
+        "exit",
+        "files"
       ],
       "skip_reason": null
     },
@@ -263,12 +275,15 @@
         "f"
       ],
       "stdin": "",
-      "files": {},
+      "files": {
+        "f": "a\r\nb\n"
+      },
       "gnu": [
         "unix2dos"
       ],
       "compare": [
-        "exit"
+        "exit",
+        "files"
       ],
       "skip_reason": null
     },
@@ -279,12 +294,15 @@
         "f"
       ],
       "stdin": "",
-      "files": {},
+      "files": {
+        "f": "a\r\nb\n"
+      },
       "gnu": [
         "unix2dos"
       ],
       "compare": [
-        "exit"
+        "exit",
+        "files"
       ],
       "skip_reason": null
     },
@@ -295,12 +313,15 @@
         "f"
       ],
       "stdin": "",
-      "files": {},
+      "files": {
+        "f": "a\r\nb\n"
+      },
       "gnu": [
         "unix2dos"
       ],
       "compare": [
-        "exit"
+        "exit",
+        "files"
       ],
       "skip_reason": null
     },
@@ -311,12 +332,15 @@
         "f"
       ],
       "stdin": "",
-      "files": {},
+      "files": {
+        "f": "a\r\nb\n"
+      },
       "gnu": [
         "unix2dos"
       ],
       "compare": [
-        "exit"
+        "exit",
+        "files"
       ],
       "skip_reason": null
     },
@@ -327,12 +351,15 @@
         "f"
       ],
       "stdin": "",
-      "files": {},
+      "files": {
+        "f": "a\r\nb\n"
+      },
       "gnu": [
         "unix2dos"
       ],
       "compare": [
-        "exit"
+        "exit",
+        "files"
       ],
       "skip_reason": null
     },
@@ -343,12 +370,15 @@
         "f"
       ],
       "stdin": "",
-      "files": {},
+      "files": {
+        "f": "a\r\nb\n"
+      },
       "gnu": [
         "unix2dos"
       ],
       "compare": [
-        "exit"
+        "exit",
+        "files"
       ],
       "skip_reason": null
     },

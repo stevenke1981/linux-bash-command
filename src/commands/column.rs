@@ -69,7 +69,6 @@ fn parse(arguments: &[String]) -> Result<(Options, Vec<String>), String> {
                 "table-columns-limit" => o.limit = Some(positive(&v.unwrap())?),
                 "table-columns" => {
                     o.names = v.unwrap().split(',').map(str::to_owned).collect();
-                    o.table = true;
                 }
                 "table-right" => o.right = v.unwrap().split(',').map(str::to_owned).collect(),
                 "table-hide" => o.hide = v.unwrap().split(',').map(str::to_owned).collect(),
@@ -86,6 +85,15 @@ fn parse(arguments: &[String]) -> Result<(Options, Vec<String>), String> {
     }
     if o.json && o.names.is_empty() {
         return Err("JSON output requires column names".into());
+    }
+    if !o.table
+        && (!o.names.is_empty()
+            || !o.right.is_empty()
+            || !o.hide.is_empty()
+            || o.limit.is_some()
+            || o.name != "table")
+    {
+        return Err("option --table required for all --table-*".into());
     }
     for name in o.right.iter().chain(&o.hide) {
         if name.parse::<usize>().ok().filter(|n| *n > 0).is_none() && !o.names.contains(name) {
@@ -238,11 +246,7 @@ fn table(data: &mut Input, o: &Options, out: &mut dyn Write) -> std::io::Result<
     }
     for i in 0..data.offsets.len() {
         let line = data.line(i)?;
-        if line.is_empty() {
-            out.write_all(b"\n")?;
-        } else {
-            row(out, &fields(&line, o), &data.widths, o)?;
-        }
+        row(out, &fields(&line, o), &data.widths, o)?;
     }
     Ok(())
 }
@@ -337,7 +341,7 @@ mod tests {
     }
     #[test]
     fn limit_keeps_the_remaining_text() {
-        let (o, _) = parse(&["-l2".into()]).unwrap();
+        let (o, _) = parse(&["-t".into(), "-l2".into()]).unwrap();
         assert_eq!(fields(b"a b  c", &o), [b"a".as_slice(), b"b  c"]);
     }
     #[test]

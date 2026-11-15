@@ -3,11 +3,12 @@ use crate::common::{args, error, io};
 const HELP: &str = "Usage: whoami [OPTION]...\nPrint the effective user name.\n      --help     display this help and exit\n      --version  output version information and exit\n";
 
 pub fn run(arguments: &[String]) -> i32 {
-    if !arguments.is_empty() {
-        return match args::help_version("whoami", arguments, HELP, true) {
-            Some(code) => code,
-            None => error::usage("whoami", "extra operand", 1),
-        };
+    let items = match args::parse_command("whoami", arguments, HELP, &[], true) {
+        Ok(items) => items,
+        Err(code) => return code,
+    };
+    if !items.is_empty() {
+        return error::usage("whoami", "extra operand", 1);
     }
     let name = username();
     io::output("whoami", |out| writeln!(out, "{name}"))

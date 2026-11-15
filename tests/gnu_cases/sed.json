@@ -2605,7 +2605,7 @@
         "stdout",
         "exit"
       ],
-      "skip_reason": null
+      "skip_reason": "04 specifies status 1 for script syntax errors; GNU sed returns 4 for an undefined label"
     },
     {
       "name": "syntax_empty_previous",
