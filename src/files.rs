@@ -1,3 +1,5 @@
+use crate::common::args::{self, Item, OptSpec};
+use crate::common::error::{io_text, usage};
 use std::fs;
 use std::io::{self, BufRead, BufReader, Write};
 use std::path::{Component, Path, PathBuf};
@@ -8,50 +10,46 @@ pub fn list(args: &[String]) -> i32 {
     let mut include_directories = false;
     let mut max_depth = usize::MAX;
     let mut root = None;
-    let mut positional_only = false;
-    let mut index = 0;
-
-    while index < args.len() {
-        let arg = &args[index];
-        if !positional_only && arg == "--" {
-            positional_only = true;
-        } else if !positional_only && (arg == "--help" || arg == "-h") {
-            print!("{}", list_help());
-            return 0;
-        } else if !positional_only && (arg == "--all" || arg == "-a") {
-            include_hidden = true;
-        } else if !positional_only && arg == "--no-ignore" {
-            include_common_ignored = true;
-        } else if !positional_only && (arg == "--dirs" || arg == "-d") {
-            include_directories = true;
-        } else if !positional_only && arg == "--max-depth" {
-            index += 1;
-            let Some(value) = args.get(index) else {
-                eprintln!("list: --max-depth requires a non-negative integer");
-                return 2;
-            };
-            let Ok(value) = value.parse::<usize>() else {
-                eprintln!("list: invalid --max-depth value: {value}");
-                return 2;
-            };
-            max_depth = value;
-        } else if !positional_only && arg.starts_with('-') {
-            eprintln!("list: unknown option: {arg}\nTry 'list --help' for more information.");
-            return 2;
-        } else if root.is_none() {
-            root = Some(PathBuf::from(arg));
-        } else {
-            eprintln!("list: expected at most one path\nTry 'list --help' for more information.");
-            return 2;
+    let specs = [
+        OptSpec::flag("all", 'a'),
+        OptSpec::flag("no-ignore", '\0'),
+        OptSpec::flag("dirs", 'd'),
+        OptSpec::value("max-depth", '\0'),
+    ];
+    let items = match parse_options("list", args, &specs) {
+        Ok(items) => items,
+        Err(code) => return code,
+    };
+    for item in items {
+        match item {
+            Item::Opt(id @ ("help" | "version"), _) => {
+                return args::help_version("list", &[format!("--{id}")], list_help(), true)
+                    .unwrap();
+            }
+            Item::Opt("all", _) => include_hidden = true,
+            Item::Opt("no-ignore", _) => include_common_ignored = true,
+            Item::Opt("dirs", _) => include_directories = true,
+            Item::Opt("max-depth", Some(value)) => {
+                let Ok(value) = value.parse::<usize>() else {
+                    return usage("list", format!("invalid --max-depth value: {value}"), 2);
+                };
+                max_depth = value;
+            }
+            Item::Operand(arg) if root.is_none() => root = Some(PathBuf::from(arg)),
+            Item::Operand(_) => return usage("list", "expected at most one path", 2),
+            _ => unreachable!(),
         }
-        index += 1;
     }
 
     let root = root.unwrap_or_else(|| PathBuf::from("."));
     let root = match fs::canonicalize(&root) {
         Ok(path) => path,
         Err(error) => {
-            eprintln!("list: cannot access '{}': {error}", root.display());
+            eprintln!(
+                "list: cannot access '{}': {}",
+                crate::display_path(&root),
+                io_text(&error)
+            );
             return 2;
         }
     };
@@ -74,13 +72,20 @@ pub fn list(args: &[String]) -> i32 {
         &mut errors,
     );
     entries.sort();
-    for entry in entries {
-        println!("{}", display_path(&entry));
-    }
+    let written = crate::common::io::output("list", |out| {
+        for entry in entries {
+            writeln!(out, "{}", display_path(&entry))?;
+        }
+        Ok(())
+    });
     for (path, error) in &errors {
-        eprintln!("list: cannot read '{}': {error}", path.display());
+        eprintln!(
+            "list: cannot read '{}': {}",
+            crate::display_path(path),
+            io_text(error)
+        );
     }
-    if errors.is_empty() {
+    if errors.is_empty() && written == 0 {
         0
     } else {
         2
@@ -184,7 +189,7 @@ fn display_path(path: &str) -> String {
 }
 
 fn list_help() -> &'static str {
-    "Usage: list [OPTIONS] [PATH]\n\nRecursively list files below PATH (default: current directory), sorted by path.\n\nOptions:\n  -a, --all          Include hidden entries\n      --dirs         Include directory entries\n      --max-depth N  Limit traversal depth (direct children are depth 1)\n      --no-ignore    Include common generated and VCS directories\n  -h, --help         Show this help\n\nExit status: 0 on success, 2 on error.\n"
+    "Usage: list [OPTIONS] [PATH]\n\nRecursively list files below PATH (default: current directory), sorted by path.\n\nOptions:\n  -a, --all          Include hidden entries\n      --dirs         Include directory entries\n      --max-depth N  Limit traversal depth (direct children are depth 1)\n      --no-ignore    Include common generated and VCS directories\n  -h, --help         Show this help\n      --version      Show the version\n\nExit status: 0 on success, 2 on error.\n"
 }
 
 pub fn read(args: &[String]) -> i32 {
@@ -192,49 +197,39 @@ pub fn read(args: &[String]) -> i32 {
     let mut end = None;
     let mut limit = None;
     let mut path = None;
-    let mut positional_only = false;
-    let mut index = 0;
-
-    while index < args.len() {
-        let arg = &args[index];
-        if !positional_only && arg == "--" {
-            positional_only = true;
-        } else if !positional_only && (arg == "--help" || arg == "-h") {
-            print!("{}", read_help());
-            return 0;
-        } else if !positional_only && (arg == "--start" || arg == "--end" || arg == "--limit") {
-            let option = arg.as_str();
-            index += 1;
-            let Some(value) = args.get(index) else {
-                eprintln!("read: {option} requires a positive integer");
-                return 2;
-            };
+    let specs = [
+        OptSpec::value("start", '\0'),
+        OptSpec::value("end", '\0'),
+        OptSpec::value("limit", '\0'),
+    ];
+    let items = match parse_options("read", args, &specs) {
+        Ok(items) => items,
+        Err(code) => return code,
+    };
+    for item in items {
+        if let Item::Opt(option, Some(value)) = item {
             let Ok(value) = value.parse::<usize>() else {
-                eprintln!("read: invalid {option} value: {value}");
+                eprintln!("read: invalid --{option} value: {value}");
                 return 2;
             };
             if value == 0 {
-                eprintln!("read: {option} must be greater than zero");
+                eprintln!("read: --{option} must be greater than zero");
                 return 2;
             }
             match option {
-                "--start" => start = value,
-                "--end" => end = Some(value),
-                "--limit" => limit = Some(value),
+                "start" => start = value,
+                "end" => end = Some(value),
+                "limit" => limit = Some(value),
                 _ => unreachable!(),
             }
-        } else if !positional_only && arg.starts_with('-') {
-            eprintln!("read: unknown option: {arg}\nTry 'read --help' for more information.");
-            return 2;
-        } else if path.is_none() {
+        } else if let Item::Opt(id @ ("help" | "version"), _) = item {
+            return args::help_version("read", &[format!("--{id}")], read_help(), true).unwrap();
+        } else if let Item::Operand(arg) = item {
+            if path.is_some() {
+                return usage("read", "expected exactly one file path", 2);
+            }
             path = Some(PathBuf::from(arg));
-        } else {
-            eprintln!(
-                "read: expected exactly one file path\nTry 'read --help' for more information."
-            );
-            return 2;
         }
-        index += 1;
     }
 
     let Some(path) = path else {
@@ -251,7 +246,11 @@ pub fn read(args: &[String]) -> i32 {
     let file = match fs::File::open(&path) {
         Ok(file) => file,
         Err(error) => {
-            eprintln!("read: cannot read '{}': {error}", path.display());
+            eprintln!(
+                "read: cannot read '{}': {}",
+                crate::display_path(&path),
+                io_text(&error)
+            );
             return 2;
         }
     };
@@ -260,7 +259,7 @@ pub fn read(args: &[String]) -> i32 {
     });
     let count = limit.map_or(count, |max| count.min(max));
     let stdout = io::stdout();
-    let mut output = stdout.lock();
+    let mut output = io::BufWriter::with_capacity(crate::common::io::BUFFER_SIZE, stdout.lock());
     for (index, line) in BufReader::new(file)
         .lines()
         .enumerate()
@@ -269,7 +268,11 @@ pub fn read(args: &[String]) -> i32 {
         let line = match line {
             Ok(line) => line,
             Err(error) => {
-                eprintln!("read: cannot read '{}': {error}", path.display());
+                eprintln!(
+                    "read: cannot read '{}': {}",
+                    crate::display_path(&path),
+                    io_text(&error)
+                );
                 return 2;
             }
         };
@@ -277,15 +280,31 @@ pub fn read(args: &[String]) -> i32 {
             continue;
         }
         if let Err(error) = writeln!(output, "{:>6}\t{line}", index + 1) {
-            eprintln!("read: cannot write output: {error}");
+            if crate::common::io::is_closed_pipe(&error) {
+                return 0;
+            }
+            eprintln!("read: cannot write output: {}", io_text(&error));
             return 2;
         }
     }
-    0
+    match output.flush() {
+        Ok(()) => 0,
+        Err(error) if crate::common::io::is_closed_pipe(&error) => 0,
+        Err(error) => {
+            eprintln!("read: cannot write output: {}", io_text(&error));
+            2
+        }
+    }
+}
+
+fn parse_options(command: &str, input: &[String], options: &[OptSpec]) -> Result<Vec<Item>, i32> {
+    let mut specs = options.to_vec();
+    specs.extend([OptSpec::flag("help", 'h'), OptSpec::flag("version", '\0')]);
+    args::parse(input, &specs, true).map_err(|error| usage(command, error, 2))
 }
 
 fn read_help() -> &'static str {
-    "Usage: read [OPTIONS] FILE\n\nPrint UTF-8 text with one-based line numbers.\n\nOptions:\n      --start N  First line to print (default: 1)\n      --end N    Last line to print, inclusive\n      --limit N  Print at most N lines from --start\n  -h, --help     Show this help\n\nExit status: 0 on success, 2 on error.\n"
+    "Usage: read [OPTIONS] FILE\n\nPrint UTF-8 text with one-based line numbers.\n\nOptions:\n      --start N  First line to print (default: 1)\n      --end N    Last line to print, inclusive\n      --limit N  Print at most N lines from --start\n  -h, --help     Show this help\n      --version      Show the version\n\nExit status: 0 on success, 2 on error.\n"
 }
 
 #[cfg(test)]

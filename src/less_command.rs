@@ -1,3 +1,4 @@
+use crate::common::error::io_text;
 use crossterm::cursor::MoveTo;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use crossterm::execute;
@@ -6,7 +7,7 @@ use std::fs;
 use std::io::{self, IsTerminal, Read, Write};
 use std::path::{Path, PathBuf};
 
-const HELP: &str = "Usage: less [OPTIONS] [+CMD] [FILE ...]\n\nDisplay files one screen at a time. With no FILE, copy standard input to standard output.\nWhen standard output is not a terminal, the content is copied unchanged, like cat.\n\nOptions:\n  -N, --LINE-NUMBERS       Show line numbers\n  -F, --quit-if-one-screen Exit at once when the file fits on one screen\n  -X                       Do not switch to the alternate screen\n  -R, -r                   Raw control characters (output already passes through)\n  -S -i -I -M -m -E -e -K -Q\n                           Accepted and ignored (see the long options below)\n      --no-init, --chop-long-lines, --RAW-CONTROL-CHARS, --ignore-case,\n      --IGNORE-CASE, --quit-at-eof, --quit-on-intr, --silent, --QUIET,\n      --no-keypad          Accepted and ignored\n  +N                       Start at line N (interactive only)\n  +G                       Start at the last page (interactive only)\n  +/PATTERN                Start at the first line containing PATTERN (interactive only)\n  -h, --help               Show this help\n\nInteractive keys (when FILE is a terminal): Space/PageDown next page, Enter/j one line,\nb/PageUp/k previous page, g first page, G last page, q quit. Long lines are clipped.\n";
+const HELP: &str = "Usage: less [OPTIONS] [+CMD] [FILE ...]\n\nDisplay files one screen at a time. With no FILE, copy standard input to standard output.\nWhen standard output is not a terminal, the content is copied unchanged, like cat.\n\nOptions:\n  -N, --LINE-NUMBERS       Show line numbers\n  -F, --quit-if-one-screen Exit at once when the file fits on one screen\n  -X                       Do not switch to the alternate screen\n  -R, -r                   Raw control characters (output already passes through)\n  -S -i -I -M -m -E -e -K -Q\n                           Accepted and ignored (see the long options below)\n      --no-init, --chop-long-lines, --RAW-CONTROL-CHARS, --ignore-case,\n      --IGNORE-CASE, --quit-at-eof, --quit-on-intr, --silent, --QUIET,\n      --no-keypad          Accepted and ignored\n  +N                       Start at line N (interactive only)\n  +G                       Start at the last page (interactive only)\n  +/PATTERN                Start at the first line containing PATTERN (interactive only)\n  -h, --help               Show this help\n      --version             Show version\n\nInteractive keys (when FILE is a terminal): Space/PageDown next page, Enter/j one line,\nb/PageUp/k previous page, g first page, G last page, q quit. Long lines are clipped.\n";
 
 /// Where the interactive pager starts, from a `+CMD` argument.
 #[derive(Default)]
@@ -23,6 +24,11 @@ struct LessOptions {
     quit_if_one_screen: bool,
     alternate_screen: bool,
     start: Start,
+}
+
+enum Parsed {
+    Run(LessOptions, Vec<PathBuf>),
+    Info(i32),
 }
 
 impl Default for LessOptions {
@@ -63,19 +69,25 @@ impl Drop for TerminalSession {
     }
 }
 
-fn read_sources(paths: &[PathBuf]) -> io::Result<Vec<u8>> {
+fn read_sources(paths: &[PathBuf]) -> (Vec<u8>, bool) {
     let mut contents = Vec::new();
+    let mut failed = false;
     for path in paths {
         let bytes = if path == Path::new("-") {
             let mut bytes = Vec::new();
-            io::stdin().read_to_end(&mut bytes)?;
-            bytes
+            io::stdin().read_to_end(&mut bytes).map(|_| bytes)
         } else {
-            fs::read(path)?
+            fs::read(path)
         };
-        contents.extend_from_slice(&bytes);
+        match bytes {
+            Ok(bytes) => contents.extend_from_slice(&bytes),
+            Err(error) => {
+                eprintln!("less: {}: {}", crate::display_path(path), io_text(&error));
+                failed = true;
+            }
+        }
     }
-    Ok(contents)
+    (contents, failed)
 }
 
 fn render_page(
@@ -170,7 +182,7 @@ fn numbered_output(contents: &[u8]) -> io::Result<()> {
         output.write_all(line)?;
         output.write_all(b"\n")?;
     }
-    Ok(())
+    output.flush()
 }
 
 /// Non-interactive output: byte-exact copy, or numbered lines with `-N`.
@@ -178,14 +190,15 @@ fn write_plain(contents: &[u8], numbered: bool) -> i32 {
     let result = if numbered {
         numbered_output(contents)
     } else {
-        io::stdout().lock().write_all(contents)
+        let mut out = io::stdout().lock();
+        out.write_all(contents).and_then(|()| out.flush())
     };
     match result {
         Ok(()) => 0,
         // A reader that stopped early (for example `less file | head`) is not a failure.
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
-            eprintln!("less: cannot write output: {error}");
+            eprintln!("less: write error: {}", io_text(&error));
             1
         }
     }
@@ -209,20 +222,51 @@ fn show_pager(contents: &[u8], options: &LessOptions) -> i32 {
         return write_plain(contents, options.numbered);
     }
     if let Err(error) = page(&lines, options) {
-        eprintln!("less: pager failed: {error}");
+        eprintln!("less: pager failed: {}", io_text(&error));
         return 1;
     }
     0
 }
 
-fn parse_args(args: &[String]) -> Result<Option<(LessOptions, Vec<PathBuf>)>, String> {
+fn parse_args(args: &[String]) -> Result<Parsed, String> {
     let mut options = LessOptions::default();
     let mut paths = Vec::new();
     let mut options_open = true;
     for arg in args {
+        let expanded;
+        let arg = if options_open && arg.starts_with("--") && arg != "--" {
+            expanded = crate::common::args::expand_long(
+                arg,
+                &[
+                    "LINE-NUMBERS",
+                    "quit-if-one-screen",
+                    "no-init",
+                    "chop-long-lines",
+                    "RAW-CONTROL-CHARS",
+                    "ignore-case",
+                    "IGNORE-CASE",
+                    "quit-at-eof",
+                    "quit-on-intr",
+                    "silent",
+                    "QUIET",
+                    "no-keypad",
+                    "help",
+                    "version",
+                ],
+            )?;
+            &expanded
+        } else {
+            arg
+        };
         if options_open && (arg == "-h" || arg == "--help") {
-            print!("{HELP}");
-            return Ok(None);
+            return Ok(Parsed::Info(
+                crate::common::args::help_version("less", &["--help".into()], HELP, true).unwrap(),
+            ));
+        } else if options_open && arg == "--version" {
+            return Ok(Parsed::Info(
+                crate::common::args::help_version("less", &["--version".into()], HELP, true)
+                    .unwrap(),
+            ));
         } else if options_open && arg == "--" {
             options_open = false;
         } else if options_open && arg.starts_with("--") {
@@ -235,9 +279,10 @@ fn parse_args(args: &[String]) -> Result<Option<(LessOptions, Vec<PathBuf>)>, St
             options.start = parse_start(&arg[1..])?;
         } else {
             paths.push(PathBuf::from(arg));
+            options_open &= std::env::var_os("POSIXLY_CORRECT").is_none();
         }
     }
-    Ok(Some((options, paths)))
+    Ok(Parsed::Run(options, paths))
 }
 
 fn apply_short(letter: char, options: &mut LessOptions) -> Result<(), String> {
@@ -247,7 +292,7 @@ fn apply_short(letter: char, options: &mut LessOptions) -> Result<(), String> {
         'X' => options.alternate_screen = false,
         // Accepted for compatibility; these do not change the output here.
         'R' | 'r' | 'S' | 'i' | 'I' | 'M' | 'm' | 'E' | 'e' | 'K' | 'Q' => {}
-        _ => return Err(format!("unknown option: -{letter}")),
+        _ => return Err(format!("invalid option -- '{letter}'")),
     }
     Ok(())
 }
@@ -266,7 +311,13 @@ fn apply_long(arg: &str, options: &mut LessOptions) -> Result<(), String> {
         | "--silent"
         | "--QUIET"
         | "--no-keypad" => {}
-        _ => return Err(format!("unknown option: {arg}")),
+        _ if arg.contains('=') => {
+            return Err(format!(
+                "option '{}' doesn't allow an argument",
+                arg.split('=').next().unwrap()
+            ))
+        }
+        _ => return Err(format!("unrecognized option '{arg}'")),
     }
     Ok(())
 }
@@ -288,36 +339,32 @@ fn parse_start(text: &str) -> Result<Start, String> {
 
 pub fn run(args: &[String]) -> i32 {
     let (options, paths) = match parse_args(args) {
-        Ok(Some(parsed)) => parsed,
-        Ok(None) => return 0,
+        Ok(Parsed::Run(options, paths)) => (options, paths),
+        Ok(Parsed::Info(code)) => return code,
         Err(error) => {
             eprintln!("less: {error}\nTry 'less --help' for more information.");
             return 1;
         }
     };
 
-    let contents = if paths.is_empty() {
+    let (contents, had_error) = if paths.is_empty() {
         let mut contents = Vec::new();
         if let Err(error) = io::stdin().read_to_end(&mut contents) {
-            eprintln!("less: cannot read standard input: {error}");
+            eprintln!("less: cannot read standard input: {}", io_text(&error));
             return 1;
         }
-        contents
+        (contents, false)
     } else {
-        match read_sources(&paths) {
-            Ok(contents) => contents,
-            Err(error) => {
-                eprintln!("less: cannot read input: {error}");
-                return 1;
-            }
-        }
+        read_sources(&paths)
     };
 
     let interactive = !paths.is_empty() && io::stdin().is_terminal() && io::stdout().is_terminal();
-    if interactive {
-        return show_pager(&contents, &options);
-    }
-    write_plain(&contents, options.numbered)
+    let result = if interactive {
+        show_pager(&contents, &options)
+    } else {
+        write_plain(&contents, options.numbered)
+    };
+    result.max(i32::from(had_error))
 }
 
 #[cfg(test)]
@@ -340,7 +387,8 @@ mod tests {
         fs::write(&first, [b'a', 0, b'b']).unwrap();
         fs::write(&second, [0xff, b'c']).unwrap();
 
-        let result = read_sources(&[PathBuf::from(&first), PathBuf::from(&second)]).unwrap();
+        let (result, failed) = read_sources(&[PathBuf::from(&first), PathBuf::from(&second)]);
+        assert!(!failed);
         assert_eq!(result, [b'a', 0, b'b', 0xff, b'c']);
 
         fs::remove_dir_all(root).unwrap();

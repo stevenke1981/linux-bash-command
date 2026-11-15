@@ -1,0 +1,381 @@
+{
+  "command": "diff",
+  "cases": [
+    {
+      "name": "normal",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "same\nold\nend\n",
+        "b": "same\nnew\nend\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "normal_flag",
+      "args": [
+        "--normal",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "same\nold\nend\n",
+        "b": "same\nnew\nend\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "context",
+      "args": [
+        "-c",
+        "--label=A",
+        "--label=B",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "same\nold\nend\n",
+        "b": "same\nnew\nend\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "context_zero",
+      "args": [
+        "-C0",
+        "--label=A",
+        "--label=B",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "same\nold\nend\n",
+        "b": "same\nnew\nend\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "context_long",
+      "args": [
+        "--context=1",
+        "--label=A",
+        "--label=B",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "same\nold\nend\n",
+        "b": "same\nnew\nend\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "side",
+      "args": [
+        "-y",
+        "-W40",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "same\nold\nend\n",
+        "b": "same\nnew\nend\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "side_long",
+      "args": [
+        "--side-by-side",
+        "--width=20",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "same\nold\nend\n",
+        "b": "same\nnew\nend\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "side_narrow",
+      "args": [
+        "-y",
+        "-W7",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "same\nold\nend\n",
+        "b": "same\nnew\nend\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "insert_normal",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\n",
+        "b": "a\nx\nb\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "insert_context",
+      "args": [
+        "-c",
+        "--label=A",
+        "--label=B",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\n",
+        "b": "a\nx\nb\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "insert_side",
+      "args": [
+        "-y",
+        "-W20",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nb\n",
+        "b": "a\nx\nb\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "delete_normal",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nx\nb\n",
+        "b": "a\nb\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "delete_context",
+      "args": [
+        "-c",
+        "--label=A",
+        "--label=B",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nx\nb\n",
+        "b": "a\nb\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "delete_side",
+      "args": [
+        "-y",
+        "-W20",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\nx\nb\n",
+        "b": "a\nb\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty_normal",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "",
+        "b": "x\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty_context",
+      "args": [
+        "-c",
+        "--label=A",
+        "--label=B",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "",
+        "b": "x\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty_side",
+      "args": [
+        "-y",
+        "-W20",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "",
+        "b": "x\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "no_newline_normal",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a",
+        "b": "a\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "no_newline_context",
+      "args": [
+        "-c",
+        "--label=A",
+        "--label=B",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a",
+        "b": "a\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "no_newline_side",
+      "args": [
+        "-y",
+        "-W20",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a",
+        "b": "a\n"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

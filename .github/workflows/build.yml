@@ -1,8 +1,14 @@
 name: Build and test
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: build-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 jobs:
   build:
     strategy:
@@ -11,8 +17,10 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
       - run: cargo test --locked
       - run: cargo build --release --bins --locked
       - name: Verify Bash cd and interactive less
@@ -21,13 +29,34 @@ jobs:
         run: |
           bash tests/shell_cd.bash "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/target/release"
           python3 tests/less_pty.py "$GITHUB_WORKSPACE/target/release/less" "$GITHUB_WORKSPACE/README.md"
+          python3 tests/fsops_pty.py "$GITHUB_WORKSPACE/target/release"
+          python3 tests/gzip_pty.py "$GITHUB_WORKSPACE/target/release/gzip"
+      - name: Measure optional GNU pipeline performance
+        if: runner.os == 'Linux'
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gawk gnu-coreutils
+          cargo test --release --locked --test perf_smoke -- --ignored --nocapture 2>&1 | tee performance.log
+      - name: Preserve performance evidence
+        if: runner.os == 'Linux' && always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: linux-command-performance
+          path: performance.log
+          if-no-files-found: ignore
       - name: Collect commands
         shell: bash
         run: |
           mkdir -p artifacts
+          cp README.md LICENSE NOTICE.md artifacts/
+          mkdir -p artifacts/shell
+          cp shell/* artifacts/shell/
           if [[ "$RUNNER_OS" == Windows ]]; then cp target/release/agentcmd.exe artifacts/; else cp target/release/agentcmd artifacts/; fi
           while IFS= read -r name; do
             [[ "$name" == "[" ]] && continue
+            [[ "$RUNNER_OS" == Windows && "$name" == link ]] && continue
             if [[ "$RUNNER_OS" == Windows ]]; then
               cp "target/release/$name.exe" artifacts/
             else
@@ -39,15 +68,17 @@ jobs:
           else
             ln -s test "artifacts/["
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: agent-commands-${{ runner.os }}-${{ runner.arch }}
           path: artifacts/
   lint:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
         with:
           components: rustfmt, clippy
       - run: cargo fmt --check
@@ -55,7 +86,27 @@ jobs:
   gnu-diff:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
       - run: sudo apt-get update && sudo apt-get install -y gawk tree xxd dos2unix patch bsdextrautils
-      - run: AGENTCMD_GNU_DIFF=1 cargo test --locked --test gnu_diff
+      - run: AGENTCMD_GNU_DIFF=1 cargo test --locked --test gnu_diff -- --nocapture
+      - run: AGENTCMD_GNU_DIFF=1 cargo test --locked --test phase2_metadata --test phase2_hashes --test phase2_system
+  coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
+        with:
+          components: llvm-tools-preview
+      - run: cargo install cargo-llvm-cov --version 0.9.1 --locked
+      - run: cargo llvm-cov --locked --json --output-path coverage.json
+      - name: Summarize new module coverage
+        run: python3 scripts/coverage_summary.py coverage.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: linux-command-coverage
+          path: coverage.json

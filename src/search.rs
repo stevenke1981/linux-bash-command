@@ -3,6 +3,7 @@
 //! `search` keeps its historical output and error behavior; `rg` accepts ripgrep's flags.
 
 use crate::common::color::{self, When};
+use crate::common::error::io_text;
 use crate::search_color::{self, Painter, Part, Styles};
 use ignore::overrides::{Override, OverrideBuilder};
 use ignore::WalkBuilder;
@@ -296,11 +297,90 @@ fn parse(args: &[String], mode: Mode) -> Result<Parsed, String> {
     let mut positional = Vec::new();
     let mut only_positional = false;
     let mut index = 0;
+    let posix = std::env::var_os("POSIXLY_CORRECT").is_some();
     while index < args.len() {
-        let arg = args[index].as_str();
+        let raw = args[index].as_str();
+        let expanded;
+        let arg = if !only_positional && raw.starts_with("--") && raw != "--" {
+            expanded = crate::common::args::expand_long(
+                raw,
+                &[
+                    "help",
+                    "version",
+                    "regexp",
+                    "file",
+                    "glob",
+                    "iglob",
+                    "type",
+                    "type-not",
+                    "after-context",
+                    "before-context",
+                    "context",
+                    "max-count",
+                    "max-depth",
+                    "maxdepth",
+                    "max-columns",
+                    "max-filesize",
+                    "threads",
+                    "color",
+                    "colors",
+                    "colour",
+                    "sort",
+                    "sortr",
+                    "replace",
+                    "encoding",
+                    "ignore-case",
+                    "case-sensitive",
+                    "smart-case",
+                    "fixed-strings",
+                    "word-regexp",
+                    "line-regexp",
+                    "invert-match",
+                    "multiline",
+                    "multiline-dotall",
+                    "pcre2",
+                    "only-matching",
+                    "files-with-matches",
+                    "files-without-match",
+                    "count",
+                    "count-matches",
+                    "quiet",
+                    "json",
+                    "line-number",
+                    "no-line-number",
+                    "with-filename",
+                    "no-filename",
+                    "heading",
+                    "no-heading",
+                    "column",
+                    "null",
+                    "trim",
+                    "max-columns-preview",
+                    "no-messages",
+                    "files",
+                    "type-list",
+                    "hidden",
+                    "no-ignore",
+                    "no-ignore-vcs",
+                    "no-ignore-parent",
+                    "follow",
+                    "glob-case-insensitive",
+                    "unrestricted",
+                    "text",
+                    "binary",
+                    "search-zip",
+                    "debug",
+                    "no-config",
+                ],
+            )?;
+            expanded.as_str()
+        } else {
+            raw
+        };
         index += 1;
         if only_positional || arg == "-" || !arg.starts_with('-') {
             positional.push(arg.to_string());
+            only_positional |= posix;
         } else if arg == "--" {
             only_positional = true;
         } else if arg == "-h" || arg == "--help" {
@@ -574,10 +654,10 @@ fn read_pattern_file(path: &str) -> Result<Vec<String>, String> {
         let mut text = String::new();
         io::stdin()
             .read_to_string(&mut text)
-            .map_err(|error| format!("standard input: {error}"))?;
+            .map_err(|error| format!("standard input: {}", io_text(&error)))?;
         text
     } else {
-        fs::read_to_string(path).map_err(|error| format!("{path}: {error}"))?
+        fs::read_to_string(path).map_err(|error| format!("{path}: {}", io_text(&error)))?
     };
     Ok(text.lines().map(str::to_string).collect())
 }
@@ -1026,7 +1106,7 @@ impl Searcher {
         if !path.exists() {
             let message = match self.cfg.mode {
                 Mode::Search => format!("{root}: path does not exist"),
-                Mode::Rg => format!("{root}: No such file or directory (os error 2)"),
+                Mode::Rg => format!("{root}: No such file or directory"),
             };
             self.report(message);
             return Ok(());
@@ -1056,7 +1136,13 @@ impl Searcher {
                     files.push(entry.into_path());
                 }
                 Ok(_) => {}
-                Err(error) => self.report(error),
+                Err(error) => {
+                    if let Some(io) = error.io_error() {
+                        self.report(format!("{}: {}", crate::display_path(root), io_text(io)));
+                    } else {
+                        self.report(error);
+                    }
+                }
             }
         }
         sort_paths(&mut files, self.cfg.sort);
@@ -1074,7 +1160,7 @@ impl Searcher {
     fn search_stdin(&mut self) -> io::Result<()> {
         let mut text = Vec::new();
         if let Err(error) = io::stdin().read_to_end(&mut text) {
-            self.report(format!("standard input: {error}"));
+            self.report(format!("standard input: {}", io_text(&error)));
             return Ok(());
         }
         let label = match self.cfg.mode {
@@ -1093,7 +1179,7 @@ impl Searcher {
         match fs::read(path) {
             Ok(text) => self.search_text(label, &text),
             Err(error) => {
-                self.report(format!("{label}: {error}"));
+                self.report(format!("{label}: {}", io_text(&error)));
                 Ok(())
             }
         }
@@ -1496,7 +1582,7 @@ fn execute(mut cfg: Config) -> i32 {
     let flushed = searcher.out.flush();
     match outcome.err().or(flushed.err()) {
         Some(error) if error.kind() != ErrorKind::BrokenPipe => {
-            eprintln!("{name}: write error: {error}");
+            eprintln!("{name}: write error: {}", io_text(&error));
             searcher.had_error = true;
         }
         _ => {}
@@ -1511,8 +1597,9 @@ fn run_impl(args: &[String], mode: Mode) -> i32 {
             return 0;
         }
         Ok(Parsed::Version) => {
-            println!("agentcmd {} (rg subset)", env!("CARGO_PKG_VERSION"));
-            return 0;
+            let name = if mode == Mode::Search { "search" } else { "rg" };
+            return crate::common::args::help_version(name, &["--version".into()], "", true)
+                .unwrap();
         }
         Ok(Parsed::Run(cfg)) => *cfg,
         Err(error) => {

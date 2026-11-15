@@ -1,0 +1,629 @@
+{
+  "command": "chmod",
+  "cases": [
+    {
+      "name": "octal",
+      "args": [
+        "0640",
+        "a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "symbolic",
+      "args": [
+        "u=rw,g=r,o=",
+        "a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "copy",
+      "args": [
+        "g=u",
+        "a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "conditional_execute",
+      "args": [
+        "a+X",
+        "a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "remove",
+      "args": [
+        "a-w",
+        "a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "recursive",
+      "args": [
+        "-R",
+        "a+rX",
+        "dir"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "reference",
+      "args": [
+        "--reference=b",
+        "a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "quiet",
+      "args": [
+        "--quiet",
+        "u+w",
+        "missing",
+        "a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "silent",
+      "args": [
+        "--silent",
+        "u+w",
+        "missing"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--unknown"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "u+w",
+        "missing"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "preserve",
+      "args": [
+        "-R",
+        "--preserve-root",
+        "--no-preserve-root",
+        "u+rX",
+        "dir"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        },
+        "b": {
+          "text": "b",
+          "mode": "644"
+        },
+        "dir/c": {
+          "text": "c",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "verbose",
+      "args": [
+        "--verbose",
+        "u+rw",
+        "a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "changes",
+      "args": [
+        "--changes",
+        "g+r",
+        "a"
+      ],
+      "stdin": "",
+      "files": {
+        "a": {
+          "text": "a",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "literal_marker_filename",
+      "args": [
+        "a-w",
+        "MODE=victim"
+      ],
+      "stdin": "",
+      "files": {
+        "victim": {
+          "text": "unrelated",
+          "mode": "644"
+        },
+        "MODE=victim": {
+          "text": "intended",
+          "mode": "644"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "directory_numeric_preserves_sgid",
+      "args": [
+        "755",
+        "dir"
+      ],
+      "stdin": "",
+      "files": {
+        "dir": {
+          "dir": true,
+          "mode": "2755"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "directory_symbolic_preserves_sgid",
+      "args": [
+        "g=rx",
+        "dir"
+      ],
+      "stdin": "",
+      "files": {
+        "dir": {
+          "dir": true,
+          "mode": "2755"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "directory_numeric_explicit_clear",
+      "args": [
+        "00755",
+        "dir"
+      ],
+      "stdin": "",
+      "files": {
+        "dir": {
+          "dir": true,
+          "mode": "2755"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "recursive_long_alias",
+      "args": [
+        "--recursive",
+        "u+rX",
+        "dir"
+      ],
+      "files": {
+        "dir/file": {
+          "text": "x",
+          "mode": "600"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty_add",
+      "args": [
+        "a+",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "x",
+          "mode": "644"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "repeated_actions",
+      "args": [
+        "u++w",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "x",
+          "mode": "644"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "numeric_add",
+      "args": [
+        "+0111",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "x",
+          "mode": "644"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "numeric_remove",
+      "args": [
+        "-0111",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "x",
+          "mode": "644"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bad_copy_mix",
+      "args": [
+        "u+rwu",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "x",
+          "mode": "644"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bad_multi_copy",
+      "args": [
+        "u+ug",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "x",
+          "mode": "644"
+        }
+      },
+      "compare": [
+        "exit",
+        "files",
+        "files_mode"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

@@ -1,0 +1,657 @@
+{
+  "command": "numfmt",
+  "cases": [
+    {
+      "name": "plain",
+      "args": [
+        "1.20",
+        "2",
+        "--",
+        "-0.2"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "si",
+      "args": [
+        "--to=si",
+        "999",
+        "999.1",
+        "1000",
+        "999950"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "iec",
+      "args": [
+        "--to=iec",
+        "1024",
+        "2048",
+        "1048576"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "iec_i",
+      "args": [
+        "--to=iec-i",
+        "4096"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "from_si",
+      "args": [
+        "--from=si",
+        "1K",
+        "1.25M"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "from_iec",
+      "args": [
+        "--from=iec",
+        "1K",
+        "1.25M"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "from_iec_i",
+      "args": [
+        "--from=iec-i",
+        "1Ki",
+        "1.25Mi"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "from_auto",
+      "args": [
+        "--from=auto",
+        "1K",
+        "1Ki"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "units",
+      "args": [
+        "--from-unit=3",
+        "--to-unit=2",
+        "1.20",
+        "3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "format",
+      "args": [
+        "--format=x%08.2fZ",
+        "--to=si",
+        "1234"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "padding",
+      "args": [
+        "--padding=-8",
+        "--suffix=B",
+        "--to=si",
+        "1000"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "fields",
+      "args": [
+        "--delimiter=,",
+        "--field=2-3",
+        "--to=si"
+      ],
+      "stdin": "x,1000,2000,z\n"
+    },
+    {
+      "name": "header",
+      "args": [
+        "--header=2",
+        "--field=2",
+        "--to=si"
+      ],
+      "stdin": "title\nname size\nx 1000\n"
+    },
+    {
+      "name": "bare_header",
+      "args": [
+        "--header",
+        "--to=si"
+      ],
+      "stdin": "title\n1000\n"
+    },
+    {
+      "name": "invalid_abort",
+      "args": [
+        "--from=si",
+        "--field=1-"
+      ],
+      "stdin": "1K BAD 2K\n3K\n"
+    },
+    {
+      "name": "invalid_fail",
+      "args": [
+        "--invalid=fail"
+      ],
+      "stdin": "bad\n3\n"
+    },
+    {
+      "name": "invalid_warn",
+      "args": [
+        "--invalid=warn"
+      ],
+      "stdin": "bad\n3\n"
+    },
+    {
+      "name": "invalid_ignore",
+      "args": [
+        "--invalid=ignore"
+      ],
+      "stdin": "bad\n3\n"
+    },
+    {
+      "name": "grouping",
+      "args": [
+        "--grouping",
+        "--debug",
+        "12345"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "nul",
+      "args": [
+        "--zero-terminated",
+        "--to=si"
+      ],
+      "stdin": "1000\u00002000\u0000"
+    },
+    {
+      "name": "empty_fields",
+      "args": [
+        "-d,",
+        "--field=2"
+      ],
+      "stdin": "a,,b\n"
+    },
+    {
+      "name": "blank",
+      "args": [],
+      "stdin": "\n"
+    },
+    {
+      "name": "bad_format",
+      "args": [
+        "--format=%q",
+        "1"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "too_precise",
+      "args": [
+        "--format=%.25f",
+        "1.2"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "round_up",
+      "args": [
+        "--round=up",
+        "--to-unit=2",
+        "--",
+        "1",
+        "3",
+        "-1",
+        "-3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "round_down",
+      "args": [
+        "--round=down",
+        "--to-unit=2",
+        "--",
+        "1",
+        "3",
+        "-1",
+        "-3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "round_from-zero",
+      "args": [
+        "--round=from-zero",
+        "--to-unit=2",
+        "--",
+        "1",
+        "3",
+        "-1",
+        "-3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "round_towards-zero",
+      "args": [
+        "--round=towards-zero",
+        "--to-unit=2",
+        "--",
+        "1",
+        "3",
+        "-1",
+        "-3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "round_nearest",
+      "args": [
+        "--round=nearest",
+        "--to-unit=2",
+        "--",
+        "1",
+        "3",
+        "-1",
+        "-3"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "fractional_auto_ties_even",
+      "args": [
+        "--to=si",
+        "--",
+        "2.5",
+        "3.5",
+        "0.5",
+        "-0.5"
+      ]
+    },
+    {
+      "name": "beyond_largest_scale",
+      "args": [
+        "--to=si",
+        "1000000000000000000000000000"
+      ]
+    },
+    {
+      "name": "empty_from_unit",
+      "args": [
+        "--from-unit=",
+        "2"
+      ]
+    },
+    {
+      "name": "empty_to_unit",
+      "args": [
+        "--to-unit=",
+        "2"
+      ]
+    },
+    {
+      "name": "info_help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "numfmt"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "info_version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "numfmt"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_to_si_R",
+      "args": [
+        "--to=si",
+        "1000000000000000000000000000"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_from_si_R",
+      "args": [
+        "--from=si",
+        "--to=si",
+        "1R"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_to_iec_R",
+      "args": [
+        "--to=iec",
+        "1237940039285380274899124224"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_from_iec_R",
+      "args": [
+        "--from=iec",
+        "--to=iec",
+        "1R"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_to_iec-i_R",
+      "args": [
+        "--to=iec-i",
+        "1237940039285380274899124224"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_from_iec-i_R",
+      "args": [
+        "--from=iec-i",
+        "--to=iec-i",
+        "1Ri"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_auto_R",
+      "args": [
+        "--from=auto",
+        "--to=si",
+        "1R"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_auto_binary_R",
+      "args": [
+        "--from=auto",
+        "--to=iec-i",
+        "1Ri"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_to_si_Q",
+      "args": [
+        "--to=si",
+        "1000000000000000000000000000000"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_from_si_Q",
+      "args": [
+        "--from=si",
+        "--to=si",
+        "1Q"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_to_iec_Q",
+      "args": [
+        "--to=iec",
+        "1267650600228229401496703205376"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_from_iec_Q",
+      "args": [
+        "--from=iec",
+        "--to=iec",
+        "1Q"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_to_iec-i_Q",
+      "args": [
+        "--to=iec-i",
+        "1267650600228229401496703205376"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_from_iec-i_Q",
+      "args": [
+        "--from=iec-i",
+        "--to=iec-i",
+        "1Qi"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_auto_Q",
+      "args": [
+        "--from=auto",
+        "--to=si",
+        "1Q"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "new_scale_auto_binary_Q",
+      "args": [
+        "--from=auto",
+        "--to=iec-i",
+        "1Qi"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ronna_input_unit",
+      "args": [
+        "--from-unit=RB",
+        "--to=si",
+        "1"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "quetta_output_unit",
+      "args": [
+        "--to-unit=QB",
+        "1000000000000000000000000000000"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "robi_input_unit",
+      "args": [
+        "--from-unit=RiB",
+        "--to=iec-i",
+        "1"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "quebi_output_unit",
+      "args": [
+        "--to-unit=QiB",
+        "1267650600228229401496703205376"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "beyond_quetta_scale",
+      "args": [
+        "--to=si",
+        "1000000000000000000000000000000000"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "rounding_scale_carry",
+      "args": [
+        "--to=si",
+        "999999"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

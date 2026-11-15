@@ -15,14 +15,35 @@ pub fn input(path: &str) -> io::Result<Box<dyn BufRead>> {
 }
 
 pub fn output(command: &str, action: impl FnOnce(&mut dyn Write) -> io::Result<()>) -> i32 {
+    output_status(command, 0, 1, action)
+}
+
+/// Preserve a command's predicate status on successful output, while a closed
+/// reader always ends quietly with status zero.
+pub fn output_status(
+    command: &str,
+    success: i32,
+    failure: i32,
+    action: impl FnOnce(&mut dyn Write) -> io::Result<()>,
+) -> i32 {
+    output_result(command, failure, |out| action(out).map(|()| success))
+}
+
+/// Compute the final command status inside the output action. A closed pipe
+/// takes precedence over that status, including errors already reported.
+pub fn output_result(
+    command: &str,
+    failure: i32,
+    action: impl FnOnce(&mut dyn Write) -> io::Result<i32>,
+) -> i32 {
     let stdout = io::stdout();
     let mut out = BufWriter::with_capacity(BUFFER_SIZE, stdout.lock());
-    match action(&mut out).and_then(|()| out.flush()) {
-        Ok(()) => 0,
+    match action(&mut out).and_then(|status| out.flush().map(|()| status)) {
+        Ok(status) => status,
         Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
             eprintln!("{command}: write error: {}", super::error::io_text(&error));
-            1
+            failure
         }
     }
 }
@@ -68,6 +89,11 @@ pub fn is_closed_pipe(error: &io::Error) -> bool {
 }
 
 pub fn report_open(command: &str, path: &str, error: &io::Error) {
+    let path = super::path::display_path(std::path::Path::new(path));
+    if command == "cat" {
+        eprintln!("cat: {path}: {}", super::error::io_text(error));
+        return;
+    }
     eprintln!(
         "{command}: cannot open '{path}' for reading: {}",
         super::error::io_text(error)
@@ -75,6 +101,11 @@ pub fn report_open(command: &str, path: &str, error: &io::Error) {
 }
 
 pub fn report_failure(command: &str, path: &str, error: &io::Error) {
+    let path = super::path::display_path(std::path::Path::new(path));
+    if command == "cat" {
+        eprintln!("cat: {path}: {}", super::error::io_text(error));
+        return;
+    }
     eprintln!("{command}: '{path}': {}", super::error::io_text(error));
 }
 

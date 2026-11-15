@@ -1,0 +1,216 @@
+{
+  "command": "unlink",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--not-an-option"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_operands",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "file",
+      "args": [
+        "a"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "missing",
+      "args": [
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "directory",
+      "args": [
+        "d"
+      ],
+      "files": {
+        "d": {
+          "dir": true
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "extra",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {
+        "a": "x",
+        "b": "y"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "empty_file",
+      "args": [
+        "a"
+      ],
+      "files": {
+        "a": ""
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "spaces",
+      "args": [
+        "a b"
+      ],
+      "files": {
+        "a b": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "nested",
+      "args": [
+        "d/a"
+      ],
+      "files": {
+        "d/a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "dash_name",
+      "args": [
+        "--",
+        "-a"
+      ],
+      "files": {
+        "-a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "symlink",
+      "args": [
+        "a"
+      ],
+      "files": {
+        "a": {
+          "symlink": "target"
+        },
+        "target": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "dangling_symlink",
+      "args": [
+        "a"
+      ],
+      "files": {
+        "a": {
+          "symlink": "missing"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "nonempty_directory",
+      "args": [
+        "d"
+      ],
+      "files": {
+        "d/a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "unknown_before_operand",
+      "args": [
+        "--unknown",
+        "a"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    }
+  ]
+}

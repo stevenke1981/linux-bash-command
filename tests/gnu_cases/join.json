@@ -1,0 +1,509 @@
+{
+  "command": "join",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "default_duplicate_cartesian",
+      "args": [
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "k l1\nk l2\n",
+        "right": "k r1\nk r2\nk r3\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "leading_blanks_and_default_fields",
+      "args": [
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "  1 alpha  red\n2 beta blue\n",
+        "right": "1 first green\n2 second yellow\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "different_join_fields_and_format",
+      "args": [
+        "-t,",
+        "-1",
+        "2",
+        "-2",
+        "1",
+        "-o",
+        "0,1.1,2.3",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "a,01,blue\nb,02,green\n",
+        "right": "01,one,red\n02,two,white\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "join_alias",
+      "args": [
+        "-j",
+        "2",
+        "-t,",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "x,k\ny,z\n",
+        "right": "k,other\nz,tail\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ignore_case",
+      "args": [
+        "--ignore-case",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "Alpha left\nbeta lower\n",
+        "right": "alpha right\nBETA upper\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "include_unpaired_first",
+      "args": [
+        "-a1",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "a left-a\nb left-b\n",
+        "right": "b right-b\nc right-c\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "only_unpaired_second",
+      "args": [
+        "-v2",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "a left-a\nb left-b\n",
+        "right": "b right-b\nc right-c\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "auto_header_and_empty_replacement",
+      "args": [
+        "--header",
+        "-o",
+        "auto",
+        "-e",
+        "?",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "id name\na Alice\nb Bob\n",
+        "right": "code city\na Oslo\nb\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "explicit_output_empty_replacement",
+      "args": [
+        "-e",
+        "NA",
+        "-o",
+        "0,1.2,2.2",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "a Alice\nb Bob\n",
+        "right": "a Oslo\nb\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "whole_line_separator",
+      "args": [
+        "-t",
+        "",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "alpha\nbeta\n",
+        "right": "alpha\nbeta\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "nul_field_separator",
+      "args": [
+        "-t",
+        "\\0",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": {
+          "hex": "6100780a6200790a"
+        },
+        "right": {
+          "hex": "6100700a6200710a"
+        }
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "zero_terminated_records",
+      "args": [
+        "-z",
+        "-t,",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": {
+          "hex": "612c7800622c7900"
+        },
+        "right": {
+          "hex": "612c7000622c7100"
+        }
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdin_as_second_file",
+      "args": [
+        "left",
+        "-"
+      ],
+      "stdin": "a stdin\nb stdin-b\n",
+      "files": {
+        "left": "a file\nb file-b\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "strict_order_error",
+      "args": [
+        "--check-order",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "b left-b\na left-a\n",
+        "right": "a right-a\nb right-b\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "nocheck_order",
+      "args": [
+        "--nocheck-order",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "b left-b\na left-a\n",
+        "right": "a right-a\nb right-b\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "default_disorder_detected_on_unpaired_key",
+      "args": [
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "b left-b\na left-a\n",
+        "right": "a right-a\nc right-c\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "both_stdin_rejected",
+      "args": [
+        "-",
+        "-"
+      ],
+      "stdin": "a b\n",
+      "files": {},
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_file_number",
+      "args": [
+        "-a3",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "a\n",
+        "right": "a\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_output_field",
+      "args": [
+        "-o",
+        "1.0",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "a\n",
+        "right": "a\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "absent",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "right": "a\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing_operand",
+      "args": [
+        "left"
+      ],
+      "stdin": "",
+      "files": {
+        "left": "a\n"
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "zero_terminated_long",
+      "args": [
+        "--zero-terminated",
+        "-t,",
+        "left",
+        "right"
+      ],
+      "stdin": "",
+      "files": {
+        "left": {
+          "hex": "612c7800622c7900"
+        },
+        "right": {
+          "hex": "612c7000622c7100"
+        }
+      },
+      "gnu": [
+        "join"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

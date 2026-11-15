@@ -1,0 +1,505 @@
+{
+  "command": "dos2unix",
+  "cases": [
+    {
+      "name": "default",
+      "args": [
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "quiet",
+      "args": [
+        "-q",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "keep-date",
+      "args": [
+        "-k",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "force",
+      "args": [
+        "-f",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "keep-bom",
+      "args": [
+        "-b",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "\ufeffa\r\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "remove-bom",
+      "args": [
+        "-r",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "\ufeffa\r\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "add-bom",
+      "args": [
+        "-m",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "add-eol",
+      "args": [
+        "-e",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "abc"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "newfile",
+      "args": [
+        "-n",
+        "in",
+        "out"
+      ],
+      "stdin": "",
+      "files": {
+        "in": "a\r\nb"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ascii",
+      "args": [
+        "-c",
+        "ascii",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_oldfile",
+      "args": [
+        "--oldfile",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_keep-date",
+      "args": [
+        "--keep-date",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": "04 requires --keep-date; Ubuntu dos2unix supports -k and --keepdate instead"
+    },
+    {
+      "name": "long_quiet",
+      "args": [
+        "--quiet",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_force",
+      "args": [
+        "--force",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_keep-bom",
+      "args": [
+        "--keep-bom",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_remove-bom",
+      "args": [
+        "--remove-bom",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_add-bom",
+      "args": [
+        "--add-bom",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_add-eol",
+      "args": [
+        "--add-eol",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_safe",
+      "args": [
+        "--safe",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_convmode",
+      "args": [
+        "--convmode",
+        "ascii",
+        "f"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "a\r\nb\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stream_default",
+      "args": [],
+      "stdin": "a\r\nb\r\n",
+      "files": {},
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "stdout"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stream_keep_bom",
+      "args": [
+        "-b"
+      ],
+      "stdin": "a\r\n",
+      "files": {},
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "stdout"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stream_existing_bom_add",
+      "args": [
+        "-m"
+      ],
+      "stdin": "\ufeffa\r\n",
+      "files": {},
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "stdout"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stream_remove_bom",
+      "args": [
+        "-r"
+      ],
+      "stdin": "\ufeffa\r\n",
+      "files": {},
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "stdout"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stream_add_eol",
+      "args": [
+        "-e"
+      ],
+      "stdin": "a",
+      "files": {},
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "stdout"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "newfile_multiple_pairs",
+      "args": [
+        "-q",
+        "-n",
+        "a",
+        "out1",
+        "b",
+        "out2"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\r\n",
+        "b": "b\r\n"
+      },
+      "gnu": [
+        "dos2unix"
+      ],
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "newfile_long_alias",
+      "args": [
+        "--newfile",
+        "in",
+        "out"
+      ],
+      "files": {
+        "in": "x\r\n"
+      },
+      "compare": [
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

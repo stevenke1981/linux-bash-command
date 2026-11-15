@@ -1,6 +1,6 @@
 //! Expression tree for find, plus evaluation of the tests against one entry.
 
-pub use crate::common::meta::{kind_char, permission_bits};
+pub use crate::common::meta::{kind_char, permission_bits_at};
 
 use super::glob::Glob;
 use super::printf::Piece;
@@ -47,6 +47,7 @@ pub enum Clock {
     Modified,
     Accessed,
     Changed,
+    Birth,
 }
 
 #[derive(Clone, Copy)]
@@ -89,6 +90,28 @@ pub enum Test {
     },
     Perm(PermCheck),
     Access(Access),
+    Owner {
+        group: bool,
+        id: u32,
+    },
+    UnknownOwner {
+        group: bool,
+    },
+    Number {
+        field: NumberField,
+        cmp: Cmp,
+        value: u64,
+    },
+    SameFile(Option<crate::common::meta::FileKey>),
+    LinkName(Glob),
+    XType(Vec<char>),
+}
+
+pub enum NumberField {
+    Uid,
+    Gid,
+    Links,
+    Inode,
 }
 
 pub enum Action {
@@ -103,9 +126,14 @@ pub enum Action {
     Exec {
         argv: Vec<String>,
         in_dir: bool,
+        prompt: bool,
     },
     /// `-exec CMD {} +`, queued into batch number `index` of the plan.
     Batch(usize),
+    File {
+        index: usize,
+        action: Box<Action>,
+    },
 }
 
 /// One file system entry as seen by the tests and actions.
@@ -135,6 +163,15 @@ pub fn time_ns(meta: &Metadata, clock: Clock) -> Option<i128> {
         Clock::Modified => meta.modified().ok().map(system_ns),
         Clock::Accessed => meta.accessed().ok().map(system_ns),
         Clock::Changed => changed_ns(meta),
+        Clock::Birth => meta.created().ok().map(system_ns),
+    }
+}
+
+pub fn time_ns_at(path: &Path, meta: &Metadata, clock: Clock) -> Option<i128> {
+    if clock == Clock::Changed {
+        crate::common::meta::change_time(path, meta).map(system_ns)
+    } else {
+        time_ns(meta, clock)
     }
 }
 
@@ -177,23 +214,62 @@ pub fn test_matches(test: &Test, entry: &Entry) -> bool {
             cmp,
             count,
             unit_ns,
-        } => time_ns(entry.meta, *clock).is_some_and(|time| {
+        } => time_ns_at(entry.path, entry.meta, *clock).is_some_and(|time| {
             let periods = (entry.now_ns - time).div_euclid(*unit_ns);
             cmp.holds(periods, i128::from(*count))
         }),
         Test::Newer {
             clock,
             reference_ns,
-        } => time_ns(entry.meta, *clock).is_some_and(|time| time > *reference_ns),
-        Test::Perm(check) => perm_matches(entry.meta, *check),
+        } => time_ns_at(entry.path, entry.meta, *clock).is_some_and(|time| time > *reference_ns),
+        Test::Perm(check) => perm_matches(entry.path, entry.meta, *check),
         Test::Access(access) => access_ok(entry, *access),
+        Test::Owner { group, id } => {
+            let ids = crate::common::meta::owner_ids(entry.meta);
+            *id == if *group { ids.1 } else { ids.0 }
+        }
+        Test::UnknownOwner { group } => {
+            let (uid, gid) = crate::common::meta::owner_ids(entry.meta);
+            if *group {
+                crate::common::meta::group_name(gid).is_none()
+            } else {
+                crate::common::meta::user_name(uid).is_none()
+            }
+        }
+        Test::Number { field, cmp, value } => {
+            let identity = crate::common::meta::file_identity(entry.path, entry.meta);
+            let (uid, gid) = crate::common::meta::owner_ids(entry.meta);
+            let actual = match field {
+                NumberField::Uid => u64::from(uid),
+                NumberField::Gid => u64::from(gid),
+                NumberField::Links => identity.nlink,
+                NumberField::Inode => identity.inode,
+            };
+            cmp.holds(i128::from(actual), i128::from(*value))
+        }
+        Test::SameFile(reference) => reference.as_ref().is_some_and(|reference| {
+            crate::common::meta::file_key(entry.path, entry.meta).is_ok_and(|key| key == *reference)
+        }),
+        Test::LinkName(glob) => {
+            entry.meta.file_type().is_symlink()
+                && fs::read_link(entry.path)
+                    .is_ok_and(|target| glob.is_match(&display_path(&target)))
+        }
+        Test::XType(kinds) => {
+            let metadata = if entry.meta.file_type().is_symlink() {
+                fs::metadata(entry.path).or_else(|_| fs::symlink_metadata(entry.path))
+            } else {
+                fs::symlink_metadata(entry.path)
+            };
+            metadata.is_ok_and(|metadata| kinds.contains(&kind_char(&metadata)))
+        }
     }
 }
 
 /// `-perm` is rejected at parse time on Windows, so the approximated bits only matter
 /// on Unix in practice.
-fn perm_matches(meta: &Metadata, check: PermCheck) -> bool {
-    let mode = permission_bits(meta);
+fn perm_matches(path: &Path, meta: &Metadata, check: PermCheck) -> bool {
+    let mode = permission_bits_at(path, meta);
     match check {
         PermCheck::Exact(bits) => mode == bits,
         PermCheck::AllBits(bits) => mode & bits == bits,
@@ -229,22 +305,35 @@ fn access_ok(entry: &Entry, access: Access) -> bool {
 #[cfg(unix)]
 fn is_executable(entry: &Entry) -> bool {
     // Checks the mode bits only, not the caller's identity.
-    permission_bits(entry.meta) & 0o111 != 0
+    permission_bits_at(entry.path, entry.meta) & 0o111 != 0
 }
 
 #[cfg(not(unix))]
 fn is_executable(entry: &Entry) -> bool {
-    if entry.meta.is_dir() {
-        return true;
+    entry.meta.is_dir() || crate::common::meta::is_executable(entry.path, entry.meta)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn unavailable_samefile_reference_never_matches_an_unrelated_entry() {
+        let path = std::env::temp_dir().join(format!("agentcmd-samefile-{}", std::process::id()));
+        fs::write(&path, b"x").unwrap();
+        let metadata = fs::metadata(&path).unwrap();
+        let entry = Entry {
+            path: &path,
+            root: &path,
+            depth: 0,
+            meta: &metadata,
+            now_ns: 0,
+        };
+        assert!(!test_matches(&Test::SameFile(None), &entry));
+        assert!(test_matches(
+            &Test::SameFile(crate::common::meta::file_key(&path, &metadata).ok()),
+            &entry
+        ));
+        fs::remove_file(path).unwrap();
     }
-    entry
-        .path
-        .extension()
-        .and_then(|ext| ext.to_str())
-        .is_some_and(|ext| {
-            matches!(
-                ext.to_ascii_lowercase().as_str(),
-                "exe" | "bat" | "cmd" | "com"
-            )
-        })
 }

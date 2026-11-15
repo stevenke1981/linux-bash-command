@@ -1,0 +1,292 @@
+{
+  "command": "touch",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--not-an-option"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_operands",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "create",
+      "args": [
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "multiple",
+      "args": [
+        "a",
+        "b"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "existing",
+      "args": [
+        "a"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "no_create",
+      "args": [
+        "-c",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "long_no_create",
+      "args": [
+        "--no-create",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "timestamp",
+      "args": [
+        "-t",
+        "202001020304.05",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "date",
+      "args": [
+        "-d",
+        "@0",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "reference",
+      "args": [
+        "-r",
+        "ref",
+        "a"
+      ],
+      "files": {
+        "ref": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "missing_reference",
+      "args": [
+        "-r",
+        "missing",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "access",
+      "args": [
+        "-a",
+        "a"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "modify",
+      "args": [
+        "-m",
+        "a"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "time_access",
+      "args": [
+        "--time=access",
+        "a"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "time_modify",
+      "args": [
+        "--time=mtime",
+        "a"
+      ],
+      "files": {
+        "a": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "invalid_timestamp",
+      "args": [
+        "-t",
+        "not-a-time",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "force",
+      "args": [
+        "-f",
+        "a"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "long_date",
+      "args": [
+        "--date=@0",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {}
+    },
+    {
+      "name": "long_no_deref",
+      "args": [
+        "--no-dereference",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "a": "x"
+      }
+    },
+    {
+      "name": "long_reference",
+      "args": [
+        "--reference=ref",
+        "a"
+      ],
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "files": {
+        "ref": "x"
+      }
+    }
+  ]
+}

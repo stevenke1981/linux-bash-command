@@ -1,0 +1,172 @@
+{
+  "command": "timeout",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+          "exit"
+        ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+          "exit"
+        ]
+    },
+    {
+      "name": "success",
+      "args": [
+        "1",
+        "true"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "child-failure",
+      "args": [
+        "1",
+        "false"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "zero-disabled",
+      "args": [
+        "0",
+        "true"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "seconds-suffix",
+      "args": [
+        "1s",
+        "true"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "minutes-suffix",
+      "args": [
+        "1m",
+        "true"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "foreground",
+      "args": [
+        "--foreground",
+        "1",
+        "true"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "preserve",
+      "args": [
+        "--preserve-status",
+        "1",
+        "false"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "signal",
+      "args": [
+        "--signal=TERM",
+        "1",
+        "true"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "kill-after",
+      "args": [
+        "--kill-after=0",
+        "1",
+        "true"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "verbose",
+      "args": [
+        "--verbose",
+        "1",
+        "true"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "missing-command",
+      "args": [
+        "1",
+        "agentcmd-not-a-command-7c2208"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-duration",
+      "args": [
+        "bad",
+        "true"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "expired",
+      "args": [
+        "0.05",
+        "sleep",
+        "0.2"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    }
+  ]
+}

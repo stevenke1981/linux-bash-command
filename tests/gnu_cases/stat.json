@@ -1,0 +1,534 @@
+{
+  "command": "stat",
+  "cases": [
+    {
+      "name": "size_name",
+      "args": [
+        "-c",
+        "%s %n",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "mode",
+      "args": [
+        "-c",
+        "%a %A %f",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "type",
+      "args": [
+        "-c",
+        "%F",
+        "file",
+        "empty"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "link_type",
+      "args": [
+        "-c",
+        "%F %N",
+        "link"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "dereference",
+      "args": [
+        "-L",
+        "-c",
+        "%F %s",
+        "link"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "owners",
+      "args": [
+        "-c",
+        "%u %U %g %G",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "epoch",
+      "args": [
+        "-c",
+        "%Y",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "timestamp",
+      "args": [
+        "-c",
+        "%y",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "printf_escape",
+      "args": [
+        "--printf=%n\\t%s\\n",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "width",
+      "args": [
+        "-c",
+        "[%05s][%-10n]",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "flags",
+      "args": [
+        "-c",
+        "%04a %#f",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "context_percent",
+      "args": [
+        "-c",
+        "%C %%",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "blocks_units",
+      "args": [
+        "-c",
+        "%B %o",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "device_parts",
+      "args": [
+        "-c",
+        "%Hd %Ld %Hr %Lr %t %T",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "cached_always",
+      "args": [
+        "--cached=always",
+        "-c",
+        "%s",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "cached_never",
+      "args": [
+        "--cached=never",
+        "-c",
+        "%s",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "cached_default",
+      "args": [
+        "--cached=default",
+        "-c",
+        "%s",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "filesystem",
+      "args": [
+        "-f",
+        "-c",
+        "%l %s %S %t %T",
+        "."
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "filesystem_terse",
+      "args": [
+        "-ft",
+        "."
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "terse",
+      "args": [
+        "-t",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing_continues",
+      "args": [
+        "-c",
+        "%n",
+        "missing",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000,
+          "mode": "644"
+        },
+        "empty": "",
+        "link": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bogus"
+      ],
+      "files": {}
+    },
+    {
+      "name": "no_operand",
+      "args": [],
+      "files": {}
+    },
+    {
+      "name": "p2_long_help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_dereference",
+      "args": [
+        "--dereference",
+        "--format=%s %n",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      }
+    },
+    {
+      "name": "p2_long_file-system",
+      "args": [
+        "--file-system",
+        "--format=%l %s %S %t %T",
+        "."
+      ],
+      "files": {
+        "file": "abc"
+      }
+    },
+    {
+      "name": "p2_long_format",
+      "args": [
+        "--format",
+        "%s %n",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      }
+    },
+    {
+      "name": "p2_long_terse",
+      "args": [
+        "--terse",
+        "--format=%s %n",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      }
+    },
+    {
+      "name": "epoch_fractional_precision",
+      "args": [
+        "--format=%.3Y %.9Y",
+        "file"
+      ],
+      "files": {
+        "file": {
+          "text": "abc",
+          "mtime": 1700000000
+        }
+      }
+    },
+    {
+      "name": "review_fs_hex_flags",
+      "args": [
+        "-f",
+        "--printf=%i|%t|%020i|%016t|%#i|%#t|%Q",
+        "file"
+      ],
+      "stdin": "",
+      "files": {
+        "file": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "review_unknown_directive",
+      "args": [
+        "--printf=%Q%k",
+        "file"
+      ],
+      "stdin": "",
+      "files": {
+        "file": "x"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

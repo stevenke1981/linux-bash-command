@@ -1,0 +1,304 @@
+{
+  "command": "nproc",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "all",
+      "args": [
+        "--all"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ignore_zero",
+      "args": [
+        "--ignore=0"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ignore_one",
+      "args": [
+        "--ignore=1"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ignore_more_than_available",
+      "args": [
+        "--ignore=999999"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "omp_num_threads_one",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {
+        "OMP_NUM_THREADS": "1"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "omp_num_threads_list",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {
+        "OMP_NUM_THREADS": "1,2"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "omp_thread_limit_one",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {
+        "OMP_THREAD_LIMIT": "1"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "omp_both_limits",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_THREAD_LIMIT": "1"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "all_ignores_omp_num_threads",
+      "args": [
+        "--all"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {
+        "OMP_NUM_THREADS": "1"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "all_ignores_omp_thread_limit",
+      "args": [
+        "--all"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {
+        "OMP_THREAD_LIMIT": "1"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "all_ignores_both_omp_limits",
+      "args": [
+        "--all"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_THREAD_LIMIT": "1"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ignore_with_omp_limit",
+      "args": [
+        "--ignore=1"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {
+        "OMP_NUM_THREADS": "1"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "all_and_ignore",
+      "args": [
+        "--all",
+        "--ignore=1"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_ignore",
+      "args": [
+        "--ignore=x"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "nproc"
+      ],
+      "env": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "omp_overrides_available",
+      "args": [],
+      "env": {
+        "OMP_NUM_THREADS": "9999",
+        "OMP_THREAD_LIMIT": ""
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_help",
+      "args": [
+        "--help"
+      ],
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_version",
+      "args": [
+        "--version"
+      ],
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

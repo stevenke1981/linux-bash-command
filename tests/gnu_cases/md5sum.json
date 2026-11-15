@@ -1,0 +1,472 @@
+{
+  "command": "md5sum",
+  "cases": [
+    {
+      "name": "stdin_empty",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdin_abc",
+      "args": [],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdin_nul",
+      "args": [],
+      "stdin": "a\u0000b\n",
+      "files": {},
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "file",
+      "args": [
+        "data"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc"
+      },
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multiple_files",
+      "args": [
+        "one",
+        "two"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "abc",
+        "two": ""
+      },
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "binary",
+      "args": [
+        "--binary"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "text",
+      "args": [
+        "--text"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bsd_tag",
+      "args": [
+        "--tag"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "zero",
+      "args": [
+        "--zero"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_gnu",
+      "args": [
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "900150983cd24fb0d6963f7d28e17f72  data\n"
+      },
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_bsd",
+      "args": [
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "MD5 (data) = 900150983cd24fb0d6963f7d28e17f72\n"
+      },
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_quiet",
+      "args": [
+        "--quiet",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "900150983cd24fb0d6963f7d28e17f72  data\n"
+      },
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_status",
+      "args": [
+        "--status",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "900150983cd24fb0d6963f7d28e17f72  data\n"
+      },
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ignore_missing",
+      "args": [
+        "--ignore-missing",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "900150983cd24fb0d6963f7d28e17f72  absent\n900150983cd24fb0d6963f7d28e17f72  data\n"
+      },
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "mismatch",
+      "args": [
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "00000000000000000000000000000000  data\n"
+      },
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "warn_malformed",
+      "args": [
+        "--warn",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "900150983cd24fb0d6963f7d28e17f72  data\nmalformed\n"
+      },
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "strict_malformed",
+      "args": [
+        "--strict",
+        "--check",
+        "SUMS"
+      ],
+      "stdin": "",
+      "files": {
+        "data": "abc",
+        "SUMS": "900150983cd24fb0d6963f7d28e17f72  data\nmalformed\n"
+      },
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing_file",
+      "args": [
+        "absent"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "md5sum"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "manifest_taglike_name",
+      "args": [
+        "-c",
+        "list"
+      ],
+      "stdin": "",
+      "files": {
+        "list": "900150983cd24fb0d6963f7d28e17f72  a (b) = c\n",
+        "a (b) = c": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "manifest_tab",
+      "args": [
+        "-c",
+        "list"
+      ],
+      "stdin": "",
+      "files": {
+        "list": "\t900150983cd24fb0d6963f7d28e17f72\tfile\n",
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "manifest_crlf_line",
+      "args": [
+        "-c",
+        "list"
+      ],
+      "stdin": "",
+      "files": {
+        "list": "900150983cd24fb0d6963f7d28e17f72  file\r\n",
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdin_self_check_rejected",
+      "args": [
+        "-c"
+      ],
+      "stdin": "d41d8cd98f00b204e9800998ecf8427e  -\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_binary_rejected",
+      "args": [
+        "--binary",
+        "-c",
+        "list"
+      ],
+      "files": {
+        "list": "900150983cd24fb0d6963f7d28e17f72  data\n",
+        "data": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "check_text_rejected",
+      "args": [
+        "--text",
+        "-c",
+        "list"
+      ],
+      "files": {
+        "list": "900150983cd24fb0d6963f7d28e17f72  data\n",
+        "data": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "carriage_return_filename_output",
+      "args": [
+        "file\r"
+      ],
+      "files": {
+        "file\r": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

@@ -1,0 +1,788 @@
+{
+  "command": "patch",
+  "cases": [
+    {
+      "name": "simple",
+      "args": [],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "strip-short",
+      "args": [
+        "-p1"
+      ],
+      "stdin": "--- a/f\n+++ b/f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "strip-long",
+      "args": [
+        "--strip=1"
+      ],
+      "stdin": "--- a/f\n+++ b/f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "select-new",
+      "args": [],
+      "stdin": "--- absent\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "select-new-git",
+      "args": [
+        "-p1"
+      ],
+      "stdin": "--- a/absent\n+++ b/f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "explicit-original",
+      "args": [
+        "-p1",
+        "f"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "reverse-short",
+      "args": [
+        "-R"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "new\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "reverse-long",
+      "args": [
+        "--reverse"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "new\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "forward-skip",
+      "args": [
+        "-N"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "new\n",
+        "f.orig": "valuable"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "forward-long",
+      "args": [
+        "--forward"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "new\n",
+        "f.orig": "valuable"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "force-forward",
+      "args": [
+        "-f",
+        "-N"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "new\n",
+        "f.orig": "valuable"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "force-long",
+      "args": [
+        "--force"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "bad\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "backup-short",
+      "args": [
+        "-b"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "backup-long",
+      "args": [
+        "--backup"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "dry",
+      "args": [
+        "--dry-run"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "fuzz-zero",
+      "args": [
+        "-F0"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "fuzz-long",
+      "args": [
+        "--fuzz=2"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "quiet-short",
+      "args": [
+        "-s"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "quiet-long",
+      "args": [
+        "--quiet"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "silent",
+      "args": [
+        "--silent"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "binary",
+      "args": [
+        "--binary"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "unified",
+      "args": [
+        "-u"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "output-short",
+      "args": [
+        "-o",
+        "out"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "output-long",
+      "args": [
+        "--output=out"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "reject-output",
+      "args": [
+        "-o",
+        "out"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "bad\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "reject-plain",
+      "args": [
+        "-r",
+        "-"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "bad\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "reject-long",
+      "args": [
+        "--reject-file=reject"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "bad\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "no-backup",
+      "args": [
+        "--no-backup-if-mismatch"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "bad\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "loose-short",
+      "args": [
+        "-l"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old text\n+new\n",
+      "files": {
+        "f": "old  text\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "loose-long",
+      "args": [
+        "--ignore-whitespace"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old text\n+new\n",
+      "files": {
+        "f": "old  text\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "input-short",
+      "args": [
+        "-i",
+        "diff"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "old\n",
+        "diff": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "input-long",
+      "args": [
+        "--input=diff"
+      ],
+      "stdin": "",
+      "files": {
+        "f": "old\n",
+        "diff": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "directory-short",
+      "args": [
+        "-d",
+        "dir"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "dir": {
+          "dir": true
+        },
+        "dir/f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "directory-long",
+      "args": [
+        "--directory=dir"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "dir": {
+          "dir": true
+        },
+        "dir/f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "reject-directory",
+      "args": [
+        "-d",
+        "dir",
+        "-r",
+        "reject"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "dir": {
+          "dir": true
+        },
+        "dir/f": "bad\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "create",
+      "args": [],
+      "stdin": "--- /dev/null\n+++ f\n@@ -0,0 +1 @@\n+new\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "remove",
+      "args": [
+        "-E"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +0,0 @@\n-old\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "remove-long",
+      "args": [
+        "--remove-empty-files"
+      ],
+      "stdin": "--- f\n+++ f\n@@ -1 +0,0 @@\n-old\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "forward-existing-creation",
+      "args": [
+        "-N"
+      ],
+      "stdin": "--- /dev/null\n+++ f\n@@ -0,0 +1 @@\n+new\n",
+      "files": {
+        "f": "old\n",
+        "f.orig": "precious"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "force-existing-empty",
+      "args": [
+        "-f"
+      ],
+      "files": {
+        "f": ""
+      },
+      "stdin": "--- /dev/null\n+++ f\n@@ -0,0 +1 @@\n+NEW\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "force-existing-nonempty",
+      "args": [
+        "-f"
+      ],
+      "files": {
+        "f": "old\n",
+        "f.orig": "valuable"
+      },
+      "stdin": "--- /dev/null\n+++ f\n@@ -0,0 +1 @@\n+NEW\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "forward-skips-whole",
+      "args": [
+        "-N"
+      ],
+      "files": {
+        "f": "A\nb\nc\nd\n",
+        "f.orig": "precious"
+      },
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-a\n+A\n@@ -4 +4 @@\n-d\n+D\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "git-empty-create",
+      "args": [
+        "-p1"
+      ],
+      "files": {},
+      "stdin": "diff --git a/f b/f\nnew file mode 100755\nindex 0000000..e69de29\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "git-empty-delete",
+      "args": [
+        "-p1"
+      ],
+      "files": {
+        "f": ""
+      },
+      "stdin": "diff --git a/f b/f\ndeleted file mode 100644\nindex e69de29..0000000\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "literal-cr-no-newline",
+      "args": [],
+      "files": {
+        "f": "old\n"
+      },
+      "stdin": "--- f\n+++ f\n@@ -1 +1 @@\n-old\n+new\r\n\\ No newline at end of file\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "git-empty-space",
+      "args": [
+        "-p1"
+      ],
+      "files": {},
+      "stdin": "diff --git a/x y b/x y\nnew file mode 100644\nindex 0000000..e69de29\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": "04 requires valid Git diff/new-file-mode extensions including unquoted space names; Ubuntu GNU patch rejects this valid empty-file creation. phase5_patch::git_empty_file_with_spaces_in_header verifies the required file."
+    },
+    {
+      "name": "git-empty-delete-nonempty",
+      "args": [
+        "-p1"
+      ],
+      "files": {
+        "f": "abc\n"
+      },
+      "stdin": "diff --git a/f b/f\ndeleted file mode 100644\nindex e69de29..0000000\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "git-empty-existing-forward",
+      "args": [
+        "-N",
+        "-p1"
+      ],
+      "files": {
+        "f": ""
+      },
+      "stdin": "diff --git a/f b/f\nnew file mode 100755\nindex 0000000..e69de29\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "git-empty-existing-force",
+      "args": [
+        "-f",
+        "-p1"
+      ],
+      "files": {
+        "f": ""
+      },
+      "stdin": "diff --git a/f b/f\nnew file mode 100755\nindex 0000000..e69de29\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "force-existing-empty-backup",
+      "args": [
+        "-f",
+        "-b"
+      ],
+      "files": {
+        "f": ""
+      },
+      "stdin": "--- /dev/null\n+++ f\n@@ -0,0 +1 @@\n+NEW\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "long_batch",
+      "args": [
+        "--batch",
+        "-p1"
+      ],
+      "stdin": "--- a/f\n+++ b/f\n@@ -1 +1 @@\n-old\n+new\n",
+      "files": {
+        "f": "old\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    }
+  ]
+}

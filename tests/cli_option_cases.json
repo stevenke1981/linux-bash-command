@@ -1,0 +1,382 @@
+[
+  {
+    "command": "grep",
+    "args": [
+      "--files-without-match",
+      "needle",
+      "hay"
+    ],
+    "files": {
+      "hay": "no\n"
+    },
+    "stdout": "hay\n",
+    "exit": 0
+  },
+  {
+    "command": "egrep",
+    "args": [
+      "--files-without-match",
+      "needle",
+      "hay"
+    ],
+    "files": {
+      "hay": "no\n"
+    },
+    "stdout": "hay\n",
+    "exit": 0
+  },
+  {
+    "command": "fgrep",
+    "args": [
+      "--files-without-match",
+      "needle",
+      "hay"
+    ],
+    "files": {
+      "hay": "no\n"
+    },
+    "stdout": "hay\n",
+    "exit": 0
+  },
+  {
+    "command": "mktemp",
+    "args": [
+      "--directory",
+      "--tmpdir=.",
+      "dir.XXXXXXXXXX"
+    ],
+    "files": {},
+    "stdout_regex": "^./dir\\.[A-Za-z0-9]{10}\\n$",
+    "exit": 0
+  },
+  {
+    "command": "mktemp",
+    "args": [
+      "--dry-run",
+      "--suffix=.txt",
+      "--tmpdir=.",
+      "file.XXXXXXXXXX"
+    ],
+    "files": {},
+    "stdout_regex": "^./file\\.[A-Za-z0-9]{10}\\.txt\\n$",
+    "exit": 0
+  },
+  {
+    "command": "mktemp",
+    "args": [
+      "--quiet",
+      "bad"
+    ],
+    "files": {},
+    "stdout": "",
+    "exit": 1
+  },
+  {
+    "command": "mktemp",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "Usage: mktemp",
+    "exit": 0
+  },
+  {
+    "command": "mktemp",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "mktemp",
+    "exit": 0
+  },
+  {
+    "command": "cksum",
+    "args": [
+      "--algorithm=crc32b",
+      "data"
+    ],
+    "files": {
+      "data": "123456789"
+    },
+    "stdout": "3421780262 9 data\n",
+    "exit": 0
+  },
+  {
+    "command": "ls",
+    "args": [
+      "--colour=never",
+      "-1",
+      "file"
+    ],
+    "files": {
+      "file": ""
+    },
+    "stdout": "file\n",
+    "exit": 0
+  },
+  {
+    "command": "hostname",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "Usage: hostname",
+    "exit": 0
+  },
+  {
+    "command": "hostname",
+    "args": [
+      "-z"
+    ],
+    "files": {},
+    "stdout": "",
+    "exit": 1,
+    "stderr_contains": "hostname:"
+  },
+  {
+    "command": "hostname",
+    "args": [
+      "--unknown"
+    ],
+    "files": {},
+    "stdout": "",
+    "exit": 1,
+    "stderr_contains": "hostname:"
+  },
+  {
+    "command": "ls",
+    "args": [
+      "--sort=name",
+      "file"
+    ],
+    "files": {
+      "file": ""
+    },
+    "stdout": "",
+    "stderr_contains": "ls:",
+    "exit": 2
+  },
+  {
+    "command": "free",
+    "args": [
+      "--committed"
+    ],
+    "files": {},
+    "stdout": "",
+    "exit": 1,
+    "stderr_contains": "not supported"
+  },
+  {
+    "command": "which",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "^Usage: which [\\s\\S]*",
+    "exit": 0
+  },
+  {
+    "command": "which",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "^which \\(agentcmd\\) [^\\r\\n]+\\n$",
+    "exit": 0
+  },
+  {
+    "command": "dos2unix",
+    "args": [
+      "--quiet",
+      "--keep-date",
+      "f"
+    ],
+    "files": {
+      "f": "a\r\nb\n"
+    },
+    "stdout": "",
+    "exit": 0
+  },
+  {
+    "command": "unix2dos",
+    "args": [
+      "--quiet",
+      "--keep-date",
+      "f"
+    ],
+    "files": {
+      "f": "a\r\nb\n"
+    },
+    "stdout": "",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "^Usage: file",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "^file \\(agentcmd\\)",
+    "exit": 0
+  },
+  {
+    "command": "xxd",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "^Usage: xxd",
+    "exit": 0
+  },
+  {
+    "command": "xxd",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "^xxd \\(agentcmd\\)",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--brief",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "empty\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--mime",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f: inode/x-empty; charset=binary\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--mime-type",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f: inode/x-empty\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--mime-encoding",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f: binary\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--dereference",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f: empty\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--no-dereference",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f: empty\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--print0",
+      "f"
+    ],
+    "files": {
+      "f": ""
+    },
+    "stdout": "f\u0000: empty\n",
+    "exit": 0
+  },
+  {
+    "command": "file",
+    "args": [
+      "--files-from",
+      "list"
+    ],
+    "files": {
+      "list": "f\n",
+      "f": ""
+    },
+    "stdout": "f: empty\n",
+    "exit": 0
+  },
+  {
+    "command": "awk",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "^Usage: awk",
+    "exit": 0
+  },
+  {
+    "command": "awk",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "^awk \\(agentcmd\\)",
+    "exit": 0
+  },
+  {
+    "command": "patch",
+    "args": [
+      "--help"
+    ],
+    "files": {},
+    "stdout_regex": "^Usage: patch",
+    "exit": 0
+  },
+  {
+    "command": "patch",
+    "args": [
+      "--version"
+    ],
+    "files": {},
+    "stdout_regex": "^patch \\(agentcmd\\)",
+    "exit": 0
+  }
+]

@@ -46,7 +46,10 @@ fn run(args: &[&str], envs: &[(&str, &str)], stdin: &[u8]) -> Output {
         .stderr(Stdio::piped())
         .spawn()
         .unwrap();
-    child.stdin.take().unwrap().write_all(stdin).unwrap();
+    if let Err(error) = child.stdin.take().unwrap().write_all(stdin) {
+        // Usage errors may exit before consuming any input.
+        assert_eq!(error.kind(), std::io::ErrorKind::BrokenPipe);
+    }
     child.wait_with_output().unwrap()
 }
 

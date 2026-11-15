@@ -63,6 +63,540 @@
       "args": [
         "missing"
       ]
+    },
+    {
+      "name": "p2_uid",
+      "args": [
+        ".",
+        "-uid",
+        "+0",
+        "-type",
+        "f"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_gid",
+      "args": [
+        ".",
+        "-gid",
+        "+0",
+        "-type",
+        "f"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_user",
+      "args": [
+        ".",
+        "-user",
+        "0"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_group",
+      "args": [
+        ".",
+        "-group",
+        "0"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_nouser",
+      "args": [
+        ".",
+        "-nouser"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_nogroup",
+      "args": [
+        ".",
+        "-nogroup"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_links",
+      "args": [
+        ".",
+        "-type",
+        "f",
+        "-links",
+        "1"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_samefile",
+      "args": [
+        ".",
+        "-samefile",
+        "one"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_lname",
+      "args": [
+        ".",
+        "-lname",
+        "one"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_ilname",
+      "args": [
+        ".",
+        "-ilname",
+        "ONE"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_xtype",
+      "args": [
+        "link",
+        "-xtype",
+        "f"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_newermt",
+      "args": [
+        "one",
+        "-newermt",
+        "@1600000000"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_newerma",
+      "args": [
+        "one",
+        "-newerma",
+        "two"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_regex_bre",
+      "args": [
+        ".",
+        "-regextype",
+        "posix-basic",
+        "-regex",
+        "./\\(one\\|two\\)"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_regex_ere",
+      "args": [
+        ".",
+        "-regextype",
+        "posix-extended",
+        "-regex",
+        "./(one|two)"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_regex_emacs",
+      "args": [
+        ".",
+        "-regextype",
+        "emacs",
+        "-regex",
+        "./one"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_true_false",
+      "args": [
+        ".",
+        "-true",
+        "!",
+        "-false"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_xdev",
+      "args": [
+        ".",
+        "-xdev",
+        "-mount",
+        "-noleaf",
+        "-ignore_readdir_race"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      },
+      "compare": [
+        "stdout_sorted",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_fprint",
+      "args": [
+        "one",
+        "-fprint",
+        "out"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      },
+      "compare": [
+        "files",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_fprint0",
+      "args": [
+        "one",
+        "-fprint0",
+        "out"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      },
+      "compare": [
+        "files",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_fprintf",
+      "args": [
+        "one",
+        "-fprintf",
+        "out",
+        "%f:%s\\n"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      },
+      "compare": [
+        "files",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_fls",
+      "args": [
+        "one",
+        "-fls",
+        "out"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_ok_no",
+      "args": [
+        "one",
+        "-ok",
+        "echo",
+        "{}",
+        ";"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_okdir_no",
+      "args": [
+        "one",
+        "-okdir",
+        "echo",
+        "{}",
+        ";"
+      ],
+      "files": {
+        "one": {
+          "text": "abc",
+          "mtime": 1700000000
+        },
+        "two": "12",
+        "link": {
+          "symlink": "one"
+        }
+      }
+    },
+    {
+      "name": "p2_long_help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "review_repeated_file_action",
+      "args": [
+        ".",
+        "-maxdepth",
+        "0",
+        "-fprint",
+        "out",
+        "-fprint",
+        "./out",
+        "-fprintf",
+        "out",
+        "%p!"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
     }
   ]
 }

@@ -1,0 +1,169 @@
+{
+  "command": "fmt",
+  "cases": [
+    {
+      "name": "basic",
+      "args": [],
+      "stdin": "This is a paragraph of ordinary English words.  It should be wrapped carefully, with enough context to choose good line breaks.\nThe next input line belongs to this same paragraph.\n"
+    },
+    {
+      "name": "width",
+      "args": [
+        "--width=30"
+      ],
+      "stdin": "This is a paragraph of ordinary English words.  It should be wrapped carefully, with enough context to choose good line breaks.\nThe next input line belongs to this same paragraph.\n"
+    },
+    {
+      "name": "narrow",
+      "args": [
+        "-20"
+      ],
+      "stdin": "one two three four five six seven eight nine ten\n"
+    },
+    {
+      "name": "goal",
+      "args": [
+        "--width=40",
+        "--goal=30"
+      ],
+      "stdin": "This is a paragraph of ordinary English words.  It should be wrapped carefully, with enough context to choose good line breaks.\nThe next input line belongs to this same paragraph.\n"
+    },
+    {
+      "name": "uniform",
+      "args": [
+        "--uniform-spacing",
+        "-w30"
+      ],
+      "stdin": "Hello.   This   is a sentence.\nMore here.\n"
+    },
+    {
+      "name": "split",
+      "args": [
+        "--split-only",
+        "-w15"
+      ],
+      "stdin": "one two three four five\none two\n"
+    },
+    {
+      "name": "prefix",
+      "args": [
+        "--prefix=> ",
+        "-w20"
+      ],
+      "stdin": "> one two three four five six\n> seven eight nine\npass\n"
+    },
+    {
+      "name": "crown",
+      "args": [
+        "--crown-margin",
+        "-w20"
+      ],
+      "stdin": "First line of the paragraph\n  second line goes here and more words\n"
+    },
+    {
+      "name": "tagged",
+      "args": [
+        "--tagged-paragraph",
+        "-w20"
+      ],
+      "stdin": "A short heading for a paragraph\n   body words continue here and more words follow\n"
+    },
+    {
+      "name": "indent",
+      "args": [
+        "-w30"
+      ],
+      "stdin": "    one two three four five six seven eight\n    nine ten eleven twelve\n"
+    },
+    {
+      "name": "blank",
+      "args": [
+        "-w20"
+      ],
+      "stdin": "one two\n\nthree four\n"
+    },
+    {
+      "name": "no_final_newline",
+      "args": [],
+      "stdin": "one two"
+    },
+    {
+      "name": "multiple",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "one two\n",
+        "b": "three four\n"
+      }
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bogus"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "invalid_width",
+      "args": [
+        "--width=0"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "invalid_goal",
+      "args": [
+        "-w20",
+        "-g21"
+      ],
+      "stdin": ""
+    },
+    {
+      "name": "raw_bytes",
+      "args": [
+        "-w20"
+      ],
+      "stdin": "a ? b ? c\n"
+    },
+    {
+      "name": "info_help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "fmt"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "info_version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "fmt"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

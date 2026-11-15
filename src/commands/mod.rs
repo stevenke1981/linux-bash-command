@@ -4,23 +4,78 @@ pub mod sleep;
 pub mod truefalse;
 pub mod yes;
 
+pub mod basenc;
+pub mod chmod;
+pub mod cksum;
 pub mod comm;
+pub mod csplit;
 pub mod cut;
+pub mod date;
+pub mod du;
 pub mod egrep;
 pub mod env;
 pub mod expand;
+pub mod expr;
+pub mod factor;
 pub mod fgrep;
+pub mod fmt;
 pub mod fold;
+pub mod fsops;
+pub mod hashsum;
+pub mod join;
+pub mod mktemp;
 pub mod nl;
+pub mod numfmt;
+pub mod od;
 pub mod paste;
+pub mod pathchk;
+pub mod pr;
 pub mod printenv;
 pub mod printf;
+pub mod ptx;
 pub mod seq;
+pub mod shuf;
 pub mod sort;
+pub mod split;
+pub mod stat;
+pub mod sysinfo_cmds;
 pub mod tac;
 pub mod tee;
 pub mod test;
 pub mod tr;
+pub mod truncate;
+pub mod tsort;
 pub mod uniq;
 pub mod wc;
 pub mod xargs;
+
+pub mod column;
+pub mod tree;
+
+pub mod sed;
+
+pub mod kill;
+pub mod pgrep;
+pub mod pkill;
+pub mod timeout;
+
+pub mod rev;
+pub mod whoami;
+
+pub mod free;
+pub mod uname;
+pub mod which;
+
+pub mod cmp;
+pub mod dos2unix;
+pub mod unix2dos;
+
+pub mod file;
+pub mod gunzip;
+pub mod gzip;
+pub mod tar;
+pub mod xxd;
+pub mod zcat;
+
+pub mod awk;
+pub mod patch;

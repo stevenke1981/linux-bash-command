@@ -1,0 +1,107 @@
+{
+  "command": "kill",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "list",
+      "args": [
+        "--list"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "table",
+      "args": [
+        "--table"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "list-number",
+      "args": [
+        "--list=15"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "list-name",
+      "args": [
+        "-l",
+        "TERM"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "list-kill",
+      "args": [
+        "-l",
+        "9"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "list-zero",
+      "args": [
+        "-l",
+        "0"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "bad-signal",
+      "args": [
+        "--signal=BAD",
+        "notapid"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "bad-pid",
+      "args": [
+        "--signal=0",
+        "notapid"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,397 @@
+{
+  "command": "cmp",
+  "cases": [
+    {
+      "name": "equal",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc",
+        "b": "abc"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "different",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc",
+        "b": "axc"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "bytes",
+      "args": [
+        "-b",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc",
+        "b": "axc"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "verbose",
+      "args": [
+        "-l",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc",
+        "b": "axc"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "quiet",
+      "args": [
+        "-s",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc",
+        "b": "axc"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "limit",
+      "args": [
+        "-n",
+        "1",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc",
+        "b": "axc"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "skip",
+      "args": [
+        "-i",
+        "1:1",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc",
+        "b": "axc"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "",
+        "b": "x"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_print-bytes",
+      "args": [
+        "--print-bytes",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_verbose",
+      "args": [
+        "--verbose",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_quiet",
+      "args": [
+        "--quiet",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_silent",
+      "args": [
+        "--silent",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_bytes",
+      "args": [
+        "--bytes=1",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "long_ignore-initial",
+      "args": [
+        "--ignore-initial=1:1",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdout_print_bytes",
+      "args": [
+        "-b",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a\n",
+        "b": "b\n"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit",
+        "stdout"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdout_verbose",
+      "args": [
+        "-l",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc",
+        "b": "xyz"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit",
+        "stdout"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdout_verbose_print",
+      "args": [
+        "-lb",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "a",
+        "b": "b"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit",
+        "stdout"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "stdin_implicit",
+      "args": [
+        "a"
+      ],
+      "stdin": "same\n",
+      "files": {
+        "a": "same\n"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "extra_operands",
+      "args": [
+        "a",
+        "a",
+        "0",
+        "0",
+        "0"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "x"
+      },
+      "gnu": [
+        "cmp"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

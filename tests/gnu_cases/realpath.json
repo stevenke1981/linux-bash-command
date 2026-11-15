@@ -1,0 +1,378 @@
+{
+  "command": "realpath",
+  "cases": [
+    {
+      "name": "relative_existing",
+      "args": [
+        "--relative-to=.",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "relative_directory",
+      "args": [
+        "--relative-to=.",
+        "dir"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "relative_parent",
+      "args": [
+        "--relative-to=dir",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "existing_missing",
+      "args": [
+        "-e",
+        "--relative-to=.",
+        "absent"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "missing_components",
+      "args": [
+        "-m",
+        "--relative-to=.",
+        "absent/child"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "parent_missing",
+      "args": [
+        "--relative-to=.",
+        "absent"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "missing_parent_error",
+      "args": [
+        "--relative-to=.",
+        "absent/child"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "logical_parent",
+      "args": [
+        "-L",
+        "--relative-to=.",
+        "link/.."
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "physical_parent",
+      "args": [
+        "-P",
+        "--relative-to=.",
+        "link/.."
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "strip_link",
+      "args": [
+        "-s",
+        "--relative-to=.",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "no_symlinks",
+      "args": [
+        "--no-symlinks",
+        "--relative-to=.",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "relative_base_inside",
+      "args": [
+        "--relative-base=.",
+        "dir/leaf"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "relative_to_and_base",
+      "args": [
+        "--relative-to=dir",
+        "--relative-base=.",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "zero",
+      "args": [
+        "-z",
+        "--relative-to=.",
+        "file",
+        "dir"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "quiet_error",
+      "args": [
+        "-q",
+        "-e",
+        "absent"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "multiple_after_error",
+      "args": [
+        "-e",
+        "--relative-to=.",
+        "absent",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "abbreviation",
+      "args": [
+        "--relative-t=.",
+        "--canonicalize-e",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bogus"
+      ],
+      "files": {}
+    },
+    {
+      "name": "no_operand",
+      "args": [],
+      "files": {}
+    },
+    {
+      "name": "p2_long_help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_canonicalize-existing",
+      "args": [
+        "--canonicalize-existing",
+        "--relative-to=.",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      }
+    },
+    {
+      "name": "p2_long_canonicalize-missing",
+      "args": [
+        "--canonicalize-missing",
+        "--relative-to=.",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      }
+    },
+    {
+      "name": "p2_long_logical",
+      "args": [
+        "--logical",
+        "--relative-to=.",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      }
+    },
+    {
+      "name": "p2_long_physical",
+      "args": [
+        "--physical",
+        "--relative-to=.",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      }
+    },
+    {
+      "name": "p2_long_quiet",
+      "args": [
+        "--quiet",
+        "--relative-to=.",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      }
+    },
+    {
+      "name": "p2_long_strip",
+      "args": [
+        "--strip",
+        "--relative-to=.",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      }
+    },
+    {
+      "name": "p2_long_zero",
+      "args": [
+        "--zero",
+        "--relative-to=.",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      }
+    },
+    {
+      "name": "review_file_trailing_slash",
+      "args": [
+        "-e",
+        "file/"
+      ],
+      "stdin": "",
+      "files": {
+        "file": "x"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

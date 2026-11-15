@@ -1,0 +1,11 @@
+# Phase 5 complete report
+
+- commits: `a758430` adds AWK, archives, patching and binary inspection; `027bfb3` aligns AWK, xxd and file with native behavior; `26ce71e` finalizes GNU interval forms and stable test input (final source `26ce71e42d9809b16aa7fab10aceaf460e3fcc64`).
+- New commands: awk tar gzip gunzip zcat patch xxd file; registry total 115.
+- Tests: Linux 2,240 passed; macOS 2,229 passed; Windows 2,198 passed. Each platform had zero failures and zero ignored tests. GNU differential: 3,185 passed, 0 failed, 41 documented skips. Additional gated metadata/hash/system tests passed (11 + 68 + 61).
+- clippy/fmt: `cargo fmt --check` and all-target Clippy with warnings denied passed. All six [CI jobs](https://github.com/stevenke1981/linux-bash-command/actions/runs/43709753271) passed on the exact source SHA, including Linux, Windows and macOS release builds and the coverage job.
+- Coverage: common 2,713/2,903 (93.46%); commands 27,368/30,212 (90.59%). All 172 measured common/command files exceed 80%; the minimum is `src/commands/split/stream.rs` at 80.10%. Full per-file results are in [coverage.md](../../spec/linux-commands/coverage.md), from the [exact-run coverage artifact](https://github.com/stevenke1981/linux-bash-command/actions/runs/43709753271/artifacts/14160126941).
+- Dependencies: allowlisted `flate2` 1.1.11 with the Rust backend and `tar` 0.4.46. No GNU source was copied.
+- Known differences recorded in `07-phases.md`: AWK syntax errors use specified exit 2 (GNU gawk uses 1); AWK recursion/regex compilation have documented resource limits and `rand()` sequences are implementation-defined; patch `-t` skips already-applied patches and accepts valid Git empty-file headers with unquoted space names that GNU patch rejects. `file` implements the documented signature subset and is excluded from GNU differential by the testing spec.
+- AWK performance evidence: a 1 GiB Windows development-binary run measured 136.234 s versus GNU gawk at 40.589 s (3.36× slower), with exact sum `536870910`, status 0, empty stderr, and 4,030,464-byte peak working set. This predates the compatibility refresh; the record-reading, field and numeric-sum path was unchanged. The final 0.2 benchmark is reported separately.
+- Phase 5 is accepted at this source SHA. Phase 6 packaging and installation remain separate.

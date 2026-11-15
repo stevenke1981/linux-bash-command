@@ -80,6 +80,7 @@ Network:
       --noproxy LIST       Hosts to bypass with -x; '*' disables proxies
       --url URL            Set the URL (same as the positional argument)
       --help               Show this help
+      --version              Show version
 
 Exit status: 0 on success; 2 for usage or other transport errors; 6 for host
 resolution failure; 7 for connection failure; 22 for -f or
@@ -132,10 +133,12 @@ const OPTIONS: &[(Option<char>, &str, bool)] = &[
     (None, "retry-max-time", true),
     (None, "url", true),
     (Some('h'), "help", false),
+    (None, "version", false),
 ];
 
 #[derive(Default)]
 struct Options {
+    info_status: Option<i32>,
     url: Option<String>,
     method: Option<String>,
     head: bool,
@@ -309,8 +312,12 @@ pub fn run(args: &[String]) -> i32 {
             return EXIT_USAGE;
         }
     };
+    if let Some(status) = options.info_status {
+        return status;
+    }
     match execute(&options, start) {
         Ok(()) => 0,
+        Err(failure) if failure.code == 0 => 0,
         Err(failure) => {
             if !options.silent || options.show_error {
                 eprintln!("curl: ({}) {}", failure.code, failure.message);
@@ -325,18 +332,26 @@ fn parse(args: &[String]) -> Result<Option<Options>, String> {
     let mut positional_only = false;
     let mut index = 0;
     while index < args.len() {
-        let arg = args[index].as_str();
+        let expanded;
+        let arg = if !positional_only && args[index].starts_with("--") && args[index] != "--" {
+            let names: Vec<_> = OPTIONS.iter().map(|(_, name, _)| *name).collect();
+            expanded = crate::common::args::expand_long(&args[index], &names)?;
+            expanded.as_str()
+        } else {
+            args[index].as_str()
+        };
         index += 1;
         if positional_only || arg == "-" || !arg.starts_with('-') {
             set_url(&mut options, arg.to_string())?;
+            positional_only |= std::env::var_os("POSIXLY_CORRECT").is_some();
         } else if arg == "--" {
             positional_only = true;
         } else if let Some(long) = arg.strip_prefix("--") {
             if !parse_long(&mut options, args, &mut index, arg, long)? {
-                return Ok(None);
+                return Ok(Some(options));
             }
         } else if !parse_short_cluster(&mut options, args, &mut index, arg)? {
-            return Ok(None);
+            return Ok(Some(options));
         }
     }
     if options.url.is_none() {
@@ -357,12 +372,13 @@ fn parse_long(
         Some((name, value)) => (name, Some(value.to_string())),
         None => (long, None),
     };
-    let (key, takes_value) = find_long(name).ok_or_else(|| format!("unknown option: {arg}"))?;
+    let (key, takes_value) =
+        find_long(name).ok_or_else(|| format!("unrecognized option '{arg}'"))?;
     let value = match (takes_value, inline) {
         (true, Some(value)) => Some(value),
         (true, None) => Some(next_value(args, index, arg)?),
         (false, None) => None,
-        (false, Some(_)) => return Err(format!("option --{name} takes no value")),
+        (false, Some(_)) => return Err(format!("option '--{name}' doesn't allow an argument")),
     };
     apply(options, key, value)
 }
@@ -378,7 +394,7 @@ fn parse_short_cluster(
     let cluster = &arg[1..];
     for (offset, short) in cluster.char_indices() {
         let (key, takes_value) =
-            find_short(short).ok_or_else(|| format!("unknown option: -{short}"))?;
+            find_short(short).ok_or_else(|| format!("invalid option -- '{short}'"))?;
         if !takes_value {
             if !apply(options, key, None)? {
                 return Ok(false);
@@ -413,7 +429,16 @@ fn find_long(name: &str) -> Option<(&'static str, bool)> {
 fn next_value(args: &[String], index: &mut usize, option: &str) -> Result<String, String> {
     let value = args
         .get(*index)
-        .ok_or_else(|| format!("option {option} requires a value"))?
+        .ok_or_else(|| {
+            if option.starts_with("--") {
+                format!("option '{option}' requires an argument")
+            } else {
+                format!(
+                    "option requires an argument -- '{}'",
+                    option.chars().last().unwrap()
+                )
+            }
+        })?
         .clone();
     *index += 1;
     Ok(value)
@@ -432,7 +457,13 @@ fn apply(options: &mut Options, key: &str, value: Option<String>) -> Result<bool
     let value = value.unwrap_or_default();
     match key {
         "help" => {
-            print!("{HELP}");
+            options.info_status =
+                crate::common::args::help_version("curl", &["--help".into()], HELP, true);
+            return Ok(false);
+        }
+        "version" => {
+            options.info_status =
+                crate::common::args::help_version("curl", &["--version".into()], HELP, true);
             return Ok(false);
         }
         "head" => options.head = true,
@@ -1032,13 +1063,13 @@ fn deliver(
     let mut sink = open_sink(plan.output.as_deref(), options.create_dirs)?;
     if print_head {
         write_head(sink.as_mut(), &response)
-            .map_err(|_| fail(EXIT_WRITE, "cannot write response headers"))?;
+            .map_err(|error| write_failure(error, "cannot write response headers"))?;
     }
     if body_wanted {
         metrics.size_download = io::copy(&mut response, &mut sink).map_err(copy_failure)?;
     }
     sink.flush()
-        .map_err(|_| fail(EXIT_WRITE, "cannot write response body"))?;
+        .map_err(|error| write_failure(error, "cannot write response body"))?;
     Ok(metrics)
 }
 
@@ -1046,16 +1077,40 @@ fn dump_headers(target: &str, create_dirs: bool, response: &Response) -> Result<
     let path = (target != "-").then(|| PathBuf::from(target));
     let mut sink = open_sink(path.as_deref(), create_dirs)?;
     write_head(sink.as_mut(), response)
-        .map_err(|_| fail(EXIT_WRITE, "cannot write response headers"))?;
+        .map_err(|error| write_failure(error, "cannot write response headers"))?;
     sink.flush()
-        .map_err(|_| fail(EXIT_WRITE, "cannot write response headers"))
+        .map_err(|error| write_failure(error, "cannot write response headers"))
 }
 
 fn copy_failure(error: io::Error) -> Failure {
     if error.kind() == io::ErrorKind::TimedOut {
         return fail(EXIT_TIMEOUT, "operation timed out");
     }
-    fail(EXIT_WRITE, "failed writing response body")
+    // Blocking response reads wrap reqwest timeouts in an `io::Error` with
+    // kind Other; preserve curl's timeout status after headers have arrived.
+    let mut cause = error
+        .get_ref()
+        .map(|source| source as &(dyn std::error::Error + 'static));
+    while let Some(source) = cause {
+        if source
+            .downcast_ref::<reqwest::Error>()
+            .is_some_and(reqwest::Error::is_timeout)
+        {
+            return fail(EXIT_TIMEOUT, "operation timed out");
+        }
+        cause = source.source();
+    }
+    write_failure(error, "failed writing response body")
+}
+
+fn write_failure(error: io::Error, message: &str) -> Failure {
+    if error.kind() == io::ErrorKind::BrokenPipe {
+        return fail(0, "");
+    }
+    fail(
+        EXIT_WRITE,
+        format!("{message}: {}", crate::common::error::io_text(&error)),
+    )
 }
 
 fn open_sink(path: Option<&Path>, create_dirs: bool) -> Result<Box<dyn Write>, Failure> {
@@ -1074,7 +1129,7 @@ fn open_sink(path: Option<&Path>, create_dirs: bool) -> Result<Box<dyn Write>, F
     let file = File::create(path).map_err(|_| {
         fail(
             EXIT_WRITE,
-            format!("cannot create output file: {}", path.display()),
+            format!("cannot create output file: {}", crate::display_path(path)),
         )
     })?;
     Ok(Box::new(file))
@@ -1102,7 +1157,7 @@ fn write_out(pieces: &[Piece], metrics: &Metrics, elapsed: Duration) -> Result<(
     stdout
         .write_all(text.as_bytes())
         .and_then(|()| stdout.flush())
-        .map_err(|_| fail(EXIT_WRITE, "cannot write --write-out output"))
+        .map_err(|error| write_failure(error, "cannot write --write-out output"))
 }
 
 fn render(pieces: &[Piece], metrics: &Metrics, elapsed: Duration) -> String {
@@ -1209,6 +1264,33 @@ fn read_source(path: &str) -> io::Result<Vec<u8>> {
 #[cfg(test)]
 mod tests {
     use super::{parse, percent_encode, split_header, validate_url};
+
+    #[test]
+    fn resolution_failure_maps_to_six_without_external_dns() {
+        struct MissingHost;
+        impl reqwest::dns::Resolve for MissingHost {
+            fn resolve(&self, _name: reqwest::dns::Name) -> reqwest::dns::Resolving {
+                Box::pin(async {
+                    Err(
+                        std::io::Error::new(std::io::ErrorKind::NotFound, "host unavailable")
+                            .into(),
+                    )
+                })
+            }
+        }
+        let client = reqwest::blocking::Client::builder()
+            .no_proxy()
+            .dns_resolver(std::sync::Arc::new(MissingHost))
+            .build()
+            .unwrap();
+        let error = client.get("http://missing.localhost/").send().unwrap_err();
+        let failure = super::transport_failure(
+            &error,
+            &super::Options::default(),
+            &super::RedirectState::new(0),
+        );
+        assert_eq!(failure.code, 6);
+    }
 
     #[test]
     fn parses_get_and_post_options() {

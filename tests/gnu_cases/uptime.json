@@ -1,0 +1,20 @@
+{
+  "command": "uptime",
+  "cases": [
+    {"name":"default","args":[],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"pretty_short","args":["-p"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"pretty_long","args":["--pretty"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"since_short","args":["-s"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"since_long","args":["--since"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"pretty_prefix","args":["--pre"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"since_prefix","args":["--sin"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"pretty_then_since","args":["-p","-s"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"since_then_pretty","args":["-s","-p"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"long_modes_combined","args":["--pretty","--since"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"unknown_option","args":["--bogus"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"operand","args":["unexpected"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"help","args":["--help"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"version","args":["--version"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null},
+    {"name":"pretty_flag_rejects_value","args":["--pretty=yes"],"stdin":"","files":{},"gnu":["uptime"],"env":{},"compare":["exit"],"skip_reason":null}
+  ]
+}

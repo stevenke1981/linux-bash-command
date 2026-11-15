@@ -1,0 +1,184 @@
+{
+    "command":  "rev",
+    "cases":  [
+                  {
+                      "name":  "ascii",
+                      "args":  [
+
+                               ],
+                      "stdin":  "abc\ndef\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "rev"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "empty",
+                      "args":  [
+
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "rev"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "partial",
+                      "args":  [
+
+                               ],
+                      "stdin":  "abc",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "rev"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "unicode",
+                      "args":  [
+
+                               ],
+                      "stdin":  "λ😊\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "rev"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  "04 requires UTF-8 character reversal; util-linux rev in the C locale can stall on UTF-8 input"
+                  },
+                  {
+                      "name":  "crlf",
+                      "args":  [
+
+                               ],
+                      "stdin":  "ab\r\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "rev"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "multiple-lines",
+                      "args":  [
+
+                               ],
+                      "stdin":  "a\nb\nc\n",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "rev"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "file",
+                      "args":  [
+                                   "f"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+                                    "f":  "hello\n"
+                                },
+                      "gnu":  [
+                                  "rev"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "multiple-files",
+                      "args":  [
+                                   "a",
+                                   "b"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+                                    "a":  "one\n",
+                                    "b":  "two\n"
+                                },
+                      "gnu":  [
+                                  "rev"
+                              ],
+                      "compare":  [
+                                      "stdout",
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "help",
+                      "args":  [
+                                   "--help"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "rev"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  },
+                  {
+                      "name":  "version",
+                      "args":  [
+                                   "--version"
+                               ],
+                      "stdin":  "",
+                      "files":  {
+
+                                },
+                      "gnu":  [
+                                  "rev"
+                              ],
+                      "compare":  [
+                                      "exit"
+                                  ],
+                      "skip_reason":  null
+                  }
+              ]
+}

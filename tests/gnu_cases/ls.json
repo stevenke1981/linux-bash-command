@@ -53,6 +53,967 @@
       "args": [
         "missing"
       ]
+    },
+    {
+      "name": "p2_extension",
+      "args": [
+        "-1X",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_sort_word",
+      "args": [
+        "-1",
+        "--sort=extension",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_ignore",
+      "args": [
+        "-1I",
+        "*.txt",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_ignore_backup",
+      "args": [
+        "-1B",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_hide",
+      "args": [
+        "-1",
+        "--hide=*.rs",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_hide_all",
+      "args": [
+        "-1A",
+        "--hide=*.rs",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_quote",
+      "args": [
+        "-1Q",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_literal",
+      "args": [
+        "-1N",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_shell",
+      "args": [
+        "-1",
+        "--quoting-style=shell",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_escape",
+      "args": [
+        "-1",
+        "--quoting-style=escape",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_c",
+      "args": [
+        "-1",
+        "--quoting-style=c",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_comma",
+      "args": [
+        "-m",
+        "-w",
+        "80",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_columns",
+      "args": [
+        "-C",
+        "-w",
+        "20",
+        "-T",
+        "0",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_file_type",
+      "args": [
+        "-1",
+        "--file-type",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_indicator",
+      "args": [
+        "-1",
+        "--indicator-style=slash",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      }
+    },
+    {
+      "name": "p2_deref",
+      "args": [
+        "-1Ld",
+        "link"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": "",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "p2_deref_args",
+      "args": [
+        "-1Hd",
+        "link"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": "",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "p2_inode",
+      "args": [
+        "-i",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_size",
+      "args": [
+        "-s",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_kibibytes",
+      "args": [
+        "-sk",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_block_size",
+      "args": [
+        "-l",
+        "--block-size=1024",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_si",
+      "args": [
+        "-lh",
+        "--si",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_atime",
+      "args": [
+        "-u",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_ctime",
+      "args": [
+        "-c",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_time_word",
+      "args": [
+        "-l",
+        "--time=access",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_fulltime",
+      "args": [
+        "--full-time",
+        "dir"
+      ],
+      "files": {
+        "dir/a.txt": "",
+        "dir/b.rs": "",
+        "dir/z": "",
+        "dir/backup~": "",
+        "dir/.hidden": ""
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_all",
+      "args": [
+        "--all",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_almost-all",
+      "args": [
+        "--almost-all",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_classify",
+      "args": [
+        "--classify",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_directory",
+      "args": [
+        "--directory",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_recursive",
+      "args": [
+        "--recursive",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_reverse",
+      "args": [
+        "--reverse",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_human-readable",
+      "args": [
+        "--human-readable",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_group-directories-first",
+      "args": [
+        "--group-directories-first",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_full-time",
+      "args": [
+        "--full-time",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_time-style",
+      "args": [
+        "--time-style=long-iso",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_color",
+      "args": [
+        "--color=never",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_colour",
+      "args": [
+        "--colour=never",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": "Preserve the inherited --colour alias as required by AGENTS; GNU9.4 only accepts --color. CLI golden verifies the existing alias."
+    },
+    {
+      "name": "p2_long_show-control-chars",
+      "args": [
+        "--show-control-chars",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_inode",
+      "args": [
+        "--inode",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_size",
+      "args": [
+        "--size",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_ignore",
+      "args": [
+        "--ignore=*.tmp",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_ignore-backups",
+      "args": [
+        "--ignore-backups",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_hide",
+      "args": [
+        "--hide=hidden",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_quote-name",
+      "args": [
+        "--quote-name",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_literal",
+      "args": [
+        "--literal",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_quoting-style",
+      "args": [
+        "--quoting-style=literal",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_dereference",
+      "args": [
+        "--dereference",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_dereference-command-line",
+      "args": [
+        "--dereference-command-line",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_width",
+      "args": [
+        "--width=80",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_tabsize",
+      "args": [
+        "--tabsize=0",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_block-size",
+      "args": [
+        "--block-size=1024",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_si",
+      "args": [
+        "--si",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_indicator-style",
+      "args": [
+        "--indicator-style=none",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_file-type",
+      "args": [
+        "--file-type",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_sort",
+      "args": [
+        "--sort=extension",
+        "-1",
+        "file"
+      ],
+      "files": {
+        "file": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "review_dotfile_extensions",
+      "args": [
+        "-A1X"
+      ],
+      "stdin": "",
+      "files": {
+        "plain": "",
+        "x.a": "",
+        ".bashrc": "",
+        ".z": ""
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "review_old_iso",
+      "args": [
+        "-l",
+        "--time-style=iso",
+        "old"
+      ],
+      "stdin": "",
+      "files": {
+        "old": {
+          "text": "",
+          "mtime": 946684800
+        }
+      },
+      "compare": [
+        "stdout_columns",
+        "exit"
+      ],
+      "skip_reason": null,
+      "skip_stdout_columns": 4
+    },
+    {
+      "name": "review_old_locale",
+      "args": [
+        "-l",
+        "--time-style=locale",
+        "old"
+      ],
+      "stdin": "",
+      "files": {
+        "old": {
+          "text": "",
+          "mtime": 946684800
+        }
+      },
+      "compare": [
+        "stdout_columns",
+        "exit"
+      ],
+      "skip_reason": null,
+      "skip_stdout_columns": 4
+    },
+    {
+      "name": "review_full_time_order",
+      "args": [
+        "--time-style=+%Y",
+        "--full-time",
+        "old"
+      ],
+      "stdin": "",
+      "files": {
+        "old": {
+          "text": "",
+          "mtime": 946684800
+        }
+      },
+      "compare": [
+        "stdout_columns",
+        "exit"
+      ],
+      "skip_reason": null,
+      "skip_stdout_columns": 4
     }
   ]
 }

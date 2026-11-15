@@ -1,0 +1,161 @@
+{
+  "command": "pkill",
+  "cases": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "missing",
+      "args": [],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-regex",
+      "args": [
+        "--signal=0",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-full",
+      "args": [
+        "--signal=0",
+        "--full",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-exact",
+      "args": [
+        "--signal=0",
+        "--exact",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-icase",
+      "args": [
+        "--signal=0",
+        "--ignore-case",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-count",
+      "args": [
+        "--signal=0",
+        "--count",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-newest",
+      "args": [
+        "--signal=0",
+        "--newest",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-oldest",
+      "args": [
+        "--signal=0",
+        "--oldest",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-inverse",
+      "args": [
+        "--signal=0",
+        "--inverse",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-parent",
+      "args": [
+        "--signal=0",
+        "--parent=not-a-pid",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-regex-euid",
+      "args": [
+        "--signal=0",
+        "--euid=0",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-regex-uid",
+      "args": [
+        "--signal=0",
+        "--uid=0",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "invalid-regex-echo",
+      "args": [
+        "--signal=0",
+        "--echo",
+        "["
+      ],
+      "compare": [
+        "exit"
+      ]
+    }
+  ]
+}

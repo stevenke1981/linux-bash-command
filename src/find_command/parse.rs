@@ -3,11 +3,15 @@
 //! `!` binds tightest, then `-a` (also implied between adjacent terms), then `-o`,
 //! then `,` (lowest).
 
-use super::expr::{time_ns, Access, Action, Clock, Cmp, Expr, PermCheck, Test, DAY_NS, MINUTE_NS};
+use super::expr::{
+    time_ns, Access, Action, Clock, Cmp, Expr, NumberField, PermCheck, Test, DAY_NS, MINUTE_NS,
+};
 use super::glob::Glob;
+use super::output::{Destination, OutputFile};
 use super::printf;
 use super::walk::message;
 use regex::RegexBuilder;
+use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 
@@ -28,6 +32,8 @@ pub struct Options {
     /// `-depth`: visit directory contents before the directory itself.
     pub depth_first: bool,
     pub follow: Follow,
+    pub one_fs: bool,
+    pub ignore_race: bool,
 }
 
 impl Default for Options {
@@ -37,6 +43,8 @@ impl Default for Options {
             max_depth: usize::MAX,
             depth_first: false,
             follow: Follow::Never,
+            one_fs: false,
+            ignore_race: false,
         }
     }
 }
@@ -52,6 +60,7 @@ pub struct Plan {
     pub options: Options,
     pub expr: Expr,
     pub batches: Vec<BatchSpec>,
+    pub files: Vec<OutputFile>,
 }
 
 pub fn parse(args: &[String]) -> Result<Plan, String> {
@@ -70,6 +79,9 @@ pub fn parse(args: &[String]) -> Result<Plan, String> {
         options,
         batches: Vec::new(),
         has_action: false,
+        regex_basic: false,
+        files: Vec::new(),
+        destinations: HashMap::new(),
     };
     let expr = parser.parse_all()?;
     Ok(Plan {
@@ -77,6 +89,7 @@ pub fn parse(args: &[String]) -> Result<Plan, String> {
         options: parser.options,
         expr,
         batches: parser.batches,
+        files: parser.files,
     })
 }
 
@@ -114,6 +127,9 @@ struct Parser<'a> {
     options: Options,
     batches: Vec<BatchSpec>,
     has_action: bool,
+    regex_basic: bool,
+    files: Vec<OutputFile>,
+    destinations: HashMap<Destination, usize>,
 }
 
 impl<'a> Parser<'a> {
@@ -247,8 +263,17 @@ impl<'a> Parser<'a> {
             "-L" | "-follow" => self.global(|options| options.follow = Follow::Always),
             "-H" => self.global(|options| options.follow = Follow::RootsOnly),
             "-P" => self.global(|options| options.follow = Follow::Never),
-            // Accepted for compatibility. Mount boundaries are not enforced.
-            "-xdev" | "-mount" | "-noleaf" => Ok(Expr::Const(true)),
+            "-xdev" | "-mount" => self.global(|options| options.one_fs = true),
+            "-noleaf" => Ok(Expr::Const(true)),
+            "-ignore_readdir_race" => self.global(|options| options.ignore_race = true),
+            "-regextype" => {
+                self.regex_basic = match self.value(name)? {
+                    "posix-basic" => true,
+                    "posix-extended" | "emacs" => false,
+                    value => return Err(format!("Unknown regular expression type '{value}'")),
+                };
+                Ok(Expr::Const(true))
+            }
             "-true" => Ok(Expr::Const(true)),
             "-false" => Ok(Expr::Const(false)),
             "-prune" => Ok(Expr::Action(Action::Prune)),
@@ -265,11 +290,37 @@ impl<'a> Parser<'a> {
                 let pieces = printf::parse_format(format)?;
                 self.action(Action::Printf(pieces))
             }
-            "-exec" => self.exec(false),
-            "-execdir" => self.exec(true),
-            "-ok" | "-okdir" => Err(format!(
-                "{name} is not supported (it prompts interactively); use -exec or -execdir"
-            )),
+            "-exec" | "-ok" => self.exec(false, name == "-ok"),
+            "-execdir" | "-okdir" => self.exec(true, name == "-okdir"),
+            "-fprint" | "-fprint0" | "-fls" | "-fprintf" => {
+                let path = self.value(name)?;
+                let destination = Destination::resolve(path)
+                    .map_err(|error| format!("'{path}': {}", message(&error)))?;
+                let index = if let Some(index) = self.destinations.get(&destination) {
+                    *index
+                } else {
+                    let file = destination
+                        .create()
+                        .map_err(|error| format!("'{path}': {}", message(&error)))?;
+                    let index = self.files.len();
+                    self.files.push(file);
+                    self.destinations.insert(destination, index);
+                    index
+                };
+                let action = match name {
+                    "-fprint" => Action::Print,
+                    "-fprint0" => Action::Print0,
+                    "-fls" => Action::Ls,
+                    _ => {
+                        let format = self.value(name)?;
+                        Action::Printf(printf::parse_format(format)?)
+                    }
+                };
+                self.action(Action::File {
+                    index,
+                    action: Box::new(action),
+                })
+            }
             _ => self.test(name).map(Expr::Test),
         }
     }
@@ -290,8 +341,10 @@ impl<'a> Parser<'a> {
             "-iname" => Ok(Test::Name(Glob::new(self.value(name)?, true))),
             "-path" | "-wholename" => Ok(Test::Path(Glob::new(self.value(name)?, false))),
             "-ipath" | "-iwholename" => Ok(Test::Path(Glob::new(self.value(name)?, true))),
-            "-regex" => regex_test(self.value(name)?, false),
-            "-iregex" => regex_test(self.value(name)?, true),
+            "-regex" | "-iregex" => {
+                let basic = self.regex_basic;
+                regex_test(self.value(name)?, name == "-iregex", basic)
+            }
             "-type" => Ok(Test::Type(parse_types(self.value(name)?)?)),
             "-empty" => Ok(Test::Empty),
             "-size" => parse_size(self.value(name)?),
@@ -308,14 +361,110 @@ impl<'a> Parser<'a> {
             "-readable" => Ok(Test::Access(Access::Read)),
             "-writable" => Ok(Test::Access(Access::Write)),
             "-executable" => Ok(Test::Access(Access::Execute)),
+            "-user" | "-group" => {
+                let value = self.value(name)?;
+                let group = name == "-group";
+                let id = value
+                    .parse::<u32>()
+                    .ok()
+                    .or_else(|| {
+                        if group {
+                            crate::common::meta::group_id(value)
+                        } else {
+                            crate::common::meta::user_id(value)
+                        }
+                    })
+                    .ok_or_else(|| {
+                        format!(
+                            "'{value}' is not a known {}",
+                            if group { "group" } else { "user" }
+                        )
+                    })?;
+                Ok(Test::Owner { group, id })
+            }
+            "-nouser" | "-nogroup" => Ok(Test::UnknownOwner {
+                group: name == "-nogroup",
+            }),
+            "-uid" | "-gid" | "-links" | "-inum" => {
+                let text = self.value(name)?;
+                let (cmp, digits) = split_sign(text);
+                let value = digits
+                    .parse::<u64>()
+                    .map_err(|_| format!("invalid argument '{text}' to {name}"))?;
+                Ok(Test::Number {
+                    field: match name {
+                        "-uid" => NumberField::Uid,
+                        "-gid" => NumberField::Gid,
+                        "-links" => NumberField::Links,
+                        _ => NumberField::Inode,
+                    },
+                    cmp,
+                    value,
+                })
+            }
+            "-samefile" => {
+                let follow = self.options.follow != Follow::Never;
+                let file = self.value(name)?;
+                let meta = if follow {
+                    fs::metadata(file)
+                } else {
+                    fs::symlink_metadata(file)
+                }
+                .map_err(|error| format!("'{file}': {}", message(&error)))?;
+                Ok(Test::SameFile(
+                    crate::common::meta::file_key(std::path::Path::new(file), &meta).ok(),
+                ))
+            }
+            "-lname" | "-ilname" => Ok(Test::LinkName(Glob::new(
+                self.value(name)?,
+                name == "-ilname",
+            ))),
+            "-xtype" => Ok(Test::XType(parse_types(self.value(name)?)?)),
+            name if name.starts_with("-newer") && name.len() == 8 => self.newer_xy(name),
             _ => Err(format!("unknown predicate '{name}'")),
         }
+    }
+
+    fn newer_xy(&mut self, name: &str) -> Result<Test, String> {
+        let clock = |letter| match letter {
+            b'a' => Ok(Clock::Accessed),
+            b'c' => Ok(Clock::Changed),
+            b'm' => Ok(Clock::Modified),
+            b'B' => Ok(Clock::Birth),
+            _ => Err(format!("invalid predicate '{name}'")),
+        };
+        let selected = clock(name.as_bytes()[6])?;
+        let value = self.value(name)?;
+        let reference_ns = if name.as_bytes()[7] == b't' {
+            let time = crate::common::datetime::parse(value)
+                .map_err(|error| format!("cannot interpret '{value}' as a date: {error}"))?;
+            time.timestamp().as_nanosecond()
+        } else {
+            let reference = clock(name.as_bytes()[7])?;
+            let metadata = if self.options.follow == Follow::Never {
+                fs::symlink_metadata(value)
+            } else {
+                fs::metadata(value)
+            }
+            .map_err(|error| format!("'{value}': {}", message(&error)))?;
+            super::expr::time_ns_at(std::path::Path::new(value), &metadata, reference)
+                .ok_or_else(|| format!("cannot obtain reference time of '{value}'"))?
+        };
+        Ok(Test::Newer {
+            clock: selected,
+            reference_ns,
+        })
     }
 
     fn newer(&mut self, name: &str, clock: Clock) -> Result<Test, String> {
         check_clock(name, clock)?;
         let file = self.value(name)?;
-        let meta = fs::metadata(file).map_err(|error| format!("'{file}': {}", message(&error)))?;
+        let meta = if self.options.follow == Follow::Never {
+            fs::symlink_metadata(file)
+        } else {
+            fs::metadata(file)
+        }
+        .map_err(|error| format!("'{file}': {}", message(&error)))?;
         let reference_ns = time_ns(&meta, clock)
             .ok_or_else(|| format!("{name}: cannot read the time of '{file}'"))?;
         Ok(Test::Newer {
@@ -341,8 +490,13 @@ impl<'a> Parser<'a> {
 
     /// Parses `-exec`/`-execdir`. Arguments run up to a `;` or, when the previous
     /// argument is `{}`, up to a `+` (batched mode).
-    fn exec(&mut self, in_dir: bool) -> Result<Expr, String> {
-        let name = if in_dir { "-execdir" } else { "-exec" };
+    fn exec(&mut self, in_dir: bool, prompt: bool) -> Result<Expr, String> {
+        let name = match (in_dir, prompt) {
+            (true, true) => "-okdir",
+            (true, false) => "-execdir",
+            (false, true) => "-ok",
+            _ => "-exec",
+        };
         let args: &'a [String] = self.args;
         let start = self.pos;
         let mut end = start;
@@ -364,13 +518,20 @@ impl<'a> Parser<'a> {
         self.pos = end + 1;
         self.has_action = true;
         if batched {
+            if prompt {
+                return Err(format!("'{name}' does not support '{{}} +'"));
+            }
             argv.pop();
             return self.batch(name, argv, in_dir);
         }
         if argv.is_empty() {
             return Err(format!("{name} needs a command before ';'"));
         }
-        Ok(Expr::Action(Action::Exec { argv, in_dir }))
+        Ok(Expr::Action(Action::Exec {
+            argv,
+            in_dir,
+            prompt,
+        }))
     }
 
     fn batch(&mut self, name: &str, argv: Vec<String>, in_dir: bool) -> Result<Expr, String> {
@@ -395,8 +556,13 @@ fn check_clock(name: &str, clock: Clock) -> Result<(), String> {
     Ok(())
 }
 
-fn regex_test(pattern: &str, ignore_case: bool) -> Result<Test, String> {
-    RegexBuilder::new(&format!("^(?:{pattern})$"))
+fn regex_test(pattern: &str, ignore_case: bool, basic: bool) -> Result<Test, String> {
+    let translated = if basic {
+        crate::common::regex::bre_to_regex(pattern)?
+    } else {
+        pattern.into()
+    };
+    RegexBuilder::new(&format!("^(?:{translated})$"))
         .case_insensitive(ignore_case)
         .build()
         .map(Test::Regex)

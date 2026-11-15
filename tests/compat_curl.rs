@@ -471,5 +471,5 @@ fn unknown_option_exits_2() {
     let f = Fixture::new();
     let out = f.run(&["--no-such-option", "http://127.0.0.1:9/"], b"");
     assert_eq!(out.status.code(), Some(2));
-    assert!(text(&out.stderr).contains("unknown option"));
+    assert!(text(&out.stderr).contains("unrecognized option"));
 }

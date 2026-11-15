@@ -40,35 +40,29 @@ fn special_type_char(_metadata: &fs::Metadata) -> Option<char> {
     None
 }
 
-#[cfg(unix)]
-fn permission_triads(_path: &Path, metadata: &fs::Metadata) -> String {
-    use std::os::unix::fs::PermissionsExt;
-    let mode = metadata.permissions().mode();
-    let mut text = String::with_capacity(9);
-    for shift in [6, 3, 0] {
-        let bits = (mode >> shift) & 0o7;
-        text.push(if bits & 0o4 != 0 { 'r' } else { '-' });
-        text.push(if bits & 0o2 != 0 { 'w' } else { '-' });
-        text.push(if bits & 0o1 != 0 { 'x' } else { '-' });
-    }
-    text
+fn permission_triads(path: &Path, metadata: &fs::Metadata) -> String {
+    let mode = permission_bits_at(path, metadata);
+    permission_triads_from_mode(mode)
 }
 
-/// Windows has no mode bits: `r` always, `w` unless read-only, `x` for directories and executable extensions.
-#[cfg(not(unix))]
-fn permission_triads(path: &Path, metadata: &fs::Metadata) -> String {
-    let writable = if metadata.permissions().readonly() {
-        '-'
-    } else {
-        'w'
-    };
-    let executable = if metadata.is_dir() || is_executable(path, metadata) {
-        'x'
-    } else {
-        '-'
-    };
-    let triad = format!("r{writable}{executable}");
-    triad.repeat(3)
+fn permission_triads_from_mode(mode: u32) -> String {
+    let mut text = String::with_capacity(9);
+    for (shift, special, upper, lower) in [
+        (6, 0o4000, 'S', 's'),
+        (3, 0o2000, 'S', 's'),
+        (0, 0o1000, 'T', 't'),
+    ] {
+        let bits = (mode >> shift) & 0o7;
+        text.push(if bits & 4 != 0 { 'r' } else { '-' });
+        text.push(if bits & 2 != 0 { 'w' } else { '-' });
+        text.push(match (mode & special != 0, bits & 1 != 0) {
+            (true, true) => lower,
+            (true, false) => upper,
+            (false, true) => 'x',
+            (false, false) => '-',
+        });
+    }
+    text
 }
 
 #[cfg(unix)]
@@ -125,45 +119,66 @@ fn other_kind_char(_meta: &Metadata) -> char {
     'U'
 }
 
-/// Permission bits. On Unix these are the real mode bits. Windows has no mode bits, so
-/// they are approximated: 0444 for read-only entries, 0755 for directories, else 0644.
+/// Path-aware Unix mode bits or the documented Windows approximation.
+pub fn permission_bits_at(path: &Path, meta: &Metadata) -> u32 {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let _ = path;
+        meta.permissions().mode() & 0o7777
+    }
+    #[cfg(not(unix))]
+    {
+        let mut mode = if meta.is_dir() || is_executable(path, meta) {
+            0o755
+        } else {
+            0o644
+        };
+        if meta.permissions().readonly() {
+            mode &= !0o222;
+        }
+        mode
+    }
+}
+
+/// Compatibility for callers without a name; executable extensions require `_at`.
 pub fn permission_bits(meta: &Metadata) -> u32 {
-    permission_bits_impl(meta)
+    permission_bits_at(Path::new(""), meta)
 }
 
-#[cfg(unix)]
-fn permission_bits_impl(meta: &Metadata) -> u32 {
-    use std::os::unix::fs::PermissionsExt;
-    meta.permissions().mode() & 0o7777
+pub fn find_mode_string(path: &Path, meta: &Metadata) -> String {
+    mode_string(path, meta)
 }
 
-#[cfg(not(unix))]
-fn permission_bits_impl(meta: &Metadata) -> u32 {
-    if meta.permissions().readonly() {
-        0o444
-    } else if meta.is_dir() {
-        0o755
-    } else {
-        0o644
+pub fn allocated_bytes(meta: &Metadata) -> u64 {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        meta.blocks().saturating_mul(512)
+    }
+    #[cfg(not(unix))]
+    {
+        meta.len().div_ceil(4096).saturating_mul(4096)
     }
 }
 
-pub fn find_mode_string(meta: &Metadata) -> String {
-    let kind = match kind_char(meta) {
-        'f' => '-',
-        other => other,
-    };
-    let bits = permission_bits(meta);
-    let mut text = String::with_capacity(10);
-    text.push(kind);
-    for shift in [6, 3, 0] {
-        let triple = (bits >> shift) & 0o7;
-        text.push(if triple & 0o4 != 0 { 'r' } else { '-' });
-        text.push(if triple & 0o2 != 0 { 'w' } else { '-' });
-        text.push(if triple & 0o1 != 0 { 'x' } else { '-' });
+pub fn owner_ids(meta: &Metadata) -> (u32, u32) {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        (meta.uid(), meta.gid())
     }
-    text
+    #[cfg(not(unix))]
+    {
+        let _ = meta;
+        (0, 0)
+    }
 }
+
+mod identity;
+mod owners;
+pub use identity::{change_time, file_identity, file_key, same_file, FileId, FileKey};
+pub use owners::{group_id, group_name, user_id, user_name};
 
 #[cfg(test)]
 mod tests {
@@ -177,8 +192,73 @@ mod tests {
         let metadata = fs::metadata(&file).unwrap();
         assert_eq!(kind_char(&metadata), 'f');
         assert_eq!(mode_string(&file, &metadata).len(), 10);
-        assert_eq!(find_mode_string(&metadata).len(), 10);
+        assert_eq!(find_mode_string(&file, &metadata).len(), 10);
         assert_eq!(kind_char(&fs::metadata(&root).unwrap()), 'd');
+        fs::remove_dir_all(root).unwrap();
+    }
+    #[cfg(unix)]
+    #[test]
+    fn fifo_socket_and_special_modes_are_distinct() {
+        use std::os::unix::{ffi::OsStrExt, fs::PermissionsExt, net::UnixListener};
+        let root = std::path::Path::new("/tmp")
+            .join(format!("agentcmd-special-meta-{}", std::process::id()));
+        fs::create_dir_all(&root).unwrap();
+        let fifo = root.join("fifo");
+        let name = std::ffi::CString::new(fifo.as_os_str().as_bytes()).unwrap();
+        // SAFETY: the path is a NUL-terminated pathname inside the test sandbox.
+        assert_eq!(unsafe { libc::mkfifo(name.as_ptr(), 0o600) }, 0);
+        let listener = UnixListener::bind(root.join("socket")).unwrap();
+        for (name, kind) in [("fifo", 'p'), ("socket", 's')] {
+            let path = root.join(name);
+            let metadata = fs::symlink_metadata(&path).unwrap();
+            assert_eq!(kind_char(&metadata), kind);
+            assert!(mode_string(&path, &metadata).starts_with(kind));
+            assert!(!is_executable(&path, &metadata));
+        }
+        let path = root.join("mode");
+        fs::write(&path, b"x").unwrap();
+        for (mode, expected) in [(0o0640, "-rw-r-----"), (0o0751, "-rwxr-x--x")] {
+            fs::set_permissions(&path, fs::Permissions::from_mode(mode)).unwrap();
+            let metadata = fs::metadata(&path).unwrap();
+            assert_eq!(mode_string(&path, &metadata), expected);
+            assert_eq!(permission_bits(&metadata), mode);
+            assert_eq!(is_executable(&path, &metadata), mode & 0o111 != 0);
+        }
+        drop(listener);
+        fs::remove_dir_all(root).unwrap();
+    }
+    #[test]
+    fn special_permission_bits_are_formatted_independently_of_filesystem_policy() {
+        assert_eq!(permission_triads_from_mode(0o7000), "--S--S--T");
+        assert_eq!(permission_triads_from_mode(0o7111), "--s--s--t");
+    }
+    #[cfg(windows)]
+    #[test]
+    fn windows_modes_follow_synthesized_permissions() {
+        let root =
+            std::env::temp_dir().join(format!("agentcmd-meta-windows-{}", std::process::id()));
+        fs::create_dir_all(&root).unwrap();
+        let plain = root.join("file.txt");
+        let executable = root.join("tool.EXE");
+        fs::write(&plain, b"").unwrap();
+        fs::write(&executable, b"").unwrap();
+        let metadata = fs::metadata(&plain).unwrap();
+        assert_eq!(mode_string(&plain, &metadata), "-rw-r--r--");
+        assert_eq!(permission_bits(&metadata), 0o644);
+        let metadata = fs::metadata(&executable).unwrap();
+        assert_eq!(mode_string(&executable, &metadata), "-rwxr-xr-x");
+        assert_eq!(permission_bits_at(&executable, &metadata), 0o755);
+        let metadata = fs::metadata(&root).unwrap();
+        assert_eq!(mode_string(&root, &metadata), "drwxr-xr-x");
+        assert_eq!(permission_bits(&metadata), 0o755);
+        let original_permissions = fs::metadata(&plain).unwrap().permissions();
+        let mut permissions = original_permissions.clone();
+        permissions.set_readonly(true);
+        fs::set_permissions(&plain, permissions).unwrap();
+        let metadata = fs::metadata(&plain).unwrap();
+        assert_eq!(mode_string(&plain, &metadata), "-r--r--r--");
+        assert_eq!(permission_bits(&metadata), 0o444);
+        fs::set_permissions(&plain, original_permissions).unwrap();
         fs::remove_dir_all(root).unwrap();
     }
 }

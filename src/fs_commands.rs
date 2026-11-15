@@ -1,24 +1,21 @@
-use crate::common::color::{self, When};
+use crate::common::color::When;
 use crate::common::error::io_text;
-use crate::common::meta::{is_executable, mode_string};
-use crate::common::size::human_size;
+use crate::common::meta::is_executable;
 use std::cmp::Ordering;
 use std::env;
 use std::fs;
-use std::io::{self, Write};
+use std::io::{self, BufWriter, Write};
 use std::path::{Path, PathBuf};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::display_path;
-use crate::ls_style::{self, Layout, Style};
+use crate::ls_style::{Layout, Style};
 
-const SECONDS_PER_DAY: i64 = 86_400;
+#[path = "ls_options.rs"]
+mod ls_options;
+#[path = "ls_output.rs"]
+mod ls_output;
 
 pub fn pwd(args: &[String]) -> i32 {
-    if args.iter().any(|arg| arg == "-h" || arg == "--help") {
-        println!("Usage: pwd [-L | -P]\nPrint the current working directory.\n\nOptions:\n  -L, --logical   Print $PWD when it names the current directory (default)\n  -P, --physical  Print the directory with symbolic links resolved\n  -h, --help      Show this help\n\nExit status: 0 on success, 1 on error.");
-        return 0;
-    }
     let physical = match parse_pwd_mode(args) {
         Ok(physical) => physical,
         Err(code) => return code,
@@ -51,29 +48,62 @@ fn parse_pwd_mode(args: &[String]) -> Result<bool, i32> {
     let mut physical = false;
     let mut options = true;
     for arg in args {
+        let expanded;
+        let arg = if options && arg.starts_with("--") && arg != "--" {
+            expanded =
+                crate::common::args::expand_long(arg, &["physical", "logical", "help", "version"])
+                    .map_err(|error| crate::common::error::usage("pwd", error, 1))?;
+            &expanded
+        } else {
+            arg
+        };
         if options && arg == "--" {
             options = false;
+        } else if options && (arg == "-h" || arg == "--help") {
+            return Err(crate::common::io::output("pwd", |out| {
+                writeln!(out, "Usage: pwd [-L | -P]\nPrint the current working directory.\n\nOptions:\n  -L, --logical   Print $PWD when it names the current directory (default)\n  -P, --physical  Print the directory with symbolic links resolved\n  -h, --help      Show this help\n      --version             Show version\n\nExit status: 0 on success, 1 on error.")
+            }));
+        } else if options && arg == "--version" {
+            return Err(
+                crate::common::args::help_version("pwd", &["--version".into()], "", true).unwrap(),
+            );
         } else if options && arg == "--physical" {
             physical = true;
         } else if options && arg == "--logical" {
             physical = false;
         } else if options && arg.starts_with("--") {
-            eprintln!("pwd: unknown option: {arg}");
-            return Err(1);
+            if let Some((name, _)) = arg.split_once('=') {
+                return Err(crate::common::error::usage(
+                    "pwd",
+                    format!("option '{name}' doesn't allow an argument"),
+                    1,
+                ));
+            }
+            return Err(crate::common::error::usage(
+                "pwd",
+                format!("unrecognized option '{arg}'"),
+                1,
+            ));
         } else if options && arg.len() > 1 && arg.starts_with('-') {
             for flag in arg[1..].chars() {
                 match flag {
                     'P' => physical = true,
                     'L' => physical = false,
                     _ => {
-                        eprintln!("pwd: unknown option: -{flag}");
-                        return Err(1);
+                        return Err(crate::common::error::usage(
+                            "pwd",
+                            format!("invalid option -- '{flag}'"),
+                            1,
+                        ));
                     }
                 }
             }
         } else {
-            eprintln!("pwd: this command does not accept arguments");
-            return Err(1);
+            return Err(crate::common::error::usage(
+                "pwd",
+                "this command does not accept arguments",
+                1,
+            ));
         }
     }
     Ok(physical)
@@ -125,6 +155,7 @@ enum SortKey {
     Time,
     Size,
     Unsorted,
+    Extension,
 }
 
 #[derive(Clone, Copy, Default, PartialEq, Eq)]
@@ -134,6 +165,8 @@ enum TimeStyle {
     Minutes,
     /// `YYYY-MM-DD HH:MM:SS +0000`, from `--full-time` or `--time-style=full-iso`.
     Seconds,
+    Iso,
+    Locale,
 }
 
 #[derive(Default)]
@@ -155,6 +188,21 @@ struct LsOptions {
     color: Option<When>,
     layout: Layout,
     style: Style,
+    inode: bool,
+    blocks: bool,
+    block_size: Option<u64>,
+    allocated_block: Option<u64>,
+    si: bool,
+    ignore: Vec<crate::find_command::glob::Glob>,
+    hide: Vec<crate::find_command::glob::Glob>,
+    backups: bool,
+    clock: ls_options::Clock,
+    follow: u8,
+    width: Option<usize>,
+    comma: bool,
+    quote: ls_output::Quoting,
+    file_type: bool,
+    time_format: Option<String>,
 }
 
 struct Entry {
@@ -175,7 +223,7 @@ enum Argument {
     Directory(PathBuf),
 }
 
-const LS_USAGE: &str = "Usage: ls [OPTION]... [PATH]...\nList directory entries. Times are shown in UTC.\n\nOptions:\n  -a, --all                Include dot-prefixed names, then . and ..\n  -A, --almost-all         Include dot-prefixed names, without . and ..\n  -f                       Same as -a -U\n  -l, -n, -o, -g           Long format: mode, link count, owner '-', group '-', size, time, name\n  -h, --human-readable     With -l, print sizes such as 512, 4.0K, 12M\n  -F, --classify           Append / to directories, @ to symlinks, * to executables\n  -p                       Append / to directories\n  -d, --directory          List directories themselves, not their contents\n  -R, --recursive          List subdirectories recursively\n  -t                       Sort by modification time, newest first\n  -S                       Sort by size, largest first\n  -v                       Sort names in natural order (file2 before file10)\n  -U                       Do not sort; use directory order\n  -r, --reverse            Reverse the sort order\n      --group-directories-first\n                           List directories before files\n      --full-time          With -l, show seconds and +0000\n      --time-style=STYLE   full-iso (seconds), or long-iso, iso, locale (minutes)\n  -C                       List entries in columns (default on a terminal)\n  -x                       List entries across rows instead of down columns\n  -1                       List one entry per line (default when piped)\n  -G                       Accepted and ignored\n      --color[=WHEN]       Color names by type, using LS_COLORS: always (bare form),\n                           auto (terminal only), or never\n      --show-control-chars Accepted and ignored\n  -i and -s are not supported and exit 2\n\nExit status: 0 on success, 1 on minor errors, 2 on serious errors.\n";
+const LS_USAGE: &str = ls_options::HELP;
 
 pub fn ls(args: &[String]) -> i32 {
     let (options, paths) = match parse_ls(args) {
@@ -188,157 +236,22 @@ pub fn ls(args: &[String]) -> i32 {
         headers,
         printed: false,
         status: 0,
+        ancestors: Vec::new(),
     };
     let stdout = io::stdout();
-    let mut out = stdout.lock();
-    match listing.run(&paths, &mut out) {
+    let mut out = BufWriter::with_capacity(crate::common::io::BUFFER_SIZE, stdout.lock());
+    match listing.run(&paths, &mut out).and_then(|()| out.flush()) {
         Ok(()) => listing.status,
+        Err(error) if error.kind() == io::ErrorKind::BrokenPipe => 0,
         Err(error) => {
-            eprintln!("ls: cannot write output: {}", io_text(&error));
-            2
+            eprintln!("ls: write error: {}", io_text(&error));
+            1
         }
     }
 }
 
 fn parse_ls(args: &[String]) -> Result<(LsOptions, Vec<PathBuf>), i32> {
-    let mut options = LsOptions::default();
-    let mut paths = Vec::new();
-    let mut end_of_options = false;
-    for arg in args {
-        let expanded;
-        let arg = if !end_of_options && arg.starts_with("--") && arg != "--" {
-            expanded = crate::common::args::expand_long(
-                arg,
-                &[
-                    "all",
-                    "almost-all",
-                    "classify",
-                    "directory",
-                    "recursive",
-                    "reverse",
-                    "human-readable",
-                    "group-directories-first",
-                    "full-time",
-                    "time-style",
-                    "color",
-                    "colour",
-                    "show-control-chars",
-                    "help",
-                ],
-            )
-            .map_err(|error| {
-                eprintln!("ls: {error}");
-                2
-            })?;
-            &expanded
-        } else {
-            arg
-        };
-        if end_of_options || arg == "-" || !arg.starts_with('-') {
-            paths.push(PathBuf::from(arg));
-            if env::var_os("POSIXLY_CORRECT").is_some() {
-                end_of_options = true;
-            }
-        } else if arg == "--" {
-            end_of_options = true;
-        } else if arg == "--help" {
-            print!("{LS_USAGE}");
-            return Err(0);
-        } else if let Some(name) = arg.strip_prefix("--") {
-            parse_ls_long(name, arg, &mut options)?;
-        } else {
-            parse_ls_short(&arg[1..], &mut options)?;
-        }
-    }
-    if paths.is_empty() {
-        paths.push(PathBuf::from("."));
-    }
-    options.style = Style::new(color::enabled(options.color));
-    Ok((options, paths))
-}
-
-fn parse_ls_short(flags: &str, options: &mut LsOptions) -> Result<(), i32> {
-    for flag in flags.chars() {
-        match flag {
-            'a' => {
-                options.all = true;
-                options.dot_entries = true;
-            }
-            'A' => options.all = true,
-            'f' => {
-                options.all = true;
-                options.dot_entries = true;
-                options.sort = SortKey::Unsorted;
-            }
-            'l' | 'n' | 'o' | 'g' => options.long = true,
-            'F' => options.classify = true,
-            'p' => options.slash = true,
-            'h' => options.human = true,
-            'R' => options.recursive = true,
-            'd' => options.directory = true,
-            'r' => options.reverse = true,
-            't' => options.sort = SortKey::Time,
-            'S' => options.sort = SortKey::Size,
-            'U' => options.sort = SortKey::Unsorted,
-            'v' => options.sort = SortKey::Natural,
-            'C' => options.layout = Layout::Columns,
-            'x' => options.layout = Layout::Across,
-            '1' => options.layout = Layout::OneLine,
-            'G' => {}
-            'i' | 's' => {
-                eprintln!("ls: -{flag} is not supported");
-                return Err(2);
-            }
-            _ => {
-                eprintln!("ls: unknown option: -{flag}");
-                return Err(2);
-            }
-        }
-    }
-    Ok(())
-}
-
-fn parse_ls_long(name: &str, arg: &str, options: &mut LsOptions) -> Result<(), i32> {
-    if let Some(value) = color::color_arg(arg) {
-        options.color = Some(ls_style::parse_color(value)?);
-        return Ok(());
-    }
-    if name == "show-control-chars" {
-        return Ok(());
-    }
-    match name {
-        "all" => {
-            options.all = true;
-            options.dot_entries = true;
-        }
-        "almost-all" => options.all = true,
-        "classify" => options.classify = true,
-        "directory" => options.directory = true,
-        "recursive" => options.recursive = true,
-        "reverse" => options.reverse = true,
-        "human-readable" => options.human = true,
-        "group-directories-first" => options.group_dirs_first = true,
-        "full-time" => options.time_style = TimeStyle::Seconds,
-        _ => match name.strip_prefix("time-style=") {
-            Some(style) => options.time_style = parse_time_style(style)?,
-            None => {
-                eprintln!("ls: unknown option: {arg}");
-                return Err(2);
-            }
-        },
-    }
-    Ok(())
-}
-
-fn parse_time_style(style: &str) -> Result<TimeStyle, i32> {
-    match style {
-        "full-iso" => Ok(TimeStyle::Seconds),
-        "long-iso" | "iso" | "locale" => Ok(TimeStyle::Minutes),
-        _ => {
-            eprintln!("ls: unsupported time style: {style}");
-            Err(2)
-        }
-    }
+    ls_options::parse(args)
 }
 
 struct Listing {
@@ -346,6 +259,7 @@ struct Listing {
     headers: bool,
     printed: bool,
     status: i32,
+    ancestors: Vec<crate::common::meta::FileKey>,
 }
 
 impl Listing {
@@ -367,7 +281,11 @@ impl Listing {
     }
 
     fn argument(&mut self, path: &Path) -> Option<Argument> {
-        let metadata = match fs::symlink_metadata(path) {
+        let metadata = match if self.options.follow > 0 {
+            fs::metadata(path)
+        } else {
+            fs::symlink_metadata(path)
+        } {
             Ok(metadata) => metadata,
             Err(error) => {
                 eprintln!(
@@ -410,15 +328,43 @@ impl Listing {
         out: &mut dyn Write,
         root: bool,
     ) -> io::Result<()> {
+        let identity = fs::metadata(directory)
+            .ok()
+            .and_then(|metadata| crate::common::meta::file_key(directory, &metadata).ok());
+        if identity
+            .as_ref()
+            .is_some_and(|id| self.ancestors.contains(id))
+        {
+            eprintln!(
+                "ls: {}: not listing already-listed directory",
+                display_path(directory)
+            );
+            self.status = self.status.max(2);
+            return Ok(());
+        }
         let Some(mut entries) = self.read_entries(directory, root) else {
             return Ok(());
         };
+        if let Some(id) = &identity {
+            self.ancestors.push(id.clone());
+        }
         if self.headers {
             if self.printed {
                 writeln!(out)?;
             }
             writeln!(out, "{}:", display_path(directory))?;
             self.printed = true;
+        }
+        if self.options.blocks {
+            let bytes = entries
+                .iter()
+                .map(|entry| crate::common::meta::allocated_bytes(&entry.metadata))
+                .sum();
+            writeln!(
+                out,
+                "total {}",
+                ls_output::allocated_size(bytes, &self.options)
+            )?;
         }
         self.print_entries(&mut entries, out)?;
         if self.options.recursive {
@@ -428,6 +374,9 @@ impl Listing {
             {
                 self.list_directory(&entry.path, out, false)?;
             }
+        }
+        if identity.is_some() {
+            self.ancestors.pop();
         }
         Ok(())
     }
@@ -447,7 +396,11 @@ impl Listing {
         };
         let mut entries = Vec::new();
         if self.options.dot_entries {
-            entries.extend(dot_entries(directory));
+            entries.extend(
+                dot_entries(directory)
+                    .into_iter()
+                    .filter(|entry| ls_output::visible(&entry.name, &self.options)),
+            );
         }
         for item in items {
             match item {
@@ -467,11 +420,16 @@ impl Listing {
 
     fn dir_entry(&mut self, item: &fs::DirEntry) -> Option<Entry> {
         let name = item.file_name().to_string_lossy().into_owned();
-        if !self.options.all && name.starts_with('.') {
+        if (!self.options.all && name.starts_with('.')) || !ls_output::visible(&name, &self.options)
+        {
             return None;
         }
         let path = item.path();
-        match item.metadata() {
+        match if self.options.follow == 2 {
+            fs::metadata(&path)
+        } else {
+            item.metadata()
+        } {
             Ok(metadata) => Some(Entry {
                 name,
                 path,
@@ -495,13 +453,13 @@ impl Listing {
         }
         sort_entries(entries, &self.options);
         let lines = if self.options.long {
-            long_lines(entries, &self.options)
+            ls_output::long_lines(entries, &self.options)
         } else {
             let cells: Vec<String> = entries
                 .iter()
                 .map(|entry| entry_text(entry, &self.options))
                 .collect();
-            ls_style::arrange(cells, self.options.layout)
+            ls_output::arrange(cells, &self.options)
         };
         for line in lines {
             writeln!(out, "{line}")?;
@@ -533,38 +491,7 @@ fn dot_entries(directory: &Path) -> Vec<Entry> {
 
 /// Colored name followed by its classify mark; the mark stays outside the color.
 fn entry_text(entry: &Entry, options: &LsOptions) -> String {
-    let name = options
-        .style
-        .name(&entry.name, &entry.path, &entry.metadata);
-    format!("{name}{}", indicator(entry, options))
-}
-
-fn long_lines(entries: &[Entry], options: &LsOptions) -> Vec<String> {
-    let sizes: Vec<String> = entries
-        .iter()
-        .map(|entry| size_text(&entry.metadata, options.human))
-        .collect();
-    let size_width = sizes.iter().map(String::len).max().unwrap_or(0);
-    let link_width = entries
-        .iter()
-        .map(|entry| link_count(&entry.metadata).to_string().len())
-        .max()
-        .unwrap_or(1);
-    entries
-        .iter()
-        .zip(&sizes)
-        .map(|(entry, size)| {
-            let modified = modified_time(&entry.metadata);
-            format!(
-                "{} {:>link_width$} - - {:>size_width$} {} {}",
-                mode_string(&entry.path, &entry.metadata),
-                link_count(&entry.metadata),
-                size,
-                format_time(modified, options.time_style),
-                long_name(entry, options)
-            )
-        })
-        .collect()
+    ls_output::entry_text(entry, options)
 }
 
 /// Name plus classify mark, followed by ` -> target` for symlinks in long format.
@@ -573,26 +500,26 @@ fn long_name(entry: &Entry, options: &LsOptions) -> String {
     if entry.metadata.file_type().is_symlink() {
         if let Ok(target) = fs::read_link(&entry.path) {
             text.push_str(" -> ");
-            text.push_str(&display_path(&target));
+            text.push_str(&ls_output::quote(&display_path(&target), options.quote));
         }
     }
     text
 }
 
 fn indicator(entry: &Entry, options: &LsOptions) -> &'static str {
-    if !options.classify && !options.slash {
+    if !options.classify && !options.slash && !options.file_type {
         return "";
     }
     let file_type = entry.metadata.file_type();
     if file_type.is_dir() {
         return "/";
     }
-    if !options.classify {
+    if !options.classify && !options.file_type {
         return "";
     }
     if file_type.is_symlink() {
         "@"
-    } else if is_executable(&entry.path, &entry.metadata) {
+    } else if options.classify && is_executable(&entry.path, &entry.metadata) {
         "*"
     } else {
         ""
@@ -600,7 +527,7 @@ fn indicator(entry: &Entry, options: &LsOptions) -> &'static str {
 }
 
 fn sort_entries(entries: &mut [Entry], options: &LsOptions) {
-    entries.sort_by(|left, right| compare_entries(left, right, options.sort));
+    entries.sort_by(|left, right| compare_entries(left, right, options));
     if options.reverse {
         entries.reverse();
     }
@@ -609,12 +536,12 @@ fn sort_entries(entries: &mut [Entry], options: &LsOptions) {
     }
 }
 
-fn compare_entries(left: &Entry, right: &Entry, sort: SortKey) -> Ordering {
-    match sort {
+fn compare_entries(left: &Entry, right: &Entry, options: &LsOptions) -> Ordering {
+    match options.sort {
         SortKey::Name => left.name.cmp(&right.name),
         SortKey::Natural => natural_cmp(&left.name, &right.name),
-        SortKey::Time => modified_time(&right.metadata)
-            .cmp(&modified_time(&left.metadata))
+        SortKey::Time => ls_output::time(right, options.clock)
+            .cmp(&ls_output::time(left, options.clock))
             .then_with(|| left.name.cmp(&right.name)),
         SortKey::Size => right
             .metadata
@@ -622,7 +549,14 @@ fn compare_entries(left: &Entry, right: &Entry, sort: SortKey) -> Ordering {
             .cmp(&left.metadata.len())
             .then_with(|| left.name.cmp(&right.name)),
         SortKey::Unsorted => Ordering::Equal,
+        SortKey::Extension => extension(&left.name)
+            .cmp(extension(&right.name))
+            .then_with(|| left.name.cmp(&right.name)),
     }
+}
+
+fn extension(name: &str) -> &str {
+    name.rsplit_once('.').map_or("", |(_, suffix)| suffix)
 }
 
 fn natural_cmp(left: &str, right: &str) -> Ordering {
@@ -675,73 +609,10 @@ fn trim_leading_zeros(digits: &[u8]) -> &[u8] {
     &digits[start..]
 }
 
-fn modified_time(metadata: &fs::Metadata) -> SystemTime {
-    metadata.modified().unwrap_or(UNIX_EPOCH)
-}
-
-fn size_text(metadata: &fs::Metadata, human: bool) -> String {
-    if human {
-        human_size(metadata.len())
-    } else {
-        metadata.len().to_string()
-    }
-}
-
-/// Formats a timestamp in UTC without a date-time crate.
-fn format_time(time: SystemTime, style: TimeStyle) -> String {
-    let seconds = match time.duration_since(UNIX_EPOCH) {
-        Ok(after) => i64::try_from(after.as_secs()).unwrap_or(i64::MAX),
-        Err(before) => {
-            let secs = i64::try_from(before.duration().as_secs()).unwrap_or(i64::MAX);
-            -secs
-        }
-    };
-    let (year, month, day) = civil_from_days(seconds.div_euclid(SECONDS_PER_DAY));
-    let second_of_day = seconds.rem_euclid(SECONDS_PER_DAY);
-    let hour = second_of_day / 3600;
-    let minute = second_of_day % 3600 / 60;
-    let second = second_of_day % 60;
-    match style {
-        TimeStyle::Minutes => format!("{year:04}-{month:02}-{day:02} {hour:02}:{minute:02}"),
-        TimeStyle::Seconds => {
-            format!("{year:04}-{month:02}-{day:02} {hour:02}:{minute:02}:{second:02} +0000")
-        }
-    }
-}
-
-/// Converts days since 1970-01-01 to (year, month, day) in the proleptic Gregorian calendar.
-fn civil_from_days(days: i64) -> (i64, i64, i64) {
-    let shifted = days + 719_468;
-    let era = shifted.div_euclid(146_097);
-    let day_of_era = shifted.rem_euclid(146_097);
-    let year_of_era =
-        (day_of_era - day_of_era / 1460 + day_of_era / 36_524 - day_of_era / 146_096) / 365;
-    let day_of_year = day_of_era - (365 * year_of_era + year_of_era / 4 - year_of_era / 100);
-    let month_index = (5 * day_of_year + 2) / 153;
-    let day = day_of_year - (153 * month_index + 2) / 5 + 1;
-    let month = if month_index < 10 {
-        month_index + 3
-    } else {
-        month_index - 9
-    };
-    let year = year_of_era + era * 400 + i64::from(month <= 2);
-    (year, month, day)
-}
-
-#[cfg(unix)]
-fn link_count(metadata: &fs::Metadata) -> u64 {
-    use std::os::unix::fs::MetadataExt;
-    metadata.nlink()
-}
-
-#[cfg(not(unix))]
-fn link_count(_metadata: &fs::Metadata) -> u64 {
-    1
-}
-
 #[cfg(test)]
 mod ls_tests {
-    use super::{civil_from_days, human_size, natural_cmp};
+    use super::natural_cmp;
+    use crate::common::size::human_size;
     use std::cmp::Ordering;
 
     #[test]
@@ -755,14 +626,6 @@ mod ls_tests {
         assert_eq!(human_size(10 * 1024), "10K");
         assert_eq!(human_size(1_048_550), "1.0M");
         assert_eq!(human_size(3 * 1024 * 1024 * 1024), "3.0G");
-    }
-
-    #[test]
-    fn civil_dates_match_known_days() {
-        assert_eq!(civil_from_days(0), (1970, 1, 1));
-        assert_eq!(civil_from_days(-1), (1969, 12, 31));
-        assert_eq!(civil_from_days(20_391), (2025, 10, 30));
-        assert_eq!(civil_from_days(11_016), (2000, 2, 29));
     }
 
     #[test]

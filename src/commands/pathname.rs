@@ -4,6 +4,14 @@ use crate::common::{
     io::output,
 };
 
+pub mod canonical;
+pub fn run_realpath(args: &[String]) -> i32 {
+    canonical::run(args, false)
+}
+pub fn run_readlink(args: &[String]) -> i32 {
+    canonical::run(args, true)
+}
+
 fn normalized(name: &str) -> String {
     if cfg!(windows) {
         name.replace('\\', "/")

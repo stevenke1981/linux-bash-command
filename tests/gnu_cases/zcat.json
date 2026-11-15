@@ -1,0 +1,513 @@
+{
+  "command": "zcat",
+  "cases": [
+    {
+      "name": "stdin",
+      "args": [],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000",
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "multi_member",
+      "args": [],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b0000001f8b080000000000020a4bad28294ae4020049ac420f06000000",
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "file",
+      "args": [
+        "a.gz"
+      ],
+      "stdin": "",
+      "files": {
+        "a.gz": {
+          "hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "files",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "quiet",
+      "args": [
+        "-q"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000",
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "force_plain",
+      "args": [
+        "-f"
+      ],
+      "stdin": "plain",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "test",
+      "args": [
+        "-t"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000",
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "list",
+      "args": [
+        "-l",
+        "a.gz"
+      ],
+      "stdin": "",
+      "files": {
+        "a.gz": {
+          "hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+        }
+      },
+      "compare": [
+        "gzip_list",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "custom_suffix",
+      "args": [
+        "-S",
+        ".z",
+        "a.z"
+      ],
+      "stdin": "",
+      "files": {
+        "a.z": {
+          "hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "files",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "keep",
+      "args": [
+        "-k",
+        "a.gz"
+      ],
+      "stdin": "",
+      "files": {
+        "a.gz": {
+          "hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+        }
+      },
+      "compare": [
+        "stdout",
+        "files",
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "verbose",
+      "args": [
+        "-v"
+      ],
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000",
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null,
+      "gnu": [
+        "zcat"
+      ]
+    },
+    {
+      "name": "option_stdout",
+      "args": [
+        "--stdout"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_decompress",
+      "args": [
+        "--decompress",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_force",
+      "args": [
+        "--force",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_keep",
+      "args": [
+        "--keep",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_list",
+      "args": [
+        "--list"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "gzip_list",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_no-name",
+      "args": [
+        "--no-name",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_name",
+      "args": [
+        "--name",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_quiet",
+      "args": [
+        "--quiet",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_recursive",
+      "args": [
+        "--recursive",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_test",
+      "args": [
+        "--test"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_verbose",
+      "args": [
+        "--verbose",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_fast",
+      "args": [
+        "--fast",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_best",
+      "args": [
+        "--best",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "option_suffix",
+      "args": [
+        "--suffix=.z",
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4bcc29c848e44a4a2d49e402006e50306e0b000000"
+    },
+    {
+      "name": "padding_1",
+      "args": [
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4b4c4a0600c24124350300000000"
+    },
+    {
+      "name": "padding_8",
+      "args": [
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4b4c4a0600c2412435030000000000000000000000"
+    },
+    {
+      "name": "padding_20",
+      "args": [
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4b4c4a0600c2412435030000000000000000000000000000000000000000000000"
+    },
+    {
+      "name": "trailing_nonzero",
+      "args": [
+        "-c"
+      ],
+      "files": {},
+      "gnu": [
+        "zcat"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null,
+      "stdin_hex": "1f8b080000000000020a4b4c4a0600c24124350300000067617262616765"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-Agent Commands - Windows x64
+Agent Commands 0.2.0 - Windows x64
 
 This package installs Linux-style command-line tools (ls, cat, grep, rg, find,
 head, tail, sort, wc, xargs, curl and more; run "agentcmd --list" for the full

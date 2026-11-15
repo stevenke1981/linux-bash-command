@@ -1,0 +1,193 @@
+{
+  "command": "which",
+  "cases": [
+    {
+      "name": "one",
+      "args": [
+        "sh"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "all",
+      "args": [
+        "-a",
+        "sh"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "silent-found",
+      "args": [
+        "-s",
+        "sh"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "silent-missing",
+      "args": [
+        "-s",
+        "agentcmd-missing"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multiple",
+      "args": [
+        "sh",
+        "ls"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "agentcmd-missing"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": "02 requires help and version exit 0; Ubuntu which does not support these options"
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": "02 requires help and version exit 0; Ubuntu which does not support these options"
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bad"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty",
+      "args": [],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "explicit_path_environment",
+      "args": [
+        "sh"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null,
+      "env": {
+        "PATH": "/usr/bin:/bin"
+      }
+    },
+    {
+      "name": "pathext_does_not_change_unix_search",
+      "args": [
+        "sh"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "which"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null,
+      "env": {
+        "PATHEXT": ".EXE;.CMD"
+      }
+    }
+  ]
+}

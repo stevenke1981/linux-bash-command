@@ -1,0 +1,215 @@
+{
+  "command": "df",
+  "cases": [
+    {
+      "name": "audit_all",
+      "args": [
+        "--all",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_block-size",
+      "args": [
+        "--block-size=1024",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_exclude-type",
+      "args": [
+        "--exclude-type=tmpfs",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_help",
+      "args": [
+        "--help"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_human-readable",
+      "args": [
+        "--human-readable",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_local",
+      "args": [
+        "--local",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_output",
+      "args": [
+        "--output=file,target",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_portability",
+      "args": [
+        "--portability",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_print-type",
+      "args": [
+        "--print-type",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_si",
+      "args": [
+        "--si",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_total",
+      "args": [
+        "--total",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_type",
+      "args": [
+        "--type=ext4",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "audit_version",
+      "args": [
+        "--version"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "output_duplicate_operands",
+      "args": [
+        "--output=file,target",
+        "data",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "output_duplicate_field_error",
+      "args": [
+        "--output=file,file",
+        "data"
+      ],
+      "files": {
+        "data": "abc"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

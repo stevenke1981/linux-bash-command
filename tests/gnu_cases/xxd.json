@@ -1,0 +1,629 @@
+{
+  "command": "xxd",
+  "cases": [
+    {
+      "name": "standard",
+      "args": [],
+      "stdin": "hello\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "binary",
+      "args": [
+        "-b"
+      ],
+      "stdin": "A",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "plain",
+      "args": [
+        "-p"
+      ],
+      "stdin": "AB\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "plain-alias",
+      "args": [
+        "-plain"
+      ],
+      "stdin": "AB",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-endian",
+      "args": [
+        "-e",
+        "-g",
+        "2"
+      ],
+      "stdin": "ABCD",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "columns-offset-uppercase",
+      "args": [
+        "-cols",
+        "1",
+        "-o",
+        "16",
+        "-u"
+      ],
+      "stdin": "a",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "decimal-offset",
+      "args": [
+        "-d",
+        "-o",
+        "16"
+      ],
+      "stdin": "A",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "seek-length",
+      "args": [
+        "-s",
+        "1",
+        "-len",
+        "2"
+      ],
+      "stdin": "ABCD",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "include-name",
+      "args": [
+        "-i",
+        "-n",
+        "sample"
+      ],
+      "stdin": "A",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "autoskip",
+      "args": [
+        "-a"
+      ],
+      "stdin": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000A",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "reverse-plain",
+      "args": [
+        "-r",
+        "-p"
+      ],
+      "stdin": "414243\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "reverse-standard",
+      "args": [
+        "-r"
+      ],
+      "stdin": "00000000: 4142 43  ABC\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "binary-2",
+      "args": [
+        "-b"
+      ],
+      "stdin": "AB",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "binary-6",
+      "args": [
+        "-b"
+      ],
+      "stdin": "ABCDEF",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "binary-columns",
+      "args": [
+        "-b",
+        "-c",
+        "3"
+      ],
+      "stdin": "ABCD",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "binary-groups",
+      "args": [
+        "-b",
+        "-g",
+        "2"
+      ],
+      "stdin": "ABCDE",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-short-1",
+      "args": [
+        "-e"
+      ],
+      "stdin": "A",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-short-3",
+      "args": [
+        "-e"
+      ],
+      "stdin": "ABC",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-five",
+      "args": [
+        "-e"
+      ],
+      "stdin": "ABCDE",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-group-2",
+      "args": [
+        "-e",
+        "-g",
+        "2"
+      ],
+      "stdin": "ABC",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "no-groups",
+      "args": [
+        "-g",
+        "0"
+      ],
+      "stdin": "abcde",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "single-zero",
+      "args": [
+        "-a"
+      ],
+      "stdin": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000A",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "two-zeros",
+      "args": [
+        "-a"
+      ],
+      "stdin": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000A",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "three-zeros",
+      "args": [
+        "-a"
+      ],
+      "stdin": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000A",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "end-zeros",
+      "args": [
+        "-a"
+      ],
+      "stdin": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "include-cols",
+      "args": [
+        "-i",
+        "-n",
+        "buf",
+        "-c",
+        "3"
+      ],
+      "stdin": "ABCDEFG",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "include-unnamed",
+      "args": [
+        "-i",
+        "-c",
+        "2"
+      ],
+      "stdin": "ABC",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "reverse-cross-line",
+      "args": [
+        "-r",
+        "-p"
+      ],
+      "stdin": "4\n1\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "reverse-gap",
+      "args": [
+        "-r"
+      ],
+      "stdin": "00000002: 4142  AB\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "reverse-offset",
+      "args": [
+        "-r",
+        "-s",
+        "2"
+      ],
+      "stdin": "00000000: 4142  AB\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "reverse-negative",
+      "args": [
+        "-r",
+        "-s",
+        "-2"
+      ],
+      "stdin": "00000004: 4142  AB\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "postscript",
+      "args": [
+        "-postscript"
+      ],
+      "stdin": "abc",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "plain-width",
+      "args": [
+        "-p",
+        "-c",
+        "2"
+      ],
+      "stdin": "abcdef",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "seek-alias",
+      "args": [
+        "-seek",
+        "2"
+      ],
+      "stdin": "ABCDE",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "groupsize-alias",
+      "args": [
+        "-groupsize",
+        "1"
+      ],
+      "stdin": "ABC",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "offset-alias",
+      "args": [
+        "-offset",
+        "32"
+      ],
+      "stdin": "ABC",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "length-zero",
+      "args": [
+        "-l",
+        "0"
+      ],
+      "stdin": "ABC",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "decimal",
+      "args": [
+        "-d",
+        "-o",
+        "123"
+      ],
+      "stdin": "AB",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "odd-columns",
+      "args": [
+        "-c",
+        "5",
+        "-g",
+        "2"
+      ],
+      "stdin": "abcdefg",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "reverse-spaced",
+      "args": [
+        "-r",
+        "-p"
+      ],
+      "stdin": "41 42\n43",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-odd-short",
+      "args": [
+        "-e",
+        "-c",
+        "7",
+        "-g",
+        "4"
+      ],
+      "stdin": "ABCDEFGHIJK",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-invalid-group",
+      "args": [
+        "-e",
+        "-g",
+        "3"
+      ],
+      "stdin": "ABCDE",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "reverse-plain-offset",
+      "args": [
+        "-r",
+        "-p",
+        "-s",
+        "2"
+      ],
+      "stdin": "4142",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-ungrouped-3",
+      "args": [
+        "-e",
+        "-g0",
+        "-c",
+        "3"
+      ],
+      "stdin": "ABCDEFGHIJKLMNOP",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-ungrouped-5",
+      "args": [
+        "-e",
+        "-g0",
+        "-c",
+        "5"
+      ],
+      "stdin": "ABCDEFGHIJKLMNOP",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-ungrouped-6",
+      "args": [
+        "-e",
+        "-g0",
+        "-c",
+        "6"
+      ],
+      "stdin": "ABCDEFGHIJKLMNOP",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-ungrouped-7",
+      "args": [
+        "-e",
+        "-g0",
+        "-c",
+        "7"
+      ],
+      "stdin": "ABCDEFGHIJKLMNOP",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-ungrouped-9",
+      "args": [
+        "-e",
+        "-g0",
+        "-c",
+        "9"
+      ],
+      "stdin": "ABCDEFGHIJKLMNOP",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-group-exceeds-columns-2",
+      "args": [
+        "-e",
+        "-g",
+        "5",
+        "-c",
+        "2"
+      ],
+      "stdin": "ABCDEFGHIJKLMNOP",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "little-group-exceeds-columns-3",
+      "args": [
+        "-e",
+        "-g",
+        "5",
+        "-c",
+        "3"
+      ],
+      "stdin": "ABCDEFGHIJKLMNOP",
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    }
+  ]
+}

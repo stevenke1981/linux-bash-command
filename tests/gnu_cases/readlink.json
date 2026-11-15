@@ -1,0 +1,418 @@
+{
+  "command": "readlink",
+  "cases": [
+    {
+      "name": "raw_target",
+      "args": [
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "multiple_raw",
+      "args": [
+        "link",
+        "another"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        },
+        "another": {
+          "symlink": "file"
+        }
+      }
+    },
+    {
+      "name": "no_newline",
+      "args": [
+        "-n",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "zero",
+      "args": [
+        "-z",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "quiet_missing",
+      "args": [
+        "-q",
+        "missing"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "silent_plain",
+      "args": [
+        "-s",
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "verbose_missing",
+      "args": [
+        "-v",
+        "missing"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "canonicalize_existing",
+      "args": [
+        "-f",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "all_existing",
+      "args": [
+        "-e",
+        "dir/leaf"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "all_existing_missing",
+      "args": [
+        "-e",
+        "missing"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "canonicalize_missing",
+      "args": [
+        "-m",
+        "a/b"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "canonicalize_missing_last",
+      "args": [
+        "-f",
+        "missing"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "canonicalize_missing_parent",
+      "args": [
+        "-f",
+        "missing/child"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "plain_file",
+      "args": [
+        "file"
+      ],
+      "files": {
+        "file": "abc",
+        "dir/leaf": "data",
+        "link": {
+          "symlink": "dir"
+        }
+      }
+    },
+    {
+      "name": "dangling_target",
+      "args": [
+        "dangling"
+      ],
+      "files": {
+        "dangling": {
+          "symlink": "missing"
+        }
+      }
+    },
+    {
+      "name": "canonicalize_dangling",
+      "args": [
+        "-f",
+        "dangling"
+      ],
+      "files": {
+        "dangling": {
+          "symlink": "missing"
+        }
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bogus"
+      ],
+      "files": {}
+    },
+    {
+      "name": "no_operand",
+      "args": [],
+      "files": {}
+    },
+    {
+      "name": "p2_long_help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_canonicalize",
+      "args": [
+        "--canonicalize",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "link": {
+          "symlink": "file"
+        }
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_canonicalize-existing",
+      "args": [
+        "--canonicalize-existing",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "link": {
+          "symlink": "file"
+        }
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_canonicalize-missing",
+      "args": [
+        "--canonicalize-missing",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "link": {
+          "symlink": "file"
+        }
+      },
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_no-newline",
+      "args": [
+        "--no-newline",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "link": {
+          "symlink": "file"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_quiet",
+      "args": [
+        "--quiet",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "link": {
+          "symlink": "file"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_silent",
+      "args": [
+        "--silent",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "link": {
+          "symlink": "file"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_verbose",
+      "args": [
+        "--verbose",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "link": {
+          "symlink": "file"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "p2_long_zero",
+      "args": [
+        "--zero",
+        "link"
+      ],
+      "files": {
+        "file": "abc",
+        "link": {
+          "symlink": "file"
+        }
+      },
+      "compare": [
+        "stdout",
+        "exit"
+      ]
+    },
+    {
+      "name": "review_file_trailing_slash",
+      "args": [
+        "-f",
+        "file/"
+      ],
+      "stdin": "",
+      "files": {
+        "file": "x"
+      },
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

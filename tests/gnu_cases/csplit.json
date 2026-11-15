@@ -1,0 +1,351 @@
+{
+  "command": "csplit",
+  "cases": [
+    {
+      "name": "line",
+      "args": [
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "regex",
+      "args": [
+        "-",
+        "/b/"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "regex-offset",
+      "args": [
+        "-",
+        "/b/+1"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "quiet",
+      "args": [
+        "-s",
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "silent",
+      "args": [
+        "-q",
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "prefix",
+      "args": [
+        "-f",
+        "p",
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "digits",
+      "args": [
+        "-n",
+        "1",
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "format",
+      "args": [
+        "-b",
+        "%02x.dat",
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "elide",
+      "args": [
+        "-z",
+        "-",
+        "/a/"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "discard",
+      "args": [
+        "-",
+        "%b%"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "suppress-matched",
+      "args": [
+        "--suppress-matched",
+        "-",
+        "/b/"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "repeat",
+      "args": [
+        "-",
+        "2",
+        "{1}"
+      ],
+      "stdin": "a\nb\nc\nd\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "format-long",
+      "args": [
+        "--suffix-format=%03d",
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "prefix-long",
+      "args": [
+        "--prefix=p",
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "digits-long",
+      "args": [
+        "--digits=1",
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "quiet-long",
+      "args": [
+        "--quiet",
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "silent-long",
+      "args": [
+        "--silent",
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "elide-long",
+      "args": [
+        "--elide-empty-files",
+        "-",
+        "/a/"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "keep-long",
+      "args": [
+        "--keep-files",
+        "-",
+        "2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "bre-backreference",
+      "args": [
+        "-",
+        "/\\(ab\\)\\1/"
+      ],
+      "stdin": "z\nabab\ny\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "consecutive-repeats",
+      "args": [
+        "in",
+        "2",
+        "{1}",
+        "{1}"
+      ],
+      "files": {
+        "in": "a\nb\nc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "wildcard-terminates-patterns",
+      "args": [
+        "in",
+        "/^b/",
+        "{*}",
+        "2"
+      ],
+      "files": {
+        "in": "a\nb\nc\nb\ne\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "input_output_alias",
+      "args": [
+        "xx00",
+        "2"
+      ],
+      "files": {
+        "xx00": "a\nb\nc\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": "02 requires failed in-place writes to preserve the input. GNU9.4 removes its input when an output filename aliases it; safe CLI golden retains the input."
+    }
+  ]
+}

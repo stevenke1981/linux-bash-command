@@ -1,10 +1,12 @@
 #![cfg(target_os = "linux")]
+#[path = "gnu_diff/archive.rs"]
+mod archive;
 mod common;
 use common::Sandbox;
 use serde_json::Value;
 use std::os::unix::{
     fs::{symlink, PermissionsExt},
-    process::ExitStatusExt,
+    process::{CommandExt, ExitStatusExt},
 };
 use std::{
     collections::BTreeMap,
@@ -24,6 +26,7 @@ fn hex(s: &str) -> Vec<u8> {
 }
 fn fixtures(root: &Path, files: &Value) {
     if let Some(files) = files.as_object() {
+        let mut directories = Vec::new();
         for (name, value) in files {
             let p = root.join(name);
             assert!(
@@ -35,34 +38,47 @@ fn fixtures(root: &Path, files: &Value) {
             fs::create_dir_all(p.parent().unwrap()).unwrap();
             if value["dir"].as_bool() == Some(true) {
                 fs::create_dir_all(&p).unwrap();
-                continue;
-            }
-            if let Some(target) = value["symlink"].as_str() {
+                directories.push((p.clone(), value));
+            } else if let Some(target) = value["symlink"].as_str() {
                 symlink(target, &p).unwrap();
+            } else {
+                let data = if let Some(s) = value.as_str() {
+                    s.as_bytes().to_vec()
+                } else if let Some(s) = value["hex"].as_str() {
+                    hex(s)
+                } else {
+                    value["text"].as_str().unwrap_or("").as_bytes().to_vec()
+                };
+                fs::write(&p, data).unwrap();
+            }
+            // Never follow a fixture symlink when applying metadata.
+            if value["symlink"].as_str().is_some() || value["dir"].as_bool() == Some(true) {
                 continue;
             }
-            let data = if let Some(s) = value.as_str() {
-                s.as_bytes().to_vec()
-            } else if let Some(s) = value["hex"].as_str() {
-                hex(s)
-            } else {
-                value["text"].as_str().unwrap_or("").as_bytes().to_vec()
-            };
-            fs::write(&p, data).unwrap();
-            if let Some(mode) = value["mode"].as_str() {
-                fs::set_permissions(
-                    &p,
-                    fs::Permissions::from_mode(u32::from_str_radix(mode, 8).unwrap()),
-                )
-                .unwrap();
-            }
-            if let Some(seconds) = value["mtime"].as_u64() {
-                fs::File::open(&p)
-                    .unwrap()
-                    .set_modified(std::time::UNIX_EPOCH + Duration::from_secs(seconds))
-                    .unwrap();
-            }
+            fixture_metadata(&p, value);
         }
+        // Creating children changes a directory's timestamp. Restore directory
+        // metadata from the deepest level upwards after all fixtures exist.
+        directories.sort_by_key(|(path, _)| std::cmp::Reverse(path.components().count()));
+        for (path, value) in directories {
+            fixture_metadata(&path, value);
+        }
+    }
+}
+
+fn fixture_metadata(path: &Path, value: &Value) {
+    if let Some(seconds) = value["mtime"].as_u64() {
+        fs::File::open(path)
+            .unwrap()
+            .set_modified(std::time::UNIX_EPOCH + Duration::from_secs(seconds))
+            .unwrap();
+    }
+    if let Some(mode) = value["mode"].as_str() {
+        fs::set_permissions(
+            path,
+            fs::Permissions::from_mode(u32::from_str_radix(mode, 8).unwrap()),
+        )
+        .unwrap();
     }
 }
 fn inventory(root: &Path, mode: bool) -> BTreeMap<PathBuf, (u8, Vec<u8>, Option<u32>)> {
@@ -127,6 +143,7 @@ struct Captured {
     timed_out: bool,
 }
 fn capture(mut cmd: Command, input: &[u8], timeout: u64, prefix: Option<usize>) -> Captured {
+    cmd.process_group(0);
     let mut child = cmd
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -156,17 +173,33 @@ fn capture(mut cmd: Command, input: &[u8], timeout: u64, prefix: Option<usize>) 
     });
     let deadline = Instant::now() + Duration::from_millis(timeout);
     let mut timed_out = false;
-    let status = loop {
-        if let Some(s) = child.try_wait().unwrap() {
-            break s;
+    let mut status = None;
+    loop {
+        if status.is_none() {
+            status = child.try_wait().unwrap();
+        }
+        if status.is_some() && writer.is_finished() && out.is_finished() && err.is_finished() {
+            break;
         }
         if Instant::now() >= deadline {
             timed_out = true;
-            child.kill().unwrap();
-            break child.wait().unwrap();
+            // Descendants may hold inherited pipes after the direct child exits.
+            // Every capture owns its own group, so this cannot kill the test runner.
+            let group = i32::try_from(child.id()).unwrap();
+            let result = unsafe { libc::kill(-group, libc::SIGKILL) };
+            if result != 0 {
+                assert_eq!(
+                    std::io::Error::last_os_error().raw_os_error(),
+                    Some(libc::ESRCH)
+                );
+            }
+            break;
         }
         std::thread::sleep(Duration::from_millis(5));
-    };
+    }
+    // wait() is safe after a successful try_wait() and makes reaping explicit
+    // on every normal and timeout path, even when pipe readers finish later.
+    let status = child.wait().unwrap();
     writer.join().unwrap();
     Captured {
         stdout: out.join().unwrap(),
@@ -197,6 +230,7 @@ fn gnu_differential() {
         eprintln!("gnu_diff: skipped (set AGENTCMD_GNU_DIFF=1)");
         return;
     }
+    runner_self_check();
     let filter = std::env::var("AGENTCMD_GNU_DIFF_FILTER").ok();
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/gnu_cases");
     let mut paths: Vec<_> = fs::read_dir(root)
@@ -211,8 +245,49 @@ fn gnu_differential() {
         let data: Value = serde_json::from_slice(&fs::read(&path).unwrap()).unwrap();
         let util = data["command"].as_str().unwrap();
         let cases = data["cases"].as_array().unwrap();
-        let minimum = if matches!(util, "cat" | "head" | "tail" | "grep" | "find" | "ls") {
+        let minimum = if matches!(util, "sed" | "awk") {
+            120
+        } else if matches!(util, "cat" | "head" | "tail" | "grep" | "find" | "ls") {
             5
+        } else if matches!(
+            util,
+            "join"
+                | "od"
+                | "split"
+                | "csplit"
+                | "fmt"
+                | "pr"
+                | "shuf"
+                | "tsort"
+                | "numfmt"
+                | "factor"
+                | "expr"
+                | "pathchk"
+                | "ptx"
+                | "which"
+                | "tree"
+                | "uname"
+                | "whoami"
+                | "timeout"
+                | "kill"
+                | "pgrep"
+                | "pkill"
+                | "free"
+                | "cmp"
+                | "rev"
+                | "column"
+                | "dos2unix"
+                | "unix2dos"
+                | "chmod"
+                | "gzip"
+                | "gunzip"
+                | "zcat"
+                | "tar"
+                | "patch"
+                | "xxd"
+                | "diff"
+        ) {
+            10
         } else {
             15
         };
@@ -260,6 +335,7 @@ fn gnu_differential() {
             };
             let program=["/usr/bin","/bin"].iter().map(|d|Path::new(d).join(parts[0])).find(|p|p.is_file()).unwrap_or_else(||panic!("missing GNU program {}: install coreutils/findutils/grep or 06-testing packages",parts[0]));
             let mut oracle = Command::new(program);
+            oracle.arg0(parts[0]);
             oracle.args(&parts[1..]).args(&args);
             environment(&mut oracle, &right.path, &case["env"]);
             let timeout = case["timeout_ms"].as_u64().unwrap_or(10000);
@@ -271,11 +347,29 @@ fn gnu_differential() {
                 .map(|v| v.iter().map(|s| s.as_str().unwrap()).collect())
                 .unwrap_or_else(|| vec!["stdout", "exit"]);
             let mut reasons = Vec::new();
+            reasons.extend(archive::differences(
+                &compare,
+                &actual,
+                &oracle,
+                &left.path,
+                &right.path,
+            ));
             if actual.timed_out || oracle.timed_out {
                 reasons.push("timeout");
             }
             if compare.contains(&"stdout") && actual.stdout != oracle.stdout {
                 reasons.push("stdout");
+            }
+            if compare.contains(&"stdout_tree")
+                && tree_stdout(&actual.stdout) != tree_stdout(&oracle.stdout)
+            {
+                reasons.push("stdout_tree");
+            }
+            if compare.contains(&"stdout_columns") {
+                let skip = case["skip_stdout_columns"].as_u64().unwrap() as usize;
+                if column_tail(&actual.stdout, skip) != column_tail(&oracle.stdout, skip) {
+                    reasons.push("stdout_columns");
+                }
             }
             if compare.contains(&"exit") && actual.code != oracle.code {
                 reasons.push("exit");
@@ -318,4 +412,105 @@ fn gnu_differential() {
         failures.len()
     );
     assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+fn runner_self_check() {
+    assert_eq!(
+        column_tail(b"mode 1 - - 0 Jan  1  2000 old\n", 4),
+        b"0 Jan  1  2000 old\n"
+    );
+    let sandbox = Sandbox::new();
+    fixtures(
+        &sandbox.path,
+        &serde_json::json!({
+            "directory": {"dir": true, "mtime": 1700000000, "mode": "750"},
+            "locked": {"dir": true, "mtime": 1700000000, "mode": "000"},
+            "writeonly": {"text": "x", "mtime": 1700000000, "mode": "200"}
+        }),
+    );
+    let meta = fs::metadata(sandbox.path.join("directory")).unwrap();
+    assert_eq!(meta.permissions().mode() & 0o777, 0o750);
+    assert_eq!(
+        meta.modified().unwrap(),
+        std::time::UNIX_EPOCH + Duration::from_secs(1700000000)
+    );
+    for name in ["locked", "writeonly"] {
+        let path = sandbox.path.join(name);
+        assert_eq!(
+            fs::metadata(&path).unwrap().modified().unwrap(),
+            std::time::UNIX_EPOCH + Duration::from_secs(1700000000)
+        );
+        fs::set_permissions(path, fs::Permissions::from_mode(0o700)).unwrap();
+    }
+    let mut child = Command::new("/bin/sh");
+    child.args(["-c", "sleep 30 & exit 0"]);
+    let started = Instant::now();
+    let captured = capture(child, b"", 100, None);
+    assert!(
+        captured.timed_out,
+        "inherited pipes must remain subject to the timeout"
+    );
+    assert!(
+        started.elapsed() < Duration::from_secs(5),
+        "capture exceeded its deadline"
+    );
+}
+
+fn column_tail(bytes: &[u8], count: usize) -> Vec<u8> {
+    let mut output = Vec::new();
+    for line in bytes.split_inclusive(|b| *b == b'\n') {
+        let mut index = 0;
+        for _ in 0..count {
+            while matches!(line.get(index), Some(b' ' | b'\t')) {
+                index += 1;
+            }
+            while line
+                .get(index)
+                .is_some_and(|b| !matches!(b, b' ' | b'\t' | b'\n'))
+            {
+                index += 1;
+            }
+        }
+        while matches!(line.get(index), Some(b' ' | b'\t')) {
+            index += 1;
+        }
+        output.extend_from_slice(&line[index..]);
+    }
+    output
+}
+
+fn tree_stdout(bytes: &[u8]) -> Vec<u8> {
+    let mut output = Vec::new();
+    for (index, mut line) in bytes.split_inclusive(|b| *b == b'\n').enumerate() {
+        // The first line is the operand, not an indentation prefix.
+        if index != 0 {
+            loop {
+                let (prefix, rest) = if let Some(rest) = line.strip_prefix(b"    ") {
+                    (b"    ".as_slice(), rest)
+                } else if let Some(rest) = line.strip_prefix("│\u{a0}\u{a0} ".as_bytes()) {
+                    ("│   ".as_bytes(), rest)
+                } else if let Some(rest) = line.strip_prefix("│   ".as_bytes()) {
+                    ("│   ".as_bytes(), rest)
+                } else {
+                    break;
+                };
+                output.extend_from_slice(prefix);
+                line = rest;
+            }
+        }
+        // Stop at the branch glyph: filenames and their whitespace stay literal.
+        output.extend_from_slice(line);
+    }
+    output
+}
+
+#[test]
+fn tree_reference_padding_keeps_filename_bytes_literal() {
+    assert_eq!(
+        tree_stdout(".\n│\u{a0}\u{a0} ├── x\u{a0}y\n".as_bytes()),
+        ".\n│   ├── x\u{a0}y\n".as_bytes()
+    );
+    assert_eq!(tree_stdout(b".\n    `-- \xff\n"), b".\n    `-- \xff\n");
+    let root = "│\u{a0}\u{a0} root\n└── child\n".as_bytes();
+    assert_eq!(tree_stdout(root), root);
 }

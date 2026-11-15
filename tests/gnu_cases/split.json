@@ -1,0 +1,388 @@
+{
+  "command": "split",
+  "cases": [
+    {
+      "name": "lines",
+      "args": [
+        "-l1"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "bytes",
+      "args": [
+        "-b2"
+      ],
+      "stdin": "abcde",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "line-bytes",
+      "args": [
+        "-C3"
+      ],
+      "stdin": "abc\nd\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "numeric",
+      "args": [
+        "-d",
+        "-l1"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "hex",
+      "args": [
+        "-x",
+        "-l1"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "suffix",
+      "args": [
+        "-a1",
+        "-l1"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "extra",
+      "args": [
+        "--additional-suffix=.txt",
+        "-l1"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "separator",
+      "args": [
+        "-t:",
+        "-l1"
+      ],
+      "stdin": "a:b:",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "round-robin",
+      "args": [
+        "-n",
+        "r/2"
+      ],
+      "stdin": "a\nb\nc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "elide",
+      "args": [
+        "-n",
+        "r/4",
+        "-e"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "selected",
+      "args": [
+        "-n",
+        "r/2/3"
+      ],
+      "stdin": "a\nb\nc\nd\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "number",
+      "args": [
+        "-n",
+        "3",
+        "input"
+      ],
+      "files": {
+        "input": "abc\nd\neee\nf\ng\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "selected-bytes",
+      "args": [
+        "-n",
+        "2/3",
+        "input"
+      ],
+      "files": {
+        "input": "abc\nd\neee\nf\ng\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "line-chunks",
+      "args": [
+        "-n",
+        "l/3",
+        "input"
+      ],
+      "files": {
+        "input": "abc\nd\neee\nf\ng\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "selected-lines",
+      "args": [
+        "-n",
+        "l/2/3",
+        "input"
+      ],
+      "files": {
+        "input": "abc\nd\neee\nf\ng\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "selected-round",
+      "args": [
+        "-n",
+        "r/2/3",
+        "input"
+      ],
+      "files": {
+        "input": "abc\nd\neee\nf\ng\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "lines-long",
+      "args": [
+        "--lines=1"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "bytes-long",
+      "args": [
+        "--bytes=2"
+      ],
+      "stdin": "abc",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "line-bytes-long",
+      "args": [
+        "--line-bytes=2"
+      ],
+      "stdin": "abc\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "numeric-long",
+      "args": [
+        "--numeric-suffixes=3",
+        "--lines=1"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "hex-long",
+      "args": [
+        "--hex-suffixes=3",
+        "--lines=1"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "suffix-long",
+      "args": [
+        "--suffix-length=1",
+        "--lines=1"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "separator-long",
+      "args": [
+        "--separator=:",
+        "--lines=1"
+      ],
+      "stdin": "a:b:",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "elide-long",
+      "args": [
+        "--elide-empty-files",
+        "--number=r/4"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "verbose-long",
+      "args": [
+        "--verbose",
+        "--lines=1"
+      ],
+      "stdin": "a\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "compare": [
+        "exit"
+      ]
+    },
+    {
+      "name": "unbuffered-long",
+      "args": [
+        "--unbuffered",
+        "--number=r/2"
+      ],
+      "stdin": "a\nb\n",
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ]
+    },
+    {
+      "name": "piped_number_chunks",
+      "args": [
+        "-n",
+        "3",
+        "-",
+        "out"
+      ],
+      "stdin": "abcdef\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

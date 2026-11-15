@@ -1,0 +1,496 @@
+{
+  "command": "basenc",
+  "cases": [
+    {
+      "name": "b64_encode",
+      "args": [
+        "--base64"
+      ],
+      "stdin": "foobar",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "b64_decode",
+      "args": [
+        "--base64",
+        "--decode"
+      ],
+      "stdin": "Zm9vYmFy\n",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "b64url_encode",
+      "args": [
+        "--base64url"
+      ],
+      "stdin": "foobar",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "b64url_decode",
+      "args": [
+        "--base64url",
+        "--decode"
+      ],
+      "stdin": "Zm9vYmFy\n",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "b32_encode",
+      "args": [
+        "--base32"
+      ],
+      "stdin": "foobar",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "b32_decode",
+      "args": [
+        "--base32",
+        "--decode"
+      ],
+      "stdin": "MZXW6YTBOI======\n",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "b32hex_encode",
+      "args": [
+        "--base32hex"
+      ],
+      "stdin": "foobar",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "b32hex_decode",
+      "args": [
+        "--base32hex",
+        "--decode"
+      ],
+      "stdin": "CPNMUOJ1E8======\n",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "b16_encode",
+      "args": [
+        "--base16"
+      ],
+      "stdin": "foobar",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "b16_decode",
+      "args": [
+        "--base16",
+        "--decode"
+      ],
+      "stdin": "666F6F626172\n",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "2msbf_encode",
+      "args": [
+        "--base2msbf"
+      ],
+      "stdin": "A",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "2msbf_decode",
+      "args": [
+        "--base2msbf",
+        "--decode"
+      ],
+      "stdin": "01000001\n",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "2lsbf_encode",
+      "args": [
+        "--base2lsbf"
+      ],
+      "stdin": "A",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "2lsbf_decode",
+      "args": [
+        "--base2lsbf",
+        "--decode"
+      ],
+      "stdin": "10000010\n",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "z85_encode",
+      "args": [
+        "--z85"
+      ],
+      "stdin": "",
+      "files": {
+        "raw": {
+          "hex": "864fd26fb559f75b"
+        }
+      },
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "z85_decode",
+      "args": [
+        "--z85",
+        "--decode"
+      ],
+      "stdin": "HelloWorld",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "z85_bad_length",
+      "args": [
+        "--z85"
+      ],
+      "stdin": "abc",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "ignore_garbage",
+      "args": [
+        "--base64",
+        "--decode",
+        "--ignore-garbage"
+      ],
+      "stdin": "Zm!9vYmFy\n",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "invalid_padding",
+      "args": [
+        "--base64",
+        "--decode"
+      ],
+      "stdin": "Zm9v=",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "wrap4",
+      "args": [
+        "--base64",
+        "--wrap=4"
+      ],
+      "stdin": "foobar",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "wrap0",
+      "args": [
+        "--base32",
+        "--wrap=0"
+      ],
+      "stdin": "foobar",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "--base64",
+        "missing"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "multiple",
+      "args": [
+        "--base64",
+        "a",
+        "b"
+      ],
+      "stdin": "",
+      "files": {
+        "a": "abc",
+        "b": "def"
+      },
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unknown",
+      "args": [
+        "--bad-selector"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "gnu": [
+        "basenc"
+      ],
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "last_selector",
+      "args": [
+        "--base32",
+        "--base64",
+        "--wrap=0"
+      ],
+      "stdin": "f",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "base16_padding_rejected",
+      "args": [
+        "--base16",
+        "-di"
+      ],
+      "stdin": "FF=",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "base2msbf_padding_rejected",
+      "args": [
+        "--base2msbf",
+        "-di"
+      ],
+      "stdin": "00000000=",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "base2lsbf_padding_rejected",
+      "args": [
+        "--base2lsbf",
+        "-di"
+      ],
+      "stdin": "00000000=",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

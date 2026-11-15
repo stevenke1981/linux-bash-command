@@ -549,6 +549,100 @@
         "-ug"
       ],
       "stdin": "nan\n-nan\n+nan\n"
+    },
+    {
+      "name": "spill_small",
+      "args": [
+        "-S1K",
+        "-T",
+        ".",
+        "--batch-size=2"
+      ],
+      "stdin": "z\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\nz\ny\nx\nw\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "spill_stable",
+      "args": [
+        "-S1b",
+        "-T",
+        ".",
+        "-s",
+        "-k1,1"
+      ],
+      "stdin": "b 2\na 3\na 1\nb 1\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "spill_unique",
+      "args": [
+        "-S1b",
+        "-T",
+        ".",
+        "-u",
+        "-k1,1"
+      ],
+      "stdin": "b 2\na 3\na 1\nb 1\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "merge_output_alias",
+      "args": [
+        "-m",
+        "-S1K",
+        "-T",
+        ".",
+        "-o",
+        "one",
+        "one",
+        "two"
+      ],
+      "stdin": "",
+      "files": {
+        "one": "a\nc\n",
+        "two": "b\nd\n"
+      },
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "spill_nul",
+      "args": [
+        "-z",
+        "-S1b",
+        "-T",
+        "."
+      ],
+      "stdin": "b\u0000a\u0000",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit",
+        "files"
+      ],
+      "skip_reason": null
     }
   ]
 }

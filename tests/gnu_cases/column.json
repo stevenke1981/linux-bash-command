@@ -1,0 +1,240 @@
+{
+  "command": "column",
+  "cases": [
+    {
+      "name": "default",
+      "args": [],
+      "stdin": "a\nb\nc\nd\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "narrow",
+      "args": [
+        "-c16"
+      ],
+      "stdin": "a\nb\nc\nd\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "fillrows",
+      "args": [
+        "--fillrows",
+        "--output-width=16"
+      ],
+      "stdin": "a\nb\nc\nd\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "table",
+      "args": [
+        "--table"
+      ],
+      "stdin": "a bb\nlong c\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "separator",
+      "args": [
+        "-t",
+        "--separator=,"
+      ],
+      "stdin": "a,,c\nx,y,z\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "output_separator",
+      "args": [
+        "-t",
+        "--output-separator=|"
+      ],
+      "stdin": "a bb\nlong c\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "headers",
+      "args": [
+        "-t",
+        "--table-columns=NAME,COUNT"
+      ],
+      "stdin": "a 2\nb 100\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "right",
+      "args": [
+        "-t",
+        "--table-right=2"
+      ],
+      "stdin": "a 2\nb 100\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "hide",
+      "args": [
+        "-t",
+        "--table-hide=2"
+      ],
+      "stdin": "a b c\nx y z\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "limit",
+      "args": [
+        "-t",
+        "--table-columns-limit=2"
+      ],
+      "stdin": "a b  c\nx y\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "empty",
+      "args": [
+        "-t",
+        "--keep-empty-lines"
+      ],
+      "stdin": "a b\n\nx y\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "no_empty",
+      "args": [],
+      "stdin": "a\n\nb\n",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "unterminated",
+      "args": [
+        "-t"
+      ],
+      "stdin": "a bb\nlong c",
+      "files": {},
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "version",
+      "args": [
+        "--version"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "missing",
+      "args": [
+        "missing"
+      ],
+      "stdin": "",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "json",
+      "args": [
+        "--json",
+        "-NNAME,COUNT",
+        "--table-name=items"
+      ],
+      "stdin": "a 2\n",
+      "files": {},
+      "compare": [
+        "exit"
+      ],
+      "skip_reason": null
+    },
+    {
+      "name": "headers_require_table",
+      "args": [
+        "--table-columns=NAME,COUNT"
+      ],
+      "stdin": "a 2\n",
+      "compare": [
+        "stdout",
+        "exit"
+      ],
+      "skip_reason": null
+    }
+  ]
+}

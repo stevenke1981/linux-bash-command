@@ -4,9 +4,9 @@ Instructions for coding agents (Codex and others) working in this repository.
 
 ## Current task
 
-Implement the specification in `docs/spec/coreutils-alignment/` — align with microsoft/coreutils and add common Linux commands. Read, in order:
+Implement the specification in `docs/spec/linux-commands/` — align with microsoft/coreutils and add common Linux commands. Read, in order:
 
-1. `docs/spec/coreutils-alignment/README.md` — goals, non-goals, acceptance
+1. `docs/spec/linux-commands/README.md` — goals, non-goals, acceptance
 2. `01-architecture.md`, `02-conventions.md` — binding contracts for every command
 3. `commands.md` — the command list, phase and module of each command
 4. `07-phases.md` — work order; **finish Phase 0 before any other phase**
