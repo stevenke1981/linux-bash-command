@@ -306,8 +306,8 @@ mod numfmt {
         for (value, scale, expected) in [
             (1000i128.pow(9), "si", "1.0R\n"),
             (1000i128.pow(10), "si", "1.0Q\n"),
-            (1024i128.pow(9), "iec", "1.0R\n"),
-            (1024i128.pow(10), "iec-i", "1.0Qi\n"),
+            (1024i128.pow(9), "iec", "1.1R\n"),
+            (1024i128.pow(10), "iec-i", "1.1Qi\n"),
         ] {
             let value = value.to_string();
             let flag = format!("--to={scale}");

@@ -155,7 +155,7 @@ pub fn unit(text: &str) -> Result<i128, String> {
     };
     count
         .checked_mul(multiplier)
-        .filter(|n| *n > 0)
+        .filter(|n| *n > 0 && *n <= u64::MAX as i128)
         .ok_or_else(|| format!("invalid unit size '{text}'"))
 }
 pub struct Number {
@@ -288,7 +288,7 @@ impl Number {
         } else {
             0
         });
-        let mut binary = super::binary::Binary::ratio(self.raw as u128, self.denominator as u128);
+        let mut binary = super::binary::Binary::decimal(self.raw, self.denominator);
         binary.negative = self.negative;
         let input_factor = if self.raw == 0 {
             1
@@ -456,7 +456,12 @@ mod tests {
                     value
                         .render(1, 1, scale, Round::Away, &Format::default())
                         .unwrap(),
-                    format!("1.0{letter}{tail}")
+                    format!(
+                        "{}{}{}",
+                        if base == 1024 { "1.1" } else { "1.0" },
+                        letter,
+                        tail
+                    )
                 );
                 let value = Number::parse(&format!("1{letter}{tail}"), scale).unwrap();
                 assert_eq!(
@@ -470,8 +475,10 @@ mod tests {
     }
     #[test]
     fn larger_units_and_invalid_unit_sizes() {
-        assert_eq!(unit("RB").unwrap(), 1000i128.pow(9));
-        assert_eq!(unit("QiB").unwrap(), 1024i128.pow(10));
+        assert!(unit("RB").is_err());
+        assert!(unit("QiB").is_err());
+        assert_eq!(unit("18446744073709551615").unwrap(), u64::MAX as i128);
+        assert!(unit("18446744073709551616").is_err());
         assert_eq!(unit("2MB").unwrap(), 2_000_000);
         for invalid in [
             "0",

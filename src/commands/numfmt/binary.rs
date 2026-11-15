@@ -56,6 +56,39 @@ impl Binary {
     pub fn integer(value: i128) -> Self {
         Self::ratio(value.unsigned_abs(), 1)
     }
+    fn add_positive(self, other: Self) -> Self {
+        if self.mantissa == 0 {
+            return other;
+        }
+        if other.mantissa == 0 {
+            return self;
+        }
+        let (large, small) = if self.exponent >= other.exponent {
+            (self, other)
+        } else {
+            (other, self)
+        };
+        let shift = (large.exponent - small.exponent) as u32;
+        if shift > 64 {
+            return large;
+        }
+        let mut result = Self::ratio((large.mantissa << shift) + small.mantissa, 1);
+        result.exponent += small.exponent;
+        result
+    }
+    /// Decimal conversion rounds each multiply/add to the GNU significand.
+    pub fn decimal(raw: i128, denominator: i128) -> Self {
+        if raw <= u64::MAX as i128 {
+            return Self::ratio(raw as u128, denominator as u128);
+        }
+        let mut value = Self::integer(0);
+        for byte in raw.to_string().bytes() {
+            value = value
+                .multiply(Self::integer(10))
+                .add_positive(Self::integer(i128::from(byte - b'0')));
+        }
+        value.divide(Self::integer(denominator))
+    }
     pub fn multiply(self, other: Self) -> Self {
         let mut value = Self::ratio(self.mantissa * other.mantissa, 1);
         value.exponent += self.exponent + other.exponent;
