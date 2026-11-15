@@ -148,3 +148,10 @@ override that prefix. Short options with values use separate arguments for
 the reference parser; CLI goldens also exercise the shared parser's required
 attached forms. Report counts include each displayed root directory, matching
 the Ubuntu tree 2.1 reference.
+
+
+`stdout_tree` additionally maps only GNU tree's UTF-8 vertical continuation
+prefix (U+2502 followed by two U+00A0 spaces and one ordinary space) to the
+ordinary three-space prefix explicitly required by 04. The operand line,
+branch glyphs, filenames, other whitespace, reports, and byte order remain
+exact. ASCII/flat fixtures continue using plain byte comparisons.

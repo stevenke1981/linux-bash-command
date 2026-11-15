@@ -14,7 +14,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -62,7 +62,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -87,7 +87,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -112,7 +112,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -137,7 +137,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -161,7 +161,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -209,7 +209,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -233,7 +233,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -257,7 +257,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -281,7 +281,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -305,7 +305,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -331,7 +331,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -357,7 +357,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -383,7 +383,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -407,7 +407,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -431,7 +431,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -478,7 +478,7 @@
         "f10": "10\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -549,7 +549,7 @@
         ".gitignore": "f*\n"
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,
@@ -659,7 +659,7 @@
         }
       },
       "compare": [
-        "stdout",
+        "stdout_tree",
         "exit"
       ],
       "skip_reason": null,

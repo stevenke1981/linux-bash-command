@@ -345,6 +345,11 @@ fn gnu_differential() {
             if compare.contains(&"stdout") && actual.stdout != oracle.stdout {
                 reasons.push("stdout");
             }
+            if compare.contains(&"stdout_tree")
+                && tree_stdout(&actual.stdout) != tree_stdout(&oracle.stdout)
+            {
+                reasons.push("stdout_tree");
+            }
             if compare.contains(&"stdout_columns") {
                 let skip = case["skip_stdout_columns"].as_u64().unwrap() as usize;
                 if column_tail(&actual.stdout, skip) != column_tail(&oracle.stdout, skip) {
@@ -457,4 +462,40 @@ fn column_tail(bytes: &[u8], count: usize) -> Vec<u8> {
         output.extend_from_slice(&line[index..]);
     }
     output
+}
+
+fn tree_stdout(bytes: &[u8]) -> Vec<u8> {
+    let mut output = Vec::new();
+    for (index, mut line) in bytes.split_inclusive(|b| *b == b'\n').enumerate() {
+        // The first line is the operand, not an indentation prefix.
+        if index != 0 {
+            loop {
+                let (prefix, rest) = if let Some(rest) = line.strip_prefix(b"    ") {
+                    (b"    ".as_slice(), rest)
+                } else if let Some(rest) = line.strip_prefix("│\u{a0}\u{a0} ".as_bytes()) {
+                    ("│   ".as_bytes(), rest)
+                } else if let Some(rest) = line.strip_prefix("│   ".as_bytes()) {
+                    ("│   ".as_bytes(), rest)
+                } else {
+                    break;
+                };
+                output.extend_from_slice(prefix);
+                line = rest;
+            }
+        }
+        // Stop at the branch glyph: filenames and their whitespace stay literal.
+        output.extend_from_slice(line);
+    }
+    output
+}
+
+#[test]
+fn tree_reference_padding_keeps_filename_bytes_literal() {
+    assert_eq!(
+        tree_stdout(".\n│\u{a0}\u{a0} ├── x\u{a0}y\n".as_bytes()),
+        ".\n│   ├── x\u{a0}y\n".as_bytes()
+    );
+    assert_eq!(tree_stdout(b".\n    `-- \xff\n"), b".\n    `-- \xff\n");
+    let root = "│\u{a0}\u{a0} root\n└── child\n".as_bytes();
+    assert_eq!(tree_stdout(root), root);
 }

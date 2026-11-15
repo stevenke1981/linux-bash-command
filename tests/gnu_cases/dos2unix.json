@@ -228,7 +228,7 @@
         "exit",
         "files"
       ],
-      "skip_reason": null
+      "skip_reason": "04 requires --keep-date; Ubuntu dos2unix supports -k and --keepdate instead"
     },
     {
       "name": "long_quiet",
@@ -366,7 +366,8 @@
     {
       "name": "long_convmode",
       "args": [
-        "--convmode=ascii",
+        "--convmode",
+        "ascii",
         "f"
       ],
       "stdin": "",

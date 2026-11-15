@@ -183,5 +183,31 @@
     "files": {},
     "stdout_regex": "^which \\(agentcmd\\) [^\\r\\n]+\\n$",
     "exit": 0
+  },
+  {
+    "command": "dos2unix",
+    "args": [
+      "--quiet",
+      "--keep-date",
+      "f"
+    ],
+    "files": {
+      "f": "a\r\nb\n"
+    },
+    "stdout": "",
+    "exit": 0
+  },
+  {
+    "command": "unix2dos",
+    "args": [
+      "--quiet",
+      "--keep-date",
+      "f"
+    ],
+    "files": {
+      "f": "a\r\nb\n"
+    },
+    "stdout": "",
+    "exit": 0
   }
 ]

@@ -99,6 +99,7 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | sed | An undefined branch label exits 1; GNU sed exits 4 | 04 explicitly specifies status 1 for script syntax errors | `sed/syntax_missing_label` (skip), CLI golden |
 | rev | Valid UTF-8 is reversed by character even in the C locale; util-linux rev may stall on such input in that locale | 04 explicitly requires UTF-8 decoding independent of locale | `rev/unicode` (skip), Unicode and invalid-byte CLI goldens |
 | dos2unix / unix2dos | Opening a missing file exits 1; Ubuntu dos2unix exits 2 | 02 explicitly specifies status 1 for ordinary file-open errors | Sandbox CLI missing-file goldens |
+| dos2unix / unix2dos | The specified `--keep-date` and `--convmode=ascii` forms are accepted; Ubuntu dos2unix uses `--keepdate` and requires a separate conversion-mode argument | 04 specifies `--keep-date` and 02 requires `--name=VALUE` | Both `long_keep-date` GNU cases (skip), `-k` and separate `--convmode` GNU cases, sandbox CLI goldens |
 
 | cp / mv | `--update=none-fail` is implemented although Ubuntu 24.04 coreutils 9.4 does not offer it | Explicit specification wins | `phase2_fs` absent/existing destination and flag-order goldens |
 | date / touch | Calendar representation is limited to years -9999 through 9999 | Allowlisted jiff representation | `common::datetime` range checks |
@@ -111,7 +112,7 @@ Commit 訊息採 conventional commits：`feat: add wc, sort, uniq`、`refactor: 
 | tsort | FIFO Kahn queue preserves first-seen ordering among available nodes | Explicit 03 algorithm/order contract | `tsort/first_seen_kahn` (skip), phase3_small FIFO CLI golden |
 | csplit | Refuses output aliases before truncating input; GNU 9.4 can remove its input before failing | 02 failed in-place rewrite preservation takes precedence | `csplit/input_output_alias` (skip), phase3_numeric preservation golden |
 
-| tree | Default branches are UTF-8 even under C locale; attached short-option values follow the shared CLI parser | Explicit 04 branch glyphs and 02 argument contract; GNU tree 2.1 defaults to ASCII in C locale and requires separate short-option values | Native cases use an explicit GNU `--charset=utf-8` prefix and separate arguments; `phase4_root` checks the required default and attached forms |
+| tree | Default branches are UTF-8 even under C locale; attached short-option values follow the shared CLI parser | Explicit 04 branch glyphs and 02 argument contract; GNU tree 2.1 defaults to ASCII in C locale and requires separate short-option values | Native cases normalize only reference NBSP indentation and use an explicit GNU `--charset=utf-8` prefix and separate arguments; `phase4_root` checks the required default and attached forms |
 
 ## 回報格式（每階段完成時，Codex 輸出）
 
