@@ -1,13 +1,19 @@
 Agent Commands 0.2.0 - Windows x64
 
-This package installs Linux-style command-line tools (ls, cat, grep, rg, find,
-head, tail, sort, wc, xargs, curl and more; run "agentcmd --list" for the full
-list), the agentcmd multi-call binary and an Agent Commands Terminal shortcut.
+Agent Commands provides Linux-style command-line tools (ls, cat, grep, rg,
+find, head, tail, sort, wc, xargs, curl and more). Run "agentcmd --list" in
+the Agent Commands terminal to see the full list.
 
-Open the shortcut to start Command Prompt with the installed commands on PATH.
-If you selected "Add the install directory to my user PATH" during setup, new
-terminals find the commands directly; otherwise the PATH change is limited to
-the shortcut's terminal session. Uninstalling removes the PATH entry.
+Portable ZIP
+Extract the entire ZIP to a folder, then open "Agent Commands.cmd" in that
+folder. The launcher starts Command Prompt with the tools on PATH for that
+session. To remove the portable copy, close the terminal and delete the folder.
+
+Windows installer
+After setup, open "Agent Commands Terminal" from the Start menu. If you chose
+"Add the install directory to my user PATH", new terminals can also find the
+commands directly. Uninstall from Installed Apps or the Start menu to remove
+the installed tools and the optional PATH entry.
 
 In PowerShell, use .exe names when a PowerShell alias conflicts, for example
 curl.exe or ls.exe. The standalone cd.exe cannot change its parent shell; use
@@ -16,4 +22,3 @@ README.md.
 
 The tools implement documented subsets of common commands, not full
 replacements. Use --help with a command to see the available options.
-Uninstall using Installed Apps or the Start menu uninstaller.

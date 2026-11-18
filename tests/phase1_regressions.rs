@@ -39,6 +39,33 @@ fn tac_seek_blocks_preserve_crossing_separator() {
     assert_eq!(out.stdout, expected);
 }
 #[test]
+fn tac_overlapping_literal_separators() {
+    let sb = common::Sandbox::new();
+    sb.write("data", b"XaaaY");
+    for (args, expected) in [
+        (&["-s", "aa"][..], &b"YXaaa"[..]),
+        (&["-b", "-s", "aa"][..], &b"aaYXa"[..]),
+    ] {
+        let input = sb.run("tac", args, b"XaaaY");
+        assert!(input.status.success(), "{input:?}");
+        assert_eq!(input.stdout, expected);
+        let file_args = [args, &["data"]].concat();
+        let file = sb.run("tac", &file_args, b"");
+        assert!(file.status.success(), "{file:?}");
+        assert_eq!(file.stdout, expected);
+    }
+
+    sb.write("data", b"aaa");
+    let file = sb.run(
+        "timeout",
+        &["5", common::binary("tac"), "-b", "-s", "aa", "data"],
+        b"",
+    );
+    assert!(file.status.success(), "{file:?}");
+    assert_eq!(file.stdout, b"aaa");
+}
+
+#[test]
 fn yes_preserves_second_terminator_operand() {
     let (out, status) = common::limited("yes", &["--", "--"], 6);
     assert_eq!(out, b"--\n--\n");

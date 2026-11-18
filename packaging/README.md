@@ -24,6 +24,9 @@ standalone utility except Windows `link.exe` (which conflicts with the MSVC
 linker), and `[.exe` copied from `test.exe`, along with README, LICENSE,
 NOTICE, quick start, terminal launcher and shell integrations.
 
+Extract the ZIP to a folder and open `Agent Commands.cmd` to start Command
+Prompt with the tools on PATH for that session.
+
 ## Windows installer (Inno Setup)
 
 The installer uses [Inno Setup 6](https://jrsoftware.org/isinfo.php). After
@@ -34,19 +37,21 @@ iscc /DAppVersion=0.2.0 packaging\agent-commands.iss
 ```
 
 The output is `dist/Agent-Commands-0.2.0-Windows-Setup.exe`. The installer is
-per user, adds a terminal shortcut, and offers an optional user PATH task;
-uninstalling removes that PATH entry. A silent install may use
+per user and adds the `Agent Commands Terminal` shortcut to the Start menu.
+The optional user PATH task makes the commands available in new terminals.
+Uninstalling removes that PATH entry. A silent install may use
 `Setup.exe /VERYSILENT /TASKS=addtopath`. Installing and changing PATH are
 separate from the local staging script.
 
 ## Release workflow and legacy installers
 
 `.github/workflows/release.yml` builds registry-derived archives for Windows,
-Linux and macOS, an Inno Setup installer, and `SHA256SUMS.txt`. To build without
-publishing, manually run the workflow with `tag` set to a commit, branch or tag
-and leave `publish` unchecked (its default). Download the combined
-`release-assets` artifact from the run. The workflow resolves the supplied ref
-once and builds all platforms from that commit.
+Linux and macOS, an Inno Setup installer, and `SHA256SUMS.txt`. The Windows
+release uses the same packaging script and ZIP contents as the local build.
+To build without publishing, manually run the workflow with `tag` set to a
+commit, branch or tag and leave `publish` unchecked (its default). Download the
+combined `release-assets` artifact from the run. The workflow resolves the
+supplied ref once and builds all platforms from that commit.
 
 Pushing a version tag continues to publish a GitHub release. A manual run
 publishes only when `publish` is explicitly checked; in either publication mode,
