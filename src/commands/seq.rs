@@ -89,6 +89,11 @@ fn valid_format(s: &str) -> bool {
 }
 
 pub fn run(arguments: &[String]) -> i32 {
+    // Keep negative operands out of option parsing without reserving any input bytes.
+    let mut marker = "\u{1}".to_owned();
+    while arguments.iter().any(|arg| arg.contains(&marker)) {
+        marker = marker.repeat(2);
+    }
     let escaped: Vec<_> = arguments
         .iter()
         .map(|s| {
@@ -97,7 +102,7 @@ pub fn run(arguments: &[String]) -> i32 {
                     || s == "-inf"
                     || s == "-infinity")
             {
-                format!("\u{1}{s}")
+                format!("{marker}{s}")
             } else {
                 s.clone()
             }
@@ -114,6 +119,12 @@ pub fn run(arguments: &[String]) -> i32 {
         Ok(p) => p,
         Err(e) => return usage("seq", &e),
     };
+    let restore = |mut value: String| {
+        if value.starts_with(&marker) {
+            value.drain(..marker.len());
+        }
+        value
+    };
     let (mut format, mut separator, mut equal, mut values) =
         (None, "\n".to_string(), false, Vec::new());
     for item in parsed {
@@ -121,10 +132,10 @@ pub fn run(arguments: &[String]) -> i32 {
             Item::Opt(id @ ("help" | "version"), _) => {
                 return args::help_version("seq", &[format!("--{id}")], HELP, true).unwrap()
             }
-            Item::Opt("format", Some(v)) => format = Some(v),
-            Item::Opt("separator", Some(v)) => separator = v,
+            Item::Opt("format", Some(v)) => format = Some(restore(v)),
+            Item::Opt("separator", Some(v)) => separator = restore(v),
             Item::Opt("equal-width", _) => equal = true,
-            Item::Operand(v) => values.push(v.strip_prefix('\u{1}').unwrap_or(&v).to_string()),
+            Item::Operand(v) => values.push(restore(v)),
             _ => unreachable!(),
         }
     }

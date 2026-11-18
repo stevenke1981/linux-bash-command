@@ -77,24 +77,23 @@ jobs:
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca # stable
       - run: cargo build --release --bins --locked
-      - name: Stage commands
+      - name: Package Windows portable ZIP
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          .\scripts\package.ps1 -BinaryDirectory .\target\release -StageDirectory .\dist\windows-x86_64 -OutputDirectory .\dist
+      - name: Stage Unix commands
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           stage="dist/${{ matrix.name }}"
           mkdir -p "$stage"
-          ext=""
-          [[ "$RUNNER_OS" == Windows ]] && ext=".exe"
-          cp "target/release/agentcmd$ext" "$stage/"
+          cp target/release/agentcmd "$stage/"
           while IFS= read -r name; do
             [[ "$name" == "[" ]] && continue
-            [[ "$RUNNER_OS" == Windows && "$name" == link ]] && continue
-            cp "target/release/$name$ext" "$stage/"
+            cp "target/release/$name" "$stage/"
           done < <(target/release/agentcmd --list)
-          if [[ "$RUNNER_OS" == Windows ]]; then
-            cp "$stage/test.exe" "$stage/[.exe"
-          else
-            ln -s test "$stage/["
-          fi
+          ln -s test "$stage/["
           cp README.md LICENSE NOTICE.md "$stage/"
           mkdir -p "$stage/shell"
           cp shell/* "$stage/shell/"
@@ -138,16 +137,13 @@ jobs:
           $count = @('hi' | & "$dir\wc.exe" -l)
           if ($LASTEXITCODE -ne 0) { throw "wc -l failed with code $LASTEXITCODE" }
           if ($count.Count -ne 1 -or $count[0].Trim() -cne '1') { throw "Unexpected wc -l output: $count" }
-      - name: Archive
+      - name: Archive Unix commands
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           cd dist
           base="agent-commands-$VERSION-${{ matrix.name }}"
-          if [[ "$RUNNER_OS" == Windows ]]; then
-            7z a -tzip "$base.zip" "./${{ matrix.name }}/*" > /dev/null
-          else
-            tar -czf "$base.tar.gz" -C "${{ matrix.name }}" .
-          fi
+          tar -czf "$base.tar.gz" -C "${{ matrix.name }}" .
           ls -la
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

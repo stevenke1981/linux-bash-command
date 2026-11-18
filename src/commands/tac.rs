@@ -22,6 +22,21 @@ fn last_regex(regex: &regex::bytes::Regex, bytes: &[u8]) -> Option<(usize, usize
     last
 }
 
+fn last_separator(
+    bytes: &[u8],
+    separator: &[u8],
+    regex: Option<&regex::bytes::Regex>,
+) -> Option<(usize, usize)> {
+    if let Some(regex) = regex {
+        last_regex(regex, bytes)
+    } else {
+        bytes
+            .windows(separator.len())
+            .rposition(|window| window == separator)
+            .map(|start| (start, start + separator.len()))
+    }
+}
+
 fn reverse(
     data: &[u8],
     separator: &[u8],
@@ -29,31 +44,13 @@ fn reverse(
     regex: Option<&regex::bytes::Regex>,
     out: &mut dyn Write,
 ) -> std::io::Result<()> {
-    if let Some(regex) = regex {
-        let mut limit = data.len();
-        let mut end = data.len();
-        while let Some((start, stop)) = last_regex(regex, &data[..limit]) {
-            let boundary = if before { start } else { stop };
-            out.write_all(&data[boundary..end])?;
-            end = boundary;
-            limit = start;
-        }
-        return out.write_all(&data[..end]);
-    }
-    let mut boundaries = Vec::new();
-    let mut pos = 0;
-    while pos + separator.len() <= data.len() {
-        if &data[pos..pos + separator.len()] == separator {
-            boundaries.push(if before { pos } else { pos + separator.len() });
-            pos += separator.len();
-        } else {
-            pos += 1;
-        }
-    }
+    let mut limit = data.len();
     let mut end = data.len();
-    for start in boundaries.into_iter().rev() {
-        out.write_all(&data[start..end])?;
-        end = start;
+    while let Some((start, stop)) = last_separator(&data[..limit], separator, regex) {
+        let boundary = if before { start } else { stop };
+        out.write_all(&data[boundary..end])?;
+        end = boundary;
+        limit = start;
     }
     out.write_all(&data[..end])
 }
@@ -81,18 +78,7 @@ fn reverse_file(
         search_limit += count;
         let mut end = pending.len();
         loop {
-            let found = if let Some(regex) = regex {
-                last_regex(regex, &pending[..search_limit])
-            } else {
-                (0..search_limit
-                    .saturating_sub(separator.len())
-                    .saturating_add(1))
-                    .rev()
-                    .find_map(|pos| {
-                        (pending.get(pos..pos + separator.len()) == Some(separator))
-                            .then_some((pos, pos + separator.len()))
-                    })
-            };
+            let found = last_separator(&pending[..search_limit], separator, regex);
             let Some((start, stop)) = found else {
                 break;
             };

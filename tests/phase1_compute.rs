@@ -228,6 +228,51 @@ fn seq_separator() {
     assert_eq!(out.stdout, &[49, 44, 50, 44, 51, 10]);
 }
 #[test]
+fn seq_negative_looking_separator_values() {
+    for args in [
+        &["-s", "-1", "1", "3"][..],
+        &["-s-1", "1", "3"],
+        &["--separator", "-1", "1", "3"],
+        &["--separator=-1", "1", "3"],
+    ] {
+        let out = run("seq", args, &[], &[]);
+        assert_eq!(out.status.code(), Some(0), "{args:?}: {out:?}");
+        assert_eq!(out.stdout, b"1-12-13\n", "{args:?}");
+    }
+}
+
+#[test]
+fn seq_negative_looking_format_values() {
+    for args in [
+        &["-f", "-1:%.0f", "2"][..],
+        &["-f-1:%.0f", "2"],
+        &["--format", "-1:%.0f", "2"],
+        &["--format=-1:%.0f", "2"],
+    ] {
+        let out = run("seq", args, &[], &[]);
+        assert_eq!(out.status.code(), Some(0), "{args:?}: {out:?}");
+        assert_eq!(out.stdout, b"-1:1\n-1:2\n", "{args:?}");
+    }
+}
+
+#[test]
+fn seq_control_byte_separator_values() {
+    for args in [
+        &["-s", "\u{1}-1", "--", "-2", "-1"][..],
+        &["-s\u{1}-1", "--", "-2", "-1"],
+        &["--separator=\u{1}-1", "--", "-2", "-1"],
+    ] {
+        let out = run("seq", args, &[], &[]);
+        assert_eq!(out.status.code(), Some(0), "{args:?}: {out:?}");
+        assert_eq!(out.stdout, b"-2\x01-1-1\n", "{args:?}");
+    }
+
+    let out = run("seq", &["--", "\u{1}-1"], &[], &[]);
+    assert_eq!(out.status.code(), Some(1), "{out:?}");
+    assert!(out.stdout.is_empty());
+}
+
+#[test]
 fn seq_zero() {
     let out = run("seq", &["1", "0", "2"], &[], &[]);
     assert_eq!(out.status.code(), Some(1), "{:?}", out);
